@@ -1,28 +1,28 @@
-# Verify #
+# Benchmark #
 
-Verify is a framework designed to work from the command line and through popular Java IDEs using the JUnit framework as a runner.  It is geared towards scale testing interfaces capable of ingesting table data, transforming it, and returning tabular results.  It represents a follow-on to the [Bencher Project](https://github.com/deephaven/bencher) that benchmarks many of the query features of [Deephaven Core Community](https://deephaven.io/community/).
+Benchmark is a framework designed to work from the command line and through popular Java IDEs using the JUnit framework as a runner.  It is geared towards scale testing interfaces capable of ingesting table data, transforming it, and returning tabular results.  It represents a follow-on to the [Bencher Project](https://github.com/deephaven/bencher) that benchmarks many of the query features of [Deephaven Core Community](https://deephaven.io/community/).
 
 For the present, tests are geared towards testing [Deephaven Core Community](https://deephaven.io/community/) through the Barrage Java Client.  Tests focus on querying static parquet files, streamed Kafka topics, and replayed data.
 
-The typical workflow of a Verify test is... *Configure table/column generation* --> *Execute Query* --> *Measure Results*.  This is all done inside a Junit test class.
+The typical workflow of a Benchmark test is... *Configure table/column generation* --> *Execute Query* --> *Measure Results*.  This is all done inside a Junit test class.
 
 Tests are designed to scale by changing a scale property value call *scale.row.count*, so the same test can be used in multiple runs at different scales for comparison.  For ease of comparison, collected results are processing rates rather than elapsed time.
 
-Results for a test run are output to the console and stored in the current directory in *verify-results.csv*.
+Results for a test run are output to the console and stored in the current directory in *benchmark-results.csv*.
 
 More Resources:
-- [Verify - Bencher Comparison](VerifyVersusBencher.md)
-- [Verify - Command Line](VerifyCommandLine.md)
-- [Verify - Results](VerifyResults.md)
+- [Benchmark - Bencher Comparison](VersusBencher.md)
+- [Benchmark - Command Line](CommandLine.md)
+- [Benchmark - Results](Results.md)
 
-## Entry into the Verify API
-A Verify API instance allows configuration for test data generation, execution of queries against the Deephaven Engine, and state for test metrics.
+## Entry into the Benchmark API
+A Bench API instance allows configuration for test data generation, execution of queries against the Deephaven Engine, and state for test metrics.
 ````
 public class AvroKafkaJoinStream {
-	Verify api = Verify.create(this);
+	Bench api = Bench.create(this);
 }
 ````
-There is no need to memorize a class structure for the API.  Everthing starts from a Verify instance and can be followed using "." with code insight.
+There is no need to memorize a class structure for the API.  Everthing starts from a Bench instance and can be followed using "." with code insight.
 
 ## Table Generation
 Table data can be produced by defining columns, types, and sample data.
@@ -80,7 +80,7 @@ api.query(query).fetchAfter("record_count", table->{
 api.awaitCompletion();
 ````
 Before execution, every property like "${kafka.consumer.addr}" will be replaced with a corresponding values from one of the following (in order):
-- Profile Properties: Properties loaded from properties passed into the JVM with *-Dverify.profile=my.properties* or, if that is missing, *default.properties* from this project
+- Profile Properties: Properties loaded from properties passed into the JVM with *-Dbenchmark.profile=my.properties* or, if that is missing, *default.properties* from this project
 - System Properties: Properties from *System.getProperty(name)* in the JVM
 - Environment Variables: Variables set in the OS environment and retrieved with *System.env(name)*
 
@@ -115,32 +115,32 @@ The timer is initiated before the query is executed, and the result is recorded 
 - Windows 11 with 64G RAM and 16 CPU threads
 - WSL 2 limited to 44G RAM and 12 CPU threads
 - Bencher runs both tests and Engine/Redpanda in WSL
-- Verify runs test on Windows and Engine/Redpanda in WSL
-- Verify uses ZSTD compression for Kafka producer to broker
-- Bencher uses GZIP and Verify uses ZSTD compression for writing parquet files
+- Benchmark runs test on Windows and Engine/Redpanda in WSL
+- Benchmark uses ZSTD compression for Kafka producer to broker
+- Bencher uses GZIP and Benchmark uses ZSTD compression for writing parquet files
 - Test sourcees are in *src/it/java*
 
-### Bencher vs Verify for the same queries (rates are records/sec):
+### Bencher vs Benchmark for the same queries (rates are records/sec):
 Test Details
 - All tests run the same query that joins a table of 10 or 100 million records to a table of 100K records
 - Test Description: Rows are either released incrementally (auto increment) or read from a static parquet file (parquet static)
 - Bencher Rate: Rows processed per second while running the query in Bencher
-- Verify Rate: Rows processed per second while running the query in Verify
+- Benchmark Rate: Rows processed per second while running the query in Benchmark
 
-|Test Description|Bencher Rate|Verify Rate|
+|Test Description|Bencher Rate|Benchmark Rate|
 |----------------|------------|-----------|
 |stock join 10m auto increment|339430.53|363266.50|
 |stock join 10m parquet static|579667.06|569670.70|
 |stock join 100m auto increment|358337.90|398665.25|
 |stock join 100m parquet static|553502.34|693847.00|
 
-### Verify producing records to the Kafka broker and consumed by the Deephaven query script (rates are records/sec):
+### Benchmark producing records to the Kafka broker and consumed by the Deephaven query script (rates are records/sec):
 Test Details
 - All tests produce data to Kafka while it is consumed/queried in Deephaven
 - First two tests run the same query that joins a table of 10 or 100 million records to a table of 100K records
 - Last test loads a table of 100 million rows from Kafka
 - Test Description: Test data is produced to Kafka and consumed in the query using Avro spec
-- Query Rate: Rows processed per second while running the query in Verify
+- Query Rate: Rows processed per second while running the query in Benchmark
 - Producer Rate: Rows produce to Kafka per seconds. 
 - If Query Rate is significantly lower than Producer Rate, Deephaven Engine isn't keeping up
 

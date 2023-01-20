@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.deephaven</groupId>
-	<artifactId>deephaven-verify</artifactId>
+	<artifactId>deephaven-benchmark</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<name>deephaven-verify</name>
+	<name>deephaven-benchmark</name>
 
 	<build>
 		<plugins>
@@ -44,7 +44,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>io.deephaven.verify.run.VerifyMain</mainClass>
+							<mainClass>io.deephaven.benchmark.run.BenchmarkMain</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

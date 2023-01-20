@@ -1,9 +1,0 @@
-{ "type" : "record",
-  "namespace" : "io.deephaven.verify",
-  "name" : "orders",
-  "fields" : [
-    { "name" : "symbol",     "type" : "string" },
-    { "name" : "price",      "type" : "float"  },
-    { "name" : "qty",        "type" : "int"    }
-  ]
-}
