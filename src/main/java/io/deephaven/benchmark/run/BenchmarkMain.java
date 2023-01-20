@@ -3,7 +3,6 @@ package io.deephaven.benchmark.run;
 import java.nio.file.Paths;
 import java.util.*;
 import org.junit.platform.console.ConsoleLauncher;
-
 import io.deephaven.benchmark.api.Bench;
 
 public class BenchmarkMain {

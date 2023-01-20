@@ -3,8 +3,6 @@ package io.deephaven.benchmark.jfr;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
-import io.deephaven.benchmark.jfr.JfrReader;
-
 @Disabled
 public class TestJfrReader {
 	

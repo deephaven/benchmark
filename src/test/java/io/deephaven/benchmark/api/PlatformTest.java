@@ -5,8 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.*;
-
-import io.deephaven.benchmark.api.Platform;
 import io.deephaven.benchmark.connect.CsvTable;
 import io.deephaven.benchmark.connect.ResultTable;
 

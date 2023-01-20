@@ -6,8 +6,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.*;
-
-import io.deephaven.benchmark.api.BenchResult;
 import io.deephaven.benchmark.util.Timer;
 
 public class BenchResultTest {

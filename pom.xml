@@ -13,14 +13,14 @@
 				<version>3.3.0</version>
 				<executions>
 					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
 						<goals>
-							<goal>add-source</goal>
+							<goal>add-test-source</goal>
 						</goals>
 						<configuration>
 							<sources>
-								<source>src/it/java/</source>
+								<source>src/it/java</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -53,6 +53,48 @@
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M8</version>
+				<configuration>
+					<excludes>
+						<exclude>/io/deephaven/benchmark/tests/**/*Test</exclude>
+					</excludes>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.9.2</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.0.0-M8</version>
+				<configuration>
+					<includes>
+						<include>/io/deephaven/benchmark/tests/**/*Test</include>
+					</includes>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.9.2</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -110,7 +152,7 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-console-standalone</artifactId>
-			<version>1.9.1</version>
+			<version>1.9.2</version>
 		</dependency>
 
 	</dependencies>

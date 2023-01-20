@@ -3,9 +3,6 @@ package io.deephaven.benchmark.connect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
-import io.deephaven.benchmark.connect.CsvTable;
-import io.deephaven.benchmark.connect.ResultTable;
-
 public class CsvTableTest {
 	String csv = 
 		"""

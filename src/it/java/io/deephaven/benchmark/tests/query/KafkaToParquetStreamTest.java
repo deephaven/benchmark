@@ -2,7 +2,6 @@ package io.deephaven.benchmark.tests.query;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
-
 import io.deephaven.benchmark.api.Bench;
 
 public class KafkaToParquetStreamTest {

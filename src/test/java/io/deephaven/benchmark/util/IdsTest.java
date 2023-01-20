@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.LinkedHashSet;
 import org.junit.jupiter.api.*;
 
-import io.deephaven.benchmark.util.Ids;
-
 public class IdsTest {
 	@Test
 	public void uniqueName() {

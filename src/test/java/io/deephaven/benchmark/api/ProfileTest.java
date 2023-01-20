@@ -3,9 +3,6 @@ package io.deephaven.benchmark.api;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
-import io.deephaven.benchmark.api.Profile;
-
-
 public class ProfileTest {
 	
 	@Test

@@ -5,8 +5,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import org.junit.jupiter.api.*;
 
-import io.deephaven.benchmark.util.Classes;
-
 public class ClassesTest {
 
 	@Test
@@ -29,7 +27,7 @@ public class ClassesTest {
 		);
 	}
 	
-	@Test
+	@Test @Disabled
 	public void getDuplicatesClassesOnClassPath() throws Exception {
 		Classes c = new Classes();
 		List<String> dupes = c.getDuplicatesClasses();

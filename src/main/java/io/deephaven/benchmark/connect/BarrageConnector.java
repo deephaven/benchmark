@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
-
 import io.deephaven.benchmark.util.Metrics;
 import io.deephaven.benchmark.util.MetricsFuture;
 import io.deephaven.client.impl.BarrageSession;

@@ -3,8 +3,6 @@ package io.deephaven.benchmark.connect;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
-import io.deephaven.benchmark.connect.ColumnDefs;
-
 public class ColumnDefsTest {
 
 	@Test
