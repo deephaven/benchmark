@@ -16,5 +16,5 @@ java -jar deephaven-benchmark-1.0-SNAPSHOT.jar -cp your-tests.jar -p io.deephave
 
 Run tests in your own jar using your own property file
 ```
-java -D"benchmark.profile"="your-benchmark.properties" -jar deephaven-benchmark-1.0-SNAPSHOT.jar -cp your-tests.jar -p io.deephaven.your.tests
+java -D"benchmark.profile"="your-benchmark.properties" -jar deephaven-benchmark-1.0-SNAPSHOT.jar -cp your-tests.jar -p your.tests
 ```
