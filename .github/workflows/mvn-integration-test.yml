@@ -2,15 +2,15 @@ name: Integration Test on Docker Deephaven
 
 on:
   workflow_run:
-    workflows: ["Unit Test and Package"]
-    types:
-      - completed
+    workflows: [Unit Test and Package]
+    types: [completed]
+
 
 jobs:
-  build:
+  on-success:
 
     runs-on: ubuntu-22.04
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 17
@@ -28,3 +28,9 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B verify --file pom.xml 
+
+  on-failure:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    steps:
+      - run: echo 'Skipped integration tests because Unit Test and Package failed'
