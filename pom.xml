@@ -79,6 +79,7 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>3.0.0-M8</version>
 				<configuration>
+					<forkCount>0</forkCount>
 					<includes>
 						<include>/io/deephaven/benchmark/tests/**/*Test</include>
 					</includes>
