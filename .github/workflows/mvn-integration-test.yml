@@ -1,0 +1,30 @@
+name: Unit Test and Package
+
+on:
+  workflow_run:
+    workflows: ["Unit Test and Package"]
+    types:
+      - completed
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Docker Pull Deephaven and Redpanda
+      run: docker-compose pull
+
+    - name: Docker Up Deephaven and Redpanda
+      run: docker-compose up -d
+
+    - name: Build with Maven
+      run: mvn -B verify --file pom.xml 
