@@ -1,4 +1,4 @@
-name: Unit Test and Package
+name: Integration Test on Docker Deephaven
 
 on:
   workflow_run:
