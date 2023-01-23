@@ -64,7 +64,7 @@ class QueryLog implements Closeable {
 			Files.createDirectories(logFile.getParent());
 			return logFile;
 		} catch(Exception ex) {
-			throw new RuntimeException("Failed to create query log directory" + logFile.getParent());
+			throw new RuntimeException("Failed to create query log directory" + logFile.getParent(), ex);
 		}
 	}
 
