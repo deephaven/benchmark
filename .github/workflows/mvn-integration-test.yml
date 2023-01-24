@@ -33,6 +33,7 @@ jobs:
       run: |
         mkdir logs
         docker-compose logs --no-color > logs/docker.logs &
+        sleep 10
         docker-compose down
 
     - name: Archive Results
