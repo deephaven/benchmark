@@ -28,9 +28,17 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B verify --file pom.xml 
+      
+    - name: Save Docker Logs
+      run: |
+        mkdir logs
+        docker-compose logs > logs/docker.logs &
+        docker-compose down
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
-        name: Integration Benchmarks
-        path: results/**/*
+        name: Integration Benchmarks and Logs
+        path: |
+          results/**/*
+          logs/**/*
