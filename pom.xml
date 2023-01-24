@@ -141,7 +141,7 @@
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.19.1</version>
+			<version>0.20.0</version>
 		</dependency>
 
 		<dependency>
