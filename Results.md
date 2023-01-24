@@ -3,7 +3,7 @@
 Running Benchmark tests in the IDE produces results into a directory structure in the current (working) directory.
 
 ````
-data/
+results/
 	benchmark-platform.csv
 	benchmark-results.csv
 	test-logs/

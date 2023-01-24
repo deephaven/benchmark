@@ -23,7 +23,7 @@ import io.deephaven.benchmark.util.Timer;
  * JUnit test to start things off
  */
 final public class Bench {
-	static final public String rootOutputDir = "data";
+	static final public String rootOutputDir = "results";
 	static final public String resultFileName = "benchmark-results.csv";
 	static final Profile profile = new Profile();
 	static final Path outputDir = initializeOutputDirectory();

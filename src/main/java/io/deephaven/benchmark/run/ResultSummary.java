@@ -19,7 +19,7 @@ public class ResultSummary {
 	
 	public ResultSummary(Path rootDir) {
 		this.rootDir = rootDir;
-		this.summaryFile = rootDir.resolve("benchmark-summary-results.csv");
+		this.summaryFile = getSummaryFile(rootDir, "benchmark-summary-results.csv");
 	}
 
 	public void summarize() {
@@ -67,6 +67,16 @@ public class ResultSummary {
 			return resultFiles;
 		} catch(Exception ex) {
 			throw new RuntimeException("Failed to get result files from root directory: " + rootDir);
+		}
+	}
+	
+	static Path getSummaryFile(Path parent, String name) {
+		Path summaryFile = parent.resolve(name);
+		try {
+			Files.createDirectories(summaryFile.getParent());
+			return summaryFile;
+		} catch(Exception ex) {
+			throw new RuntimeException("Failed to create results directory" + summaryFile.getParent(), ex);
 		}
 	}
 	
