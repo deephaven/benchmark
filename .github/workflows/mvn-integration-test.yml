@@ -31,6 +31,6 @@ jobs:
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
-        with:
-          name: Integration Benchmarks
-          path: results/**/*
+      with:
+        name: Integration Benchmarks
+        path: results/**/*
