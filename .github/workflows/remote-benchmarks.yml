@@ -16,8 +16,9 @@ jobs:
     - uses: actions/checkout@v3
     - name: Remote Test Server Setup
       run: |
-        sudo chmod +x .github/scripts/*
-        .github/scripts/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${{secrets.BENCHMARK_KEY}} > test-server-install.log
+        SD=.github/scripts
+        sudo chmod +x ${SD}/*
+        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${{secrets.BENCHMARK_KEY}} > ${SD}/test-server-install.log
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
