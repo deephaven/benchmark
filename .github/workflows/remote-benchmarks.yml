@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+    - uses: actions/checkout@v3
     - name: Remote Test Server Setup
       run: |
         .github/scripts/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${{secrets.BENCHMARK_KEY}} > test-server-install.log
