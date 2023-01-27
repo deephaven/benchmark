@@ -70,7 +70,6 @@
 						</includes>
 						<eclipse>
 							<file>${project.basedir}/eclipse-java-google-style.xml</file>
-							<!-- <file>${project.basedir}/exportAllFormatter.xml</file> -->
 						</eclipse>
 						<licenseHeader>
 							<content>/* Copyright (c) 2022-$YEAR Deephaven Data Labs and Patent Pending */</content>

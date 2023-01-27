@@ -1,0 +1,24 @@
+name: Integration Test on Docker Deephaven
+
+on:
+  push:
+    branches: [ "**" ]
+  schedule:
+    # 3AM EST == 7 UTC
+    - cron:  '0 7 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Remote Test Server Setup
+      run: |
+        .github/scripts/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${{secrets.BENCHMARK_KEY}} > test-server-install.log
+    - name: Archive Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: Integration Benchmarks and Logs
+        path: |
+          test-server-install.log
