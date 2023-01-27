@@ -18,7 +18,7 @@ jobs:
       run: |
         SD=.github/scripts
         sudo chmod +x ${SD}/*
-        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD} > ${SD}/test-server-install.log
+        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD} > test-server-install.log
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
