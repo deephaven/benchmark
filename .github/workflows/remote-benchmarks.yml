@@ -1,4 +1,4 @@
-name: Integration Test on Docker Deephaven
+name: Benchmark Test on Docker Deephaven
 
 on:
   push:
@@ -18,10 +18,10 @@ jobs:
       run: |
         SD=.github/scripts
         sudo chmod +x ${SD}/*
-        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD} > test-server-install.log
+        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD} > test-server-setup.log
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
         name: Integration Benchmarks and Logs
         path: |
-          test-server-install.log
+          test-server-setup.log
