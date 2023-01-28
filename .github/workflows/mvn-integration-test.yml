@@ -21,7 +21,9 @@ jobs:
         cache: maven
 
     - name: Docker Pull Deephaven and Redpanda
-      run: docker-compose pull
+      run: |
+        cp .github/resources/integration-docker-compose.yml docker-compose.yml
+        docker-compose pull
 
     - name: Docker Up Deephaven and Redpanda
       run: docker-compose up -d
