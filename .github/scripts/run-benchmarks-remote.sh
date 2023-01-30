@@ -13,4 +13,4 @@ fi
 
 echo "- Running Remote Benchmark Artifact on ${HOST} -"
 cd ${RUN_DIR}
-java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-benchmark-*.jar
+java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p io.deephaven.benchmark.tests.standard
