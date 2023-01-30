@@ -7,6 +7,11 @@ HOST=`hostname`
 GIT_DIR=/root/git/benchmark
 RUN_DIR=/root/run
 
+if [ ! -d "${GIT_DIR}" ]; then
+  echo "$0: Missing the Benchmark git setup directory"
+  exit 1
+fi
+
 echo "- Building Remote Benchmark Artifact on ${HOST} -"
 
 echo "-- Building and Verifying --"
@@ -14,6 +19,7 @@ cd ${GIT_DIR}
 mvn verify
 
 echo "-- Copying Artifact to Run Directory --"
+rm -rf ${RUN_DIR}
 mkdir -p ${RUN_DIR}/
 cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
 cp ${GIT_DIR}/.github/resources/*.properties ${RUN_DIR}/

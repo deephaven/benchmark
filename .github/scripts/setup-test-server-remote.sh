@@ -8,6 +8,11 @@ GIT_REPO=stanbrub
 GIT_BRANCH=remote-test-server-workflow
 DEEPHAVEN_DIR=/root/deephaven
 
+if [ ! -d "/root" ]; then
+  echo "$0: Missing the Benchmark install directory"
+  exit 1
+fi
+
 echo "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 echo "-- Adding OS Applications --"
