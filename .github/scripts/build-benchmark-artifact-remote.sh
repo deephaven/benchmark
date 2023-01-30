@@ -7,7 +7,7 @@ HOST=`hostname`
 GIT_DIR=/root/git/benchmark
 RUN_DIR=/root/run
 
-if [ ! -d "${GIT_DIR}" ] || [ ! -d "${RUN_DIR}" ]; then
+if [ ! -d "${GIT_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
   exit 1
 fi
