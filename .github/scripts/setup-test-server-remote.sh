@@ -13,41 +13,43 @@ if [ ! -d "/root" ]; then
   exit 1
 fi
 
-echo "- Setting Up Remote Benchmark Testing on ${HOST} -"
+title () { echo; echo $1; }
 
-echo "-- Adding OS Applications --"
+title "- Setting Up Remote Benchmark Testing on ${HOST} -"
+
+title "-- Adding OS Applications --"
 apt update
 
-echo "-- Installing Maven --"
+title "-- Installing Maven --"
 apt install maven
 
-echo "-- Installing JDK 17 --"
+title "-- Installing JDK 17 --"
 apt install openjdk-17-jre-headless
 
-echo "-- Installing Docker --"
+title "-- Installing Docker --"
 snap install docker
 
-echo "-- Removing Git Benchmark Project --"
+title "-- Removing Git Benchmark Project --"
 rm -rf ${GIT_DIR}
 
-echo "-- Getting Git Benchmark Project --"
+title "-- Getting Git Benchmark Project --"
 mkdir -p ${GIT_DIR}
 cd ${GIT_DIR}
 git clone git@github.com:${GIT_REPO}/benchmark.git
 cd benchmark
 git checkout ${GIT_BRANCH}
 
-echo "-- Stopping and Removing Docker Installations --"
+title "-- Stopping and Removing Docker Installations --"
 cd ${DEEPHAVEN_DIR}
 docker stop $(docker ps -a -q)
 docker system prune -f
 rm -rf ${DEEPHAVEN_DIR}
 
-echo "-- Installing Deephaven and Redpanda --"
+title "-- Installing Deephaven and Redpanda --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/benchmark-docker-compose.yml docker-compose.yml
 docker-compose pull
 
-echo "-- Starting Deephaven and Redpanda --"
+title "-- Starting Deephaven and Redpanda --"
 docker-compose up -d

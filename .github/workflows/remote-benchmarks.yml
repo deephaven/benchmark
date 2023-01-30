@@ -1,8 +1,8 @@
-name: Benchmark Test on Docker Deephaven
-
 # Run benchmarks on a remote system and produces benchmark results and logs locally
 # - Scripts ending in "-local" run in the workflow at github
 # - Scripts ending in "-remote" run are executed on the remote test server through ssh
+
+name: Benchmark Test on Docker Deephaven
 
 on:
   push:
@@ -36,10 +36,15 @@ jobs:
     - name: Run Remote Benchmarks
       run: |
         ${SD}/run-ssh-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${SD} run-benchmarks-remote
+        
+    - name: Get Benchmark Results
+      run: |
+        ${SD}/fetch-results-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}}
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
         name: Benchmarks and Logs
         path: |
-          *.log
+          results/**/*
+          logs/**/*

@@ -1,3 +1,5 @@
+# Run Integration Tests against a Docker install on Github
+
 name: Integration Test on Docker Deephaven
 
 on:

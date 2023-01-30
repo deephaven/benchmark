@@ -12,13 +12,15 @@ if [ ! -d "${GIT_DIR}" ] || [ ! -d "${RUN_DIR}" ]; then
   exit 1
 fi
 
-echo "- Building Remote Benchmark Artifact on ${HOST} -"
+title () { echo; echo $1; }
 
-echo "-- Building and Verifying --"
+title "- Building Remote Benchmark Artifact on ${HOST} -"
+
+title "-- Building and Verifying --"
 cd ${GIT_DIR}
 mvn verify
 
-echo "-- Copying Artifact and Tests to Run Directory --"
+title "-- Copying Artifact and Tests to Run Directory --"
 rm -rf ${RUN_DIR}
 mkdir -p ${RUN_DIR}/
 cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
