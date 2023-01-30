@@ -1,5 +1,9 @@
 name: Benchmark Test on Docker Deephaven
 
+# Run benchmarks on a remote system and produces benchmark results and logs locally
+# - Scripts ending in "-local" run in the workflow at github
+# - Scripts ending in "-remote" run are executed on the remote test server through ssh
+
 on:
   push:
     branches: [ "**" ]
@@ -14,14 +18,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup and Run Benchmarks
+    - name: Setup Local and Remote Scripts
       run: |
         SD=.github/scripts
         sudo chmod +x ${SD}/*
-        ${SD}/setup-run-benchmark-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD}
+        ${SD}/setup-ssh-local.sh ${{secrets.BENCHMARK_HOST}} "${{secrets.BENCHMARK_KEY}}"
+
+    - name: Run Remote Test Server Setup
+      run: |
+        ${SD}/run-ssh-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${SD} setup-test-server-remote
+
+    - name: Run Remote Benchmark Artifact Build
+      run: |
+        ${SD}/run-ssh-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${SD} build-benchmark-artifact-remote
+
+    - name: Run Remote Benchmarks
+      run: |
+        ${SD}/run-ssh-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${SD} run-benchmarks-remote
+
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:
-        name: Integration Benchmarks and Logs
+        name: Benchmarks and Logs
         path: |
-          test-server-setup.log
+          *.log
