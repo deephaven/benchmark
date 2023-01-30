@@ -14,11 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Remote Test Server Setup
+    - name: Setup and Run Benchmarks
       run: |
         SD=.github/scripts
         sudo chmod +x ${SD}/*
-        ${SD}/setup-test-server-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD} > test-server-setup.log
+        ${SD}/setup-run-benchmark-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} "${{secrets.BENCHMARK_KEY}}" ${SD}
     - name: Archive Results
       uses: actions/upload-artifact@v3
       with:

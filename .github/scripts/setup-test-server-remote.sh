@@ -1,4 +1,7 @@
+#!/bin/bash
+
 # Runs the remote side of test server setup
+
 HOST=`hostname`
 GIT_DIR=/root/git
 GIT_REPO=stanbrub
