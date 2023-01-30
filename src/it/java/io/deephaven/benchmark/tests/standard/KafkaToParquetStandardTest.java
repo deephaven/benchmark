@@ -1,10 +1,10 @@
-package io.deephaven.benchmark.tests.query;
+package io.deephaven.benchmark.tests.standard;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
 
-public class KafkaToParquetStreamTest {
+public class KafkaToParquetStandardTest {
     final Bench api = Bench.create(this);
     final long scaleRowCount = api.propertyAsIntegral("scale.row.count", "1000");
 

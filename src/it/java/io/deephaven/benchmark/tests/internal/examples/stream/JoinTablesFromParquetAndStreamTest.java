@@ -1,4 +1,4 @@
-package io.deephaven.benchmark.tests.query.examples.stream;
+package io.deephaven.benchmark.tests.internal.examples.stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;

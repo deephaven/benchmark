@@ -1,4 +1,4 @@
-package io.deephaven.benchmark.tests.query.join;
+package io.deephaven.benchmark.tests.internal.join;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
