@@ -15,12 +15,13 @@ jobs:
   build:
 
     runs-on: ubuntu-22.04
+    env:
+      SD: .github/scripts
 
     steps:
     - uses: actions/checkout@v3
     - name: Setup Local and Remote Scripts
       run: |
-        SD=.github/scripts
         sudo chmod +x ${SD}/*
         ${SD}/setup-ssh-local.sh ${{secrets.BENCHMARK_HOST}} "${{secrets.BENCHMARK_KEY}}"
 
