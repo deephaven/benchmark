@@ -19,7 +19,8 @@ cd ${GIT_DIR}
 mvn verify
 
 echo "-- Copying Artifact and Tests to Run Directory --"
+rm -rf ${RUN_DIR}
 mkdir -p ${RUN_DIR}/
 cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
-mv ${RUN_DIR}/deephaven-benchmark-*-tests.jar standard-tests.jar
+mv ${RUN_DIR}/deephaven-benchmark-*-tests.jar ${RUN_DIR}/standard-tests.jar
 cp ${GIT_DIR}/.github/resources/*.properties ${RUN_DIR}/
