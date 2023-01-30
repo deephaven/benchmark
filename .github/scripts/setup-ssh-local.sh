@@ -11,6 +11,7 @@ if [[ $# != 2 ]]; then
 	exit 1
 fi
 
+mkdir -p logs
 mkdir -p ~/.ssh/
 echo "${PRIVATE_KEY}" > ${PRIVATE_FILE}
 sudo chmod 600 ${PRIVATE_FILE}

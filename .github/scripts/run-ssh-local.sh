@@ -12,5 +12,5 @@ if [[ $# != 4 ]]; then
 	exit 1
 fi
 
-ssh ${USER}@${HOST} 'bash -s' < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee ${SCRIPT_NAME}.log
+ssh ${USER}@${HOST} 'bash -s' < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
 
