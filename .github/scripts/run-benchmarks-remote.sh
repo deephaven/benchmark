@@ -22,6 +22,6 @@ title "-- Getting Docker Logs --"
 cd ${DEEPHAVEN_DIR}
 mkdir -p ${RUN_DIR}/logs
 
-docker-compose logs --no-color > ${RUN_DIR}/logs/docker.logs &
+docker-compose logs --no-color > ${RUN_DIR}/logs/docker.log &
 sleep 10
 docker-compose down

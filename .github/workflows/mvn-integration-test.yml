@@ -36,7 +36,7 @@ jobs:
     - name: Save Docker Logs
       run: |
         mkdir logs
-        docker-compose logs --no-color > logs/docker.logs &
+        docker-compose logs --no-color > logs/docker.log &
         sleep 10
         docker-compose down
 
