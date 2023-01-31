@@ -11,5 +11,5 @@ if [[ $# != 2 ]]; then
 	exit 1
 fi
 
-scp -r ${USER}@${HOST}:${RUN_DIR}/results results/
-scp -r ${USER}@${HOST}:${RUN_DIR}/logs logs/
+scp -r ${USER}@${HOST}:${RUN_DIR}/results .
+scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
