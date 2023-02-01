@@ -19,7 +19,7 @@ jobs:
       SD: .github/scripts
       HOST: ${{secrets.BENCHMARK_HOST}}
       USER: ${{secrets.BENCHMARK_USER}}
-      REPO: ${{ github.event.repository.name }}
+      REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
 
     steps:
@@ -31,6 +31,7 @@ jobs:
 
     - name: Run Remote Test Server Setup
       run: |
+        echo "REPO: ${REPO}  BRANCH: ${BRANCH}"
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH}
 
     - name: Run Remote Benchmark Artifact Build

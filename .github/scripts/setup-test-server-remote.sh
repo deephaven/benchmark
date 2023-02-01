@@ -34,14 +34,16 @@ apt install openjdk-17-jre-headless
 title "-- Installing Docker --"
 snap install docker
 
-title "-- Removing Git Benchmark Project --"
+title "-- Removing Git Benchmark Repositories --"
 rm -rf ${GIT_DIR}
 
-title "-- Getting Git Benchmark Project --"
+title "-- Clone Git Benchmark Repository ${GIT_REPO} --"
 mkdir -p ${GIT_DIR}
 cd ${GIT_DIR}
-git clone git@github.com:${GIT_REPO}/benchmark.git
+git clone git@github.com:${GIT_REPO}.git
 cd benchmark
+
+title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
