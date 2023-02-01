@@ -7,8 +7,8 @@ if [ ! -d "/root" ]; then
   exit 1
 fi
 
-if [[ $# != 2 ]]; then
-	echo "$0: Missing repo and branch arguments"
+if [[ $# != 3 ]]; then
+	echo "$0: Missing repo, branch and run type arguments"
 	exit 1
 fi
 
