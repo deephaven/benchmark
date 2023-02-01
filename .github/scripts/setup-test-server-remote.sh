@@ -2,16 +2,21 @@
 
 # Runs the remote side of test server setup
 
-HOST=`hostname`
-GIT_DIR=/root/git
-GIT_REPO=stanbrub
-GIT_BRANCH=remote-test-server-workflow
-DEEPHAVEN_DIR=/root/deephaven
-
 if [ ! -d "/root" ]; then
   echo "$0: Missing the Benchmark install directory"
   exit 1
 fi
+
+if [[ $# != 2 ]]; then
+	echo "$0: Missing repo and branch arguments"
+	exit 1
+fi
+
+HOST=`hostname`
+GIT_DIR=/root/git
+GIT_REPO=$1
+GIT_BRANCH=$2
+DEEPHAVEN_DIR=/root/deephaven
 
 title () { echo; echo $1; }
 
