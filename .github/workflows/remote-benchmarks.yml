@@ -44,7 +44,7 @@ jobs:
     - name: Authorize GCloud Credentials
       uses: google-github-actions/auth@v1
       with:
-        credentials_json: '${{ secrets.BENCHMARK_GCLOUD }}'
+        credentials_json: ${{ secrets.BENCHMARK_GCLOUD }}
         
     - name: Upload Benchmark Results to GCloud
       uses: google-github-actions/upload-cloud-storage@v1
