@@ -37,9 +37,20 @@ jobs:
       run: |
         ${SD}/run-ssh-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}} ${SD} run-benchmarks-remote
         
-    - name: Get Benchmark Results
+    - name: Fetch Benchmark Results
       run: |
         ${SD}/fetch-results-local.sh ${{secrets.BENCHMARK_HOST}} ${{secrets.BENCHMARK_USER}}
+        
+    - name: Authorize GCloud Credentials
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ secrets.DEEPHAVEN_BENCHMARK_KEY }}'
+        
+    - name: Upload Benchmark Results to GCloud
+      uses: google-github-actions/upload-cloud-storage@v1
+      with:
+        path: results
+        destination: deephaven-benchmark
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
