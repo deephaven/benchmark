@@ -4,6 +4,7 @@
 
 HOST=$1
 USER=$2
+RUN_TYPE=$3
 RUN_DIR=/root/run
 
 if [[ $# != 2 ]]; then
@@ -12,4 +13,6 @@ if [[ $# != 2 ]]; then
 fi
 
 scp -r ${USER}@${HOST}:${RUN_DIR}/results .
+mv results/ ${RUN_TYPE}/
+
 scp -r ${USER}@${HOST}:${RUN_DIR}/logs .

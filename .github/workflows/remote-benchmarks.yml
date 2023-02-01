@@ -21,6 +21,7 @@ jobs:
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
+      RUN_TYPE: release
 
     steps:
     - uses: actions/checkout@v3
@@ -31,8 +32,7 @@ jobs:
 
     - name: Run Remote Test Server Setup
       run: |
-        echo "REPO: ${REPO}  BRANCH: ${BRANCH}"
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE}
 
     - name: Run Remote Benchmark Artifact Build
       run: |
@@ -44,10 +44,11 @@ jobs:
         
     - name: Fetch Benchmark Results
       run: |
-        ${SD}/fetch-results-local.sh ${HOST} ${USER}
+        ${SD}/fetch-results-local.sh ${HOST} ${USER} ${RUN_TYPE}
         
     - name: Remove Summary Results
       run: |
+        # For now remove any summaries before putting in GCloud
         rm -f results/*.csv
         
     - name: Authorize GCloud Credentials
@@ -58,7 +59,7 @@ jobs:
     - name: Upload Benchmark Results to GCloud
       uses: google-github-actions/upload-cloud-storage@v1
       with:
-        path: results
+        path: ${RUN_TYPE}
         destination: deephaven-benchmark
 
     - name: Archive Results
@@ -66,5 +67,5 @@ jobs:
       with:
         name: Benchmarks and Logs
         path: |
-          results/**/*
+          ${RUN_TYPE}/**/*
           logs/**/*

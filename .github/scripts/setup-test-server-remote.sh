@@ -16,6 +16,7 @@ HOST=`hostname`
 GIT_DIR=/root/git
 GIT_REPO=$1
 GIT_BRANCH=$2
+RUN_TYPE=$3			# ex. "nightly" or "release"
 DEEPHAVEN_DIR=/root/deephaven
 
 title () { echo; echo $1; }
@@ -55,7 +56,7 @@ rm -rf ${DEEPHAVEN_DIR}
 title "-- Installing Deephaven and Redpanda --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
-cp ${GIT_DIR}/benchmark/.github/resources/benchmark-docker-compose.yml docker-compose.yml
+cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}benchmark-docker-compose.yml docker-compose.yml
 docker-compose pull
 
 title "-- Starting Deephaven and Redpanda --"
