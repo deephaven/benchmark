@@ -7,8 +7,8 @@ USER=$2
 RUN_TYPE=$3
 RUN_DIR=/root/run
 
-if [[ $# != 2 ]]; then
-	echo "$0: Missing host or user arguments"
+if [[ $# != 3 ]]; then
+	echo "$0: Missing host, user, or run type arguments"
 	exit 1
 fi
 
