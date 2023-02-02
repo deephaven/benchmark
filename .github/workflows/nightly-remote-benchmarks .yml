@@ -11,6 +11,6 @@ on:
 
 jobs:
   process-release-benchmarks:
-    uses: remote-benchmarks.yml
+    uses: .github/workflows/remote-benchmarks.yml
     with:
       run-type: nightly
