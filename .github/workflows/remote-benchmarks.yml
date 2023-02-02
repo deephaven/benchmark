@@ -67,5 +67,5 @@ jobs:
       with:
         name: Benchmarks and Logs
         path: |
-          ${RUN_TYPE}/**/*
+          ${{env.RUN_TYPE}}/**/*
           logs/**/*
