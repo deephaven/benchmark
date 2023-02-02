@@ -3,6 +3,7 @@
 # Run benchmarks on the remote side
 # Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
+set -e
 HOST=`hostname`
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
@@ -20,8 +21,9 @@ title "-- Setting up for Benchmark Run --"
 
 cd ${DEEPHAVEN_DIR};
 docker-compose down
-rm -f data/* 2>/dev/null
+rm -f data/*.*
 docker-compose up -d
+sleep 10
 
 cd ${RUN_DIR}
 java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p io.deephaven.benchmark.tests.standard
