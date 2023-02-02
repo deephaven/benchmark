@@ -6,6 +6,8 @@ name: Nightly Benchmark Test on Docker Deephaven
 on:
   schedule:
     - cron: '0 7 * * *'
+  push:
+    branches: [ "**" ]
 
 jobs:
   process-release-benchmarks:
