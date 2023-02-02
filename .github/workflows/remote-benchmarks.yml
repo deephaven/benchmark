@@ -49,7 +49,7 @@ jobs:
     - name: Remove Summary Results
       run: |
         # For now remove any summaries before putting in GCloud
-        rm -f results/*.csv
+        rm -f ${RUN_TYPE}/*.csv
         
     - name: Authorize GCloud Credentials
       uses: google-github-actions/auth@v1
