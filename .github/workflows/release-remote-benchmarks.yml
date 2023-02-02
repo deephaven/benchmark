@@ -9,6 +9,6 @@ on:
 
 jobs:
   process-release-benchmarks:
-    uses: .github/workflows/remote-benchmarks.yml
+    uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run-type: release
