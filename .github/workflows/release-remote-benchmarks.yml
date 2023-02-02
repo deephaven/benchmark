@@ -1,0 +1,14 @@
+# Run benchmarks on a remote system for the release the project is using
+# - Calls the reusable worflow remote-benchmarks.yml
+
+name: Release Benchmark Test on Docker Deephaven
+
+on:
+  workflow_dispatch:
+    branches: [ "**" ]
+
+jobs:
+  process-release-benchmarks:
+    uses: remote-benchmarks.yml
+    with:
+      run-type: release

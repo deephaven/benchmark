@@ -1,18 +1,19 @@
-# Run benchmarks on a remote system and produces benchmark results and logs locally
-# - Scripts ending in "-local" run in the workflow at github
+# Run benchmarks on a remote system for the release the project is using
+# - This workflow is reusable with run-type set to release or nightly
+# - Scripts ending in "-local" run on the github runner
 # - Scripts ending in "-remote" run are executed on the remote test server through ssh
 
 name: Benchmark Test on Docker Deephaven
 
 on:
-  push:
-    branches: [ "**" ]
-  schedule:
-    # 3AM EST == 7 UTC
-    - cron: '0 7 * * *'
+  workflow_call:
+    inputs:
+      run-type:
+        required: true
+        type: string
 
 jobs:
-  build:
+  process-benchmarks:
 
     runs-on: ubuntu-22.04
     env:
@@ -21,7 +22,7 @@ jobs:
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
-      RUN_TYPE: nightly
+      RUN_TYPE: ${{inputs.run-type}}
 
     steps:
     - uses: actions/checkout@v3
