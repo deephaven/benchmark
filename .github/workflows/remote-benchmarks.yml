@@ -51,16 +51,16 @@ jobs:
         # For now remove any summaries before putting in GCloud
         rm -f results/*.csv
         
-#    - name: Authorize GCloud Credentials
-#      uses: google-github-actions/auth@v1
-#      with:
-#        credentials_json: ${{secrets.BENCHMARK_GCLOUD}}
+    - name: Authorize GCloud Credentials
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{secrets.BENCHMARK_GCLOUD}}
         
-#    - name: Upload Benchmark Results to GCloud
-#      uses: google-github-actions/upload-cloud-storage@v1
-#      with:
-#        path: ${RUN_TYPE}/
-#        destination: deephaven-benchmark
+    - name: Upload Benchmark Results to GCloud
+      uses: google-github-actions/upload-cloud-storage@v1
+      with:
+        path: ${{env.RUN_TYPE}}
+        destination: deephaven-benchmark
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
