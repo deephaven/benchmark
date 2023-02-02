@@ -21,7 +21,7 @@ jobs:
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
-      RUN_TYPE: release
+      RUN_TYPE: nightly
 
     steps:
     - uses: actions/checkout@v3
