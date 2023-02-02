@@ -8,15 +8,15 @@ if [ ! -d "/root" ]; then
 fi
 
 if [[ $# != 3 ]]; then
-	echo "$0: Missing repo, branch, or run type arguments"
-	exit 1
+        echo "$0: Missing repo, branch, or run type arguments"
+        exit 1
 fi
 
 HOST=`hostname`
 GIT_DIR=/root/git
 GIT_REPO=$1
 GIT_BRANCH=$2
-RUN_TYPE=$3			# ex. "nightly" or "release"
+RUN_TYPE=$3                     # ex. "nightly" or "release"
 DEEPHAVEN_DIR=/root/deephaven
 
 title () { echo; echo $1; }
@@ -49,14 +49,14 @@ git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
 cd ${DEEPHAVEN_DIR}
-docker stop $(docker ps -a -q)
+docker ps -aq | xargs --no-run-if-empty docker stop
 docker system prune -f
 rm -rf ${DEEPHAVEN_DIR}
 
 title "-- Installing Deephaven and Redpanda --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
-cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}benchmark-docker-compose.yml docker-compose.yml
+cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
 docker-compose pull
 
 title "-- Starting Deephaven and Redpanda --"
