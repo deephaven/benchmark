@@ -61,7 +61,7 @@ title "-- Installing Deephaven and Redpanda --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
-docker-compose pull
+docker compose pull
 
 title "-- Starting Deephaven and Redpanda --"
-docker-compose up -d
+docker compose up -d
