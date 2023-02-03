@@ -40,7 +40,7 @@ class Platform {
         api.setName("# Write Platform Details"); // # means skip adding to results file
 
         var tbl = new AtomicReference<ResultTable>();
-        api.query(query).fetchAfter("pil2", table -> {
+        api.query(query).fetchAfter("pil", table -> {
             tbl.set(table);
         }).execute();
         api.close();
@@ -61,12 +61,11 @@ class Platform {
 
     private void writeEngineProps(BufferedWriter out) throws Exception {
         var query = """
-            import deephaven.perfmon as pm
-            from deephaven import empty_table
+        import deephaven.perfmon as pm
+        from deephaven import empty_table
 
-            pil = pm.process_info_log()
-            pil2 = empty_table(0).snapshot(source_table=pil, do_init=True)
-            """;
+        pil = pm.process_info_log().snapshot()
+        """;
 
         ResultTable t = fetchResult(query);
 
