@@ -1,9 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
 
 # Run benchmarks on the remote side
 # Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
-set -e
 HOST=`hostname`
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
@@ -20,9 +23,9 @@ title "- Running Remote Benchmark Artifact on ${HOST} -"
 title "-- Setting up for Benchmark Run --"
 
 cd ${DEEPHAVEN_DIR};
-docker-compose down
+docker compose down
 rm -f data/*.*
-docker-compose up -d
+docker compose up -d
 sleep 10
 
 cd ${RUN_DIR}
@@ -31,6 +34,6 @@ java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-bench
 title "-- Getting Docker Logs --"
 mkdir -p ${RUN_DIR}/logs
 cd ${DEEPHAVEN_DIR};
-docker-compose logs --no-color > ${RUN_DIR}/logs/docker.log &
+docker compose logs --no-color > ${RUN_DIR}/logs/docker.log &
 sleep 10
-docker-compose down
+docker compose down

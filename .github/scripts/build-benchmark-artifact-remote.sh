@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
 
 # Build benchmark artifact on the remote side
 # Assumes git branch is available and docker is running

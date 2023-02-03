@@ -4,11 +4,13 @@
 name: Nightly Benchmark Test on Docker Deephaven
 
 on:
+  push:
+    branches: [ "**" ]
   schedule:
     - cron: '0 6 * * *'
 
 jobs:
-  process-release-benchmarks:
+  process-nightly-benchmarks:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run-type: nightly
