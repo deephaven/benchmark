@@ -6,6 +6,8 @@ name: Release Benchmark Test on Docker Deephaven
 on:
   workflow_dispatch:
     branches: [ "**" ]
+  push:
+    branches: [ "**" ]
 
 jobs:
   process-release-benchmarks:
