@@ -12,10 +12,6 @@ if [[ $# != 3 ]]; then
 	exit 1
 fi
 
-ls -l
-
 scp -r ${USER}@${HOST}:${RUN_DIR}/results .
 scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
 mv results/ ${RUN_TYPE}/
-
-ls -l
