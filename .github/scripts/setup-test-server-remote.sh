@@ -41,7 +41,7 @@ rm -rf ${GIT_DIR}
 title "-- Clone Git Benchmark Repository ${GIT_REPO} --"
 mkdir -p ${GIT_DIR}
 cd ${GIT_DIR}
-git clone git@github.com:${GIT_REPO}.git
+git clone https://github.com/${GIT_REPO}.git
 cd benchmark
 
 title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
