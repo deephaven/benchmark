@@ -1,3 +1,4 @@
+/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.join;
 
 import static org.junit.jupiter.api.Assertions.*;

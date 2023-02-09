@@ -30,7 +30,6 @@ public class KafkaToParquetStreamTest {
         }).execute();
         api.awaitCompletion();
         api.result().test(tm, scaleRowCount);
-
     }
 
     @AfterEach

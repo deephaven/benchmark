@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.connect.ResultTable;
 
+// TODO: Grab Deephaven version from both Engine and Client with
+// io.deephaven.engine.table.Table.class.getPackage().getImplementationVersion()
 class Platform {
     static final String platformFileName = "benchmark-platform.csv";
     static final String[] header = {"application", "name", "value"};

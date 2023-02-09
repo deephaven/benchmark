@@ -40,7 +40,19 @@ final public class BenchResult {
      * @return this result instance
      */
     public BenchResult test(Timer timer, long count) {
-        rates.put("test-rate", new Rate(timer.duration(), count));
+        test(timer.duration(), count);
+        return this;
+    }
+    
+    /**
+     * Record a test rate for this result instance
+     * 
+     * @param timer a started timer measuring the test
+     * @param count the processed item count (e.g. rowCount)
+     * @return this result instance
+     */
+    public BenchResult test(Duration duration, long count) {
+        rates.put("test-rate", new Rate(duration, count));
         rates.put("test-row-count", count);
         return this;
     }

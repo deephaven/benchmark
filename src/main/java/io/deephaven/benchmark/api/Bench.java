@@ -29,8 +29,6 @@ final public class Bench {
     static final Platform platform = new Platform(outputDir);
 
     static public Bench create(Object testInst) {
-        if (!isTest(testInst))
-            throw new RuntimeException("Test instance required for Benchmark api creation");
         Bench v = new Bench(testInst.getClass());
         v.setName(testInst.getClass().getSimpleName());
         return v;
@@ -42,6 +40,7 @@ final public class Bench {
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
     final List<Metrics> metrics = new ArrayList<>();
+    private boolean isClosed = false;
 
     Bench(Class<?> testInst) {
         this.testInst = testInst;
@@ -155,11 +154,16 @@ final public class Bench {
     public BenchResult result() {
         return result;
     }
+    
+    public boolean isClosed() {
+        return isClosed;
+    }
 
     /**
      * Finish all running tasks (e.g. queries, generators), close any I/O, and append any results to the file system
      */
     public void close() {
+        isClosed = true;
         for (Closeable c : closeables) {
             try {
                 c.close();
