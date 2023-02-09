@@ -43,7 +43,7 @@ final public class BenchResult {
         test(timer.duration(), count);
         return this;
     }
-    
+
     /**
      * Record a test rate for this result instance
      * 

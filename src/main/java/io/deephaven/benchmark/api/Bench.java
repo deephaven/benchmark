@@ -154,7 +154,7 @@ final public class Bench {
     public BenchResult result() {
         return result;
     }
-    
+
     public boolean isClosed() {
         return isClosed;
     }
