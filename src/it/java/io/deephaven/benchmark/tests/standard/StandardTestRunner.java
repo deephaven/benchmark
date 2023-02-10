@@ -36,6 +36,23 @@ public class StandardTestRunner {
     }
 
     /**
+     * Identify a pre-defined table for use by this runner
+     * 
+     * @param name
+     */
+    public void tables(String... names) {
+        for (String name : names) {
+            switch (name) {
+                case "source":
+                    generateSourceTable();
+                    break;
+                default:
+                    throw new RuntimeException("Undefined table name: " + name);
+            }
+        }
+    }
+
+    /**
      * Run a single-operation test through the Bench API. Create and Bench instance if necessary.
      * </p>
      * Run two tests for the operation; against static parquet, against the same parquet through ticking simulation
@@ -130,6 +147,17 @@ public class StandardTestRunner {
         Bench api = Bench.create(testInst);
         api.query(query).execute();
         return api;
+    }
+
+    void generateSourceTable() {
+        api.table("source").random()
+                .add("int250", "int", "[1-250]")
+                .add("int640", "int", "[1-640]")
+                .add("int1M", "int", "[1-1000000]")
+                .add("str250", "string", "string[1-250]val")
+                .add("str640", "string", "val[1-640]string")
+                .add("str1M", "string", "val[1-1000000]string")
+                .generateParquet();
     }
 
 }

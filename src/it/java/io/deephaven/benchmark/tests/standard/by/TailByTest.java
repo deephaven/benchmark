@@ -12,31 +12,25 @@ public class TailByTest {
 
     @BeforeEach
     public void setup() {
-        runner.api().table("source").random()
-                .add("int1", "int", "[1-250]")
-                .add("int3", "int", "[1-1000000]")
-                .add("str1", "string", "string[1-250]val")
-                .add("str2", "string", "val[1-640]string")
-                .add("str3", "string", "val[1-1000000]string")
-                .generateParquet();
+        runner.tables("source");
     }
 
     @Test
     public void tailBy1Group2Cols() {
-        var q = "source.tail_by(2, by=['str1'])";
-        runner.test("TailBy- 1 Group 250 Unique Vals 2 Rows Per", 250 * 2, q, "str1", "int1");
+        var q = "source.tail_by(2, by=['str250'])";
+        runner.test("TailBy- 1 Group 250 Unique Vals 2 Rows Per", 250 * 2, q, "str250", "int250");
     }
 
     @Test
     public void tailBy1Group2ColsLarge() {
-        var q = "source.tail_by(2, by=['str3'])";
-        runner.test("TailBy- 1 Group 1M Unique Vals 2 Rows Per", 1000000 * 2, q, "str3", "int3");
+        var q = "source.tail_by(2, by=['str1M'])";
+        runner.test("TailBy- 1 Group 1M Unique Vals 2 Rows Per", 1000000 * 2, q, "str1M", "int1M");
     }
 
     @Test
     public void tailBy2Groups3Cols() {
-        var q = "source.tail_by(2, by=['str1', 'str2'])";
-        runner.test("TailBy- 2 Groups 160K Unique Combos 2 Rows Per", 160000 * 2, q, "str1", "str2", "int1");
+        var q = "source.tail_by(2, by=['str250', 'str640'])";
+        runner.test("TailBy- 2 Groups 160K Unique Combos 2 Rows Per", 160000 * 2, q, "str250", "str640", "int250");
     }
 
 }
