@@ -9,6 +9,7 @@ on:
 
 jobs:
   process-release-benchmarks:
+    if: ${{github.repository_owner == 'deephaven'}}
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run-type: release
