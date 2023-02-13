@@ -154,7 +154,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.79.Final</version>
+			<version>4.1.88.Final</version>
 		</dependency>
 
 		<!-- Added because of conflict with 1.41.0 -->
