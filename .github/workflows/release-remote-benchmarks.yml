@@ -9,7 +9,6 @@ on:
 
 jobs:
   process-release-benchmarks:
-    if: ${{github.repository_owner == 'stanbrub'}}
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run-type: release
