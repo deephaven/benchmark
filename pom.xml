@@ -150,7 +150,7 @@
 	</build>
 
 	<dependencies>
-		<!-- Added because of conflict with 4.1.68 -->
+		<!-- Added because of conflict with 4.1.68  -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
@@ -180,13 +180,13 @@
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.19.1</version>
+			<version>0.21.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
-			<version>0.19.1</version>
+			<version>0.21.0</version>
 		</dependency>
 
 		<dependency>

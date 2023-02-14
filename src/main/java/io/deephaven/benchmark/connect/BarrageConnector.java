@@ -37,7 +37,17 @@ import io.deephaven.qst.TableCreationLogic;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
+/**
+ * Client that communicates with the Deephaven Server, allows queries to be executed, and results to be retrieved. At
+ * present, this connector only supports python queries.
+ * <p/>
+ * The typical workflow will be initialize connection, execute query, fetch results, close. Note: This class is meant to
+ * be used through the Bench api rather than directly.
+ */
 public class BarrageConnector implements AutoCloseable {
+    static {
+        System.setProperty("thread.initialization", ""); // Remove server side initializers (e.g. DebuggingInitializer)
+    }
     static final int maxFetchCount = 1000;
     final private BarrageSession session;
     final private ConsoleSession console;
@@ -50,6 +60,11 @@ public class BarrageConnector implements AutoCloseable {
     final private AtomicBoolean isClosed = new AtomicBoolean(false);
     private Changes changes = null;
 
+    /**
+     * Construct a barrage connection and initialize it
+     * 
+     * @param hostPort a host and port string for connecting to a Deephaven worker (ex. localhost:10000)
+     */
     public BarrageConnector(String hostPort) {
         String[] split = hostPort.split(":");
         this.channel = getManagedChannel(split[0], Integer.parseInt(split[1]));
@@ -61,6 +76,11 @@ public class BarrageConnector implements AutoCloseable {
         }
     }
 
+    /**
+     * Execute a Deephaven query which is identical to a query that would be used in the UI
+     * 
+     * @param query a Deephaven query
+     */
     public void executeQuery(String query) {
         checkClosed();
         try {
@@ -74,10 +94,22 @@ public class BarrageConnector implements AutoCloseable {
         }
     }
 
+    /**
+     * Get the table names created during all queries for this session
+     * 
+     * @return table names
+     */
     public Set<String> getUsedVariableNames() {
         return Collections.unmodifiableSet(variableNames);
     }
 
+    /**
+     * Fetch the rows of a table create or modified by this session's queries
+     * 
+     * @param table the name of the table to fetch data from
+     * @param tableHandler a consumer used to process the result table
+     * @return a future containing metrics collected during the fetch
+     */
     public Future<Metrics> fetchSnapshotData(String table, Consumer<ResultTable> tableHandler) {
         checkClosed();
         Metrics metrics = new Metrics(table, "session");
@@ -102,6 +134,14 @@ public class BarrageConnector implements AutoCloseable {
         return future;
     }
 
+    /**
+     * Fetch the rows of a table asynchronously through ticking updates. The table handler will be called once for every
+     * ticking update and will stop only when the table handler function returns false
+     * 
+     * @param table the name of the table to fetch data from
+     * @param tableHandler a function used to process the results of the table
+     * @return a future containing metrics collected during the fetch
+     */
     public Future<Metrics> fetchTickingData(String table, Function<ResultTable, Boolean> tableHandler) {
         checkClosed();
         Metrics metrics = new Metrics(table, "session");
@@ -126,6 +166,10 @@ public class BarrageConnector implements AutoCloseable {
         return future;
     }
 
+    /**
+     * Close the connector session and associated resources. Note: Because of the nature of the Deephaven Community Core
+     * worker, closing the connector session does not close the session on the server.
+     */
     public void close() {
         try {
             if (isClosed.get())

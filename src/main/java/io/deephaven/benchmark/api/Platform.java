@@ -7,22 +7,38 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.connect.ResultTable;
 
-// TODO: Grab Deephaven version from both Engine and Client with
-// io.deephaven.engine.table.Table.class.getPackage().getImplementationVersion()
+/**
+ * Collects various properties about the running client and server used during a benchmark run and stores them in the
+ * benchmark results directory.
+ */
 class Platform {
     static final String platformFileName = "benchmark-platform.csv";
     static final String[] header = {"application", "name", "value"};
     final Path platformFile;
     private boolean hasBeenCommitted = false;
 
+    /**
+     * Initialize platform detail collection with the default result file name.
+     * 
+     * @param parent the parent directory of the platform file
+     */
     Platform(Path parent) {
         this(parent, platformFileName);
     }
 
+    /**
+     * Initialize platform detail collection using the given result file name
+     * 
+     * @param parent the parent directory of the platform file
+     * @param platformFileName the name the file to store platform properties
+     */
     Platform(Path parent, String platformFileName) {
         this.platformFile = parent.resolve(platformFileName);
     }
 
+    /**
+     * Ensure that collected plaform properties have been saved
+     */
     void ensureCommit() {
         if (hasBeenCommitted)
             return;
@@ -37,6 +53,12 @@ class Platform {
         }
     }
 
+    /**
+     * Get a table for a query that has been filled with server-side properties
+     * 
+     * @param query the query used to get/make the property table
+     * @return a cached result table containing properties
+     */
     protected ResultTable fetchResult(String query) {
         Bench api = new Bench(Bench.class);
         api.setName("# Write Platform Details"); // # means skip adding to results file

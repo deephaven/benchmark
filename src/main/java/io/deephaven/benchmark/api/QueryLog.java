@@ -9,6 +9,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains the queries used through the API to run tests. Collected queries are written to a Markdown file in the
+ * benchmark results directory
+ */
 class QueryLog implements Closeable {
     final Class<?> testClass;
     final Path parent;
@@ -17,12 +21,21 @@ class QueryLog implements Closeable {
     private String name = null;
     private boolean isClosed = false;
 
+    /**
+     * Initialize the query log according to the test class it's tracking
+     * 
+     * @param parent the parent directory of the query log
+     * @param testClass the test class instance being tracked
+     */
     QueryLog(Path parent, Class<?> testClass) {
         this.testClass = testClass;
         this.parent = parent;
         this.logFile = getLogFile(parent, testClass);
     }
 
+    /**
+     * Flush all data to the query log and close it
+     */
     public void close() {
         if (isClosed)
             return;
@@ -42,10 +55,21 @@ class QueryLog implements Closeable {
         }
     }
 
+    /**
+     * Set the name of the current test. The query log records queries for a test class and denotes queries according to
+     * user-supplied test names
+     * 
+     * @param name the name of the current section (ex. test name)
+     */
     void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Collect a query that was run
+     * 
+     * @param query a Bench query
+     */
     void logQuery(String query) {
         if (name == null)
             throw new RuntimeException("Set a test name before logging a query");
