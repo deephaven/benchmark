@@ -161,7 +161,7 @@
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
-			<version>1.50.1</version>
+			<version>1.53.0</version>
 		</dependency>
 
 		<!-- Added because of conflict with 3.17.3 -->
