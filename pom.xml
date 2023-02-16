@@ -4,7 +4,6 @@
 	<artifactId>deephaven-benchmark</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<name>deephaven-benchmark</name>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -148,7 +147,6 @@
 			</extension>
 		</extensions>
 	</build>
-
 	<dependencies>
 		<!-- Added because of conflict with 4.1.68  -->
 		<dependency>
@@ -156,54 +154,39 @@
 			<artifactId>netty-all</artifactId>
 			<version>4.1.79.Final</version>
 		</dependency>
-
 		<!-- Added because of conflict with 1.41.0 -->
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
 			<version>1.50.1</version>
 		</dependency>
-
 		<!-- Added because of conflict with 3.17.3 -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>3.21.9</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.confluent</groupId>
 			<artifactId>kafka-avro-serializer</artifactId>
 			<version>7.3.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
 			<version>0.21.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
 			<version>0.21.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-console-standalone</artifactId>
 			<version>1.9.2</version>
 		</dependency>
-
-<!--
-		<dependency>
-			<groupId>com.diffplug.spotless</groupId>
-			<artifactId>spotless-maven-plugin</artifactId>
-			<version>2.33.0</version>
-		</dependency>-->
-
 	</dependencies>
-
 	<repositories>
 		<repository>
 			<id>confluent.io</id>
@@ -211,5 +194,4 @@
 			<url>https://packages.confluent.io/maven/</url>
 		</repository>
 	</repositories>
-
 </project>

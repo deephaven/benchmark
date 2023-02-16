@@ -22,6 +22,9 @@ import io.deephaven.benchmark.connect.ColumnDefs;
 import io.deephaven.benchmark.util.Metrics;
 import io.deephaven.benchmark.util.Threads;
 
+/**
+ * Generator that produces rows to a Kafka topic according to the provided column definitions
+ */
 public class AvroKafkaGenerator implements Generator {
     final private ExecutorService queue = Threads.single("AvroKafkaGenerator");
     final private Producer<String, GenericRecord> producer;
@@ -30,6 +33,16 @@ public class AvroKafkaGenerator implements Generator {
     final private String topic;
     final private AtomicBoolean isClosed = new AtomicBoolean(false);
 
+    /**
+     * Initialize with kafka server and schema registry locations, kafka topic, column definitions, and compression
+     * scheme
+     * 
+     * @param bootstrapServers the kafka external location (ex. localhost:9092)
+     * @param schemaRegistryUrl the ReST schema registry location (ex. localhost:8081)
+     * @param topic the kafka topic to produce record to (ex. mytable)
+     * @param columnDefs the column definitions specifying what the data looks like
+     * @param compression one of Kafka's <code>ProducerConfig.COMPRESSION_TYPE_CONFIG</code> schemes
+     */
     public AvroKafkaGenerator(String bootstrapServers, String schemaRegistryUrl, String topic, ColumnDefs columnDefs,
             String compression) {
         cleanupTopic(bootstrapServers, schemaRegistryUrl, topic);
@@ -39,7 +52,13 @@ public class AvroKafkaGenerator implements Generator {
         this.schema = publishSchema(topic, schemaRegistryUrl, getSchemaJson(topic, columnDefs));
     }
 
-    // ASync method to generate data.
+    /**
+     * Produce a maximum number of records to a Kafka topic asynchronously.
+     * 
+     * @param perRecordPauseMillis wait time between each record sent
+     * @param maxRecordCount maximum records to produce
+     * @param maxDurationSecs maximum duration to produce (May prevent maximum records from being produces)
+     */
     public Future<Metrics> produce(int perRecordPauseMillis, long maxRecordCount, int maxDurationSecs) {
         checkClosed();
         var r = new Callable<Metrics>() {
@@ -82,6 +101,11 @@ public class AvroKafkaGenerator implements Generator {
         return queue.submit(r);
     }
 
+    /**
+     * Produce one record to a Kafka topic synchronously
+     * 
+     * @param row the data for a row in the form {col1=val1, col2=val2}
+     */
     public void produce(Map<String, Object> row) {
         checkClosed();
         GenericRecord rec = new GenericData.Record(schema.rawSchema());
@@ -96,6 +120,9 @@ public class AvroKafkaGenerator implements Generator {
         }
     }
 
+    /**
+     * Close the producer and shutdown any async threads created during production
+     */
     public void close() {
         if (isClosed.get())
             return;
@@ -162,9 +189,13 @@ public class AvroKafkaGenerator implements Generator {
                 "  'namespace' : 'io.deephaven.benchmark',\n" +
                 "  'name' : '" + topic + "',\n" +
                 "  'fields' : [\n";
+        var fieldFmt = "    { 'name' : '%s', 'type' : '%s', 'logicalType' : '%s' },\n";
 
         for (Map.Entry<String, String> e : fieldDefs.toTypeMap().entrySet()) {
-            schema += "    { 'name' : '" + e.getKey() + "', 'type' : '" + e.getValue() + "' },\n";
+            var name = e.getKey();
+            var logicalType = e.getValue();
+            var type = (logicalType.equals("timestamp-millis")) ? "long" : logicalType;
+            schema += String.format(fieldFmt, name, type, logicalType);
         }
 
         schema = schema.replaceAll(",\n$", "\n") + "  ]\n}\n";

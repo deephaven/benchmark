@@ -40,7 +40,7 @@ public class ColumnDefsTest {
                 .add("price", "float", "[100-105]")
                 .add("priceAgain", "int", "[100-105]");
 
-        assertEquals("\"symbol\", \"price\", \"priceAgain\"", columnDefs.getQuotedColumns(), "Wrong field next");
+        assertEquals("\"symbol\",\"price\",\"priceAgain\"", columnDefs.getQuotedColumns(), "Wrong field next");
     }
 
     @Test

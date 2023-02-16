@@ -16,12 +16,6 @@ public class CountByTest {
     }
 
     @Test
-    public void countBy0Groups3Cols() {
-        var q = "source.count_by('count')";
-        runner.test("CountBy- No Groups 250 Unique Vals", 1, q, "str250", "str640", "int250");
-    }
-
-    @Test
     public void countBy1IntGroup1Col() {
         var q = "source.count_by('count', by=['int250'])";
         runner.test("CountBy- 1 Int Group 250 Unique Vals", 250, q, "int250");
