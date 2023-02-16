@@ -23,6 +23,18 @@ public class CumMaxTest {
     }
 
     @Test
+    public void cumMax0Group1Col() {
+        var q = "source.update_by(ops=cum_max(cols=['X=int5']))";
+        runner.test("CumMax- No Groups 1 Col", runner.scaleRowCount, q, "int5");
+    }
+
+    @Test
+    public void cumMax0Group2Cols() {
+        var q = "source.update_by(ops=cum_max(cols=['X=int5','Y=int10']))";
+        runner.test("CumMax- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+    }
+
+    @Test
     public void cumMax1Group2Cols() {
         var q = "source.update_by(ops=cum_max(cols=['X=int5']), by=['str100'])";
         runner.test("CumMax- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "int5");
@@ -30,7 +42,7 @@ public class CumMaxTest {
 
     @Test
     public void cumMax1Group3Cols() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5','CP2=int10']), by=['str100'])";
+        var q = "source.update_by(ops=cum_max(cols=['X=int5','Y=int10']), by=['str100'])";
         runner.test("CumMax- 1 Group 100 Unique Vals 3 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
     }
 

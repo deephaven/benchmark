@@ -25,6 +25,12 @@ public class EmaTimeDecayTest {
     }
 
     @Test
+    public void emaTimeDecay0Group2Cols() {
+        var q = "source.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=intScale']))";
+        runner.test("EmaTimeDecay- No Groups 1 Col", rowCount, q, "intScale", "timestamp");
+    }
+
+    @Test
     public void emaTimeDecay1Group3Cols() {
         var q = "source.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=intScale']), by=['str100'])";
         runner.test("EmaTimeDecay- 1 Group 100 Unique Vals 2 Col", rowCount, q, "str100", "intScale", "timestamp");

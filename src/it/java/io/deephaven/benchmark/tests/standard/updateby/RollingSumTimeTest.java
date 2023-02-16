@@ -32,6 +32,12 @@ public class RollingSumTimeTest {
     }
 
     @Test
+    public void rollingSumTime0Group2Cols() {
+        var q = "source.update_by(ops=[contains_row, before_row, after_row])";
+        runner.test("RollingSumTime- No Groups 2 Cols", rowCount, q, "intScale", "timestamp");
+    }
+
+    @Test
     public void rollingSumTime1Group3Cols() {
         var q = "source.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
         runner.test("RollingSumTime- 1 Group 100 Unique Vals 3 Cols", rowCount, q, "str100", "intScale", "timestamp");

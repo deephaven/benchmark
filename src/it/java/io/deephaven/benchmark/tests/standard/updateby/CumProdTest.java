@@ -5,8 +5,8 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the updateBy table operation. Calculates a cumulative product for specified columns and places
- * the result into a new column for each row.
+ * Standard tests for the updateBy table operation. Calculates a cumulative product for specified columns and places the
+ * result into a new column for each row.
  */
 public class CumProdTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -23,6 +23,18 @@ public class CumProdTest {
     }
 
     @Test
+    public void cumProd0Group1Col() {
+        var q = "source.update_by(ops=cum_prod(cols=['X1=int5']))";
+        runner.test("CumProd- No Groups 1 Col", runner.scaleRowCount, q, "int5");
+    }
+
+    @Test
+    public void cumProd0Group2Cols() {
+        var q = "source.update_by(ops=cum_prod(cols=['X=int5','Y=int10']))";
+        runner.test("CumProd- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+    }
+
+    @Test
     public void cumProd1Group2Cols() {
         var q = "source.update_by(ops=cum_prod(cols=['X1=int5']), by=['str100'])";
         runner.test("CumProd- 1 Group 100 Unique Vals 2 Col", runner.scaleRowCount, q, "str100", "int5");
@@ -30,7 +42,7 @@ public class CumProdTest {
 
     @Test
     public void cumProd1Group3Cols() {
-        var q = "source.update_by(ops=cum_prod(cols=['X=int5','CP2=int10']), by=['str100'])";
+        var q = "source.update_by(ops=cum_prod(cols=['X=int5','Y=int10']), by=['str100'])";
         runner.test("CumProd- 1 Group 100 Unique Vals 3 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
     }
 

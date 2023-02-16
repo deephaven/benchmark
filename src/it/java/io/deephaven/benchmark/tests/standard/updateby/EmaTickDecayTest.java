@@ -23,6 +23,18 @@ public class EmaTickDecayTest {
     }
 
     @Test
+    public void emaTickDecay0Group1Col() {
+        var q = "source.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5']))";
+        runner.test("EmaTickDecay- No Groups 1 Col", runner.scaleRowCount, q, "int5");
+    }
+
+    @Test
+    public void emaTickDecay0Group2Cols() {
+        var q = "source.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5','Y=int10']))";
+        runner.test("EmaTickDecay- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+    }
+
+    @Test
     public void emaTickDecay1Group2Cols() {
         var q = "source.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5']), by=['str100'])";
         runner.test("EmaTickDecay- 1 Group 100 Unique Vals 2 Col", runner.scaleRowCount, q, "str100", "int5");
@@ -37,7 +49,8 @@ public class EmaTickDecayTest {
     @Test
     public void emaTickDecay2Groups3Cols() {
         var q = "source.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos 3 Cols", runner.scaleRowCount, q, "str100", "str150", "int5");
+        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos 3 Cols", runner.scaleRowCount, q, "str100", "str150",
+                "int5");
     }
 
 }

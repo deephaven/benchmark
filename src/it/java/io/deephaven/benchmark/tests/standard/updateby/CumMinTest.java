@@ -23,6 +23,18 @@ public class CumMinTest {
     }
 
     @Test
+    public void cumMin0Group1Col() {
+        var q = "source.update_by(ops=cum_min(cols=['X=int5']))";
+        runner.test("CumMin- No Groups 1 Cols", runner.scaleRowCount, q, "int5");
+    }
+
+    @Test
+    public void cumMin0Group2Cols() {
+        var q = "source.update_by(ops=cum_min(cols=['X=int5','Y=int10']))";
+        runner.test("CumMin- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+    }
+
+    @Test
     public void cumMin1Group2Cols() {
         var q = "source.update_by(ops=cum_min(cols=['X=int5']), by=['str100'])";
         runner.test("CumMin- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "int5");

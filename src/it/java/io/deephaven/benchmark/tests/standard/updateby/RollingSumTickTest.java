@@ -28,6 +28,12 @@ public class RollingSumTickTest {
     }
 
     @Test
+    public void rollingSumTick0Group1Col() {
+        var q = "source.update_by(ops=[contains_row, before_row, after_row])";
+        runner.test("RollingSumTick- No Groups 1 Cols", runner.scaleRowCount, q, "intScale");
+    }
+
+    @Test
     public void rollingSumTick1Group2Cols() {
         var q = "source.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
         runner.test("RollingSumTick- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "intScale");
@@ -36,7 +42,8 @@ public class RollingSumTickTest {
     @Test
     public void rollingSumTick2Groups3Cols() {
         var q = "source.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("CumSum- 2 Groups 160K Unique Combos 3 Cols", runner.scaleRowCount, q, "str100", "str150", "intScale");
+        runner.test("CumSum- 2 Groups 160K Unique Combos 3 Cols", runner.scaleRowCount, q, "str100", "str150",
+                "intScale");
     }
 
 }

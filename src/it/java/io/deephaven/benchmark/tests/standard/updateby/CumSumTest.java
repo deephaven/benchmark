@@ -23,14 +23,26 @@ public class CumSumTest {
     }
 
     @Test
+    public void cumSum0Group1Col() {
+        var q = "source.update_by(ops=cum_sum(cols=['X=int5']))";
+        runner.test("CumSum- No Groups 1 Col", runner.scaleRowCount, q, "int5");
+    }
+
+    @Test
+    public void cumSum0Group2Cols() {
+        var q = "source.update_by(ops=cum_sum(cols=['X=int5','Y=int10']))";
+        runner.test("CumSum- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+    }
+
+    @Test
     public void cumSum1Group2Cols() {
         var q = "source.update_by(ops=cum_sum(cols=['X=int5']), by=['str100'])";
-        runner.test("CumSum- 1 Group 100 Unique Vals 1 Col", runner.scaleRowCount, q, "str100", "int5");
+        runner.test("CumSum- 1 Group 100 Unique Vals 2 Col", runner.scaleRowCount, q, "str100", "int5");
     }
 
     @Test
     public void cumSum1Group3Cols() {
-        var q = "source.update_by(ops=cum_sum(cols=['X=int5','CP2=int10']), by=['str100'])";
+        var q = "source.update_by(ops=cum_sum(cols=['X=int5','Y=int10']), by=['str100'])";
         runner.test("CumSum- 1 Group 100 Unique Vals 3 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
     }
 
