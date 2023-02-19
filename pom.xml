@@ -119,7 +119,7 @@
 				<configuration>
 					<forkCount>0</forkCount>
 					<includes>
-						<include>/io/deephaven/benchmark/tests/**/*Test</include>
+						<include>/io/deephaven/benchmark/tests/internal/**/*Test</include>
 					</includes>
 				</configuration>
 				<dependencies>
