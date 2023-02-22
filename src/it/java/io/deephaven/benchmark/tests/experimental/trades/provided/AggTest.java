@@ -43,7 +43,7 @@ public class AggTest {
            agg.avg('AvgBid=Bid'), agg.count_('Bid')
         ]
         """;
-        runner.api().query(q).execute();
+        runner.addSupportQuery(q);
         
         q = "quotes.agg_by(aggs, by=['Sym'])";
         runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 431, q, "Sym", "Bid");
@@ -58,7 +58,7 @@ public class AggTest {
             agg.avg('AvgAsk=Ask'), agg.count_('Bid')
         ]
         """;
-        runner.api().query(q).execute();
+        runner.addSupportQuery(q);
         
         q = "quotes.agg_by(aggs, by=['Date', 'Sym'])";
         runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");

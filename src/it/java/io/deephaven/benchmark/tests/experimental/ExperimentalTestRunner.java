@@ -2,8 +2,10 @@ package io.deephaven.benchmark.tests.experimental;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import io.deephaven.benchmark.api.Bench;
 
@@ -12,7 +14,8 @@ public class ExperimentalTestRunner {
     private long scaleRowCount;
     private Bench api;
     private String sourceTable = "source";
-    private Map<String,String[]> supportTables = new LinkedHashMap<>();
+    private Map<String, String[]> supportTables = new LinkedHashMap<>();
+    private List<String> supportQueries = new ArrayList<>();
 
     public ExperimentalTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -23,21 +26,25 @@ public class ExperimentalTestRunner {
     public Bench api() {
         return api;
     }
-    
+
     public long getScaleRowCount() {
         return scaleRowCount;
     }
-    
+
     public void setScaleRowCount(long scaleRowCount) {
         this.scaleRowCount = scaleRowCount;
     }
-    
+
     public void sourceTable(String name) {
-        this.sourceTable = name; 
+        this.sourceTable = name;
     }
-    
+
     public void addSupportTable(String name, String... columns) {
         supportTables.put(name, columns);
+    }
+    
+    public void addSupportQuery(String query) {
+        supportQueries.add(query);
     }
 
     public void test(String name, long expectedRowCount, String operation, String... sourceTableColumns) {
@@ -47,6 +54,8 @@ public class ExperimentalTestRunner {
         
         System = jpy.get_type('java.lang.System')
         System.gc()
+        
+        ${supportQueries}
         
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -64,11 +73,14 @@ public class ExperimentalTestRunner {
         ${loadSupportTables}
         loaded = read("/data/${sourceTable}.parquet").select(formulas=[${sourceColumns}])
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
-        source_filter = autotune(0, 1000000, 1.0, True)
+        source_filter = autotune(0, 1000000, 1.0, False)   # initial release, release size, target factor, verbose 
         ${sourceTable} = loaded.where(source_filter)
         
+        #deephaven.garbage collect
         System = jpy.get_type('java.lang.System')
         System.gc()
+        
+        ${supportQueries}
 
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -96,6 +108,7 @@ public class ExperimentalTestRunner {
         query = query.replace("${loadSupportTables}", getSupportTablesLogic());
         query = query.replace("${sourceColumns}", listStr(sourceTableColumns));
         query = query.replace("${sourceTable}", sourceTable);
+        query = query.replace("${supportQueries}", String.join("\n", supportQueries));
         query = query.replace("${operation}", operation);
 
         try {
@@ -116,11 +129,11 @@ public class ExperimentalTestRunner {
             api.close();
         }
     }
-    
+
     String getSupportTablesLogic() {
         String query = "";
-        for(Map.Entry<String,String[]> e: supportTables.entrySet()) {
-            String columns = (e.getValue().length == 0)?"":("formulas=[" + listStr(e.getValue()) + "]");
+        for (Map.Entry<String, String[]> e : supportTables.entrySet()) {
+            String columns = (e.getValue().length == 0) ? "" : ("formulas=[" + listStr(e.getValue()) + "]");
             var q = "${table}= read('/data/${table}.parquet').select(${columns})";
             q = q.replace("${table}", e.getKey()).replace("${columns}", columns);
             query += q + "\n";
@@ -137,6 +150,7 @@ public class ExperimentalTestRunner {
         """;
 
         Bench api = Bench.create(testInst);
+        restartDocker(api);
         api.query(query).execute();
         return api;
     }
@@ -151,9 +165,38 @@ public class ExperimentalTestRunner {
                 .add("str1M", "string", "val[1-1000000]string")
                 .generateParquet();
     }
-    
+
     String listStr(String... values) {
         return String.join(", ", Arrays.stream(values).map(c -> "'" + c + "'").toList());
+    }
+
+    void restartDocker(Bench api) {
+        var dockerComposeFile = api.property("docker.compose.file", "");
+        if (dockerComposeFile.isBlank())
+            return;
+        exec("docker compose -f " + dockerComposeFile + " down");
+        sleep(1);
+        exec("docker compose -f " + dockerComposeFile + " up -d");
+        sleep(5);
+    }
+
+    void exec(String command) {
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            if (!process.waitFor(20, TimeUnit.SECONDS))
+                throw new RuntimeException("Timeout while running command: " + command);
+            if (process.exitValue() != 0)
+                throw new RuntimeException("Bad exit code " + process.exitValue() + " for command: " + command);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to execute command: " + command);
+        }
+    }
+
+    void sleep(int secs) {
+        try {
+            Thread.sleep(secs * 1000);
+        } catch (InterruptedException e) {
+        }
     }
 
 }

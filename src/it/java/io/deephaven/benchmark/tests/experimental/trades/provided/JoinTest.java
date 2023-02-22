@@ -7,6 +7,8 @@ import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 /**
  * Basic where tests that could be shown to customers
  */
+
+// TODO: autotune both sides of the join
 public class JoinTest {
     final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
 
@@ -19,21 +21,21 @@ public class JoinTest {
 
     @Test
     public void asOfJoinOn3Cols() {
-        var q = "trades.aj(quotes, ['Date', 'Sym', 'Timestamp'])";
-        runner.test("AsOfJoin- Join On 3 Columns", 21469392, q, "Date", "Sym", "Timestamp", "Price");
+        var q = "trades.aj(quotes, ['Sym', 'Timestamp'])";
+        runner.test("AsOfJoin- Join On 3 Columns", 21469392, q, "Sym", "Timestamp", "Price");
     }
 
     @Test
     public void asOfJoinCombo() {
         var q = """
         (
-            trades.aj(quotes, ["Date", "Sym", "Timestamp"])
+            trades.aj(quotes, ["Sym", "Timestamp"])
             .update_view(["Mid=(Bid+Ask)/2", "Edge=abs(Price-Mid)", "DollarEdge=Edge*Size"])
-            .view(["Date", "Sym", "DollarEdge"])
-            .sum_by(["Date", "Sym"])
+            .view(["Sym", "DollarEdge"])
+            .sum_by(["Sym"])
         )
         """;
-        runner.test("AsOfJoin- Join On 3 Columns Combo", runner.getScaleRowCount(), q, "Date", "Sym", "Timestamp", "Price", "Size");
+        runner.test("AsOfJoin- Join On 3 Columns Combo", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price", "Size");
     }
 
 }

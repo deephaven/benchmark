@@ -40,7 +40,7 @@ public class AggTest {
             agg.count_('int500'), agg.std('Std1=int500')
         ]
         """;
-        runner.api().query(q).execute();
+        runner.addSupportQuery(q);
         
         q = "source.agg_by(aggs, by=['str10K'])";
         runner.test("AggBy-Combo- 1 Group 10K Unique Vals 1 Int Col", 10000, q, "str10K", "int500");
@@ -55,7 +55,7 @@ public class AggTest {
             agg.count_('int500'), agg.std(['Std1=int500','Std2=int1K'])
         ]
         """;
-        runner.api().query(q).execute();
+        runner.addSupportQuery(q);
         
         q = "source.agg_by(aggs, by=['str10K'])";
         runner.test("AggBy-Combo- 1 Group 10K Unique Vals 2 Int Col", 10000, q, "str10K", "int500", "int1K");
