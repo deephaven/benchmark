@@ -19,19 +19,19 @@ public class AggTest {
     @Test
     public void sumBy1Group1IntCol() {
         var q = "quotes_g.sum_by(by=['Sym'])";
-        runner.test("SumBy- 1 Group 1 Int Col", 430, q, "Sym", "Bid");
+        runner.test("SumBy- 1 Group 1 Int Col", 431, q, "Sym", "Bid");
     }
 
     @Test
     public void sumBy1Group2IntCols() {
         var q = "quotes_g.sum_by(by=['Sym'])";
-        runner.test("SumBy- 1 Group 2 Int Cols", 430, q, "Sym", "Bid", "Ask");
+        runner.test("SumBy- 1 Group 2 Int Cols", 431, q, "Sym", "Bid", "Ask");
     }
 
     @Test
     public void sumBy2Groups2IntCols() {
         var q = "quotes_g.sum_by(by=['Date','Sym'])";
-        runner.test("SumBy- 2 Groups 2 Int Cols", 430, q, "Sym", "Date", "Bid", "Ask");
+        runner.test("SumBy- 2 Groups 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class AggTest {
         runner.addSupportQuery(q);
 
         q = "quotes_g.agg_by(aggs, by=['Sym'])";
-        runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 430, q, "Sym", "Bid");
+        runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 431, q, "Sym", "Bid");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class AggTest {
         runner.addSupportQuery(q);
 
         q = "quotes_g.agg_by(aggs, by=['Date', 'Sym'])";
-        runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 430, q, "Sym", "Date", "Bid", "Ask");
+        runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
     }
 
 }

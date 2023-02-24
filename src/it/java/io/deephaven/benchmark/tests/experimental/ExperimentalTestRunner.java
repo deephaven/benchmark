@@ -265,7 +265,7 @@ public class ExperimentalTestRunner {
     void generateQuotesTable(long rowCount) {
         api.table("quotes_g").random()
                 .add("Date", "string", "2023-01-04")
-                .add("Sym", "string", "S[1-430]")
+                .add("Sym", "string", "S[1-431]")
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")
                 .add("Bid", "float", "[10-1000]")
                 .add("BidSize", "int", "[1-200]0")
