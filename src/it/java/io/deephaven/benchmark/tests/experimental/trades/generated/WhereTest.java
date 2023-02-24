@@ -12,24 +12,23 @@ public class WhereTest {
 
     @BeforeEach
     public void setup() {
-        runner.tables("quotes");
-        runner.sourceTable("quotes");
-        runner.setScaleRowCount(84255431);
+        runner.table("quotes_g", runner.getScaleRowCount());
+        runner.sourceTable("quotes_g");
     }
 
     @Test
     public void where3Clauses() {
-        var q = "quotes.where(filters=['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100'])";
-        runner.test("Where- 3 Clauses", 329093, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
+        var q = "quotes_g.where(filters=['(Ask - Bid) > 1', 'BidSize <= 100', 'AskSize <= 100'])";
+        runner.test("Where- 3 Clauses", 2000, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
     @Test
     public void whereOneOfComboClauses() {
         var q = """
-        quotes.where_one_of(['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100']
-        ).where(["Sym in '1', 'S2', 'S3', 'S4', 'S5'"])
+        quotes_g.where_one_of(['(Ask - Bid) > 1', 'BidSize <= 100', 'AskSize <= 100']
+        ).where(["Sym in 'S1', 'S2', 'S3', 'S4', 'S5'"])
         """;
-        runner.test("WhereOneOf- Where Combo", 19419322, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
+        runner.test("WhereOneOf- Where Combo", 500000, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
 }

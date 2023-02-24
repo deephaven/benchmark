@@ -12,27 +12,26 @@ public class AggTest {
 
     @BeforeEach
     public void setup() {
-        runner.tables("quotes");
-        runner.sourceTable("quotes");
-        runner.setScaleRowCount(84255431);
+        runner.table("quotes_g", runner.getScaleRowCount());
+        runner.sourceTable("quotes_g");
     }
 
     @Test
     public void sumBy1Group1IntCol() {
-        var q = "quotes.sum_by(by=['Sym'])";
-        runner.test("SumBy- 1 Group 1 Int Col", 431, q, "Sym", "Bid");
+        var q = "quotes_g.sum_by(by=['Sym'])";
+        runner.test("SumBy- 1 Group 1 Int Col", 430, q, "Sym", "Bid");
     }
 
     @Test
     public void sumBy1Group2IntCols() {
-        var q = "quotes.sum_by(by=['Sym'])";
-        runner.test("SumBy- 1 Group 2 Int Cols", 431, q, "Sym", "Bid", "Ask");
+        var q = "quotes_g.sum_by(by=['Sym'])";
+        runner.test("SumBy- 1 Group 2 Int Cols", 430, q, "Sym", "Bid", "Ask");
     }
 
     @Test
     public void sumBy2Groups2IntCols() {
-        var q = "quotes.sum_by(by=['Date','Sym'])";
-        runner.test("SumBy- 2 Groups 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
+        var q = "quotes_g.sum_by(by=['Date','Sym'])";
+        runner.test("SumBy- 2 Groups 2 Int Cols", 430, q, "Sym", "Date", "Bid", "Ask");
     }
 
     @Test
@@ -46,8 +45,8 @@ public class AggTest {
         """;
         runner.addSupportQuery(q);
 
-        q = "quotes.agg_by(aggs, by=['Sym'])";
-        runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 431, q, "Sym", "Bid");
+        q = "quotes_g.agg_by(aggs, by=['Sym'])";
+        runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 430, q, "Sym", "Bid");
     }
 
     @Test
@@ -61,8 +60,8 @@ public class AggTest {
         """;
         runner.addSupportQuery(q);
 
-        q = "quotes.agg_by(aggs, by=['Date', 'Sym'])";
-        runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
+        q = "quotes_g.agg_by(aggs, by=['Date', 'Sym'])";
+        runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 430, q, "Sym", "Date", "Bid", "Ask");
     }
 
 }

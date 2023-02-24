@@ -13,29 +13,29 @@ public class JoinTest {
 
     @BeforeEach
     public void setup() {
-        runner.tables("trades", "quotes");
-        runner.sourceTable("trades");
-        runner.addSupportTable("quotes");
-        runner.setScaleRowCount(21469392);
+        runner.table("trades_g", runner.getScaleRowCount());
+        runner.table("quotes_g", runner.getScaleRowCount() * 4);
+        runner.sourceTable("trades_g");
+        runner.addSupportTable("quotes_g");
     }
 
     @Test
     public void asOfJoinOn3Cols() {
-        var q = "trades.aj(quotes, ['Sym', 'Timestamp'])";
-        runner.test("AsOfJoin- Join On 2 Columns", 21469392, q, "Sym", "Timestamp", "Price");
+        var q = "trades_g.aj(quotes_g, ['Sym', 'Timestamp'])";
+        runner.test("AsOfJoin- Join On 2 Columns", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price");
     }
 
     @Test
     public void asOfJoinCombo() {
         var q = """
         (
-            trades.aj(quotes, ["Sym", "Timestamp"])
+            trades_g.aj(quotes_g, ["Sym", "Timestamp"])
             .update_view(["Mid=(Bid+Ask)/2", "Edge=abs(Price-Mid)", "DollarEdge=Edge*Size"])
             .view(["Sym", "DollarEdge"])
             .sum_by(["Sym"])
         )
         """;
-        runner.test("AsOfJoin- Join On 2 Columns Combo", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price", "Size");
+        runner.test("AsOfJoin- Join On 2 Columns Combo", 430, q, "Sym", "Timestamp", "Price", "Size");
     }
 
 }

@@ -12,20 +12,19 @@ public class UpdateTest {
 
     @BeforeEach
     public void setup() {
-        runner.tables("quotes");
-        runner.sourceTable("quotes");
-        runner.setScaleRowCount(84255431);
+        runner.table("quotes_g", runner.getScaleRowCount());
+        runner.sourceTable("quotes_g");
     }
     
     @Test
     public void update1CalcUsing2Cols() {
-        var q = "quotes.update(formulas=['Mid=(Bid+Ask)/2'])";
+        var q = "quotes_g.update(formulas=['Mid=(Bid+Ask)/2'])";
         runner.test("Update- 1 Calc Using 2 Cols", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Bid", "Ask");
     }
     
     @Test
     public void update2CalcsUsing2Cols() {
-        var q = "quotes.update(formulas=['Mid=(Bid+Ask)/2', 'Spread=Ask-Bid'])";
+        var q = "quotes_g.update(formulas=['Mid=(Bid+Ask)/2', 'Spread=Ask-Bid'])";
         runner.test("Update- 2 Cals Using 2 Cols", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Bid", "Ask");
     }
 

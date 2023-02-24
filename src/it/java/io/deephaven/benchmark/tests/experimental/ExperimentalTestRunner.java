@@ -95,18 +95,16 @@ public class ExperimentalTestRunner {
      * 
      * @param names the tables to generate
      */
-    public void tables(String... names) {
-        for (String name : names) {
-            switch (name) {
-                case "quotes":
-                    generateQuotesTable();
-                    break;
-                case "trades":
-                    generateTradesTable();
-                    break;
-                default:
-                    throw new RuntimeException("Undefined table name: " + name);
-            }
+    public void table(String name, long rowCount) {
+        switch (name) {
+            case "quotes_g":
+                generateQuotesTable(rowCount);
+                break;
+            case "trades_g":
+                generateTradesTable(rowCount);
+                break;
+            default:
+                throw new RuntimeException("Undefined table name: " + name);
         }
     }
 
@@ -264,8 +262,8 @@ public class ExperimentalTestRunner {
         }
     }
 
-    void generateQuotesTable() {
-        api.table("quotes").random()
+    void generateQuotesTable(long rowCount) {
+        api.table("quotes_g").random()
                 .add("Date", "string", "2023-01-04")
                 .add("Sym", "string", "S[1-430]")
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")
@@ -273,17 +271,18 @@ public class ExperimentalTestRunner {
                 .add("BidSize", "int", "[1-200]0")
                 .add("Ask", "float", "[10-1000]")
                 .add("AskSize", "int", "[1-200]0")
+                .withRowCount((int)rowCount)
                 .generateParquet();
     }
 
-    void generateTradesTable() {
-        api.table("trades").random()
+    void generateTradesTable(long rowCount) {
+        api.table("trades_g").random()
                 .add("Date", "string", "2023-01-04")
                 .add("Sym", "string", "S[1-430]")
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")
                 .add("Price", "float", "[10-1000]")
                 .add("Size", "int", "[1-200]0")
-                .withRowCount(21469392)
+                .withRowCount((int)rowCount)
                 .generateParquet();
     }
 

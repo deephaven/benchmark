@@ -19,17 +19,17 @@ public class WhereTest {
 
     @Test
     public void where3Clauses() {
-        var q = "quotes.where(filters=['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100'])";
-        runner.test("Where- 3 Clauses", 329093, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
+        var q = "quotes.where(filters=['(Ask - Bid) > 1', 'BidSize <= 100', 'AskSize <= 100'])";
+        runner.test("Where- 3 Clauses", 376084, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
     @Test
     public void whereOneOfComboClauses() {
         var q = """
-        quotes.where_one_of(['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100']
+        quotes.where_one_of(['(Ask - Bid) > 1', 'BidSize <= 100', 'AskSize <= 100']
         ).where(["Sym in 'META', 'AMZN', 'AAPL', 'NFLX', 'GOOG'"])
         """;
-        runner.test("WhereOneOf- Where Combo", 19419322, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
+        runner.test("WhereOneOf- Where Combo", 1949322, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
 }
