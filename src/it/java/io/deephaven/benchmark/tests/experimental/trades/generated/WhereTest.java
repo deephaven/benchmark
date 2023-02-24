@@ -5,36 +5,31 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 
 /**
- * Basic where tests that could be shown to customers
+ * Basic where tests that match the <code>provided</code> tests.
  */
 public class WhereTest {
     final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
 
     @BeforeEach
     public void setup() {
-        runner.api().table("source").random()
-                .add("int500", "int", "[1-500]")
-                .add("int1K", "int", "[1-1000]")
-                .add("str10K", "string", "s[1-10000]v")
-                .generateParquet();
+        runner.tables("quotes");
+        runner.sourceTable("quotes");
+        runner.setScaleRowCount(84255431);
     }
-    
+
     @Test
-    public void whereIntCompare() {
-        var q = "source.where(filters=['int500 == int1K'])";
-        runner.test("Where- Int Compare", 10000, q, "int1K", "int500");
+    public void where3Clauses() {
+        var q = "quotes.where(filters=['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100'])";
+        runner.test("Where- 3 Clauses", 329093, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
-    
+
     @Test
-    public void whereStringCompare() {
-        var q = "source.where(filters=[\"str10K == 's10v'\"])";
-        runner.test("Where- String Compare", 10000, q, "str10K", "int500");
-    }
-    
-    @Test
-    public void whereIntAndStringCompare() {
-        var q = "source.where(filters=['int500 < int1K', \"str10K == 's1v'\"])";
-        runner.test("Where- Int And String Compare", 10000, q, "str10K", "int500", "int1K");
+    public void whereOneOfComboClauses() {
+        var q = """
+        quotes.where_one_of(['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100']
+        ).where(["Sym in '1', 'S2', 'S3', 'S4', 'S5'"])
+        """;
+        runner.test("WhereOneOf- Where Combo", 19419322, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
 }

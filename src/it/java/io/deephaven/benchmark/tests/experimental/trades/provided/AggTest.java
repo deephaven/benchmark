@@ -5,7 +5,8 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 
 /**
- * Basic aggregation tests for customers
+ * Basic aggregation tests for customers. Assumes that Deephaven is already running and that there is a
+ * <code>quotes.parquet</code> file or link in the Engine's /data directory
  */
 public class AggTest {
     final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
@@ -27,7 +28,7 @@ public class AggTest {
         var q = "quotes.sum_by(by=['Sym'])";
         runner.test("SumBy- 1 Group 2 Int Cols", 431, q, "Sym", "Bid", "Ask");
     }
-    
+
     @Test
     public void sumBy2Groups2IntCols() {
         var q = "quotes.sum_by(by=['Date','Sym'])";
@@ -44,7 +45,7 @@ public class AggTest {
         ]
         """;
         runner.addSupportQuery(q);
-        
+
         q = "quotes.agg_by(aggs, by=['Sym'])";
         runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 431, q, "Sym", "Bid");
     }
@@ -59,7 +60,7 @@ public class AggTest {
         ]
         """;
         runner.addSupportQuery(q);
-        
+
         q = "quotes.agg_by(aggs, by=['Date', 'Sym'])";
         runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
     }

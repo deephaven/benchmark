@@ -1,13 +1,11 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
-package io.deephaven.benchmark.tests.experimental.trades.provided;
+package io.deephaven.benchmark.tests.experimental.trades.generated;
 
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 
 /**
- * Basic where tests for customers. Assumes that Deephaven is already running and that there is a
- * <code>quotes.parquet</code> file and <code>trades.parquet</code> file or corresponding links in the Engine's /data
- * directory
+ * Basic where tests that match the <code>provided</code> tests.
  */
 // TODO: autotune both sides of the join
 public class JoinTest {
@@ -15,6 +13,7 @@ public class JoinTest {
 
     @BeforeEach
     public void setup() {
+        runner.tables("trades", "quotes");
         runner.sourceTable("trades");
         runner.addSupportTable("quotes");
         runner.setScaleRowCount(21469392);
@@ -36,8 +35,7 @@ public class JoinTest {
             .sum_by(["Sym"])
         )
         """;
-        runner.test("AsOfJoin- Join On 2 Columns Combo", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price",
-                "Size");
+        runner.test("AsOfJoin- Join On 2 Columns Combo", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price", "Size");
     }
 
 }

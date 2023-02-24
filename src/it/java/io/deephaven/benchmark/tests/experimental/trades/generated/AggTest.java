@@ -5,30 +5,34 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 
 /**
- * Basic aggregation tests for customers
+ * Basic aggregation tests that match the <code>provided</code> tests. 
  */
 public class AggTest {
     final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
 
     @BeforeEach
     public void setup() {
-        runner.api().table("source").random()
-                .add("int500", "int", "[1-500]")
-                .add("int1K", "int", "[1-1000]")
-                .add("str10K", "string", "s[1-10000]v")
-                .generateParquet();
+        runner.tables("quotes");
+        runner.sourceTable("quotes");
+        runner.setScaleRowCount(84255431);
     }
 
     @Test
     public void sumBy1Group1IntCol() {
-        var q = "source.sum_by(by=['str10K'])";
-        runner.test("SumBy- 1 Group 10K Unique Vals 1 Int Col", 10000, q, "str10K", "int500");
+        var q = "quotes.sum_by(by=['Sym'])";
+        runner.test("SumBy- 1 Group 1 Int Col", 431, q, "Sym", "Bid");
     }
 
     @Test
     public void sumBy1Group2IntCols() {
-        var q = "source.sum_by(by=['str10K'])";
-        runner.test("SumBy- 1 Group 10K Unique Vals 2 Int Col", 10000, q, "str10K", "int500");
+        var q = "quotes.sum_by(by=['Sym'])";
+        runner.test("SumBy- 1 Group 2 Int Cols", 431, q, "Sym", "Bid", "Ask");
+    }
+
+    @Test
+    public void sumBy2Groups2IntCols() {
+        var q = "quotes.sum_by(by=['Date','Sym'])";
+        runner.test("SumBy- 2 Groups 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
     }
 
     @Test
@@ -36,29 +40,29 @@ public class AggTest {
         var q = """
         from deephaven import agg
         aggs = [
-            agg.avg('Avg1=int500'), agg.sum_('Sum1=int500'), 
-            agg.count_('int500'), agg.std('Std1=int500')
+           agg.sum_('TotalBid=Bid'), agg.std('StdBid=Bid'),
+           agg.avg('AvgBid=Bid'), agg.count_('Bid')
         ]
         """;
         runner.addSupportQuery(q);
-        
-        q = "source.agg_by(aggs, by=['str10K'])";
-        runner.test("AggBy-Combo- 1 Group 10K Unique Vals 1 Int Col", 10000, q, "str10K", "int500");
+
+        q = "quotes.agg_by(aggs, by=['Sym'])";
+        runner.test("AggBy-Combo- 1 Group 4 Calcs On 1 Int Col", 431, q, "Sym", "Bid");
     }
 
     @Test
-    public void aggBy1Group2IntCols() {
+    public void aggBy2Group2IntCols() {
         var q = """
         from deephaven import agg
         aggs = [
-            agg.avg(['Avg1=int500','Avg2=int1K']), agg.sum_(['Sum1=int500','Sum=int1K']), 
-            agg.count_('int500'), agg.std(['Std1=int500','Std2=int1K'])
+            agg.min_('MinBid=Bid'), agg.max_('MaxAsk=Ask'),
+            agg.avg('AvgAsk=Ask'), agg.count_('Bid')
         ]
         """;
         runner.addSupportQuery(q);
-        
-        q = "source.agg_by(aggs, by=['str10K'])";
-        runner.test("AggBy-Combo- 1 Group 10K Unique Vals 2 Int Col", 10000, q, "str10K", "int500", "int1K");
+
+        q = "quotes.agg_by(aggs, by=['Date', 'Sym'])";
+        runner.test("AggBy-Combo- 2 Groups 4 Calcs On 2 Int Cols", 431, q, "Sym", "Date", "Bid", "Ask");
     }
 
 }

@@ -5,7 +5,8 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
 
 /**
- * Basic where tests that could be shown to customers
+ * Basic where tests for customers. Assumes that Deephaven is already running and that there is a
+ * <code>quotes.parquet</code> file or link in the Engine's /data directory
  */
 public class WhereTest {
     final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
@@ -15,13 +16,13 @@ public class WhereTest {
         runner.sourceTable("quotes");
         runner.setScaleRowCount(84255431);
     }
-    
+
     @Test
     public void where3Clauses() {
         var q = "quotes.where(filters=['(Ask - Bid) > 1', 'BidSize = 100', 'AskSize = 100'])";
         runner.test("Where- 3 Clauses", 329093, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
-    
+
     @Test
     public void whereOneOfComboClauses() {
         var q = """
