@@ -189,17 +189,25 @@ public class AvroKafkaGenerator implements Generator {
                 "  'namespace' : 'io.deephaven.benchmark',\n" +
                 "  'name' : '" + topic + "',\n" +
                 "  'fields' : [\n";
-        var fieldFmt = "    { 'name' : '%s', 'type' : '%s', 'logicalType' : '%s' },\n";
+        var fieldFmt = "    { 'name' : '%s', 'type' : %s },\n";
 
         for (Map.Entry<String, String> e : fieldDefs.toTypeMap().entrySet()) {
             var name = e.getKey();
-            var logicalType = e.getValue();
-            var type = (logicalType.equals("timestamp-millis")) ? "long" : logicalType;
-            schema += String.format(fieldFmt, name, type, logicalType);
+            var type = e.getValue();
+            
+            if(type.equals("timestamp-millis")) type = getSchemaType("long", type);
+            else type = "'" + type + "'";
+            
+            schema += String.format(fieldFmt, name, type);
         }
 
         schema = schema.replaceAll(",\n$", "\n") + "  ]\n}\n";
         return schema.replace("'", "\"");
+    }
+    
+    private String getSchemaType(String type, String logicalType) {
+        var typeFmt = "['null', { 'type' : '%s', 'logicalType' : '%s' }]";
+        return String.format(typeFmt, type, logicalType);
     }
 
 }
