@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
 
+/**
+ * Test to ensure that data types defined for the generator are propagated through Kafka to parquet and read according
+ * to the correct corresponding Deephaven data types.
+ */
 public class DataTypesTest {
     final Bench api = Bench.create(this);
 
