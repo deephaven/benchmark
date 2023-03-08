@@ -20,7 +20,7 @@ public class JoinTest {
     }
 
     @Test
-    public void asOfJoinOn3Cols() {
+    public void asOfJoinOn2Cols() {
         var q = "trades_g.aj(quotes_g, ['Sym', 'Timestamp'])";
         runner.test("AsOfJoin- Join On 2 Columns", runner.getScaleRowCount(), q, "Sym", "Timestamp", "Price");
     }

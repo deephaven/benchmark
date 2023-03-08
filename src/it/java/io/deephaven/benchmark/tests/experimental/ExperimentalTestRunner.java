@@ -126,8 +126,7 @@ public class ExperimentalTestRunner {
         ${loadSupportTables}
         ${sourceTable} = read("/data/${sourceTable}.parquet").select(formulas=[${sourceColumns}])
         
-        System = jpy.get_type('java.lang.System')
-        System.gc()
+        garbage_collect()
         
         ${supportQueries}
         
@@ -150,9 +149,7 @@ public class ExperimentalTestRunner {
         source_filter = autotune(0, 1000000, 1.0, False)   # initial release, release size, target factor, verbose 
         ${sourceTable} = loaded.where(source_filter)
         
-        #deephaven.garbage collect
-        System = jpy.get_type('java.lang.System')
-        System.gc()
+        garbage_collect()
         
         ${supportQueries}
 
@@ -218,7 +215,7 @@ public class ExperimentalTestRunner {
     Bench initialize(Object testInst) {
         var query = """
         import time
-        from deephaven import new_table
+        from deephaven import new_table, garbage_collect
         from deephaven.column import string_col, int_col, float_col
         from deephaven.parquet import read
         """;

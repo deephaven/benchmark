@@ -28,7 +28,7 @@ public class RollingSumTimeTest {
         after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=intScale"], rev_time="-00:00:01", fwd_time=int(3e9))
         
         """;
-        runner.api().query(setup).execute();
+        runner.addSetupQuery(setup);
     }
 
     @Test

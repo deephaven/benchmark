@@ -19,7 +19,7 @@ public class CumMinTest {
                 .add("str100", "string", "s[1-100]")
                 .add("str150", "string", "[1-150]s")
                 .generateParquet();
-        runner.api().query("from deephaven.updateby import cum_min").execute();
+        runner.addSetupQuery("from deephaven.updateby import cum_min");
     }
 
     @Test

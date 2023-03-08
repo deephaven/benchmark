@@ -21,7 +21,7 @@ public class EmaTimeDecayTest {
                 .add("str100", "string", "s[1-100]")
                 .add("str150", "string", "[1-150]s")
                 .generateParquet();
-        runner.api().query("from deephaven.updateby import ema_time_decay").execute();
+        runner.addSetupQuery("from deephaven.updateby import ema_time_decay");
     }
 
     @Test

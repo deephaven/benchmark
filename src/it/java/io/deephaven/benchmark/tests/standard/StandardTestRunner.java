@@ -3,8 +3,9 @@ package io.deephaven.benchmark.tests.standard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
 
 /**
@@ -18,6 +19,8 @@ import io.deephaven.benchmark.api.Bench;
 public class StandardTestRunner {
     final public long scaleRowCount;
     final Object testInst;
+    final List<String> setupQueries = new ArrayList<>();
+    final List<String> supportTables = new ArrayList<>();
     private Bench api;
 
     public StandardTestRunner(Object testInst) {
@@ -46,10 +49,22 @@ public class StandardTestRunner {
                 case "source":
                     generateSourceTable();
                     break;
+                case "right":
+                    generateRightTable();
+                    break;
                 default:
                     throw new RuntimeException("Undefined table name: " + name);
             }
         }
+    }
+
+    /**
+     * Add a query to be run outside the benchmark measurement but before the benchmark query
+     * 
+     * @param query the query to run before benchmark
+     */
+    public void addSetupQuery(String query) {
+        setupQueries.add(query);
     }
 
     /**
@@ -64,10 +79,12 @@ public class StandardTestRunner {
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
         var staticQuery = """
+        ${loadSupportTables}
         source = read("/data/source.parquet").select(formulas=[${loadColumns}])
+
+        garbage_collect()
         
-        System = jpy.get_type('java.lang.System')
-        System.gc()
+        ${setupQueries}
         
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -82,13 +99,15 @@ public class StandardTestRunner {
         var rows1 = runTest(name + " -Static", expectedRowCount, staticQuery, operation, loadColumns);
 
         var incQuery = """ 
+        ${loadSupportTables}
         loaded = read("/data/source.parquet").select(formulas=[${loadColumns}])
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
         source = loaded.where(source_filter)
         
-        System = jpy.get_type('java.lang.System')
-        System.gc()
+        garbage_collect()
+        
+        ${setupQueries}
 
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -113,8 +132,9 @@ public class StandardTestRunner {
         if (api.isClosed())
             api = initialize(testInst);
         api.setName(name);
-        query = query.replace("${loadColumns}",
-                String.join(", ", Arrays.stream(loadColumns).map(c -> "'" + c + "'").toList()));
+        query = query.replace("${loadSupportTables}", loadSupportTables());
+        query = query.replace("${loadColumns}", listStr(loadColumns));
+        query = query.replace("${setupQueries}", String.join("\n", setupQueries));
         query = query.replace("${operation}", operation);
 
         try {
@@ -136,10 +156,19 @@ public class StandardTestRunner {
         }
     }
 
+    String listStr(String... values) {
+        return String.join(", ", Arrays.stream(values).map(c -> "'" + c + "'").toList());
+    }
+
+    String loadSupportTables() {
+        return supportTables.stream().map(t -> t + " = read('/data/" + t + ".parquet').select()\n")
+                .collect(Collectors.joining(""));
+    }
+
     Bench initialize(Object testInst) {
         var query = """
         import time
-        from deephaven import new_table
+        from deephaven import new_table, garbage_collect
         from deephaven.column import string_col, int_col, float_col
         from deephaven.parquet import read
         """;
@@ -154,9 +183,20 @@ public class StandardTestRunner {
                 .add("int250", "int", "[1-250]")
                 .add("int640", "int", "[1-640]")
                 .add("int1M", "int", "[1-1000000]")
-                .add("str250", "string", "string[1-250]val")
-                .add("str640", "string", "val[1-640]string")
-                .add("str1M", "string", "val[1-1000000]string")
+                .add("str250", "string", "s[1-250]")
+                .add("str640", "string", "[1-640]s")
+                .add("str1M", "string", "v[1-1000000]s")
+                .generateParquet();
+    }
+
+    void generateRightTable() {
+        supportTables.add("right");
+        api.table("right").fixed()
+                .add("r_str250", "string", "s[1-250]")
+                .add("r_str640", "string", "[1-640]s")
+                .add("r_int1M", "int", "[1-1000000]")
+                .add("r_str1M", "string", "v[1-1000000]s")
+                .add("r_str10K", "string", "r[1-100000]s")
                 .generateParquet();
     }
 

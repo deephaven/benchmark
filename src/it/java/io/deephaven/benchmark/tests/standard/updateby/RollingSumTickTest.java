@@ -24,7 +24,7 @@ public class RollingSumTickTest {
         before_row = rolling_sum_tick(cols=["Before = intScale"], rev_ticks=3, fwd_ticks=-1)
         after_row = rolling_sum_tick(cols=["After = intScale"], rev_ticks=-1, fwd_ticks=3)
         """;
-        runner.api().query(setup).execute();
+        runner.addSetupQuery(setup);
     }
 
     @Test

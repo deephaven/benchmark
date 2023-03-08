@@ -279,6 +279,8 @@ final public class BenchTable implements Closeable {
         if os.path.exists(table_parquet):
             os.remove(table_parquet)
 
+        mymeta = ${table.name}.meta_table
+
         with open(table_gen_def_file, 'w') as f:
             f.write(table_gen_def_text)
         write(${table.name}, table_gen_parquet ${compression.codec})

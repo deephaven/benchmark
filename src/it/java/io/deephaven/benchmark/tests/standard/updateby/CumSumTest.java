@@ -19,7 +19,7 @@ public class CumSumTest {
                 .add("str100", "string", "s[1-100]")
                 .add("str150", "string", "[1-150]s")
                 .generateParquet();
-        runner.api().query("from deephaven.updateby import cum_sum").execute();
+        runner.addSetupQuery("from deephaven.updateby import cum_sum");
     }
 
     @Test
