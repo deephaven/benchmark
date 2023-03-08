@@ -40,11 +40,5 @@ public class SortTest {
         var q = "source.sort_descending(order_by=['str250', 'str640'])";
         runner.test("SortDescending- 2 Cols", runner.scaleRowCount, q, "str250", "str640", "int250");
     }
-    
-    @Test
-    public void reverse3Cols() {
-        var q = "source.reverse()";
-        runner.test("Reverse- 3 Cols", runner.scaleRowCount, q, "str250", "str640", "int250");
-    }
 
 }
