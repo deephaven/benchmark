@@ -14,18 +14,13 @@ public class RollingSumTimeTest {
 
     @BeforeEach
     public void setup() {
-        long baseTime = 1676557157537L;
-        runner.api().table("source").fixed()
-                .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + rowCount - 1) + "]")
-                .add("intScale", "int", "[1-" + (rowCount - 1) + "]")
-                .add("str100", "string", "s[1-100]")
-                .add("str150", "string", "[1-150]s")
-                .generateParquet();
+        runner.tables("timed");
+
         var setup = """
         from deephaven.updateby import rolling_sum_time
-        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=intScale"], rev_time="00:00:01", fwd_time="00:00:01")
-        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=intScale"], rev_time="00:00:03", fwd_time=int(-1e9))
-        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=intScale"], rev_time="-00:00:01", fwd_time=int(3e9))
+        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=int5"], rev_time="00:00:01", fwd_time="00:00:01")
+        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=int5"], rev_time="00:00:03", fwd_time=int(-1e9))
+        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-00:00:01", fwd_time=int(3e9))
         
         """;
         runner.addSetupQuery(setup);
@@ -33,21 +28,35 @@ public class RollingSumTimeTest {
 
     @Test
     public void rollingSumTime0Group2Cols() {
-        var q = "source.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingSumTime- No Groups 2 Cols", rowCount, q, "intScale", "timestamp");
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
+        runner.test("RollingSumTime- No Groups 2 Cols", rowCount, q, "int5", "timestamp");
     }
 
     @Test
     public void rollingSumTime1Group3Cols() {
-        var q = "source.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingSumTime- 1 Group 100 Unique Vals 3 Cols", rowCount, q, "str100", "intScale", "timestamp");
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
+        runner.test("RollingSumTime- 1 Group 100 Unique Vals 3 Cols", rowCount, q, "str100", "int5", "timestamp");
     }
 
     @Test
-    public void rollingSumTime2Groups4Cols() {
-        var q = "source.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingSumTime- 2 Groups 160K Unique Combos 4 Cols", rowCount, q, "str100", "str150",
-                "intScale", "timestamp");
+    public void rollingSumTime2Groups3OpsInt() {
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
+        runner.test("RollingSumTime- 2 Groups 160K Unique Combos Int", rowCount, q, "str100", "str150",
+                "int5", "timestamp");
+    }
+
+    @Test
+    public void rollingSumTime2Groups3OpsFloat() {
+        var setup = """
+        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=float5"], rev_time="00:00:01", fwd_time="00:00:01")
+        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=float5"], rev_time="00:00:03", fwd_time=int(-1e9))
+        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=float5"], rev_time="-00:00:01", fwd_time=int(3e9))
+        """;
+        runner.addSetupQuery(setup);
+
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
+        runner.test("RollingSumTime- 2 Groups 160K Unique Combos Float", rowCount, q, "str100", "str150",
+                "float5", "timestamp");
     }
 
 }

@@ -28,9 +28,15 @@ public class SumByTest {
     }
 
     @Test
-    public void sumBy2Groups3Cols() {
+    public void sumBy2GroupsInt() {
         var q = "source.sum_by(by=['str250', 'str640'])";
-        runner.test("SumBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("SumBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void sumBy2GroupsFloat() {
+        var q = "source.sum_by(by=['str250', 'str640'])";
+        runner.test("SumBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

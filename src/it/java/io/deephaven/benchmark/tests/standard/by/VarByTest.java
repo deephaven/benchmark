@@ -28,9 +28,15 @@ public class VarByTest {
     }
 
     @Test
-    public void varBy2Groups3Cols() {
+    public void varBy2GroupsInt() {
         var q = "source.var_by(by=['str250', 'str640'])";
-        runner.test("VarBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("VarBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void varBy2GroupsFloat() {
+        var q = "source.var_by(by=['str250', 'str640'])";
+        runner.test("VarBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

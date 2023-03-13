@@ -28,9 +28,15 @@ public class AvgByTest {
     }
 
     @Test
-    public void avgBy2Group3Cols() {
+    public void avgBy2GroupInt() {
         var q = "source.avg_by(by=['str250', 'str640'])";
-        runner.test("AvgBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("AvgBy- 2 Groups 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void avgBy2GroupFloat() {
+        var q = "source.avg_by(by=['str250', 'str640'])";
+        runner.test("AvgBy- 2 Groups 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }
