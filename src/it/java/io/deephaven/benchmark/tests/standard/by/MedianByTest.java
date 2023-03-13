@@ -34,9 +34,15 @@ public class MedianByTest {
     }
 
     @Test
-    public void medianBy2Group3Cols() {
+    public void medianBy2GroupInt() {
         var q = "source.median_by(by=['str250', 'str640'])";
-        runner.test("MedianBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("MedianBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void medianBy2GroupFloat() {
+        var q = "source.median_by(by=['str250', 'str640'])";
+        runner.test("MedianBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

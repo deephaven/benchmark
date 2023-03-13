@@ -13,43 +13,44 @@ public class CumMaxTest {
 
     @BeforeEach
     public void setup() {
-        runner.api().table("source").random()
-                .add("int5", "int", "[1-5]")
-                .add("int10", "int", "[1-10]")
-                .add("str100", "string", "s[1-100]")
-                .add("str150", "string", "[1-150]s")
-                .generateParquet();
+        runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import cum_max");
     }
 
     @Test
     public void cumMax0Group1Col() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5']))";
+        var q = "timed.update_by(ops=cum_max(cols=['X=int5']))";
         runner.test("CumMax- No Groups 1 Col", runner.scaleRowCount, q, "int5");
     }
 
     @Test
     public void cumMax0Group2Cols() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5','Y=int10']))";
+        var q = "timed.update_by(ops=cum_max(cols=['X=int5','Y=int10']))";
         runner.test("CumMax- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
     }
 
     @Test
     public void cumMax1Group2Cols() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5']), by=['str100'])";
+        var q = "timed.update_by(ops=cum_max(cols=['X=int5']), by=['str100'])";
         runner.test("CumMax- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "int5");
     }
 
     @Test
     public void cumMax1Group3Cols() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5','Y=int10']), by=['str100'])";
+        var q = "timed.update_by(ops=cum_max(cols=['X=int5','Y=int10']), by=['str100'])";
         runner.test("CumMax- 1 Group 100 Unique Vals 3 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
     }
 
     @Test
-    public void cumMax2Groups3Cols() {
-        var q = "source.update_by(ops=cum_max(cols=['X=int5']), by=['str100','str150'])";
-        runner.test("CumMax- 2 Groups 160K Unique Combos 3 Cols", runner.scaleRowCount, q, "str100", "str150", "int5");
+    public void cumMax2GroupsInt() {
+        var q = "timed.update_by(ops=cum_max(cols=['X=int5']), by=['str100','str150'])";
+        runner.test("CumMax- 2 Groups 160K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150", "int5");
+    }
+    
+    @Test
+    public void cumMax2GroupsFloat() {
+        var q = "timed.update_by(ops=cum_max(cols=['X=float5']), by=['str100','str150'])";
+        runner.test("CumMax- 2 Groups 160K Unique Combos Float", runner.scaleRowCount, q, "str100", "str150", "float5");
     }
 
 }

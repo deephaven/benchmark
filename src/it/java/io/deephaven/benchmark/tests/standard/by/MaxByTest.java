@@ -30,13 +30,19 @@ public class MaxByTest {
     @Test
     public void minBy1Group2ColsLarge() {
         var q = "source.max_by(by=['str1M'])";
-        runner.test("MinBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
+        runner.test("MaxBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
     }
 
     @Test
-    public void minBy2Groups3Cols() {
+    public void minBy2GroupsInt() {
         var q = "source.max_by(by=['str250', 'str640'])";
-        runner.test("MinBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("MaxBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void minBy2GroupsFloat() {
+        var q = "source.max_by(by=['str250', 'str640'])";
+        runner.test("MaxBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

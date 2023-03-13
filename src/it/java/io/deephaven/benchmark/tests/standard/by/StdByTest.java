@@ -24,13 +24,19 @@ public class StdByTest {
     @Test
     public void stdBy1Group2ColsLarge() {
         var q = "source.std_by(by=['str1M'])";
-        runner.test("StdBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
+        runner.test("StdBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int250");
     }
 
     @Test
-    public void stdBy2Groups3Cols() {
+    public void stdBy2GroupsInt() {
         var q = "source.std_by(by=['str250', 'str640'])";
-        runner.test("StdBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("StdBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void stdBy2GroupsFloat() {
+        var q = "source.std_by(by=['str250', 'str640'])";
+        runner.test("StdBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

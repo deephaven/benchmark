@@ -22,9 +22,15 @@ public class ViewTest {
     }
 
     @Test
-    public void view2CalcsUsing2Cols() {
+    public void view2CalcsInt() {
         var q = "source.view(formulas=['New1 = (int640 + int250) / 2', 'New2 = int1M - int640'])";
         runner.test("View- 2 Cals Using 2 Cols", runner.scaleRowCount, q, "str250", "int250", "int640", "int1M");
+    }
+    
+    @Test
+    public void view2CalcsFloat() {
+        var q = "source.view(formulas=['New1 = (float5 + int250) / 2', 'New2 = int1M - float5'])";
+        runner.test("View- 2 Calcs Using Float", runner.scaleRowCount, q, "str250", "int250", "float5", "int1M");
     }
 
 }

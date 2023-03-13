@@ -21,6 +21,7 @@ public class StandardTestRunner {
     final Object testInst;
     final List<String> setupQueries = new ArrayList<>();
     final List<String> supportTables = new ArrayList<>();
+    private String mainTable = "source";
     private Bench api;
 
     public StandardTestRunner(Object testInst) {
@@ -44,6 +45,9 @@ public class StandardTestRunner {
      * @param name
      */
     public void tables(String... names) {
+        if (names.length > 0)
+            mainTable = names[0];
+        
         for (String name : names) {
             switch (name) {
                 case "source":
@@ -51,6 +55,9 @@ public class StandardTestRunner {
                     break;
                 case "right":
                     generateRightTable();
+                    break;
+                case "timed":
+                    generateTimedTable();
                     break;
                 default:
                     throw new RuntimeException("Undefined table name: " + name);
@@ -80,7 +87,7 @@ public class StandardTestRunner {
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
         var staticQuery = """
         ${loadSupportTables}
-        source = read("/data/source.parquet").select(formulas=[${loadColumns}])
+        ${mainTable} = read("/data/${mainTable}.parquet").select(formulas=[${loadColumns}])
 
         garbage_collect()
         
@@ -92,7 +99,7 @@ public class StandardTestRunner {
         
         stats = new_table([
             float_col("elapsed_millis", [(end_time - begin_time) / 1000000.0]),
-            int_col("processed_row_count", [source.size]),
+            int_col("processed_row_count", [${mainTable}.size]),
             int_col("result_row_count", [result.size]),
         ])
         """;
@@ -100,10 +107,10 @@ public class StandardTestRunner {
 
         var incQuery = """ 
         ${loadSupportTables}
-        loaded = read("/data/source.parquet").select(formulas=[${loadColumns}])
+        loaded = read("/data/${mainTable}.parquet").select(formulas=[${loadColumns}])
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
-        source = loaded.where(source_filter)
+        ${mainTable} = loaded.where(source_filter)
         
         garbage_collect()
         
@@ -132,6 +139,7 @@ public class StandardTestRunner {
         if (api.isClosed())
             api = initialize(testInst);
         api.setName(name);
+        query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
         query = query.replace("${setupQueries}", String.join("\n", setupQueries));
@@ -183,6 +191,7 @@ public class StandardTestRunner {
                 .add("int250", "int", "[1-250]")
                 .add("int640", "int", "[1-640]")
                 .add("int1M", "int", "[1-1000000]")
+                .add("float5", "float", "[1-5]")
                 .add("str250", "string", "s[1-250]")
                 .add("str640", "string", "[1-640]s")
                 .add("str1M", "string", "v[1-1000000]s")
@@ -197,6 +206,18 @@ public class StandardTestRunner {
                 .add("r_int1M", "int", "[1-1000000]")
                 .add("r_str1M", "string", "v[1-1000000]s")
                 .add("r_str10K", "string", "r[1-100000]s")
+                .generateParquet();
+    }
+
+    void generateTimedTable() {
+        long baseTime = 1676557157537L;
+        api.table("timed").fixed()
+                .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]")
+                .add("int5", "int", "[1-5]")
+                .add("int10", "int", "[1-10]")
+                .add("float5", "float", "[1-5]")
+                .add("str100", "string", "s[1-100]")
+                .add("str150", "string", "[1-150]s")
                 .generateParquet();
     }
 

@@ -34,9 +34,15 @@ public class MinByTest {
     }
 
     @Test
-    public void minBy2Groups3Cols() {
+    public void minBy2GroupsInt() {
         var q = "source.min_by(by=['str250', 'str640'])";
-        runner.test("MinBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
+        runner.test("MinBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    }
+    
+    @Test
+    public void minBy2GroupsFloat() {
+        var q = "source.min_by(by=['str250', 'str640'])";
+        runner.test("MinBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
 
 }

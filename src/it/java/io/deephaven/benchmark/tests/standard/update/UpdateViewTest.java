@@ -23,9 +23,15 @@ public class UpdateViewTest {
     }
 
     @Test
-    public void updateView2CalcsUsing2Cols() {
+    public void updateView2CalcsInt() {
         var q = "source.update_view(formulas=['New1 = (int640 + int250) / 2', 'New2 = int1M - int640'])";
-        runner.test("UpdateView- 2 Cals Using 2 Cols", runner.scaleRowCount, q, "str250", "int250", "int640", "int1M");
+        runner.test("UpdateView- 2 Cals Using Int", runner.scaleRowCount, q, "str250", "int250", "int640", "int1M");
+    }
+    
+    @Test
+    public void updateView2CalcsFloat() {
+        var q = "source.update_view(formulas=['New1 = (float5 + int250) / 2', 'New2 = int1M - float5'])";
+        runner.test("UpdateView- 2 Calcs Using Float", runner.scaleRowCount, q, "str250", "int250", "float5", "int1M");
     }
 
 }
