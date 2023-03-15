@@ -1,8 +1,7 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
-package io.deephaven.benchmark.connect;
+package io.deephaven.benchmark.generator;
 
 import java.util.*;
-import java.util.stream.LongStream;
 
 /**
  * Contains column definitions used to generate data and schemas. Columns are described by name, type, and data range
@@ -13,9 +12,18 @@ import java.util.stream.LongStream;
  * considerable amount of memory for larger scales, especially for generated strings.
  */
 public class ColumnDefs {
+    final int valueCacheSize;
     final Random random = new Random(20221130);
     final List<ColumnDef> columns = new ArrayList<>();
     private boolean isFixed = false;
+
+    public ColumnDefs() {
+        this(1024);
+    }
+
+    ColumnDefs(int valueCacheSize) {
+        this.valueCacheSize = valueCacheSize;
+    }
 
     /**
      * Get the number of column definitions.
@@ -42,8 +50,8 @@ public class ColumnDefs {
      * 
      * @return the maximum number of values defined in this set
      */
-    public int getMaxValueCount() {
-        return columns.stream().mapToInt(c -> c.maker.values.size()).max().getAsInt();
+    public long getMaxValueCount() {
+        return columns.stream().mapToLong(c -> c.maker.def.size()).max().getAsLong();
     }
 
     /**
@@ -122,91 +130,136 @@ public class ColumnDefs {
     }
 
     private Maker getMaker(String type, String valueDef) {
-        List<String> values = getParsedValues(valueDef);
+        ValueDef def = parseValueDef(valueDef);
         switch (type.toLowerCase()) {
             case "string":
-                return new StringMaker(values);
+                return new StringMaker(def);
             case "long":
-                return new LongMaker(values);
+                return new LongMaker(def);
             case "int":
-                return new IntMaker(values);
+                return new IntMaker(def);
             case "double":
-                return new DoubleMaker(values);
+                return new DoubleMaker(def);
             case "float":
-                return new FloatMaker(values);
+                return new FloatMaker(def);
             case "timestamp-millis":
-                return new TimestampMaker(values);
+                return new TimestampMaker(def);
             default:
                 throw new RuntimeException("Invalid field type: " + type);
         }
     }
 
     // "[1-10]"
-    private List<String> getParsedValues(String valueDef) {
+    private ValueDef parseValueDef(String valueDef) {
         String bracketMatch = ".*(\\[[0-9]+[-][0-9]+\\]).*";
         if (!valueDef.matches(bracketMatch))
-            return List.of(valueDef);
+            return new ValueDef(0, 1, null, valueDef, true);
         String brackets = valueDef.replaceAll(bracketMatch, "$1");
         String[] range = brackets.replaceAll(".*\\[([0-9]+)[-]([0-9]+)\\].*", "$1,$2").split(",");
         if (range.length != 2)
-            return List.of(valueDef);
+            return new ValueDef(0, 1, null, valueDef, true);
         long rangeStart = Long.parseLong(range[0]);
         long rangeEnd = Long.parseLong(range[1]) + 1; // End is inclusive
 
-        return LongStream.range(rangeStart, rangeEnd).mapToObj(v -> valueDef.replace(brackets, Long.toString(v)))
-                .toList();
+        return new ValueDef(rangeStart, rangeEnd - rangeStart, brackets, valueDef, false);
     }
 
     record ColumnDef(String name, String type, String valueDef, Maker maker) {
     }
 
     class StringMaker extends Maker {
-        StringMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) v).toList());
+        StringMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        String value(long index) {
+            return def.getString(index);
         }
     }
 
     class LongMaker extends Maker {
-        LongMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) Long.valueOf(v)).toList());
+        LongMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        Long value(long index) {
+            return def.getLong(index);
         }
     }
 
     class IntMaker extends Maker {
-        IntMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) Integer.valueOf(v)).toList());
+        IntMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        Integer value(long index) {
+            return (int) def.getLong(index);
         }
     }
 
     class DoubleMaker extends Maker {
-        DoubleMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) Double.valueOf(v)).toList());
+        DoubleMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        Double value(long index) {
+            return (double) def.getLong(index);
         }
     }
 
     class FloatMaker extends Maker {
-        FloatMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) Float.valueOf(v)).toList());
+        FloatMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        Float value(long index) {
+            return (float) def.getLong(index);
         }
     }
 
     class TimestampMaker extends Maker {
-        TimestampMaker(List<String> values) {
-            super(values.stream().map(v -> (Object) Long.valueOf(v)).toList());
+        TimestampMaker(ValueDef def) {
+            super(def);
+        }
+
+        @Override
+        Long value(long index) {
+            return def.getLong(index);
         }
     }
 
     abstract class Maker {
-        final List<Object> values;
+        final List<Object> cache = new ArrayList<>();
+        final ValueDef def;
 
-        Maker(List<Object> values) {
-            this.values = values;
+        Maker(ValueDef def) {
+            this.def = def;
+            int cacheSize = (int) Math.min(def.size(), valueCacheSize);
+            for (int i = 0; i < cacheSize; i++) {
+                cache.add(value(i));
+            }
         }
 
-        public Object next(long seed) {
-            if (isFixed)
-                return values.get((int) (seed % values.size()));
-            return values.get(random.nextInt(0, values.size()));
+        abstract Object value(long index);
+
+        final Object next(long seed) {
+            long index = isFixed ? (seed % def.size()) : random.nextLong(0, def.size());
+            return (index < cache.size()) ? cache.get((int) index) : value(index);
+        }
+    }
+
+    record ValueDef(long rangeStart, long size, String brackets, String def, boolean isLiteral) {
+        String getString(long index) {
+            return (isLiteral) ? def : def.replace(brackets, Long.toString(index + rangeStart));
+        }
+
+        long getLong(long index) {
+            return (isLiteral) ? Long.valueOf(def) : (index + rangeStart);
         }
     }
 

@@ -1,5 +1,5 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
-package io.deephaven.benchmark.producer;
+package io.deephaven.benchmark.generator;
 
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 import java.util.Collection;
@@ -18,7 +18,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import io.deephaven.benchmark.connect.ColumnDefs;
 import io.deephaven.benchmark.util.Metrics;
 import io.deephaven.benchmark.util.Threads;
 

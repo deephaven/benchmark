@@ -22,9 +22,9 @@ public class JoinTest {
     }
 
     @Test
-    public void joinOn2Cols1Match() {
-        var q = "source.join(right, on=['str1M=r_str1M', 'int1M=r_int1M'])";
-        runner.test("Join- Join On 2 Cols 1 Match", 1000, q, "str1M", "int1M", "int250");
+    public void joinOn2ColsAnyMatch() {
+        var q = "source.join(right, on=['str1M=r_str1M', 'str250=r_str250'])";
+        runner.test("Join- Join On 2 Cols 1 Match", 1000000, q, "str250", "str1M", "int1M", "int250");
     }
 
     @Test

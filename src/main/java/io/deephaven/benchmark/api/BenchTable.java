@@ -6,9 +6,9 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import io.deephaven.benchmark.connect.ColumnDefs;
-import io.deephaven.benchmark.producer.AvroKafkaGenerator;
-import io.deephaven.benchmark.producer.Generator;
+import io.deephaven.benchmark.generator.AvroKafkaGenerator;
+import io.deephaven.benchmark.generator.ColumnDefs;
+import io.deephaven.benchmark.generator.Generator;
 import io.deephaven.benchmark.util.Ids;
 import io.deephaven.benchmark.util.Metrics;
 
