@@ -15,7 +15,7 @@ public class PlatformTest {
     public void ensureCommit() throws Exception {
         Path outParent = Paths.get(getClass().getResource("test-profile.properties").toURI()).getParent();
         var platform = new LocalPlatform(outParent, "platform-test.out");
-        platform.ensureCommit();
+        platform.commit();
 
         var lines = Files.readAllLines(outParent.resolve("platform-test.out"));
         assertEquals(15, lines.size(), "Wrong row count");

@@ -45,6 +45,14 @@ public class KafkaAdmin {
         }
     }
 
+    public Set<String> getTopics() {
+        try (AdminClient admin = KafkaAdminClient.create(props)) {
+            return admin.listTopics().names().get();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to get topics", ex);
+        }
+    }
+
     public long getMessageCount(String topic) {
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props)) {
             List<TopicPartition> partitions =

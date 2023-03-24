@@ -27,5 +27,12 @@ public class JfrReader {
             throw new RuntimeException("Error reading Recording File: " + url, ex);
         }
     }
+
+    // FlightRecorderMXBean flightRecorder = ManagementFactory.getPlatformMXBean(FlightRecorderMXBean.class);
+    // long recordingId = flightRecorder.newRecording();
+    // flightRecorder.startRecording(recordingId);
+    // // Perform some operations
+    // flightRecorder.stopRecording(recordingId);
+
 }
 

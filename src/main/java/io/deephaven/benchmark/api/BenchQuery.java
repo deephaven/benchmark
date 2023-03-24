@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import io.deephaven.benchmark.connect.BarrageConnector;
 import io.deephaven.benchmark.connect.ResultTable;
-import io.deephaven.benchmark.util.Metrics;
+import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -86,7 +86,7 @@ final public class BenchQuery implements Closeable {
 
         if (!session.getUsedVariableNames().isEmpty()) {
             String logic = String.join("=None; ", session.getUsedVariableNames()) + "=None\n";
-            logic += "System = jpy.get_type('java.lang.System'); System.gc()\n";
+            logic += "from deephaven import garbage_collect; garbage_collect()\n";
             executeBarrageQuery(logic);
         }
 

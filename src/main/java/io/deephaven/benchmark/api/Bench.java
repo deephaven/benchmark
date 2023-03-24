@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Filer;
 import io.deephaven.benchmark.util.Ids;
 import io.deephaven.benchmark.util.Log;
-import io.deephaven.benchmark.util.Metrics;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -24,6 +24,7 @@ import io.deephaven.benchmark.util.Timer;
 final public class Bench {
     static final public String rootOutputDir = "results";
     static final public String resultFileName = "benchmark-results.csv";
+    static final public String metricsFileName = "benchmark-metrics.csv";
     static final Profile profile = new Profile();
     static final Path outputDir = initializeOutputDirectory();
     static final Platform platform = new Platform(outputDir);
@@ -36,15 +37,16 @@ final public class Bench {
 
     final Object testInst;
     final BenchResult result;
+    final BenchMetrics metrics;
     final QueryLog queryLog;
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
-    final List<Metrics> metrics = new ArrayList<>();
     private boolean isClosed = false;
 
     Bench(Class<?> testInst) {
         this.testInst = testInst;
         this.result = new BenchResult(outputDir);
+        this.metrics = new BenchMetrics(outputDir);
         this.queryLog = new QueryLog(outputDir, testInst);
     }
 
@@ -57,6 +59,7 @@ final public class Bench {
         if (name == null || name.isBlank())
             throw new RuntimeException("No blank Benchmark names allowed");
         this.result.setName(name);
+        this.metrics.setName(name);
         this.queryLog.setName(name);
     }
 
@@ -155,6 +158,20 @@ final public class Bench {
         return result;
     }
 
+    /**
+     * Get the result for this Benchmark instance (e.g. test) used for collecting rates
+     * 
+     * @return the result instance
+     */
+    public BenchMetrics metrics() {
+        return metrics;
+    }
+
+    /**
+     * Has this Bench api instance been closed along with all connectors and files opened since creating the instance
+     * 
+     * @return true if already closed, otherwise false
+     */
     public boolean isClosed() {
         return isClosed;
     }
@@ -173,7 +190,8 @@ final public class Bench {
         }
         closeables.clear();
         result.commit();
-        platform.ensureCommit();
+        metrics.commit();
+        platform.commit();
         queryLog.close();
     }
 

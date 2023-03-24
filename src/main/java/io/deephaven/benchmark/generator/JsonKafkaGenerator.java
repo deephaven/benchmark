@@ -8,7 +8,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import io.deephaven.benchmark.util.Metrics;
+import io.deephaven.benchmark.metric.Metrics;
 
 public class JsonKafkaGenerator implements Generator {
     final private Producer<String, GenericRecord> producer;

@@ -3,6 +3,7 @@ package io.deephaven.benchmark.connect;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import io.deephaven.benchmark.util.Numbers;
 
 // Example TableTools.show data processed by this class
 //
@@ -43,6 +44,11 @@ public class CsvTable implements ResultTable {
         if (rowIndex >= rows.size())
             return null;
         return rows.get(rowIndex).get(getColumnIndex(columnName));
+    }
+
+    public Number getNumber(int rowIndex, String columnName) {
+        Object val = getValue(rowIndex, columnName);
+        return Numbers.parseNumber(val);
     }
 
     public ResultTable findRows(String columnName, Object value) {

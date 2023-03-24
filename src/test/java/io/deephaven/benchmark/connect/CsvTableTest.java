@@ -36,4 +36,11 @@ public class CsvTableTest {
         assertEquals("MSFT", other.getValue(0, "symbol"), "Wrong row key");
     }
 
+    @Test
+    public void getNumber() {
+        CsvTable table = new CsvTable(csv, "|");
+        assertEquals((Double) 5.0, table.getNumber(0, "AvgPrice"), "Expected Double value");
+        assertEquals((Long) 1L, table.getNumber(1, "RowPosition"), "Expected Long value");
+    }
+
 }

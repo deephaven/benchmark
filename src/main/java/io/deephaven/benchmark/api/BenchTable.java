@@ -9,8 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.deephaven.benchmark.generator.AvroKafkaGenerator;
 import io.deephaven.benchmark.generator.ColumnDefs;
 import io.deephaven.benchmark.generator.Generator;
+import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Ids;
-import io.deephaven.benchmark.util.Metrics;
 
 /**
  * Represents the configuration of table name and columns.
@@ -288,8 +288,8 @@ final public class BenchTable implements Closeable {
 
         del ${table.name}
 
-        System = jpy.get_type('java.lang.System')
-        System.gc()
+        from deephaven import garbage_collect
+        garbage_collect()
         """;
 
 }

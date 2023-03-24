@@ -1,5 +1,5 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
-package io.deephaven.benchmark.util;
+package io.deephaven.benchmark.metric;
 
 import java.util.concurrent.*;
 

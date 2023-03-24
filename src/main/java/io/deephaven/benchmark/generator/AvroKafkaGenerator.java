@@ -18,7 +18,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import io.confluent.kafka.schemaregistry.avro.AvroSchema;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
-import io.deephaven.benchmark.util.Metrics;
+import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Threads;
 
 /**
@@ -92,7 +92,7 @@ public class AvroKafkaGenerator implements Generator {
                         throw new RuntimeException("Failed to send to topic: " + topic, ex);
                     }
                 }
-                Metrics metrics = new Metrics(topic, "generator").set("duration.secs", duration / 1000.0)
+                Metrics metrics = new Metrics("test-runner", topic, "generator").set("duration.secs", duration / 1000.0)
                         .set("record.count", recCount).set("send.rate", recCount / (duration / 1000.0));
                 return metrics;
             }

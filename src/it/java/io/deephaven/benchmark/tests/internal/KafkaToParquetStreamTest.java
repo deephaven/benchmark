@@ -24,12 +24,9 @@ public class KafkaToParquetStreamTest {
         result = orders.view(formulas=["qty"]).agg_by([agg.sum_("RecCount = qty")], "qty")
         """;
 
-        var tm = api.timer();
         api.query(query).fetchAfter("result", table -> {
             assertEquals(scaleRowCount, table.getSum("RecCount").longValue(), "Wrong record count");
         }).execute();
-        api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
     }
 
     @AfterEach

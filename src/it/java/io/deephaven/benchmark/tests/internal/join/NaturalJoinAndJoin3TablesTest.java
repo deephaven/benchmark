@@ -47,14 +47,10 @@ public class NaturalJoinAndJoin3TablesTest {
         result_row_count = new_table([int_col("result_size", [result.size])])
         """;
 
-        var tm = api.timer();
         api.query(query).fetchAfter("result_row_count", table -> {
             int recCount = table.getSum("result_size").intValue();
             assertEquals(scaleRowCount, recCount, "Wrong record count");
         }).execute();
-
-        api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
     }
 
     @Test
@@ -81,14 +77,10 @@ public class NaturalJoinAndJoin3TablesTest {
         result_row_count = new_table([int_col("result_size", [result.size])])
         """;
 
-        var tm = api.timer();
         api.query(query).fetchAfter("result_row_count", table -> {
             int recCount = table.getSum("result_size").intValue();
             assertEquals(scaleRowCount, recCount, "Wrong record count");
         }).execute();
-
-        api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
     }
 
     @AfterEach

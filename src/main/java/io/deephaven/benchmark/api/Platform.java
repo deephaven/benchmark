@@ -39,7 +39,7 @@ class Platform {
     /**
      * Ensure that collected plaform properties have been saved
      */
-    void ensureCommit() {
+    void commit() {
         if (hasBeenCommitted)
             return;
         hasBeenCommitted = true;

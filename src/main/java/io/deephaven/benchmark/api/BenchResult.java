@@ -58,7 +58,7 @@ final public class BenchResult {
     }
 
     /**
-     * Save the collected results a csv file. Skip results where name starts with "#"
+     * Save the collected results to a csv file. Skip results where name starts with "#"
      */
     public void commit() {
         if (name.startsWith("#"))

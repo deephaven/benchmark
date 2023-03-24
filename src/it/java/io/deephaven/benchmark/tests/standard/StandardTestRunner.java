@@ -42,7 +42,7 @@ public class StandardTestRunner {
     /**
      * Identify a pre-defined table for use by this runner
      * 
-     * @param name
+     * @param type
      */
     public void tables(String... names) {
         if (names.length > 0)

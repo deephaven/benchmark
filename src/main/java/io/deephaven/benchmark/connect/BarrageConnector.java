@@ -15,8 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
-import io.deephaven.benchmark.util.Metrics;
-import io.deephaven.benchmark.util.MetricsFuture;
+import io.deephaven.benchmark.metric.Metrics;
+import io.deephaven.benchmark.metric.MetricsFuture;
 import io.deephaven.client.impl.BarrageSession;
 import io.deephaven.client.impl.BarrageSessionFactory;
 import io.deephaven.client.impl.BarrageSnapshot;
@@ -112,7 +112,7 @@ public class BarrageConnector implements AutoCloseable {
      */
     public Future<Metrics> fetchSnapshotData(String table, Consumer<ResultTable> tableHandler) {
         checkClosed();
-        Metrics metrics = new Metrics(table, "session");
+        Metrics metrics = new Metrics("test-runner", table, "session");
         MetricsFuture future = new MetricsFuture(metrics);
         snapshots.computeIfAbsent(table, s -> {
             try {
@@ -144,7 +144,7 @@ public class BarrageConnector implements AutoCloseable {
      */
     public Future<Metrics> fetchTickingData(String table, Function<ResultTable, Boolean> tableHandler) {
         checkClosed();
-        Metrics metrics = new Metrics(table, "session");
+        Metrics metrics = new Metrics("test-runner", table, "session");
         MetricsFuture future = new MetricsFuture(metrics);
         subscriptions.computeIfAbsent(table, s -> {
             try {
@@ -215,11 +215,8 @@ public class BarrageConnector implements AutoCloseable {
 
     private ManagedChannel getManagedChannel(String host, int port) {
         final ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(host, port);
-
-        if ("localhost:10000".equals(host + ':' + port))
-            channelBuilder.usePlaintext();
-        else
-            channelBuilder.useTransportSecurity();
+        channelBuilder.usePlaintext();
+        // channelBuilder.useTransportSecurity(); If eventually security is needed
 
         return channelBuilder.build();
     }

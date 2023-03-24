@@ -32,6 +32,15 @@ class Snippets {
                 table_type=t_type)
         """;
 
+    /**
+     * Captures table size every Deephaven ticking interval and does not allow advancement in the current query logic
+     * until the given table size is reached
+     * <p/>
+     * ex. bench_api_await_table_size(table, 1000000)
+     * 
+     * @param table the table to monitor
+     * @param row_count the number of rows to wait for
+     */
     static String bench_api_await_table_size = """
         from deephaven.table import Table
         from deephaven.ugp import exclusive_lock
@@ -40,6 +49,67 @@ class Snippets {
             with exclusive_lock():
                 while table.j_table.size() < row_count:
                     table.j_table.awaitUpdate()
+        """;
+
+    /**
+     * Take a snapshot of a selection of JVM statistics. Multiple snapshots can be made in one query with each producing
+     * a set of metrics that can be collected by <code>bench_api_metrics_collect</code>
+     */
+    static String bench_api_metrics_snapshot = """
+        import jpy, time
+        bench_api_metrics = []
+        def bench_api_metrics_snapshot():
+            millis = int(time.time() * 1000)
+            MxMan = jpy.get_type("java.lang.management.ManagementFactory")
+            def add(bean, getters: [], notes = ''):
+                for getter in getters:
+                    nameFunc = getattr(bean, 'getName') if hasattr(bean, 'getName') else getattr(bean, 'getObjectName')
+                    valFunc = getattr(bean, 'get' + getter)
+                    row = [str(millis), bean.getClass().getSimpleName(), str(nameFunc()), getter, str(valFunc()), notes]
+                    bench_api_metrics.append(row)
+                    
+            add(MxMan.getClassLoadingMXBean(), ['TotalLoadedClassCount', 'UnloadedClassCount'])
+            add(MxMan.getMemoryMXBean(), ['ObjectPendingFinalizationCount', 'HeapMemoryUsage', 'NonHeapMemoryUsage'])
+            add(MxMan.getThreadMXBean(), ['ThreadCount', 'PeakThreadCount'])
+            add(MxMan.getCompilationMXBean(), ['TotalCompilationTime'])
+            add(MxMan.getOperatingSystemMXBean(), ['SystemLoadAverage'])
+            pools = MxMan.getMemoryPoolMXBeans()
+            for i in range(0, pools.size()):
+                add(pools.get(i), ['Usage'], str(pools.get(i).getType()))
+            gcs = MxMan.getGarbageCollectorMXBeans()
+            for i in range(0, gcs.size()):
+                add(gcs.get(i), ['CollectionCount', 'CollectionTime'])
+        """;
+
+    /**
+     * Collect any snapshots of metrics and turn them into a Deephaven table that can be fetched from the bench api.
+     * <p/>
+     * ex. bench_api_metrics_table = bench_api_collect()
+     */
+    static String bench_api_metrics_collect = """
+        from deephaven import new_table
+        from deephaven.column import string_col
+        def bench_api_metrics_collect():
+            timestamps = []; origins = []; beans = []; types = []
+            names = []; values = []; notes = []
+            for m in bench_api_metrics:
+                timestamps.append(m[0])
+                origins.append('deephaven-engine')
+                beans.append(m[1])
+                types.append(m[2])
+                names.append(m[3])
+                values.append(m[4])
+                notes.append(m[5])
+        
+            return new_table([
+                string_col('timestamp', timestamps),
+                string_col('origin', origins),
+                string_col('category', beans),
+                string_col('type', types),
+                string_col('name', names),
+                string_col('value', values),
+                string_col('note', notes)
+            ])
         """;
 
     /**
@@ -52,6 +122,8 @@ class Snippets {
         String functionDefs = "";
         functionDefs += getFunction("bench_api_kafka_consume", bench_api_kafka_consume, query);
         functionDefs += getFunction("bench_api_await_table_size", bench_api_await_table_size, query);
+        functionDefs += getFunction("bench_api_metrics_snapshot", bench_api_metrics_snapshot, query);
+        functionDefs += getFunction("bench_api_metrics_collect", bench_api_metrics_collect, query);
         return functionDefs;
     }
 
