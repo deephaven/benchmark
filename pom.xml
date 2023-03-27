@@ -158,7 +158,7 @@
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
-			<version>1.50.1</version>
+			<version>1.54.0</version>
 		</dependency>
 		<!-- Added because of conflict with 3.17.3 -->
 		<dependency>
