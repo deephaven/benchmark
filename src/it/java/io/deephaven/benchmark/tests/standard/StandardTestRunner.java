@@ -47,7 +47,7 @@ public class StandardTestRunner {
     public void tables(String... names) {
         if (names.length > 0)
             mainTable = names[0];
-        
+
         for (String name : names) {
             switch (name) {
                 case "source":
@@ -93,9 +93,12 @@ public class StandardTestRunner {
         
         ${setupQueries}
         
+        bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         result = ${operation}
         end_time = time.perf_counter_ns()
+        bench_api_metrics_snapshot()
+        standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
             float_col("elapsed_millis", [(end_time - begin_time) / 1000000.0]),
@@ -116,6 +119,7 @@ public class StandardTestRunner {
         
         ${setupQueries}
 
+        bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         result = ${operation}
         source_filter.start()
@@ -124,6 +128,8 @@ public class StandardTestRunner {
         UGP.DEFAULT.requestRefresh()
         source_filter.waitForCompletion()
         end_time = time.perf_counter_ns()
+        bench_api_metrics_snapshot()
+        standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
             float_col("elapsed_millis", [(end_time - begin_time) / 1000000.0]),
@@ -155,6 +161,8 @@ public class StandardTestRunner {
                 assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result row count: " + rcount);
                 elapsedMillis.set(table.getSum("elapsed_millis").intValue());
                 rowCount.set((int) rcount);
+            }).fetchAfter("standard_metrics", table -> {
+                api.metrics().add(table);
             }).execute();
             api.awaitCompletion();
             api.result().test(Duration.ofMillis(elapsedMillis.get()), scaleRowCount);

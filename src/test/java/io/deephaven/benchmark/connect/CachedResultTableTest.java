@@ -4,7 +4,7 @@ package io.deephaven.benchmark.connect;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
-public class CsvTableTest {
+public class CachedResultTableTest {
     String csv = """
             RowPosition|     RowKey|    symbol|            AvgPrice|     Total|            RecCount
             ----------+----------+----------+--------------------+----------+--------------------
@@ -15,7 +15,7 @@ public class CsvTableTest {
 
     @Test
     public void fromBarrageCsv() {
-        CsvTable table = new CsvTable(csv, "|");
+        var table = CachedResultTable.create(csv, "|");
 
         assertEquals("[RowPosition, RowKey, symbol, AvgPrice, Total, RecCount]", table.getColumnNames().toString(),
                 "Wrong columns");
@@ -27,7 +27,7 @@ public class CsvTableTest {
 
     @Test
     public void findRows() {
-        CsvTable table = new CsvTable(csv, "|");
+        var table = CachedResultTable.create(csv, "|");
         ResultTable other = table.findRows("Total", "10.0");
         assertEquals(2, other.getRowCount(), "Wrong row count");
 
@@ -38,7 +38,7 @@ public class CsvTableTest {
 
     @Test
     public void getNumber() {
-        CsvTable table = new CsvTable(csv, "|");
+        var table = CachedResultTable.create(csv, "|");
         assertEquals((Double) 5.0, table.getNumber(0, "AvgPrice"), "Expected Double value");
         assertEquals((Long) 1L, table.getNumber(1, "RowPosition"), "Expected Long value");
     }

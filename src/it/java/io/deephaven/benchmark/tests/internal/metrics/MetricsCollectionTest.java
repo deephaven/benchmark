@@ -1,6 +1,8 @@
 package io.deephaven.benchmark.tests.internal.metrics;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
@@ -28,7 +30,7 @@ public class MetricsCollectionTest {
                     .matches("init = .* used = .* committed = .* max = .*"));
         }).execute();
     }
-    
+
     @Test
     public void collect2MetricSets() {
         var query = """
@@ -46,9 +48,9 @@ public class MetricsCollectionTest {
             assertEquals(42, table.getRowCount(), "Wrong row count");
         }).execute();
     }
-    
+
     @Test
-    public void collectMetricsToFile() {
+    public void collectMetricsToFile() throws Exception {
         var query = """
         from time import sleep
         
@@ -61,8 +63,13 @@ public class MetricsCollectionTest {
             assertEquals(21, table.getRowCount(), "Wrong row count");
             api.metrics().add(table);
         }).execute();
-        
-        
+        api.close();
+
+        Path metricsFile = Bench.outputDir.resolve(Bench.metricsFileName);
+        assertTrue(Files.exists(metricsFile), "Missing metrics output file");
+        var lines = Files.lines(metricsFile).toList();
+        assertEquals("benchmark_name,timestamp,origin,category,type,name,value,note", lines.get(0), "Wrong csv header");
+        assertTrue(lines.size() > 1, "CSV has no data");
     }
 
     @AfterEach

@@ -1,9 +1,6 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.connect;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,7 +26,6 @@ import io.deephaven.client.impl.TableHandleManager;
 import io.deephaven.client.impl.script.Changes;
 import io.deephaven.engine.table.TableUpdate;
 import io.deephaven.engine.table.impl.InstrumentedTableUpdateListener;
-import io.deephaven.engine.util.TableTools;
 import io.deephaven.extensions.barrage.BarrageSnapshotOptions;
 import io.deephaven.extensions.barrage.BarrageSubscriptionOptions;
 import io.deephaven.extensions.barrage.table.BarrageTable;
@@ -122,13 +118,12 @@ public class BarrageConnector implements AutoCloseable {
                 TableHandle handle = snapshotManager.executeLogic(logic);
                 BarrageSnapshot snapshot = session.snapshot(handle, options);
                 BarrageTable snapshotTable = snapshot.entireTable();
-                tableHandler.accept(toCsvTable(snapshotTable));
-                future.done();
+                tableHandler.accept(CachedResultTable.create(snapshotTable));
                 return new Snapshot(handle, snapshot);
             } catch (Exception ex) {
                 throw new RuntimeException("Failed to fetch snapshot table data: " + table, ex);
             } finally {
-
+                future.done();
             }
         });
         return future;
@@ -228,14 +223,6 @@ public class BarrageConnector implements AutoCloseable {
         return barrageSessionFactory.newBarrageSession();
     }
 
-    private CsvTable toCsvTable(BarrageTable barrageTable) {
-        String delim = "<'#/.|,\">"; // :)
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(bytesOut);
-        TableTools.show(barrageTable, maxFetchCount, io.deephaven.time.TimeZone.TZ_DEFAULT, delim, out, true);
-        return new CsvTable(bytesOut.toString(StandardCharsets.UTF_8), delim);
-    }
-
     record Subscription(TableHandle handle, BarrageSubscription subscription) {
     }
 
@@ -272,7 +259,7 @@ public class BarrageConnector implements AutoCloseable {
         @Override
         public void onUpdate(final TableUpdate upstream) {
             ticks.incrementAndGet();
-            boolean isContinued = refreshHandler.apply(toCsvTable(table));
+            boolean isContinued = refreshHandler.apply(CachedResultTable.create(table));
             if (isContinued)
                 finish();
         }

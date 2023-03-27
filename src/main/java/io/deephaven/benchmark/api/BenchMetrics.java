@@ -16,7 +16,7 @@ import io.deephaven.benchmark.util.Numbers;
  */
 final public class BenchMetrics {
     static final String[] header =
-            {"timestamp", "benchmark_name", "origin", "category", "type", "name", "value", "note"};
+            {"benchmark_name", "timestamp", "origin", "category", "type", "name", "value", "note"};
     final List<Metrics> metrics = new ArrayList<>();
     final Path file;
     private String name = null;
@@ -42,14 +42,12 @@ final public class BenchMetrics {
             var timestamp = table.getNumber(r, "timestamp").longValue();
             var origin = table.getValue(r, "origin").toString();
             var category = table.getValue(r, "category").toString();
-            var type = table.getValue(r, "type").toString();
+            var type = formatType(table.getValue(r, "type").toString());
             var mname = table.getValue(r, "name").toString();
             var note = table.getValue(r, "note").toString();
-            for (Number mvalue : parseMetricValues(table.getValue(r, "value").toString())) {
-                Metrics m = new Metrics(timestamp, origin, category, type);
-                m.set(mname, mvalue, note);
-                metrics.add(m);
-            }
+            Metrics m = new Metrics(timestamp, origin, category, type);
+            addMetricValues(m, mname, table.getValue(r, "value").toString(), note);
+            metrics.add(m);
         }
         return this;
     }
@@ -89,18 +87,24 @@ final public class BenchMetrics {
         this.name = name;
     }
 
+    private String formatType(String type) {
+        var v = type.replace("java.lang:type=", "");
+        return v;
+    }
+
     // init = 2113929216(2064384K) used = 133162344(130041K) committed = 570425344(557056K) max = 257698
     // init = 7667712(7488K) used = 80316184(78433K) committed = 82771968(80832K) max = -1(-1K)
-    private List<Number> parseMetricValues(String mvalue) {
-        var nums = new ArrayList<Number>();
+    private void addMetricValues(Metrics metrics, String mname, String mvalue, String note) {
         var regex = "^init = ([-]?[0-9]+).* used = ([-]?[0-9]+).* committed = ([-]?[0-9]+).* max = ([-]?[0-9]+).*$";
         String[] vals = mvalue.replaceAll(regex, "$1,$2,$3,$4").split(",");
         if (vals.length == 4) {
-            Arrays.stream(vals).forEach(v -> nums.add(Long.parseLong(v)));
+            metrics.set("Init", Long.parseLong(vals[0]), note);
+            metrics.set("Used", Long.parseLong(vals[1]), note);
+            metrics.set("Committed", Long.parseLong(vals[2]), note);
+            metrics.set("Max", Long.parseLong(vals[3]), note);
         } else {
-            nums.add(Numbers.parseNumber(mvalue));
+            metrics.set(mname, Numbers.parseNumber(mvalue), note);
         }
-        return nums;
     }
 
     private void assertColumnNames(ResultTable table) {

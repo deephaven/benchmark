@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.*;
-import io.deephaven.benchmark.connect.CsvTable;
+import io.deephaven.benchmark.connect.CachedResultTable;
 import io.deephaven.benchmark.connect.ResultTable;
 
 public class PlatformTest {
@@ -48,7 +48,7 @@ public class PlatformTest {
                     memory-mx.heap|max|45097156608
                     system-info.cpu|logical|12
                     """;
-            return new CsvTable(csv, "|");
+            return CachedResultTable.create(csv, "|");
         }
     }
 
