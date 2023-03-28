@@ -8,7 +8,7 @@ public class ExecTest {
     @Test
     public void exec() {
         var os = System.getProperty("os.name");
-        var cmd = os.contains("Windows") ? "cmd /c echo Ack" : "bash -c 'echo Ack'";
+        var cmd = os.contains("Windows") ? "cmd /c echo Ack" : "echo Ack";
         assertEquals(0, Exec.exec(cmd), "Wrong response");
     }
 
