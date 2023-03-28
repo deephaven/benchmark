@@ -2,12 +2,11 @@ package io.deephaven.benchmark.tests.experimental;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.util.Exec;
 
 /**
  * A wrapper for the Bench api that allows the running of small (single-operation) tests without requiring the
@@ -232,31 +231,7 @@ public class ExperimentalTestRunner {
 
     void restartDocker(Bench api) {
         var dockerComposeFile = api.property("docker.compose.file", "");
-        if (dockerComposeFile.isBlank())
-            return;
-        exec("docker compose -f " + dockerComposeFile + " down");
-        sleep(1);
-        exec("docker compose -f " + dockerComposeFile + " up -d");
-        sleep(5);
-    }
-
-    void exec(String command) {
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            if (!process.waitFor(20, TimeUnit.SECONDS))
-                throw new RuntimeException("Timeout while running command: " + command);
-            if (process.exitValue() != 0)
-                throw new RuntimeException("Bad exit code " + process.exitValue() + " for command: " + command);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Failed to execute command: " + command);
-        }
-    }
-
-    void sleep(int secs) {
-        try {
-            Thread.sleep(secs * 1000);
-        } catch (InterruptedException e) {
-        }
+        Exec.restartDocker(dockerComposeFile);
     }
 
     void generateQuotesTable(long rowCount) {
@@ -268,7 +243,7 @@ public class ExperimentalTestRunner {
                 .add("BidSize", "int", "[1-200]0")
                 .add("Ask", "float", "[10-1000]")
                 .add("AskSize", "int", "[1-200]0")
-                .withRowCount((int)rowCount)
+                .withRowCount((int) rowCount)
                 .generateParquet();
     }
 
@@ -279,7 +254,7 @@ public class ExperimentalTestRunner {
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")
                 .add("Price", "float", "[10-1000]")
                 .add("Size", "int", "[1-200]0")
-                .withRowCount((int)rowCount)
+                .withRowCount((int) rowCount)
                 .generateParquet();
     }
 

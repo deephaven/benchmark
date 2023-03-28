@@ -200,7 +200,6 @@ final public class Bench {
             long secs = propertyAsDuration("default.completion.timeout", "5 minutes").toSeconds();
             Metrics m = future.get(secs, TimeUnit.SECONDS);
             metrics.add(m);
-            Log.info("Metrics: %s", m);
             return m;
         } catch (Exception ex) {
             throw new RuntimeException("Timed out waiting for completion", ex);

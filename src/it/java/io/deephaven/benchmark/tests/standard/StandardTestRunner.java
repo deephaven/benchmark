@@ -7,6 +7,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.metric.Metrics;
+import io.deephaven.benchmark.util.Exec;
+import io.deephaven.benchmark.util.Timer;
 
 /**
  * A wrapper for the Bench api that allows the running of small (single-operation) tests without requiring the
@@ -190,8 +193,18 @@ public class StandardTestRunner {
         """;
 
         Bench api = Bench.create(testInst);
+        restartDocker(api);
         api.query(query).execute();
         return api;
+    }
+    
+    void restartDocker(Bench api) {
+        var timer = api.timer();
+        var dockerComposeFile = api.property("docker.compose.file", "");
+        Exec.restartDocker(dockerComposeFile);
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
+        metrics.set("restart", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
     }
 
     void generateSourceTable() {
