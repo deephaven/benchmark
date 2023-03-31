@@ -19,7 +19,7 @@ public class WhereTest {
     @Test
     public void where3Clauses() {
         var q = "quotes_g.where(filters=['(Ask - Bid) > 1', 'BidSize <= 100', 'AskSize <= 100'])";
-        runner.test("Where- 3 Clauses", 2000, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
+        runner.test("Where- 3 Clauses", 20000, q, "Sym", "Timestamp", "Bid", "BidSize", "Ask", "AskSize");
     }
 
     @Test

@@ -1,7 +1,6 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import org.apache.avro.generic.GenericRecord;
@@ -32,12 +31,6 @@ public class JsonKafkaGenerator implements Generator {
     public Future<Metrics> produce(int perRecordPauseSecs, long maxRecordCount, int maxDurationSecs) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void produce(Map<String, Object> row) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

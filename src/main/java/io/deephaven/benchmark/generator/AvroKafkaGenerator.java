@@ -101,25 +101,6 @@ public class AvroKafkaGenerator implements Generator {
     }
 
     /**
-     * Produce one record to a Kafka topic synchronously
-     * 
-     * @param row the data for a row in the form {col1=val1, col2=val2}
-     */
-    public void produce(Map<String, Object> row) {
-        checkClosed();
-        GenericRecord rec = new GenericData.Record(schema.rawSchema());
-        row.entrySet().stream().forEach(e -> {
-            rec.put(e.getKey(), e.getValue());
-        });
-
-        try {
-            producer.send(new ProducerRecord<>(topic, rec));
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to send to topic: " + topic + " record: " + row.toString(), ex);
-        }
-    }
-
-    /**
      * Close the producer and shutdown any async threads created during production
      */
     public void close() {
