@@ -37,7 +37,7 @@ public class RollingSumTickTest {
     }
 
     @Test
-    public void rollingSumTime2Groups3OpsInt() {
+    public void rollingSumTick2Groups3OpsInt() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
         runner.test("RollingSumTick- 2 Groups 160K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150",
                 "int5");

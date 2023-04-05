@@ -15,12 +15,11 @@ public class RollingComboTest {
     public void setup() {
         runner.tables("timed");
 
-        // TODO: Replace duplicate rolling sum with average when ready
         var setup = """
-        from deephaven.updateby import rolling_sum_time, cum_sum, rolling_sum_time, rolling_sum_tick
+        from deephaven.updateby import rolling_sum_time, cum_sum, rolling_avg_time, rolling_sum_tick
         contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=int5"], rev_time="00:00:01", fwd_time="00:00:01")
         before_row = rolling_sum_tick(cols=["Y=int5"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-00:00:01", fwd_time=int(3e9))
+        after_row = rolling_avg_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-00:00:01", fwd_time=int(3e9))
         
         """;
         runner.addSetupQuery(setup);
