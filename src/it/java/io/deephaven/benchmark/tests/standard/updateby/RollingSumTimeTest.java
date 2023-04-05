@@ -27,21 +27,21 @@ public class RollingSumTimeTest {
     }
 
     @Test
-    public void rollingSumTime0Group2Cols() {
+    public void rollingSumTime0Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingSumTime- No Groups 2 Cols", rowCount, q, "int5", "timestamp");
+        runner.test("RollingSumTime- 3 Ops No Groups", rowCount, q, "int5", "timestamp");
     }
 
     @Test
-    public void rollingSumTime1Group3Cols() {
+    public void rollingSumTime1Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingSumTime- 1 Group 100 Unique Vals 3 Cols", rowCount, q, "str100", "int5", "timestamp");
+        runner.test("RollingSumTime- 3 Ops 1 Group 100 Unique Vals", rowCount, q, "str100", "int5", "timestamp");
     }
 
     @Test
     public void rollingSumTime2Groups3OpsInt() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingSumTime- 2 Groups 160K Unique Combos Int", rowCount, q, "str100", "str150",
+        runner.test("RollingSumTime- 3 Ops 2 Groups 15K Unique Combos Int", rowCount, q, "str100", "str150",
                 "int5", "timestamp");
     }
 
@@ -55,7 +55,7 @@ public class RollingSumTimeTest {
         runner.addSetupQuery(setup);
 
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingSumTime- 2 Groups 160K Unique Combos Float", rowCount, q, "str100", "str150",
+        runner.test("RollingSumTime- 3 Ops 2 Groups 15K Unique Combos Float", rowCount, q, "str100", "str150",
                 "float5", "timestamp");
     }
 

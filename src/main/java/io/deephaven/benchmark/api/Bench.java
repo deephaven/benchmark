@@ -2,8 +2,6 @@
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Filer;
 import io.deephaven.benchmark.util.Ids;
-import io.deephaven.benchmark.util.Log;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -237,17 +234,6 @@ final public class Bench {
         if (!profile.isPropertyDefined("timestamp.test.results")) {
             System.setProperty("timestamp.test.results", "false");
         }
-    }
-
-    static boolean isTest(Object inst) {
-        for (Method m : inst.getClass().getMethods()) {
-            for (Annotation a : m.getAnnotations()) {
-                String str = a.toString();
-                if (str.matches(".*[.]Test[(].*"))
-                    return true;
-            }
-        }
-        return false;
     }
 
 }

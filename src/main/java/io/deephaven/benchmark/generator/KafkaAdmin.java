@@ -15,7 +15,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 
-public class KafkaAdmin {
+class KafkaAdmin {
     final Properties props;
 
     public KafkaAdmin(String bootstrapServers, String schemaRegistryUrl) {
@@ -30,11 +30,7 @@ public class KafkaAdmin {
         this.props = props;
     }
 
-    public KafkaAdmin(Properties props) {
-        this.props = props;
-    }
-
-    public void deleteTopic(String topic) {
+    void deleteTopic(String topic) {
         try (AdminClient admin = KafkaAdminClient.create(props)) {
             Set<String> names = admin.listTopics().names().get();
             if (names.contains(topic))
@@ -45,7 +41,7 @@ public class KafkaAdmin {
         }
     }
 
-    public Set<String> getTopics() {
+    Set<String> getTopics() {
         try (AdminClient admin = KafkaAdminClient.create(props)) {
             return admin.listTopics().names().get();
         } catch (Exception ex) {
@@ -53,7 +49,7 @@ public class KafkaAdmin {
         }
     }
 
-    public long getMessageCount(String topic) {
+    long getMessageCount(String topic) {
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props)) {
             List<TopicPartition> partitions =
                     consumer.partitionsFor(topic).stream().map(p -> new TopicPartition(topic, p.partition())).toList();

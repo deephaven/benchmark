@@ -12,17 +12,17 @@ import java.util.List;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.util.Ids;
 
-public class ResultSummary {
+class ResultSummary {
     static final String headerPrefix = "run-id";
     final Path rootDir;
     final Path summaryFile;
 
-    public ResultSummary(Path rootDir) {
+    ResultSummary(Path rootDir) {
         this.rootDir = rootDir;
         this.summaryFile = getSummaryFile(rootDir, "benchmark-summary-results.csv");
     }
 
-    public void summarize() {
+    void summarize() {
         if (!Files.exists(rootDir)) {
             System.out.println("Skipping summary because of missing output directory: " + rootDir);
         }

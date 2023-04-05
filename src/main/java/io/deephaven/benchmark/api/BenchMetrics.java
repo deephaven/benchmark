@@ -98,10 +98,10 @@ final public class BenchMetrics {
         var regex = "^init = ([-]?[0-9]+).* used = ([-]?[0-9]+).* committed = ([-]?[0-9]+).* max = ([-]?[0-9]+).*$";
         String[] vals = mvalue.replaceAll(regex, "$1,$2,$3,$4").split(",");
         if (vals.length == 4) {
-            metrics.set("Init", Long.parseLong(vals[0]), note);
-            metrics.set("Used", Long.parseLong(vals[1]), note);
-            metrics.set("Committed", Long.parseLong(vals[2]), note);
-            metrics.set("Max", Long.parseLong(vals[3]), note);
+            metrics.set(mname + " Init", Long.parseLong(vals[0]), note);
+            metrics.set(mname + " Used", Long.parseLong(vals[1]), note);
+            metrics.set(mname + " Committed", Long.parseLong(vals[2]), note);
+            metrics.set(mname + " Max", Long.parseLong(vals[3]), note);
         } else {
             metrics.set(mname, Numbers.parseNumber(mvalue), note);
         }
