@@ -5,37 +5,62 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the updateBy table operation. Combines multiple rolling operations
+ * Standard tests for the updateBy table operation. Combines multiple rolling operations for tick and time windows
  */
 public class RollingComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final long rowCount = runner.scaleRowCount;
+    String setupStr = null;
 
     @BeforeEach
     public void setup() {
         runner.tables("timed");
-
-        var setup = """
-        from deephaven.updateby import rolling_sum_time, cum_sum, rolling_avg_time, rolling_sum_tick
-        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=int5"], rev_time="00:00:01", fwd_time="00:00:01")
-        before_row = rolling_sum_tick(cols=["Y=int5"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_avg_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-00:00:01", fwd_time=int(3e9))
         
+        setupStr = """
+        from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
+        from deephaven.updateby import rolling_avg_tick, rolling_max_tick, rolling_group_tick
+         
+        sum_contains = rolling_sum_time(ts_col="timestamp", cols=["U=${calc.col}"], rev_time="00:00:01", fwd_time="00:00:01")
+        min_before = rolling_min_time(ts_col="timestamp", cols=["V=${calc.col}"], rev_time="00:00:03", fwd_time=int(-1e9))
+        prod_after = rolling_prod_time(ts_col="timestamp", cols=["W=${calc.col}"], rev_time="-00:00:01", fwd_time=int(3e9))
+        
+        avg_contains = rolling_avg_tick(cols=["X = ${calc.col}"], rev_ticks=1, fwd_ticks=1)
+        max_before = rolling_max_tick(cols=["Y = ${calc.col}"], rev_ticks=3, fwd_ticks=-1)
+        group_after = rolling_group_tick(cols=["Z = ${calc.col}"], rev_ticks=-1, fwd_ticks=3)
         """;
-        runner.addSetupQuery(setup);
     }
 
     @Test
-    public void rollingCombo4OpsNoGroups() {
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row, cum_sum(cols=['W=int5'])])";
-        runner.test("RollingCombo- 4 Calcs No Groups", rowCount, q, "int5", "timestamp");
+    public void rollingComboNoGroups6Ops() {
+        runner.addSetupQuery(operations("int5"));
+        var q = "timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after])";
+        runner.test("RollingCombo- 6 Ops No Groups", rowCount, q, "int5", "timestamp");
     }
 
     @Test
-    public void rollingCombo4Ops2Groups() {
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row, cum_sum(cols=['W=int5'])], by=['str100','str150'])";
-        runner.test("RollingCombo- 2 Groups 4 Ops Int 160K Unique Combos", rowCount, q, "str100", "str150",
-                "int5", "timestamp");
+    public void rollingCombo2Groups6OpsInt() {
+        runner.addSetupQuery(operations("int5"));
+        var q = """
+        timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
+            by=['str100','str150']);
+        """;
+        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Int", rowCount, q, "str100", "str150", "int5",
+                "timestamp");
+    }
+
+    @Test
+    public void rollingCombo2Groups6OpsFloat() {
+        runner.addSetupQuery(operations("float5"));
+        var q = """
+        timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
+            by=['str100','str150']);
+        """;
+        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Float", rowCount, q, "str100", "str150", "float5",
+                "timestamp");
+    }
+    
+    private String operations(String type) {
+        return setupStr.replace("${calc.col}", type);
     }
 
 }

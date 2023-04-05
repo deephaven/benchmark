@@ -19,28 +19,28 @@ public class EmaTimeDecayTest {
     }
 
     @Test
-    public void emaTimeDecay0Group2Cols() {
+    public void emaTimeDecay0Group1Col() {
         var q = "timed.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']))";
         runner.test("EmaTimeDecay- No Groups 1 Col", rowCount, q, "int5", "timestamp");
     }
 
     @Test
-    public void emaTimeDecay1Group3Cols() {
+    public void emaTimeDecay1Group1Col() {
         var q = "timed.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']), by=['str100'])";
-        runner.test("EmaTimeDecay- 1 Group 100 Unique Vals 2 Col", rowCount, q, "str100", "int5", "timestamp");
+        runner.test("EmaTimeDecay- 1 Group 100 Unique Vals 1 Col", rowCount, q, "str100", "int5", "timestamp");
     }
 
     @Test
     public void emaTimeDecay2GroupsInt() {
         var q = "timed.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("EmaTickDecay- 2 Groups 15K Unique Combos 1 Col Int", runner.scaleRowCount, q, "str100", "str150",
                 "int5", "timestamp");
     }
     
     @Test
     public void emaTimeDecay2GroupsFloat() {
         var q = "timed.update_by(ops=ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos Float", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("EmaTickDecay- 2 Groups 15K Unique Combos 1 Col Float", runner.scaleRowCount, q, "str100", "str150",
                 "float5", "timestamp");
     }
 

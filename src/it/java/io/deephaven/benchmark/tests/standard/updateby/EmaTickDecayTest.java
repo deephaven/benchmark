@@ -30,28 +30,28 @@ public class EmaTickDecayTest {
     }
 
     @Test
-    public void emaTickDecay1Group2Cols() {
+    public void emaTickDecay1Group1Col() {
         var q = "timed.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5']), by=['str100'])";
-        runner.test("EmaTickDecay- 1 Group 100 Unique Vals 2 Col", runner.scaleRowCount, q, "str100", "int5");
+        runner.test("EmaTickDecay- 1 Group 100 Unique Vals 1 Col", runner.scaleRowCount, q, "str100", "int5");
     }
 
     @Test
-    public void emaTickDecay1Group3Cols() {
+    public void emaTickDecay1Group2Cols() {
         var q = "timed.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
-        runner.test("EmaTickDecay- 1 Group 100 Unique Vals 3 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
+        runner.test("EmaTickDecay- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
     }
 
     @Test
     public void emaTickDecay2GroupsInt() {
         var q = "timed.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("EmaTickDecay- 2 Groups 15K Unique Combos 1 Col Int", runner.scaleRowCount, q, "str100", "str150",
                 "int5");
     }
 
     @Test
     public void emaTickDecay2GroupsFloat() {
         var q = "timed.update_by(ops=ema_tick_decay(time_scale_ticks=100,cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmaTickDecay- 2 Groups 160K Unique Combos Float", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("EmaTickDecay- 2 Groups 15K Unique Combos 1 Col Float", runner.scaleRowCount, q, "str100", "str150",
                 "float5");
     }
 
