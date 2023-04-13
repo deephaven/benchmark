@@ -18,9 +18,9 @@ public class Exec {
     static public void restartDocker(String dockerComposeFile) {
         if (dockerComposeFile.isBlank())
             return;
-        exec("docker compose -f " + dockerComposeFile + " down");
+        exec("sudo docker compose -f " + dockerComposeFile + " down");
         Threads.sleep(1000);
-        exec("docker compose -f " + dockerComposeFile + " up -d");
+        exec("sudo docker compose -f " + dockerComposeFile + " up -d");
         Threads.sleep(3000);
     }
 

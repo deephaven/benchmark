@@ -101,7 +101,7 @@ public class JoinTablesFromKafkaStreamTest {
             assertEquals(scaleRowCount, recCount, "Wrong record count");
         }).execute();
         api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
+        api.result().test("deephaven-engine", tm, scaleRowCount);
     }
 
     /**
@@ -155,7 +155,7 @@ public class JoinTablesFromKafkaStreamTest {
             assertEquals(scaleRowCount, recCount, "Wrong record count");
         }).execute();
         api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
+        api.result().test("deephaven-engine", tm, scaleRowCount);
     }
 
     /**
@@ -181,7 +181,7 @@ public class JoinTablesFromKafkaStreamTest {
         var tm = api.timer();
         api.query(query).execute();
         api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
+        api.result().test("deephaven-engine", tm, scaleRowCount);
     }
 
     @AfterEach

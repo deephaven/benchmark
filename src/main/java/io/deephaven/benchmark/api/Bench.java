@@ -177,6 +177,8 @@ final public class Bench {
      * Finish all running tasks (e.g. queries, generators), close any I/O, and append any results to the file system
      */
     public void close() {
+        if (isClosed)
+            return;
         isClosed = true;
         for (Closeable c : closeables) {
             try {

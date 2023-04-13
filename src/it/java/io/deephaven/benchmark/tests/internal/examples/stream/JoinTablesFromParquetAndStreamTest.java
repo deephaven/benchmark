@@ -79,7 +79,7 @@ public class JoinTablesFromParquetAndStreamTest {
         }).execute();
 
         api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
+        api.result().test("deephaven-engine", tm, scaleRowCount);
     }
 
     /**
@@ -138,7 +138,7 @@ public class JoinTablesFromParquetAndStreamTest {
         }).execute();
 
         api.awaitCompletion();
-        api.result().test(tm, scaleRowCount);
+        api.result().test("deephaven-engine", tm, scaleRowCount);
     }
 
     @AfterEach

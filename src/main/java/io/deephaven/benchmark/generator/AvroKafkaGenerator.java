@@ -125,11 +125,21 @@ public class AvroKafkaGenerator implements Generator {
         props.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put("schema.registry.url", schemaRegistryUrl);
         props.put(ACKS_CONFIG, "0");
-        props.put(COMPRESSION_TYPE_CONFIG, compression.toLowerCase());
+        props.put(COMPRESSION_TYPE_CONFIG, getCompression(compression));
         props.put(BATCH_SIZE_CONFIG, 16384 * 4);
         props.put(BUFFER_MEMORY_CONFIG, 32 * 1024 * 1024L * 4);
         props.put(LINGER_MS_CONFIG, 200);
         return new KafkaProducer<>(props);
+    }
+
+    private String getCompression(String codec) {
+        codec = codec.toLowerCase();
+        switch (codec) {
+            case "none", "gzip", "snappy", "lz4", "zstd":
+                return codec;
+            default:
+                return "snappy";
+        }
     }
 
     private void cleanupTopic(String bootstrapServers, String schemaRegistryUrl, String topic) {

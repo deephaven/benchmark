@@ -83,7 +83,7 @@ final public class BenchTable implements Closeable {
     /**
      * Override the default compression codec for record generation and parquet
      * 
-     * @param codec the compression codec <code>(zstd | lz4 | gzip | none)</code>
+     * @param codec the compression codec <code>(zstd | lz4 | lzo | gzip | none)</code>
      * @return this instance
      */
     public BenchTable withCompression(String codec) {
@@ -210,7 +210,8 @@ final public class BenchTable implements Closeable {
         query = generatorDefValues + query;
 
         String codec = getCompression();
-        String compression = codec.equals("NONE") ? "" : String.format(", compression_codec_name='%s'", codec);
+        codec = codec.equals("NONE") ? "UNCOMPRESSED" : codec;
+        String compression = String.format(", compression_codec_name='%s'", codec);
 
         return query.replace("${table.name}", tableName)
                 .replace("${compression.codec}", compression)

@@ -16,7 +16,7 @@ import io.deephaven.benchmark.util.Numbers;
  */
 final public class BenchMetrics {
     static final String[] header =
-            {"benchmark_name", "timestamp", "origin", "category", "type", "name", "value", "note"};
+            {"benchmark_name", "origin", "timestamp", "category", "type", "name", "value", "note"};
     final List<Metrics> metrics = new ArrayList<>();
     final Path file;
     private String name = null;
@@ -39,8 +39,8 @@ final public class BenchMetrics {
     public BenchMetrics add(ResultTable table) {
         assertColumnNames(table);
         for (int r = 0, rn = table.getRowCount(); r < rn; r++) {
-            var timestamp = table.getNumber(r, "timestamp").longValue();
             var origin = table.getValue(r, "origin").toString();
+            var timestamp = table.getNumber(r, "timestamp").longValue();
             var category = table.getValue(r, "category").toString();
             var type = formatType(table.getValue(r, "type").toString());
             var mname = table.getValue(r, "name").toString();

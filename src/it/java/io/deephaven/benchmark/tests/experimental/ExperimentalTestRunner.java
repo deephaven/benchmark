@@ -193,7 +193,7 @@ public class ExperimentalTestRunner {
                 rowCount.set((int) rcount);
             }).execute();
             api.awaitCompletion();
-            api.result().test(Duration.ofMillis(elapsedMillis.get()), scaleRowCount);
+            api.result().test("deephaven-engine", Duration.ofMillis(elapsedMillis.get()), scaleRowCount);
             return rowCount.get();
         } finally {
             api.close();

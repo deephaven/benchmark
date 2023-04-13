@@ -68,7 +68,7 @@ public class MetricsCollectionTest {
         Path metricsFile = Bench.outputDir.resolve(Bench.metricsFileName);
         assertTrue(Files.exists(metricsFile), "Missing metrics output file");
         var lines = Files.lines(metricsFile).toList();
-        assertEquals("benchmark_name,timestamp,origin,category,type,name,value,note", lines.get(0), "Wrong csv header");
+        assertEquals("benchmark_name,origin,timestamp,category,type,name,value,note", lines.get(0), "Wrong csv header");
         assertTrue(lines.size() > 1, "CSV has no data");
     }
 
