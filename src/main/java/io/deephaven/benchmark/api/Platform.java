@@ -2,10 +2,13 @@
 package io.deephaven.benchmark.api;
 
 import java.io.BufferedWriter;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.connect.ResultTable;
+import io.deephaven.benchmark.util.Filer;
+import io.deephaven.engine.exceptions.ArgumentException;
 
 /**
  * Collects various properties about the running client and server used during a benchmark run and stores them in the
@@ -13,7 +16,7 @@ import io.deephaven.benchmark.connect.ResultTable;
  */
 class Platform {
     static final String platformFileName = "benchmark-platform.csv";
-    static final String[] header = {"application", "name", "value"};
+    static final String[] header = {"origin", "name", "value"};
     final Path platformFile;
     private boolean hasBeenCommitted = false;
 
@@ -64,7 +67,7 @@ class Platform {
         api.setName("# Write Platform Details"); // # means skip adding to results file
 
         var tbl = new AtomicReference<ResultTable>();
-        api.query(query).fetchAfter("pil", table -> {
+        api.query(query).fetchAfter("benchApiProps", table -> {
             tbl.set(table);
         }).execute();
         api.close();
@@ -72,51 +75,86 @@ class Platform {
         return tbl.get();
     }
 
-    private void writeTestProps(BufferedWriter out) throws Exception {
-        String type = "test-runner";
-        println(out, type, "java.version", System.getProperty("java.version"));
-        println(out, type, "java.vm.name", System.getProperty("java.vm.name"));
-        println(out, type, "java.class.version", System.getProperty("java.class.version"));
-        println(out, type, "os.name", System.getProperty("os.name"));
-        println(out, type, "os.version", System.getProperty("os.version"));
-        println(out, type, "available.processors", "" + Runtime.getRuntime().availableProcessors());
-        println(out, type, "java.max.memory", gigs(Runtime.getRuntime().maxMemory()));
+    private void writeTestProps(BufferedWriter benchApiProps) throws Exception {
+        var dhInst = new ArgumentException();
+        var benchApiOrigin = "test-runner";
+        var deephavenVersion = getDeephavenVersion(dhInst);
+
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.version", System.getProperty("java.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.vm.name", System.getProperty("java.vm.name"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.class.version",
+                System.getProperty("java.class.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "os.name", System.getProperty("os.name"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "os.version", System.getProperty("os.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "available.processors",
+                Runtime.getRuntime().availableProcessors());
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.max.memory", Runtime.getRuntime().maxMemory());
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "deephaven.version", deephavenVersion);
     }
 
     private void writeEngineProps(BufferedWriter out) throws Exception {
         var query = """
-        import deephaven.perfmon as pm
-        from deephaven import empty_table
-
-        pil = pm.process_info_log().snapshot()
+        import jpy
+        from deephaven import new_table, input_table
+        from deephaven import dtypes as dht
+        from deephaven.column import string_col
+        
+        def benchApiAddProperty(prop_table, origin, name, value):
+            t = new_table([string_col('origin', [origin]), string_col('name', [name]), string_col('value', [str(value)])])
+            prop_table.add(t)
+        
+        System = jpy.get_type('java.lang.System')
+        Runtime = jpy.get_type('java.lang.Runtime')
+        
+        dhInst = jpy.get_type('io.deephaven.engine.exceptions.ArgumentException')()
+        benchApiOrigin = 'deephaven-engine'
+        deephavenVersion = dhInst.getClass().getPackage().getImplementationVersion()
+        
+        benchApiProps = input_table({'origin':dht.string, 'name':dht.string, 'value':dht.string})
+        
+        python_version = '.'.join([str(sys.version_info.major), str(sys.version_info.minor), str(sys.version_info.micro)])
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "python.version", python_version);
+        
+        # Java Properties
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.version", System.getProperty("java.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.vm.name", System.getProperty("java.vm.name"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.class.version",
+                System.getProperty("java.class.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "os.name", System.getProperty("os.name"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "os.version", System.getProperty("os.version"));
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "available.processors",
+                Runtime.getRuntime().availableProcessors());
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "java.max.memory", Runtime.getRuntime().maxMemory());
+        benchApiAddProperty(benchApiProps, benchApiOrigin, "deephaven.version", deephavenVersion);
         """;
 
         ResultTable t = fetchResult(query);
 
-        String type = "deephaven-engine";
-        println(out, type, "java.version", getTableValue(t, "runtime-mx.sys-props", "java.version"));
-        println(out, type, "java.vm.name", getTableValue(t, "runtime-mx.sys-props", "java.vm.name"));
-        println(out, type, "java.class.version", getTableValue(t, "runtime-mx.sys-props", "java.class.version"));
-        println(out, type, "os.name", getTableValue(t, "runtime-mx.sys-props", "os.name"));
-        println(out, type, "os.version", getTableValue(t, "runtime-mx.sys-props", "os.version"));
-        println(out, type, "available.processors", getTableValue(t, "system-info.cpu", "logical"));
-        println(out, type, "java.max.memory", gigs(getTableValue(t, "memory-mx.heap", "max")));
+        for (int r = 0, n = t.getRowCount(); r < n; r++) {
+            String origin = t.getValue(r, "origin").toString();
+            String name = t.getValue(r, "name").toString();
+            String value = t.getValue(r, "value").toString();
+            benchApiAddProperty(out, origin, name, value);
+        }
     }
 
-    private String getTableValue(ResultTable table, String type, String key) {
-        table = table.findRows("Key", key);
-        table = table.findRows("Type", type);
-        return table.getValue(0, "Value").toString();
+    // Get the deephaven version either from the dependency or from the uber jar
+    private String getDeephavenVersion(Object dhInst) {
+        String version = dhInst.getClass().getPackage().getImplementationVersion();
+        if (version != null)
+            return version;
+
+        URL url = getClass().getResource("/META-INF/maven/deephaven/deephaven-benchmark/pom.xml");
+        if (url == null)
+            return "Unknown";
+
+        var pom = Filer.getURLText(url);
+        return pom.replaceAll("deephaven-java-client-barrage-dagger</artifactId>.*<version>(0.22.0)<", "$1");
     }
 
-    private void println(BufferedWriter out, String type, String name, String value) throws Exception {
-        out.write(String.join(",", type, name, value));
+    private void benchApiAddProperty(BufferedWriter out, String type, String name, Object value) throws Exception {
+        out.write(String.join(",", type, name, value.toString()));
         out.newLine();
-    }
-
-    private String gigs(Object num) {
-        var g = (float) (Long.parseLong(num.toString().trim()) / 1024.0 / 1024.0 / 1024.0);
-        return String.format("%.2f", g) + "G";
     }
 
 }

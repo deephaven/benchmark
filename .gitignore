@@ -3,6 +3,7 @@
 /results/
 /*.csv
 /*.properties
+/*-pom.xml
 .classpath
 .project
 .settings/

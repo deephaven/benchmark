@@ -225,7 +225,7 @@ final public class Bench {
         try {
             return Files.createDirectories(dir);
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to delete benchmark result directory: " + dir, ex);
+            throw new RuntimeException("Failed initialize benchmark result directory: " + dir, ex);
         }
     }
 

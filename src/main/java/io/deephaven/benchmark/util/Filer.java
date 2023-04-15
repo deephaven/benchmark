@@ -1,11 +1,15 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for manipulating files and directories.
@@ -38,8 +42,22 @@ public class Filer {
     static public String getFileText(Path file) {
         try {
             return new String(Files.readAllBytes(file)).replace("\r", "").trim();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new RuntimeException("Failed to get text contents of file: " + file, ex);
+        }
+    }
+
+    /**
+     * Read the text of a URL while preserving newlines and getting rid of carriage returns
+     * 
+     * @param url the URL to read
+     * @return the text of the file trimmed and carriage-return-less
+     */
+    static public String getURLText(URL url) {
+        try (InputStream in = url.openStream()) {
+            return new BufferedReader(new InputStreamReader(in)).lines().collect(Collectors.joining("\n")).trim();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to get text contents of url: " + url, ex);
         }
     }
 

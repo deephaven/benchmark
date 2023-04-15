@@ -14,14 +14,16 @@ public class Exec {
      * Restart a docker container using <code>docker compose</code>. If the given compose file is blank skip.
      * 
      * @param dockerComposeFile the path to the relevant docker-compose.yml
+     * @return true if attempted docker restart, otherwise false
      */
-    static public void restartDocker(String dockerComposeFile) {
+    static public boolean restartDocker(String dockerComposeFile) {
         if (dockerComposeFile.isBlank())
-            return;
+            return false;
         exec("sudo docker compose -f " + dockerComposeFile + " down");
         Threads.sleep(1000);
         exec("sudo docker compose -f " + dockerComposeFile + " up -d");
         Threads.sleep(3000);
+        return true;
     }
 
     /**

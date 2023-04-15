@@ -38,8 +38,8 @@ class ParquetTestSetup {
 
     void restartDocker(Bench api) {
         var timer = api.timer();
-        var dockerComposeFile = api.property("docker.compose.file", "");
-        Exec.restartDocker(dockerComposeFile);
+        if (!Exec.restartDocker(api.property("docker.compose.file", "")))
+            return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
