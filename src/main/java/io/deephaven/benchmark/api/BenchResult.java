@@ -79,8 +79,8 @@ final public class BenchResult {
         m.put("benchmark_name", name);
         m.put("timestamp", timer.beginTime);
         m.put("test_duration", format(toSeconds(timer.duration())));
-        m.put("op_rate", toRate(m.get("op_duration"), m.get("row_count")));
         m.put("op_duration", format(toSeconds((Duration) m.get("op_duration"))));
+        m.put("op_rate", toRate(m.get("op_duration"), m.get("row_count")));
         Log.info("Result: %s", m);
         writeLine(head.stream().map(h -> m.get(h)).toList(), file);
         initializeRates(rate);
@@ -114,7 +114,7 @@ final public class BenchResult {
     }
 
     static String format(float v) {
-        return String.format("%.2f", v);
+        return String.format("%.4f", v);
     }
 
     // Use toMillis() because toSeconds() loses the fraction
@@ -123,7 +123,9 @@ final public class BenchResult {
     }
 
     static long toRate(Object duration, Object count) {
-        return (long) (((Number) count).longValue() / toSeconds((Duration) duration));
+        double d = Double.parseDouble(duration.toString());
+        long c = Long.parseLong(count.toString());
+        return (long) (c / d);
     }
 
 }

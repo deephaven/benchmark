@@ -33,8 +33,8 @@ public class BenchResultTest {
         assertEquals("mytest", csv.get(1)[0], "Wrong name");
         assertEquals("deephaven-engine", csv.get(1)[1], "Wrong origin");
         assertEquals(result.timer.beginTime, Long.parseLong(csv.get(1)[2]), "Wrong timestamp");
-        assertTrue(Float.parseFloat(csv.get(1)[3]) >= 0.200f, "Wrong test duration" + csv.get(1)[3]);
-        assertTrue(Float.parseFloat(csv.get(1)[4]) >= 0.12f, "Wrong op duration: " + csv.get(1)[4]);
+        assertTrue(Double.parseDouble(csv.get(1)[3]) >= 0.200f, "Wrong test duration" + csv.get(1)[3]);
+        assertTrue(Double.parseDouble(csv.get(1)[4]) >= 0.12f, "Wrong op duration: " + csv.get(1)[4]);
         assertEquals(10032, Long.parseLong(csv.get(1)[5]), 0.01, "Wrong test rate");
     }
 
