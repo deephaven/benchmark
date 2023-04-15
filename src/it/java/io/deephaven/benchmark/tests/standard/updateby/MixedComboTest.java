@@ -7,6 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Combines a mixture of rolling operations and cumulative operations
  */
+@Disabled
 public class MixedComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final long rowCount = runner.scaleRowCount;

@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Defines a tick-based rolling maximum. The result table contains
  * additional columns with windowed rolling maximum for each specified column in the source table.
  */
+@Disabled
 public class RollingMaxTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 

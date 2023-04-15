@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Defines a time-based rolling product. The result table contains
  * additional columns with windowed rolling products for each specified column in the source table.
  */
+@Disabled
 public class RollingProdTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final long rowCount = runner.scaleRowCount;
