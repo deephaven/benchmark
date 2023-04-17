@@ -8,7 +8,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Defines a time-based rolling sum. The result table contains
  * additional columns with windowed rolling sums for each specified column in the source table.
  */
-@Disabled
 public class RollingSumTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final long rowCount = runner.scaleRowCount;

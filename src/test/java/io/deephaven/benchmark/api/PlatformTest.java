@@ -28,6 +28,14 @@ public class PlatformTest {
         assertEquals("deephaven-engine,java.max.memory,25769803776", lines.get(15), "Wrong values");
     }
 
+    @Test
+    public void getDeephavenVersionFromPom() throws Exception {
+        Path outParent = Paths.get(getClass().getResource("test-profile.properties").toURI()).getParent();
+        var platform = new LocalPlatform(outParent, "platform-test.out");
+        assertEquals("0.22.0", platform.getDeephavenVersion(outParent, "platform-test-pom.xml"));
+        assertEquals("Unknown", platform.getDeephavenVersion(outParent, "test-profile.properties"));
+    }
+
 
     static class LocalPlatform extends Platform {
         LocalPlatform(Path dir, String fileName) {

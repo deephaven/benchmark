@@ -62,7 +62,7 @@ class Platform {
      * @param query the query used to get/make the property table
      * @return a cached result table containing properties
      */
-    protected ResultTable fetchResult(String query) {
+    ResultTable fetchResult(String query) {
         Bench api = new Bench(Bench.class);
         api.setName("# Write Platform Details"); // # means skip adding to results file
 
@@ -75,10 +75,31 @@ class Platform {
         return tbl.get();
     }
 
+    /**
+     * Get the Deephaven version either by a class implementation or a pom dependency, whichever is available
+     * 
+     * @param dhInst any deephaven engine object the has implementation-version in its package
+     * @param pomResource a resource to a pom found in the classpath
+     * @return the version or Unknown
+     */
+    String getDeephavenVersion(Object dhInst, String pomResource) {
+        String version = dhInst.getClass().getPackage().getImplementationVersion();
+        if (version != null)
+            return version;
+
+        URL url = getClass().getResource(pomResource);
+        if (url == null)
+            return "Unknown";
+
+        var pom = Filer.getURLText(url);
+        var v = pom.replaceAll("(?s).*>deephaven-java-client-barrage-dagger</artifactId>\\s+<version>([^<]+)<.*", "$1");
+        return v.matches("[0-9]+\\.[0-9]+\\.[0-9]+") ? v : "Unknown";
+    }
+
     private void writeTestProps(BufferedWriter benchApiProps) throws Exception {
         var dhInst = new ArgumentException();
         var benchApiOrigin = "test-runner";
-        var deephavenVersion = getDeephavenVersion(dhInst);
+        var deephavenVersion = getDeephavenVersion(dhInst, "/META-INF/maven/io.deephaven/deephaven-benchmark/pom.xml");
 
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.version", System.getProperty("java.version"));
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.vm.name", System.getProperty("java.vm.name"));
@@ -136,20 +157,6 @@ class Platform {
             String value = t.getValue(r, "value").toString();
             benchApiAddProperty(out, origin, name, value);
         }
-    }
-
-    // Get the deephaven version either from the dependency or from the uber jar
-    private String getDeephavenVersion(Object dhInst) {
-        String version = dhInst.getClass().getPackage().getImplementationVersion();
-        if (version != null)
-            return version;
-
-        URL url = getClass().getResource("/META-INF/maven/deephaven/deephaven-benchmark/pom.xml");
-        if (url == null)
-            return "Unknown";
-
-        var pom = Filer.getURLText(url);
-        return pom.replaceAll("deephaven-java-client-barrage-dagger</artifactId>.*<version>(0.22.0)<", "$1");
     }
 
     private void benchApiAddProperty(BufferedWriter out, String type, String name, Object value) throws Exception {
