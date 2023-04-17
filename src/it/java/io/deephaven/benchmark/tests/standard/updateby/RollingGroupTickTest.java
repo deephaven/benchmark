@@ -8,7 +8,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Defines a tick-based rolling group. The result table contains
  * additional columns with windowed rolling groups for each specified column in the source table.
  */
-@Disabled
 public class RollingGroupTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
