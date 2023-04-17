@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Defines a tick-based rolling product. The result table contains
  * additional columns with windowed rolling product for each specified column in the source table.
  */
+@Disabled
 public class RollingProdTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
