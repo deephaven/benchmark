@@ -10,18 +10,13 @@ services:
     environment:
       - START_OPTS=-Xmx4g
 
-  examples:
-    image: ghcr.io/deephaven/examples
-    volumes:
-      - ./data:/data
-    command: initialize
-
   redpanda:
     command:
     - redpanda
     - start
     - --smp 1
     - --reserve-memory 0M
+    - --memory=2G
     - --overprovisioned
     - --node-id 0
     - --check=false

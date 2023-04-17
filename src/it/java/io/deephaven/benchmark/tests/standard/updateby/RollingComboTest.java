@@ -7,7 +7,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Combines multiple rolling operations for tick and time windows
  */
-@Disabled
 public class RollingComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final long rowCount = runner.scaleRowCount;
