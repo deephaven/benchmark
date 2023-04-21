@@ -44,13 +44,12 @@ final public class BenchTable implements Closeable {
     }
 
     /**
-     * Override the profile's row count (e.g. scale.row.count). (Note: To allow for scaling all tests, this should only
-     * be done for experimentation)
+     * Override the profile's row count (e.g. scale.row.count)
      * 
      * @param generatedRowCount how many rows the table should have
      * @return this instance
      */
-    public BenchTable withRowCount(int generatedRowCount) {
+    public BenchTable withRowCount(long generatedRowCount) {
         rowCount = generatedRowCount;
         return this;
     }
@@ -83,7 +82,7 @@ final public class BenchTable implements Closeable {
     /**
      * Override the default compression codec for record generation and parquet
      * 
-     * @param codec the compression codec <code>(zstd | lz4 | lzo | gzip | none)</code>
+     * @param codec the compression codec <code>(zstd | lz4 | lzo | gzip | snappy | none)</code>
      * @return this instance
      */
     public BenchTable withCompression(String codec) {
