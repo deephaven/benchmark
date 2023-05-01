@@ -17,8 +17,8 @@ public class WhereInTest {
         var setup = """
         from deephaven.column import string_col
         where_filter = new_table([
-        	string_col("sPrefix", ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10']),
-        	string_col("sSuffix", ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', '10s'])
+        	string_col("sPrefix", ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']),
+        	string_col("sSuffix", ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
         ])
         
         """;

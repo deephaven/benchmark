@@ -13,6 +13,7 @@ public class AvgByTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setScaleFactors(10, 2);
     }
 
     @Test

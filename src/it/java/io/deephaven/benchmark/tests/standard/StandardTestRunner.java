@@ -1,10 +1,10 @@
+/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.metric.Metrics;
@@ -26,6 +26,8 @@ public class StandardTestRunner {
     final List<String> supportTables = new ArrayList<>();
     private String mainTable = "source";
     private Bench api;
+    private int staticFactor = 1;
+    private int incFactor = 1;
 
     public StandardTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -78,9 +80,27 @@ public class StandardTestRunner {
     }
 
     /**
-     * Run a single-operation test through the Bench API. Create and Bench instance if necessary.
-     * </p>
-     * Run two tests for the operation; against static parquet, against the same parquet through ticking simulation
+     * For fast operations, a higher row count is necessary for meaningful results. Simulate a higher row count by
+     * specifying a multiplier (scaleFactor) for the row count. For example, if scaleRowCount=10, and staticFactor=2,
+     * the resulting row count used for the static test and rate will be 20.
+     * 
+     * @param staticFactor the multiplier for the scale.row.count for the static test
+     * @param incFactor the multiplier for the scale.row.count for the inc test
+     */
+    public void setScaleFactors(int staticFactor, int incFactor) {
+        this.staticFactor = staticFactor;
+        this.incFactor = incFactor;
+    }
+
+    /**
+     * Run a single-operation test through the Bench API. Create and Bench instance if necessary. Run according to the
+     * following contract:
+     * <ul>
+     * <li>Run test from static parquet read</li>
+     * <li>If static test duration <code>&lt; scale.elapsed.time.target</code>, scale row count and do it again</li>
+     * <li>Run test with auto increment release filter according to the previously determined row count</li>
+     * <li>Assert that both static and incremental result tables have the same number of rows</li>
+     * <p/>
      * 
      * @param name the name of the test as it will show in the result file
      * @param expectedRowCount the row count expected after the operation has run
@@ -88,9 +108,37 @@ public class StandardTestRunner {
      * @param loadColumns columns to load from the generated parquet file
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
+        var read = getReadOperation(expectedRowCount, staticFactor);
+        var result1 = runStaticTest(name, operation, read, loadColumns);
+        var rcount = result1.resultRowCount();
+        assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result Static row count: " + rcount);
+
+        read = getReadOperation(expectedRowCount, incFactor);
+        var result2 = runIncTest(name, operation, read, loadColumns);
+        rcount = result2.resultRowCount();
+        assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result Inc row count: " + rcount);
+
+        assertTrue(result1.resultRowCount == result2.resultRowCount(),
+                "Result row counts of static and inc tests do not match: " + result1.resultRowCount() + " != "
+                        + result2.resultRowCount());
+    }
+
+    String getReadOperation(long expectedRowCount, int scaleFactor) {
+        var read = "read('/data/${mainTable}.parquet').select(formulas=[${loadColumns}])";
+
+        if (scaleFactor > 1) {
+            read = "merge([${readTable}] * ${scaleFactor})".replace("${readTable}", read);
+            read = read.replace("${scaleFactor}", "" + scaleFactor);
+            if (expectedRowCount == scaleRowCount)
+                expectedRowCount *= scaleFactor;
+        }
+        return read;
+    }
+
+    Result runStaticTest(String name, String operation, String read, String... loadColumns) {
         var staticQuery = """
         ${loadSupportTables}
-        ${mainTable} = read("/data/${mainTable}.parquet").select(formulas=[${loadColumns}])
+        ${mainTable} = ${readTable}
 
         garbage_collect()
         
@@ -104,16 +152,18 @@ public class StandardTestRunner {
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
-            float_col("elapsed_millis", [(end_time - begin_time) / 1000000.0]),
-            int_col("processed_row_count", [${mainTable}.size]),
-            int_col("result_row_count", [result.size]),
+            double_col("elapsed_nanos", [end_time - begin_time]),
+            long_col("processed_row_count", [${mainTable}.size]),
+            long_col("result_row_count", [result.size]),
         ])
         """;
-        var rows1 = runTest(name + " -Static", expectedRowCount, staticQuery, operation, loadColumns);
+        return runTest(name + " -Static", staticQuery, operation, read, loadColumns);
+    }
 
-        var incQuery = """ 
+    Result runIncTest(String name, String operation, String read, String... loadColumns) {
+        var incQuery = """
         ${loadSupportTables}
-        loaded = read("/data/${mainTable}.parquet").select(formulas=[${loadColumns}])
+        loaded = ${readTable}
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
         ${mainTable} = loaded.where(source_filter)
@@ -135,19 +185,19 @@ public class StandardTestRunner {
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
-            float_col("elapsed_millis", [(end_time - begin_time) / 1000000.0]),
-            int_col("processed_row_count", [loaded.size]),
-            int_col("result_row_count", [result.size]),
+            double_col("elapsed_nanos", [end_time - begin_time]),
+            long_col("processed_row_count", [loaded.size]),
+            long_col("result_row_count", [result.size]),
         ])
         """;
-        var rows2 = runTest(name + " -Inc", expectedRowCount, incQuery, operation, loadColumns);
-        assertTrue(rows1 == rows2, "Result row counts of static and inc tests do not match: " + rows1 + " != " + rows2);
+        return runTest(name + " -Inc", incQuery, operation, read, loadColumns);
     }
 
-    int runTest(String name, long expectedRowCount, String query, String operation, String... loadColumns) {
+    Result runTest(String name, String query, String operation, String read, String... loadColumns) {
         if (api.isClosed())
             api = initialize(testInst);
         api.setName(name);
+        query = query.replace("${readTable}", read);
         query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
@@ -155,21 +205,21 @@ public class StandardTestRunner {
         query = query.replace("${operation}", operation);
 
         try {
-            var elapsedMillis = new AtomicInteger();
-            var rowCount = new AtomicInteger();
+            var result = new AtomicReference<Result>();
             api.query(query).fetchAfter("stats", table -> {
-                long procRowCount = table.getSum("processed_row_count").longValue();
-                long rcount = table.getSum("result_row_count").longValue();
-                assertEquals(scaleRowCount, procRowCount, "Wrong processed row count");
-                assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result row count: " + rcount);
-                elapsedMillis.set(table.getSum("elapsed_millis").intValue());
-                rowCount.set((int) rcount);
+                long loadedRowCount = table.getSum("processed_row_count").longValue();
+                long resultRowCount = table.getSum("result_row_count").longValue();
+                long elapsedNanos = table.getSum("elapsed_nanos").longValue();
+                var r = new Result(loadedRowCount, Duration.ofNanos(elapsedNanos), resultRowCount);
+                result.set(r);
             }).fetchAfter("standard_metrics", table -> {
                 api.metrics().add(table);
+                var metrics = new Metrics(Timer.now(), "test-runner", "setup", "test");
+                metrics.set("static_scale_factor", staticFactor);
+                metrics.set("inc_scale_factor", incFactor);
             }).execute();
-            api.awaitCompletion();
-            api.result().test("deephaven-engine", Duration.ofMillis(elapsedMillis.get()), scaleRowCount);
-            return rowCount.get();
+            api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
+            return result.get();
         } finally {
             api.close();
         }
@@ -187,8 +237,8 @@ public class StandardTestRunner {
     Bench initialize(Object testInst) {
         var query = """
         import time
-        from deephaven import new_table, garbage_collect
-        from deephaven.column import string_col, int_col, float_col
+        from deephaven import new_table, garbage_collect, merge
+        from deephaven.column import long_col, double_col
         from deephaven.parquet import read
         """;
 
@@ -213,20 +263,20 @@ public class StandardTestRunner {
                 .add("int640", "int", "[1-640]")
                 .add("int1M", "int", "[1-1000000]")
                 .add("float5", "float", "[1-5]")
-                .add("str250", "string", "s[1-250]")
-                .add("str640", "string", "[1-640]s")
-                .add("str1M", "string", "v[1-1000000]s")
+                .add("str250", "string", "[1-250]")
+                .add("str640", "string", "[1-640]")
+                .add("str1M", "string", "[1-1000000]")
                 .generateParquet();
     }
 
     void generateRightTable() {
         supportTables.add("right");
         api.table("right").fixed()
-                .add("r_str250", "string", "s[1-250]")
-                .add("r_str640", "string", "[1-640]s")
+                .add("r_str250", "string", "[1-250]")
+                .add("r_str640", "string", "[1-640]")
                 .add("r_int1M", "int", "[1-1000000]")
-                .add("r_str1M", "string", "v[1-1000000]s")
-                .add("r_str10K", "string", "r[1-100000]s")
+                .add("r_str1M", "string", "[1-1000000]")
+                .add("r_str10K", "string", "[1-100000]")
                 .generateParquet();
     }
 
@@ -240,6 +290,9 @@ public class StandardTestRunner {
                 .add("str100", "string", "s[1-100]")
                 .add("str150", "string", "[1-150]s")
                 .generateParquet();
+    }
+
+    record Result(long loadedRowCount, Duration elapsedTime, long resultRowCount) {
     }
 
 }

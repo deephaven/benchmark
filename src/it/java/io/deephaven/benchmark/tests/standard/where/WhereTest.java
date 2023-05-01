@@ -18,7 +18,7 @@ public class WhereTest {
     @Test
     public void where1Filter() {
         var q = """
-        source.where(filters=["str250 = 's250'"]);
+        source.where(filters=["str250 = '250'"]);
         """;
         runner.test("Where- 1 Filter", runner.scaleRowCount, q, "str250", "int250");
     }
@@ -26,7 +26,7 @@ public class WhereTest {
     @Test
     public void where2Filters() {
         var q = """
-        source.where(filters=["str250 = 's250'", "str640 = '640s'"]);
+        source.where(filters=["str250 = '250'", "str640 = '640'"]);
         """;
         runner.test("Where- 2 Filters", runner.scaleRowCount, q, "str250", "str640", "int250");
     }
@@ -34,7 +34,7 @@ public class WhereTest {
     @Test
     public void whereFilterInList() {
         var q = """
-        source.where(filters=["str250 in 's250', 's1', 's249', 's2', '248'"]);
+        source.where(filters=["str250 in '250', '1', '249', '2', '248'"]);
         """;
         runner.test("Where- 1 Filter-In", runner.scaleRowCount, q, "str250", "str640", "int250");
     }
@@ -42,7 +42,7 @@ public class WhereTest {
     @Test
     public void whereOneOf2Filters() {
         var q = """
-        source.where_one_of(filters=["str250 = 's250'", "str640 = '640s'"]);
+        source.where_one_of(filters=["str250 = '250'", "str640 = '640'"]);
         """;
         runner.test("WhereOneOf- 2 Filters", runner.scaleRowCount, q, "str250", "str640", "int250");
     }
