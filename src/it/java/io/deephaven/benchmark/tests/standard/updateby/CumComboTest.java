@@ -17,11 +17,11 @@ public class CumComboTest {
         runner.tables("timed");
         
         setupStr = """
-        from deephaven.updateby import ema_tick_decay, ema_time_decay
+        from deephaven.updateby import ema_tick, ema_time
         from deephaven.updateby import cum_max, cum_min, cum_sum, cum_prod
         
-        ema_tick_op = ema_tick_decay(time_scale_ticks=100,cols=['U=${calc.col}'])
-        ema_time_op = ema_time_decay(ts_col='timestamp', time_scale='00:00:02', cols=['V=${calc.col}'])
+        ema_tick_op = ema_tick(time_scale_ticks=100,cols=['U=${calc.col}'])
+        ema_time_op = ema_time(ts_col='timestamp', time_scale='00:00:02', cols=['V=${calc.col}'])
         max_op = cum_max(cols=['W=${calc.col}'])
         min_op = cum_min(cols=['X=${calc.col}'])
         sum_op = cum_sum(cols=['Y=${calc.col}'])
