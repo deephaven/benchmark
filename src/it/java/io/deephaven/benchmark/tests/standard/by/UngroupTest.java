@@ -17,6 +17,7 @@ public class UngroupTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setScaleFactors(3, 1);
     }
 
     @Test

@@ -14,6 +14,7 @@ public class BasicMathComboTest {
     public void setup() {
         runner.tables("source");
         runner.addSetupQuery("from deephaven import agg");
+        runner.setScaleFactors(5, 3);
     }
 
     @Test

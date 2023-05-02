@@ -62,6 +62,7 @@ public class SortedComboTest {
 
     @Test
     public void aggBy4Sorts2Groups() {
+        runner.setScaleFactors(3, 1);
         var aggs = """
         aggs = [
            agg.sorted_first('str250', ['int250']), agg.sorted_last('str250', ['int640']),

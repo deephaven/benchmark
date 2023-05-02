@@ -109,18 +109,20 @@ public class StandardTestRunner {
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
         var read = getReadOperation(expectedRowCount, staticFactor);
-        var result1 = runStaticTest(name, operation, read, loadColumns);
-        var rcount = result1.resultRowCount();
-        assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result Static row count: " + rcount);
+        var result = runStaticTest(name, operation, read, loadColumns);
+        var rcount = result.resultRowCount();
+        var ecount = getExpectedRowCount(expectedRowCount, staticFactor);
+        assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
 
         read = getReadOperation(expectedRowCount, incFactor);
-        var result2 = runIncTest(name, operation, read, loadColumns);
-        rcount = result2.resultRowCount();
-        assertTrue(rcount > 0 && rcount <= expectedRowCount, "Wrong result Inc row count: " + rcount);
-
-        assertTrue(result1.resultRowCount == result2.resultRowCount(),
-                "Result row counts of static and inc tests do not match: " + result1.resultRowCount() + " != "
-                        + result2.resultRowCount());
+        result = runIncTest(name, operation, read, loadColumns);
+        rcount = result.resultRowCount();
+        ecount = getExpectedRowCount(expectedRowCount, incFactor);
+        assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Inc row count: " + rcount);
+    }
+    
+    long getExpectedRowCount(long expectedRowCount, long scaleFactor) {
+        return (expectedRowCount == scaleRowCount)?(expectedRowCount*scaleFactor):expectedRowCount;
     }
 
     String getReadOperation(long expectedRowCount, int scaleFactor) {
@@ -129,8 +131,6 @@ public class StandardTestRunner {
         if (scaleFactor > 1) {
             read = "merge([${readTable}] * ${scaleFactor})".replace("${readTable}", read);
             read = read.replace("${scaleFactor}", "" + scaleFactor);
-            if (expectedRowCount == scaleRowCount)
-                expectedRowCount *= scaleFactor;
         }
         return read;
     }

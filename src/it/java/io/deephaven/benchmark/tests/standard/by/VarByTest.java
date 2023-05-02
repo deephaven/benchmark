@@ -13,6 +13,7 @@ public class VarByTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setScaleFactors(15, 12);
     }
 
     @Test

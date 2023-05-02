@@ -25,14 +25,16 @@ public class WhereInTest {
         runner.addSetupQuery(setup);
     }
 
-    @Test
+    @Test  // TODO: use a scale factors (merges) give undue advantage?
     public void whereIn1Filter() {
+        runner.setScaleFactors(600, 40);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereIn- 1 Filter Col", runner.scaleRowCount, q, "str250", "int250");
     }
 
-    @Test
+    @Test  // TODO: use a scale factors (merges) give undue advantage?
     public void whereIn2Filter() {
+        runner.setScaleFactors(120, 10);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
         runner.test("WhereIn- 2 Filter Cols", runner.scaleRowCount, q, "str250", "str640", "int250");
     }

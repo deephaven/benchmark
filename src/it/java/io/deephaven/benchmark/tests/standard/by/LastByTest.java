@@ -17,6 +17,7 @@ public class LastByTest {
 
     @Test
     public void lastBy1Group2Cols() {
+        runner.setScaleFactors(10, 6);
         var q = "source.last_by(by=['str250'])";
         runner.test("LastBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }

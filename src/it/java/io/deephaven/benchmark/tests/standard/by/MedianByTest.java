@@ -23,6 +23,7 @@ public class MedianByTest {
 
     @Test
     public void medianBy1Group2Cols() {
+        runner.setScaleFactors(5, 3);
         var q = "source.median_by(by=['str250'])";
         runner.test("MedianBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }

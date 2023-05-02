@@ -14,6 +14,7 @@ public class PositionalComboTest {
     public void setup() {
         runner.tables("source");
         runner.addSetupQuery("from deephaven import agg");
+        runner.setScaleFactors(15, 12);
     }
 
     @Test

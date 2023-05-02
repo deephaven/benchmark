@@ -13,17 +13,19 @@ public class AvgByTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
-        runner.setScaleFactors(10, 2);
+        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void avgBy1Group2Cols() {
+        runner.setScaleFactors(80, 70);
         var q = "source.avg_by(by=['str250'])";
         runner.test("AvgBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }
 
     @Test
     public void avgBy1Group2ColsLarge() {
+        runner.setScaleFactors(5, 3);
         var q = "source.avg_by(by=['str1M'])";
         runner.test("AvgBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
     }

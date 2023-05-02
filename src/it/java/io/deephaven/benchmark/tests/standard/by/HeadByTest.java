@@ -13,6 +13,7 @@ public class HeadByTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setScaleFactors(5, 3);
     }
 
     @Test

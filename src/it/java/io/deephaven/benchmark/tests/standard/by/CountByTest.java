@@ -13,10 +13,12 @@ public class CountByTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setScaleFactors(5, 3);
     }
 
     @Test
     public void countBy1IntGroup1Col() {
+        runner.setScaleFactors(30, 15);
         var q = "source.count_by('count', by=['int250'])";
         runner.test("CountBy- 1 Int Group 250 Unique Vals", 250, q, "int250");
     }
@@ -29,6 +31,7 @@ public class CountByTest {
 
     @Test
     public void countBy1StringGroup1Col() {
+        runner.setScaleFactors(30, 15);
         var q = "source.count_by('count', by=['str250'])";
         runner.test("CountBy- 1 String Group 250 Unique Vals", 250, q, "str250");
     }
