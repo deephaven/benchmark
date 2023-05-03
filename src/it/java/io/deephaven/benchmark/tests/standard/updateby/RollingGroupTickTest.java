@@ -27,19 +27,19 @@ public class RollingGroupTickTest {
     @Test
     public void rollingGroupTick0Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingGroupTick- 3 Ops No Groups", runner.scaleRowCount, q, "int5");
+        runner.test("RollingGroupTick- 3 Ops No Groups", q, "int5");
     }
 
     @Test
     public void rollingGroupTick1Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingGroupTick- 3 Ops 1 Group 100 Unique Vals", runner.scaleRowCount, q, "str100", "int5");
+        runner.test("RollingGroupTick- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5");
     }
 
     @Test
     public void rollingGroupTick2Groups3OpsInt() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTick- 3 Ops 2 Groups 15K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("RollingGroupTick- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5");
     }
 
@@ -53,7 +53,7 @@ public class RollingGroupTickTest {
         runner.addSetupQuery(setup);
         
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTick- 3 Ops 2 Groups 15K Unique Combos Float", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("RollingGroupTick- 3 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150",
                 "float5");
     }
 

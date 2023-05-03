@@ -13,19 +13,20 @@ public class ExactJoinTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(2);
         runner.tables("source", "right");
     }
 
     @Test
     public void ExactJoinOn1Col1Match() {
         var q = "source.exact_join(right, on=['str1M=r_str1M'])";
-        runner.test("ExactJoin- Join On 1 Col 1 Match", runner.scaleRowCount, q, "str1M", "int250");
+        runner.test("ExactJoin- Join On 1 Col 1 Match", q, "str1M", "int250");
     }
 
     @Test
     public void ExactJoinOn2Cols1Match() {
         var q = "source.exact_join(right, on=['str1M=r_str1M', 'str1M=r_str1M'])";
-        runner.test("ExactJoin- Join On 2 Cols 1 Match", runner.scaleRowCount, q, "str1M", "int1M", "int250");
+        runner.test("ExactJoin- Join On 2 Cols 1 Match", q, "str1M", "int1M", "int250");
     }
 
 }

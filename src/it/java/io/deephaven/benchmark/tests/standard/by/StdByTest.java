@@ -12,12 +12,13 @@ public class StdByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
-        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void stdBy1Group2Cols() {
+        runner.setScaleFactors(15, 15);
         var q = "source.std_by(by=['str250'])";
         runner.test("StdBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }
@@ -30,12 +31,14 @@ public class StdByTest {
 
     @Test
     public void stdBy2GroupsInt() {
+        runner.setScaleFactors(3, 2);
         var q = "source.std_by(by=['str250', 'str640'])";
         runner.test("StdBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
     }
     
     @Test
     public void stdBy2GroupsFloat() {
+        runner.setScaleFactors(3, 2);
         var q = "source.std_by(by=['str250', 'str640'])";
         runner.test("StdBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }

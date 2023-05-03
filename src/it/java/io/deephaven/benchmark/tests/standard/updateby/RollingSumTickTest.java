@@ -27,19 +27,19 @@ public class RollingSumTickTest {
     @Test
     public void rollingSumTick0Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingSumTick- 3 Ops No Groups", runner.scaleRowCount, q, "int5");
+        runner.test("RollingSumTick- 3 Ops No Groups", q, "int5");
     }
 
     @Test
     public void rollingSumTick1Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingSumTick- 3 Ops 1 Group 100 Unique Vals", runner.scaleRowCount, q, "str100", "int5");
+        runner.test("RollingSumTick- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5");
     }
 
     @Test
     public void rollingSumTick2Groups3OpsInt() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5");
     }
 
@@ -51,9 +51,9 @@ public class RollingSumTickTest {
         after_row = rolling_sum_tick(cols=["After = float5"], rev_ticks=-1, fwd_ticks=3)
         """;
         runner.addSetupQuery(setup);
-        
+
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Float", runner.scaleRowCount, q, "str100", "str150",
+        runner.test("RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150",
                 "float5");
     }
 

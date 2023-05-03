@@ -20,37 +20,37 @@ public class CumSumTest {
     @Test
     public void cumSum0Group1Col() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=int5']))";
-        runner.test("CumSum- No Groups 1 Col", runner.scaleRowCount, q, "int5");
+        runner.test("CumSum- No Groups 1 Col", q, "int5");
     }
 
     @Test
     public void cumSum0Group2Cols() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=int5','Y=int10']))";
-        runner.test("CumSum- No Groups 2 Cols", runner.scaleRowCount, q, "int5", "int10");
+        runner.test("CumSum- No Groups 2 Cols", q, "int5", "int10");
     }
 
     @Test
     public void cumSum1Group1Col() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=int5']), by=['str100'])";
-        runner.test("CumSum- 1 Group 100 Unique Vals 1 Cols", runner.scaleRowCount, q, "str100", "int5");
+        runner.test("CumSum- 1 Group 100 Unique Vals 1 Cols", q, "str100", "int5");
     }
 
     @Test
     public void cumSum1Group2Cols() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=int5','Y=int10']), by=['str100'])";
-        runner.test("CumSum- 1 Group 100 Unique Vals 2 Cols", runner.scaleRowCount, q, "str100", "int5", "int10");
+        runner.test("CumSum- 1 Group 100 Unique Vals 2 Cols", q, "str100", "int5", "int10");
     }
 
     @Test
     public void cumSum2GroupsInt() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=int5']), by=['str100','str150'])";
-        runner.test("CumSum- 2 Groups 15K Unique Combos 1 Col Int", runner.scaleRowCount, q, "str100", "str150", "int5");
+        runner.test("CumSum- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150", "int5");
     }
     
     @Test
     public void cumSum2GroupsFloat() {
         var q = "timed.update_by(ops=cum_sum(cols=['X=float5']), by=['str100','str150'])";
-        runner.test("CumSum- 2 Groups 15K Unique Combos 1 Col Float", runner.scaleRowCount, q, "str100", "str150", "float5");
+        runner.test("CumSum- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150", "float5");
     }
 
 }

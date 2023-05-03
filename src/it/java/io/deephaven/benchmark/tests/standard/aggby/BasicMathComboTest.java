@@ -12,9 +12,9 @@ public class BasicMathComboTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(5);
         runner.tables("source");
         runner.addSetupQuery("from deephaven import agg");
-        runner.setScaleFactors(5, 3);
     }
 
     @Test
@@ -39,6 +39,7 @@ public class BasicMathComboTest {
         ]
         """;
         runner.addSetupQuery(aggs);
+        runner.setScaleFactors(2, 2);
 
         var q = "source.agg_by(aggs, by=['str250', 'str640'])";
         runner.test("Sum-AggBy- 3 Sums 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",

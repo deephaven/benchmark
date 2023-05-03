@@ -12,12 +12,13 @@ public class SumByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
-        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void sumBy1Group2Cols() {
+        runner.setScaleFactors(15, 15);
         var q = "source.sum_by(by=['str250'])";
         runner.test("SumBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }
@@ -30,12 +31,14 @@ public class SumByTest {
 
     @Test
     public void sumBy2GroupsInt() {
+        runner.setScaleFactors(4, 4);
         var q = "source.sum_by(by=['str250', 'str640'])";
         runner.test("SumBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
     }
-    
+
     @Test
     public void sumBy2GroupsFloat() {
+        runner.setScaleFactors(4, 4);
         var q = "source.sum_by(by=['str250', 'str640'])";
         runner.test("SumBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }

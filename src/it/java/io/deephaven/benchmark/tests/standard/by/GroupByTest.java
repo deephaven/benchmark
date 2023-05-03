@@ -12,18 +12,20 @@ public class GroupByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(5);
         runner.tables("source");
-        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void groupBy0Groups3Cols() {
+        runner.setScaleFactors(100, 20);
         var q = "source.group_by()";
         runner.test("GroupBy- No Groups 3 Cols", 1, q, "str250", "str640", "int250");
     }
 
     @Test
     public void groupBy1Group2Cols() {
+        runner.setScaleFactors(10, 2);
         var q = "source.group_by(by=['str250'])";
         runner.test("GroupBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }

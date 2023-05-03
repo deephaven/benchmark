@@ -12,24 +12,27 @@ public class FirstByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
-        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void firstBy1Group2Cols() {
+        runner.setScaleFactors(15, 10);
         var q = "source.first_by(by=['str250'])";
         runner.test("FirstBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }
 
     @Test
     public void firstBy1Group2ColsLarge() {
+        runner.setScaleFactors(2, 1);
         var q = "source.first_by(by=['str1M'])";
         runner.test("FirstBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int250");
     }
 
     @Test
     public void firstBy2Groups3Cols() {
+        runner.setScaleFactors(3, 1);
         var q = "source.first_by(by=['str250', 'str640'])";
         runner.test("FirstBy- 2 Group 160K Unique Combos", 160000, q, "str250", "str640", "int250");
     }

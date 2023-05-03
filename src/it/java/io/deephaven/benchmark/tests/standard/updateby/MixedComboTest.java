@@ -9,7 +9,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class MixedComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-    final long rowCount = runner.scaleRowCount;
     String setupStr = null;
 
     @BeforeEach
@@ -34,7 +33,7 @@ public class MixedComboTest {
     public void mixedComboNoGroups6Ops() {
         runner.addSetupQuery(operations("int5"));
         var q = "timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op])";
-        runner.test("MixedCombo- 6 Ops No Groups", rowCount, q, "int5", "timestamp");
+        runner.test("MixedCombo- 6 Ops No Groups", q, "int5", "timestamp");
     }
 
     @Test
@@ -44,7 +43,7 @@ public class MixedComboTest {
         timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op], 
             by=['str100','str150'])
         """;
-        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Int", rowCount, q, "str100", "str150",
+        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5", "timestamp");
     }
 
@@ -55,7 +54,7 @@ public class MixedComboTest {
         timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op], 
             by=['str100','str150'])
         """;
-        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Float", rowCount, q, "str100", "str150",
+        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150",
                 "float5", "timestamp");
     }
 

@@ -13,6 +13,7 @@ public class WhereTest {
     @BeforeEach
     public void setup() {
         runner.tables("source");
+        runner.setRowFactor(1);
     }
 
     @Test
@@ -20,7 +21,7 @@ public class WhereTest {
         var q = """
         source.where(filters=["str250 = '250'"]);
         """;
-        runner.test("Where- 1 Filter", runner.scaleRowCount, q, "str250", "int250");
+        runner.test("Where- 1 Filter",  q, "str250", "int250");
     }
     
     @Test
@@ -28,7 +29,7 @@ public class WhereTest {
         var q = """
         source.where(filters=["str250 = '250'", "str640 = '640'"]);
         """;
-        runner.test("Where- 2 Filters", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("Where- 2 Filters",  q, "str250", "str640", "int250");
     }
     
     @Test
@@ -36,7 +37,7 @@ public class WhereTest {
         var q = """
         source.where(filters=["str250 in '250', '1', '249', '2', '248'"]);
         """;
-        runner.test("Where- 1 Filter-In", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("Where- 1 Filter-In", q, "str250", "str640", "int250");
     }
     
     @Test
@@ -44,7 +45,7 @@ public class WhereTest {
         var q = """
         source.where_one_of(filters=["str250 = '250'", "str640 = '640'"]);
         """;
-        runner.test("WhereOneOf- 2 Filters", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("WhereOneOf- 2 Filters", q, "str250", "str640", "int250");
     }
 
 }

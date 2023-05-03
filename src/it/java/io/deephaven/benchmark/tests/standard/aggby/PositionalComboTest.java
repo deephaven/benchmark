@@ -12,13 +12,14 @@ public class PositionalComboTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(5);
         runner.tables("source");
         runner.addSetupQuery("from deephaven import agg");
-        runner.setScaleFactors(15, 12);
     }
 
     @Test
     public void aggBy4FirstLastOps2Groups() {
+        runner.setScaleFactors(3, 1);
         var aggs = """
         aggs = [
            agg.first(['int250']), agg.last(['int640']), 

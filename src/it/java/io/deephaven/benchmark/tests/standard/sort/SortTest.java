@@ -20,25 +20,25 @@ public class SortTest {
     @Test
     public void sort1Col() {
         var q = "source.sort(order_by=['str250'])";
-        runner.test("Sort- 1 Col", runner.scaleRowCount, q, "str250", "int250");
+        runner.test("Sort- 1 Col",  q, "str250", "int250");
     }
 
     @Test
     public void sort2ColsDefaultOrder() {
         var q = "source.sort(order_by=['str250', 'str640'])";
-        runner.test("Sort- 2 Cols Default Order", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("Sort- 2 Cols Default Order", q, "str250", "str640", "int250");
     }
 
     @Test
     public void sort2ColsOppositeOrder() {
         var q = "source.sort(order_by=['str250', 'str640'], order=[SortDirection.ASCENDING, SortDirection.DESCENDING])";
-        runner.test("Sort- 2 Cols Opposite Order", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("Sort- 2 Cols Opposite Order", q, "str250", "str640", "int250");
     }
 
     @Test
     public void sortDescending2Cols() {
         var q = "source.sort_descending(order_by=['str250', 'str640'])";
-        runner.test("SortDescending- 2 Cols", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("SortDescending- 2 Cols", q, "str250", "str640", "int250");
     }
 
 }

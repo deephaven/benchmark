@@ -62,7 +62,6 @@ public class SortedComboTest {
 
     @Test
     public void aggBy4Sorts2Groups() {
-        runner.setScaleFactors(3, 1);
         var aggs = """
         aggs = [
            agg.sorted_first('str250', ['int250']), agg.sorted_last('str250', ['int640']),
@@ -70,6 +69,7 @@ public class SortedComboTest {
         ]
         """;
         runner.addSetupQuery(aggs);
+        runner.setScaleFactors(10, 1);
 
         var q = "source.agg_by(aggs, by=['str250', 'str640'])";
         runner.test("Sorted-AggBy- 4 Sorts 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "str1M",

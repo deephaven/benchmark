@@ -9,7 +9,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class RollingComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-    final long rowCount = runner.scaleRowCount;
     String setupStr = null;
 
     @BeforeEach
@@ -34,7 +33,7 @@ public class RollingComboTest {
     public void rollingComboNoGroups6Ops() {
         runner.addSetupQuery(operations("int5"));
         var q = "timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after])";
-        runner.test("RollingCombo- 6 Ops No Groups", rowCount, q, "int5", "timestamp");
+        runner.test("RollingCombo- 6 Ops No Groups", q, "int5", "timestamp");
     }
 
     @Test
@@ -44,7 +43,7 @@ public class RollingComboTest {
         timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
             by=['str100','str150']);
         """;
-        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Int", rowCount, q, "str100", "str150", "int5",
+        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150", "int5",
                 "timestamp");
     }
 
@@ -55,7 +54,7 @@ public class RollingComboTest {
         timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
             by=['str100','str150']);
         """;
-        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Float", rowCount, q, "str100", "str150", "float5",
+        runner.test("RollingCombo- 6 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150", "float5",
                 "timestamp");
     }
     

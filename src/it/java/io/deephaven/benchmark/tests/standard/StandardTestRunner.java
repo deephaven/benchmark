@@ -20,14 +20,15 @@ import io.deephaven.benchmark.util.Timer;
  * conventions are followed (ex. main file is "source")
  */
 public class StandardTestRunner {
-    final public long scaleRowCount;
     final Object testInst;
     final List<String> setupQueries = new ArrayList<>();
     final List<String> supportTables = new ArrayList<>();
     private String mainTable = "source";
     private Bench api;
+    private long scaleRowCount;
     private int staticFactor = 1;
     private int incFactor = 1;
+    private int rowCountFactor = 1;
 
     public StandardTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -84,12 +85,30 @@ public class StandardTestRunner {
      * specifying a multiplier (scaleFactor) for the row count. For example, if scaleRowCount=10, and staticFactor=2,
      * the resulting row count used for the static test and rate will be 20.
      * 
-     * @param staticFactor the multiplier for the scale.row.count for the static test
-     * @param incFactor the multiplier for the scale.row.count for the inc test
+     * @param rowCountFactor the multiplier for the row count
+     * @param staticFactor the multiplier for (scale.row.count * rowCountFactor) for the static test
+     * @param incFactor the multiplier for (scale.row.count * rowCountFactor) for the inc test
      */
     public void setScaleFactors(int staticFactor, int incFactor) {
         this.staticFactor = staticFactor;
         this.incFactor = incFactor;
+    }
+    
+    public void setRowFactor(int rowCountFactor) {
+        this.rowCountFactor = rowCountFactor;
+        this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+    }
+
+    /**
+     * Run a single operation test through the Bench API with no upper bound expected on the resulting row count
+     * 
+     * @see #test(String, long, String, String...)
+     * @param name the name of the test as it will show in the result file
+     * @param operation the operation to run and measure for the benchmark
+     * @param loadColumns columns to load from the generated parquet file
+     */
+    public void test(String name, String operation, String... loadColumns) {
+        test(name, 0, operation, loadColumns);
     }
 
     /**
@@ -103,29 +122,30 @@ public class StandardTestRunner {
      * <p/>
      * 
      * @param name the name of the test as it will show in the result file
-     * @param expectedRowCount the row count expected after the operation has run
+     * @param expectedRowCount the max row count expected from the operation regardless of scale, or zero if the count
+     *        has no upper bound
      * @param operation the operation to run and measure for the benchmark
      * @param loadColumns columns to load from the generated parquet file
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
-        var read = getReadOperation(expectedRowCount, staticFactor);
+        var read = getReadOperation(staticFactor);
         var result = runStaticTest(name, operation, read, loadColumns);
         var rcount = result.resultRowCount();
         var ecount = getExpectedRowCount(expectedRowCount, staticFactor);
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
 
-        read = getReadOperation(expectedRowCount, incFactor);
+        read = getReadOperation(incFactor);
         result = runIncTest(name, operation, read, loadColumns);
         rcount = result.resultRowCount();
         ecount = getExpectedRowCount(expectedRowCount, incFactor);
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Inc row count: " + rcount);
     }
-    
+
     long getExpectedRowCount(long expectedRowCount, long scaleFactor) {
-        return (expectedRowCount == scaleRowCount)?(expectedRowCount*scaleFactor):expectedRowCount;
+        return (expectedRowCount < 1) ? Long.MAX_VALUE : expectedRowCount;
     }
 
-    String getReadOperation(long expectedRowCount, int scaleFactor) {
+    String getReadOperation(int scaleFactor) {
         var read = "read('/data/${mainTable}.parquet').select(formulas=[${loadColumns}])";
 
         if (scaleFactor > 1) {
@@ -217,6 +237,7 @@ public class StandardTestRunner {
                 var metrics = new Metrics(Timer.now(), "test-runner", "setup", "test");
                 metrics.set("static_scale_factor", staticFactor);
                 metrics.set("inc_scale_factor", incFactor);
+                metrics.set("row count factor", rowCountFactor);
             }).execute();
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
@@ -266,6 +287,7 @@ public class StandardTestRunner {
                 .add("str250", "string", "[1-250]")
                 .add("str640", "string", "[1-640]")
                 .add("str1M", "string", "[1-1000000]")
+                .withRowCount(scaleRowCount)
                 .generateParquet();
     }
 
@@ -287,8 +309,8 @@ public class StandardTestRunner {
                 .add("int5", "int", "[1-5]")
                 .add("int10", "int", "[1-10]")
                 .add("float5", "float", "[1-5]")
-                .add("str100", "string", "s[1-100]")
-                .add("str150", "string", "[1-150]s")
+                .add("str100", "string", "[1-100]")
+                .add("str150", "string", "[1-150]")
                 .generateParquet();
     }
 

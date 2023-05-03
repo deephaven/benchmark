@@ -19,13 +19,13 @@ public class NaturalJoinTest {
     @Test
     public void NaturalJoinOn1Col1Match() {
         var q = "source.natural_join(right, on=['str1M=r_str1M'])";
-        runner.test("NaturalJoin- Join On 1 Col 1 Match", runner.scaleRowCount, q, "str1M", "int250");
+        runner.test("NaturalJoin- Join On 1 Col 1 Match", q, "str1M", "int250");
     }
 
     @Test
     public void NaturalJoinOn2Cols1Match() {
         var q = "source.natural_join(right, on=['str1M=r_str1M', 'int1M=r_int1M'])";
-        runner.test("NaturalJoin- Join On 2 Cols 1 Match", runner.scaleRowCount, q, "str1M", "int1M", "int250");
+        runner.test("NaturalJoin- Join On 2 Cols 1 Match", q, "str1M", "int1M", "int250");
     }
 
 }

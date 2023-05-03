@@ -23,18 +23,19 @@ public class WhereNotInTest {
         
         """;
         runner.addSetupQuery(setup);
+        runner.setRowFactor(1);
     }
 
     @Test
     public void whereNotIn1Filter() {
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix'])";
-        runner.test("WhereNotIn- 1 Filter Col", runner.scaleRowCount, q, "str250", "int250");
+        runner.test("WhereNotIn- 1 Filter Col", q, "str250", "int250");
     }
 
     @Test
     public void whereNotIn2Filter() {
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
-        runner.test("WhereNotIn- 2 Filter Cols", runner.scaleRowCount, q, "str250", "str640", "int250");
+        runner.test("WhereNotIn- 2 Filter Cols", q, "str250", "str640", "int250");
     }
 
 }

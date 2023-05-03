@@ -12,13 +12,14 @@ public class JoinTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source", "right");
     }
 
     @Test
     public void joinOn1Col1Match() {
         var q = "source.join(right, on=['str1M=r_str1M'])";
-        runner.test("Join- Join On 1 Col 1 Match", runner.scaleRowCount, q, "str1M", "int250");
+        runner.test("Join- Join On 1 Col 1 Match", q, "str1M", "int250");
     }
 
     @Test

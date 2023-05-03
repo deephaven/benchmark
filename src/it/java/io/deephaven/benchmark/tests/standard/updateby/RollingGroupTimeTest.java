@@ -10,7 +10,6 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class RollingGroupTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-    final long rowCount = runner.scaleRowCount;
 
     @BeforeEach
     public void setup() {
@@ -29,20 +28,20 @@ public class RollingGroupTimeTest {
     @Test
     public void rollingGroupTime0Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingGroupTime- 3 Ops No Groups", rowCount, q, "int5", "timestamp");
+        runner.test("RollingGroupTime- 3 Ops No Groups", q, "int5", "timestamp");
     }
 
     @Test
     public void rollingGroupTime1Group3Ops() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingGroupTime- 3 Ops 1 Group 100 Unique Vals", rowCount, q, "str100", "int5", "timestamp");
+        runner.test("RollingGroupTime- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5", "timestamp");
     }
 
     @Test
     public void rollingGroupTime2Groups3OpsInt() {
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Int", rowCount, q, "str100", "str150",
-                "int5", "timestamp");
+        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150", "int5",
+                "timestamp");
     }
 
     @Test
@@ -55,8 +54,8 @@ public class RollingGroupTimeTest {
         runner.addSetupQuery(setup);
 
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Float", rowCount, q, "str100", "str150",
-                "float5", "timestamp");
+        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150", "float5",
+                "timestamp");
     }
 
 }

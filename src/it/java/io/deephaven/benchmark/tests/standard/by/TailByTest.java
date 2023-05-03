@@ -12,12 +12,13 @@ public class TailByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(5);
         runner.tables("source");
-        runner.setScaleFactors(5, 3);
     }
 
     @Test
     public void tailBy1Group2Cols() {
+        runner.setScaleFactors(8, 2);
         var q = "source.tail_by(2, by=['str250'])";
         runner.test("TailBy- 1 Group 250 Unique Vals 2 Rows Per", 250 * 2, q, "str250", "int250");
     }

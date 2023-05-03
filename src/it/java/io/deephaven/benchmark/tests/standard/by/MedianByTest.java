@@ -12,18 +12,20 @@ public class MedianByTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(2);
         runner.tables("source");
     }
 
     @Test
     public void medianBy0Groups3Cols() {
+        runner.setScaleFactors(2, 2);
         var q = "source.median_by()";
         runner.test("MedianBy- No Groups 3 Cols", 1, q, "str250", "str640", "int250");
     }
 
     @Test
     public void medianBy1Group2Cols() {
-        runner.setScaleFactors(5, 3);
+        runner.setScaleFactors(10, 8);
         var q = "source.median_by(by=['str250'])";
         runner.test("MedianBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
     }
@@ -36,12 +38,14 @@ public class MedianByTest {
 
     @Test
     public void medianBy2GroupInt() {
+        runner.setScaleFactors(2, 2);
         var q = "source.median_by(by=['str250', 'str640'])";
         runner.test("MedianBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
     }
     
     @Test
     public void medianBy2GroupFloat() {
+        runner.setScaleFactors(2, 2);
         var q = "source.median_by(by=['str250', 'str640'])";
         runner.test("MedianBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
     }
