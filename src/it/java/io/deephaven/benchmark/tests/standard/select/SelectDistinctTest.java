@@ -12,17 +12,20 @@ public class SelectDistinctTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
     }
 
     @Test
     public void selectDistict1Group() {
+        runner.setScaleFactors(20, 20);
         var q = "source.select_distinct(formulas=['str250'])";
         runner.test("SelectDistinct- 1 Group 250 Unique Vals", 250, q, "str250", "str640", "int640");
     }
 
     @Test
     public void selectDistict2Group() {
+        runner.setScaleFactors(4, 4);
         var q = "source.select_distinct(formulas=['str250', 'str640'])";
         runner.test("SelectDistinct- 1 Group 160K Unique Vals", 160000, q, "str250", "str640", "int640");
     }

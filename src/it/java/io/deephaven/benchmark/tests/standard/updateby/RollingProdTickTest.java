@@ -13,6 +13,7 @@ public class RollingProdTickTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("timed");
 
         var setup = """
@@ -32,12 +33,14 @@ public class RollingProdTickTest {
 
     @Test
     public void rollingProdTick1Group3Ops() {
+        runner.setScaleFactors(3, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
         runner.test("RollingProdTick- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5");
     }
 
     @Test
     public void rollingProdTick2Groups3OpsInt() {
+        runner.setScaleFactors(3, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
         runner.test("RollingProdTick- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5");
@@ -45,6 +48,7 @@ public class RollingProdTickTest {
 
     @Test
     public void rollingProdTick2Groups3OpsFloat() {
+        runner.setScaleFactors(3, 1);
         var setup = """
         contains_row = rolling_prod_tick(cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
         before_row = rolling_prod_tick(cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)

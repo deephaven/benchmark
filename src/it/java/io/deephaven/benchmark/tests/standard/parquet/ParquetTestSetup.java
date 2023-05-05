@@ -6,14 +6,14 @@ import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Timer;
 
 class ParquetTestSetup {
-    final public long scaleRowCount;
     final Object testInst;
     final Bench api;
+    final long scaleRowCount;
 
-    ParquetTestSetup(Object testInst) {
+    ParquetTestSetup(Object testInst, int rowCountFactor) {
         this.testInst = testInst;
         this.api = initialize(testInst);
-        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor;
     }
 
     void table(String name, String codec) {
@@ -54,6 +54,7 @@ class ParquetTestSetup {
                 .add("double100K", "double", "[1-100000]")
                 .add("double10K", "double", "[1-10000]")
                 .withCompression(codec)
+                .withRowCount(scaleRowCount)
                 .generateParquet();
     }
 

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
  * compression codec Deephaven supports
  */
 public class WriteCompressedParquetTest {
-    final ParquetTestSetup setup = new ParquetTestSetup(this);
+    final ParquetTestSetup setup = new ParquetTestSetup(this, 2);
 
     @Test
     public void writeZstd() {
@@ -48,6 +48,7 @@ public class WriteCompressedParquetTest {
 
     @Test
     public void writeNone() {
+        setup.table("compressed", "none");
         setup.api.setName("ParquetWrite- NONE Strs 2 Longs 2 Dbls -Static");
         runTest("none");
     }
@@ -58,8 +59,6 @@ public class WriteCompressedParquetTest {
     }
 
     private void runTest(String codec) {
-        setup.table("compressed", codec);
-
         var query = """
         source = read("/data/compressed.parquet").select()
         write(source, '/data/compression.out.parquet', compression_codec_name='${codec}')  # Ignore 1st write time

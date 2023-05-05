@@ -13,6 +13,7 @@ public class WhereInTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
         from deephaven.column import string_col
@@ -23,17 +24,18 @@ public class WhereInTest {
         
         """;
         runner.addSetupQuery(setup);
-        runner.setRowFactor(1);
     }
 
-    @Test  // TODO: use a scale factors (merges) give undue advantage?
+    @Test
     public void whereIn1Filter() {
+        runner.setScaleFactors(300, 20);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereIn- 1 Filter Col", q, "str250", "int250");
     }
 
-    @Test  // TODO: use a scale factors (merges) give undue advantage?
+    @Test
     public void whereIn2Filter() {
+        runner.setScaleFactors(40, 5);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
         runner.test("WhereIn- 2 Filter Cols", q, "str250", "str640", "int250");
     }

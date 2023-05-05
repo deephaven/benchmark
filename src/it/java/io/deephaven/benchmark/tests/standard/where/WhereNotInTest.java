@@ -13,6 +13,7 @@ public class WhereNotInTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
         from deephaven.column import string_col
@@ -23,17 +24,18 @@ public class WhereNotInTest {
         
         """;
         runner.addSetupQuery(setup);
-        runner.setRowFactor(1);
     }
 
     @Test
     public void whereNotIn1Filter() {
+        runner.setScaleFactors(100, 10);
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "str250", "int250");
     }
 
     @Test
     public void whereNotIn2Filter() {
+        runner.setScaleFactors(50, 5);
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
         runner.test("WhereNotIn- 2 Filter Cols", q, "str250", "str640", "int250");
     }

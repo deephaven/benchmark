@@ -13,6 +13,7 @@ public class RollingComboTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("timed");
         
         setupStr = """

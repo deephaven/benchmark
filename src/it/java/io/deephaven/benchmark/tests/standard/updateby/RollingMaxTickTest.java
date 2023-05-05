@@ -13,6 +13,7 @@ public class RollingMaxTickTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("timed");
 
         var setup = """
@@ -26,18 +27,21 @@ public class RollingMaxTickTest {
 
     @Test
     public void rollingMaxTick0Group3Ops() {
+        runner.setScaleFactors(2, 2);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingMaxTick- 3 Ops No Groups", q, "int5");
     }
 
     @Test
     public void rollingMaxTick1Group3Ops() {
+        runner.setScaleFactors(3, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
         runner.test("RollingMaxTick- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5");
     }
 
     @Test
     public void rollingMaxTick2Groups3OpsInt() {
+        runner.setScaleFactors(3, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
         runner.test("RollingMaxTick- 3 Ops 2 Groups 15K Unique Combos Int",  q, "str100", "str150",
                 "int5");
@@ -45,6 +49,7 @@ public class RollingMaxTickTest {
 
     @Test
     public void rollingMaxTick2Groups3OpsFloat() {
+        runner.setScaleFactors(3, 1);
         var setup = """
         contains_row = rolling_max_tick(cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
         before_row = rolling_max_tick(cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)

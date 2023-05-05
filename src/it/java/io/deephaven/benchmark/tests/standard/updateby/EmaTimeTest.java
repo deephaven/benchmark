@@ -13,6 +13,7 @@ public class EmaTimeTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import ema_time");
     }

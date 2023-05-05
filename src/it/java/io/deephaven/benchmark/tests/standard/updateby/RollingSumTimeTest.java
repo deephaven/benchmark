@@ -13,6 +13,7 @@ public class RollingSumTimeTest {
 
     @BeforeEach
     public void setup() {
+        runner.setRowFactor(6);
         runner.tables("timed");
 
         var setup = """

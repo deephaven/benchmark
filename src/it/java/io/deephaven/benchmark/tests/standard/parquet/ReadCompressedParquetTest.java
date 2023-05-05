@@ -9,7 +9,7 @@ import org.junit.jupiter.api.*;
  * compression codec Deephaven supports
  */
 public class ReadCompressedParquetTest {
-    final ParquetTestSetup setup = new ParquetTestSetup(this);
+    final ParquetTestSetup setup = new ParquetTestSetup(this, 2);
 
     @Test
     public void readZstd() {
