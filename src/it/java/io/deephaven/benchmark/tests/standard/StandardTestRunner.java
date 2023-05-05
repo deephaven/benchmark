@@ -81,9 +81,23 @@ public class StandardTestRunner {
     }
 
     /**
-     * For fast operations, a higher row count is necessary for meaningful results. Simulate a higher row count by
-     * specifying a multiplier (scaleFactor) for the row count. For example, if scaleRowCount=10, and staticFactor=2,
-     * the resulting row count used for the static test and rate will be 20.
+     * The {@code scale.row.count} property supplies a default for the number of rows generated for benchmark tests.
+     * Given that some operations use less memory than others, scaling up the generated rows per operation is more
+     * effective than using scale factors {@link #setScaleFactors(int, int)}.
+     * 
+     * @param rowCountFactor a multipier applied against {@code scale.row.count}
+     */
+    public void setRowFactor(int rowCountFactor) {
+        this.rowCountFactor = rowCountFactor;
+        this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+    }
+
+    /**
+     * Scale static and incremental tests row counts artificially using Deephaven merge operations to avoid the added
+     * cost of loading fully generated data into memory.
+     * 
+     * Simulate a higher row count by specifying a multiplier (Factor) for the row count. For example, if
+     * scale.row.count=10, and staticFactor=2, the resulting row count used for the static test and rate will be 20
      * 
      * @param rowCountFactor the multiplier for the row count
      * @param staticFactor the multiplier for (scale.row.count * rowCountFactor) for the static test
@@ -92,11 +106,6 @@ public class StandardTestRunner {
     public void setScaleFactors(int staticFactor, int incFactor) {
         this.staticFactor = staticFactor;
         this.incFactor = incFactor;
-    }
-    
-    public void setRowFactor(int rowCountFactor) {
-        this.rowCountFactor = rowCountFactor;
-        this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
     }
 
     /**
