@@ -30,11 +30,11 @@ title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 title "-- Adding OS Applications --"
 apt update
 
-title "-- Installing Maven --"
-apt install maven
-
 title "-- Installing JDK 17 --"
 apt install openjdk-17-jre-headless
+
+title "-- Installing Maven --"
+apt install maven
 
 title "-- Installing Docker --"
 snap install docker
