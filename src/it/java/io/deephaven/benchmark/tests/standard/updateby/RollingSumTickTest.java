@@ -27,7 +27,7 @@ public class RollingSumTickTest {
 
     @Test
     public void rollingSumTick0Group3Ops() {
-        runner.setScaleFactors(4,4);
+        runner.setScaleFactors(4, 4);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingSumTick- 3 Ops No Groups", q, "int5");
     }
