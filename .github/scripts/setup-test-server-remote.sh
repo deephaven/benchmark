@@ -52,7 +52,6 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
-cd ${DEEPHAVEN_DIR}
 docker ps -aq | xargs --no-run-if-empty docker stop
 docker system prune -f
 rm -rf ${DEEPHAVEN_DIR}
