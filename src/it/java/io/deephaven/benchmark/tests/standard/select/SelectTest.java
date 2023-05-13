@@ -13,20 +13,19 @@ public class SelectTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(5);
         runner.tables("source");
     }
 
     @Test
     public void select1CalcUsing2Cols() {
-        runner.setScaleFactors(60, 15);
+        runner.setScaleFactors(200, 40);
         var q = "source.select(formulas=['New1 = (float)((int640 + int250) / 2)'])";
         runner.test("Select- 1 Calc Using 2 Cols", q, "int250", "int640");
     }
 
     @Test
     public void select2CalcsUsing2Cols() {
-        runner.setScaleFactors(40, 10);
+        runner.setScaleFactors(100, 20);
         var q = "source.select(formulas=['New1 = (float)((int640 + int250) / 2)', 'New2 = int640 - int250'])";
         runner.test("Select- 2 Cals Using 2 Cols", q, "int250", "int640");
     }
