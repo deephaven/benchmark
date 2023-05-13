@@ -29,7 +29,7 @@ docker compose up -d
 sleep 10
 
 cd ${RUN_DIR}
-java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p io.deephaven.benchmark.tests.standard
+java -Dbenchmark.profile=benchmark-10m-colocated.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p io.deephaven.benchmark.tests.standard -n "^.*[.]SelectTest.*$"
 
 title "-- Getting Docker Logs --"
 mkdir -p ${RUN_DIR}/logs
