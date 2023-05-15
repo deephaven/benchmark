@@ -1,154 +1,56 @@
-# Benchmark #
+# Deephaven Benchmark
 
-Benchmark is a framework designed to work from the command line and through popular Java IDEs using the JUnit framework as a runner.  It is geared towards scale testing interfaces capable of ingesting table data, transforming it, and returning tabular results.  It represents a follow-on to the [Bencher Project](https://github.com/deephaven/bencher) that benchmarks many of the query features of [Deephaven Core Community](https://deephaven.io/community/).
+![Operation Rate Change Tracking By Release](docs/BenchmarkChangeTable.png)
 
-For the present, tests are geared towards testing [Deephaven Core Community](https://deephaven.io/community/) through the Barrage Java Client.  Tests focus on querying static parquet files, streamed Kafka topics, and replayed data.
+The Benckmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
+framework as a runner and works from popular IDEs or from the command line.  It is geared towards scale testing interfaces capable of ingesting 
+table data, transforming it, and returning tabular results. 
 
-The typical workflow of a Benchmark test is... *Configure table/column generation* --> *Execute Query* --> *Measure Results*.  This is all done inside a Junit test class.
+Currently, most benchmarks produced by the framework are aimed at broad coverage of single query operations executed in 
+[Deephaven Core Community](https://deephaven.io/community/) through the Barrage Java Client.  Tests focus on querying static parquet files, 
+streamed Kafka topics, and replayed data.
 
-Tests are designed to scale by changing a scale property value call *scale.row.count*, so the same test can be used in multiple runs at different scales for comparison.  For ease of comparison, collected results are processing rates rather than elapsed time.
+The project maintains several hundred standardized benchmarks for Deephaven query operations that are tracked both from release-to-release and nightly.  
+Results are regularly published to a read-only GCloud bucket [deephaven-benchmark](https://storage.googleapis.com/deephaven-benchmark) available 
+through the public storage API.  
 
-Results for a test run are output to the console and stored in the current directory in *benchmark-results.csv*.
+The typical workflow of a Benchmark test is... *Configure table/column generation* --> *Execute Query* --> *Measure Results*.  This is all done inside a JUnit test class.
 
-More Resources:
-- [Benchmark - Bencher Comparison](VersusBencher.md)
-- [Benchmark - Command Line](CommandLine.md)
-- [Benchmark - Results](Results.md)
+Tests are designed to scale by changing a scale property value call *scale.row.count*, so the same test can be used in multiple runs at different scales for comparison.  
+For ease of comparison, collected results use processing rates for benchmarked operations in addition to elapsed time.  MXBean metrics are also collected for each 
+benchmark as well as details about the platform where each test ran.
 
-## Entry into the Benchmark API
-A Bench API instance allows configuration for test data generation, execution of queries against the Deephaven Engine, and state for test metrics.
-````
-public class AvroKafkaJoinStream {
-	Bench api = Bench.create(this);
-}
-````
-There is no need to memorize a class structure for the API.  Everthing starts from a Bench instance and can be followed using "." with code insight.
+Tests are run client-server, so the test runner does not need to be co-located with the Deephaven Engine.  Measurements and statistics are taken directly 
+from the engine(s) to reduce the affect of I/O and test setup on the results.
 
-## Table Generation
-Table data can be produced by defining columns, types, and sample data.
-````
-api.table("stock_trans").random()
-	.add("symbol", "string", "SYM[1-1000]")
-	.add("price", "float", "[100-200]")
-	.add("buys", "int", "[1-100]")
-	.add("sells", "int", "[1-100]")
-	.generateParquet();
-````
-This generates a parquet file on the server with the path *data/stock_trans.parquet* for use in subsequent queries.
-### Table Types:
-- random: Will choose random values for each column range inclusive of the boundaries
-- fixed: Will iterate through the range inclusive of the boundaries.  Table row count will be the longest range.
+Resources:
+- [System Requirements](docs/GettingStarted.md) - Getting set up to run benchmarks against Deephaven Community Core
+- [Test-writing Basics](docs/TestWritingBasics.md) - How to generate data and use it for tests
+- [Collected Results](docs/CollectedResults.md) - What's in the benchmark results
+- [Running from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
+- [Published Results Storage](docs/PublishedResults.md) - How to grab and use Deephaven's published benchmarks
 
-### Column Types:
-- string
-- long
-- int
-- double
-- float
-
-### Generator Types:
-- Parquet: Generates a parquet file to the Deephaven Engines data directory in ZSTD compressed format
-- Avro: Generates records to a Kafka topic using Avro serializers and spec
-
-## Query Scripts
-Table data can be queried from a Parquet file as in the following query script:
-````
-from deephaven.parquet import read
-
-p_stock_trans = read('/data/stock_trans.parquet')	
-````
-Or it can queried from a Kafka topic as in the following:
-````
-from deephaven import kafka_consumer as kc
-from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
-		
-kafka_stock_trans = kc.consume(
-	{ 'bootstrap.servers' : '${kafka.consumer.addr}', 'schema.registry.url' : 'http://${schema.registry.addr}' },
-	'stock_trans', partitions=None, offsets=kc.ALL_PARTITIONS_SEEK_TO_BEGINNING,
-	key_spec=KeyValueSpec.IGNORE, value_spec=kc.avro_spec('stock_trans_record', schema_version='1'),
-	table_type=TableType.append())
-````
-Examples of using Deephaven query scripts can be found in the [Deephaven Core Community Tutorials](https://deephaven.io/core/docs/tutorials/tutorial/).
-
-## Executing Queries
-Queries are executed as in the following code snippet from any JUnit test.
-````
-api.query(query).fetchAfter("record_count", table->{
-	int recCount = table.getSum("RecordCount").intValue();
-	assertEquals("Wrong record count", scaleRowCount, recCount);
-}).execute();
-api.awaitCompletion();
-````
-Before execution, every property like "${kafka.consumer.addr}" will be replaced with a corresponding values from one of the following (in order):
-- Profile Properties: Properties loaded from properties passed into the JVM with *-Dbenchmark.profile=my.properties* or, if that is missing, *default.properties* from this project
-- System Properties: Properties from *System.getProperty(name)* in the JVM
-- Environment Variables: Variables set in the OS environment and retrieved with *System.env(name)*
-
-Tables are created in the engine according to the query script, and results may be retrieved in two ways;
-- fetchAfter: Fetches a table snapshot after the query is completed
-- fetchDuring: Fetches a table snapshot peridodically according to the ticking rate defined for the engine and client session
-
-For comparison, tables can be viewed in the [Local Deephaven UI](http://localhost:10000/ide) the tests are running against.
-
-## Measuring Results
-Given that the tests are built to scale, it doesn't make sense to collect only elapsed time for each test run.  Processing rates are much more informative when processing varying numbers of records.
-
-Available result rates:
-- setup: Measures setup of the test
-- test: Measures the relevant part of the running test
-- teardown: Measures the teardown of the test
-
-Results are measured with the API's timer as in the following example:
-````
-var tm = api.timer();
-
-api.query(query);
-api.awaitCompletion();
-
-api.result().test(tm, scaleRowCount);
-````
-The timer is initiated before the query is executed, and the result is recorded when it returns.
-
-## Some Test Results
-
-### Test setup:
-- Windows 11 with 64G RAM and 16 CPU threads
-- WSL 2 limited to 44G RAM and 12 CPU threads
-- Bencher runs both tests and Engine/Redpanda in WSL
-- Benchmark runs test on Windows and Engine/Redpanda in WSL
-- Benchmark uses ZSTD compression for Kafka producer to broker
-- Bencher uses GZIP and Benchmark uses ZSTD compression for writing parquet files
-- Test sourcees are in *src/it/java*
-
-### Bencher vs Benchmark for the same queries (rates are records/sec):
-Test Details
-- All tests run the same query that joins a table of 10 or 100 million records to a table of 100K records
-- Test Description: Rows are either released incrementally (auto increment) or read from a static parquet file (parquet static)
-- Bencher Rate: Rows processed per second while running the query in Bencher
-- Benchmark Rate: Rows processed per second while running the query in Benchmark
-
-|Test Description|Bencher Rate|Benchmark Rate|
-|----------------|------------|-----------|
-|stock join 10m auto increment|339430.53|363266.50|
-|stock join 10m parquet static|579667.06|569670.70|
-|stock join 100m auto increment|358337.90|398665.25|
-|stock join 100m parquet static|553502.34|693847.00|
-
-### Benchmark producing records to the Kafka broker and consumed by the Deephaven query script (rates are records/sec):
-Test Details
-- All tests produce data to Kafka while it is consumed/queried in Deephaven
-- First two tests run the same query that joins a table of 10 or 100 million records to a table of 100K records
-- Last test loads a table of 100 million rows from Kafka
-- Test Description: Test data is produced to Kafka and consumed in the query using Avro spec
-- Query Rate: Rows processed per second while running the query in Benchmark
-- Producer Rate: Rows produce to Kafka per seconds. 
-- If Query Rate is significantly lower than Producer Rate, Deephaven Engine isn't keeping up
-
-|Test Description|Query Rate|Producer Rate|
-|----------------|-----------|-------------|
-|stock join 10m kafka append|224411.48|415973.38|
-|stock join 100m kafka append|275232.62|384831.48|
-|consumer count 100m kafka append|441027.97|442944.34|
-
-
+## Concepts
+- Self-propelled API
+The *Bench* API uses the builder pattern to guide the test writer in generating data, executing queries, and fetching results.  
+There is a single API entry point where a user can follow the dots and look at the code-insight and Javadocs that pop up in the IDE. Provided properties 
+can be overriden by builder-style "with" methods like *withRowCount()*.  A middle ground is taken between text configuration and configuration 
+fully-expressed in code to keep things simple.
+- Scale rather than iterations
+Repeating tests can be useful for testing the affects of caching (Load file multiple times, is it faster on subsequent loads?), or overcoming a lack of 
+precision in OS timers (Run fast function many times and average), or average out variability between runs (There's always anomalies). But if the 
+scope is processing large data sets, then why not actually measure against large data sets?
+- Scale auto-adjusted by each test
+When measuring a full set of benchmarks for transforming data, some benchmarks will naturally be faster than others (e.g. sums vs joins). Running all benchmarks
+at the same scale (e.g. 10 million rows) could yield results where one benchmark takes a minute and another takes 100 milliseconds.  Is the 100 ms test 
+meaningful, especially when measured in the JVM?  Not really, because there is no time to assess the impact of JVM ergonomics or OS background tasks.
+- Test-centric design
+Want to know what tables and operations the test uses? Go to the test.  Want to know what the framework is doing behind the scenes?  Step through the test.
+Want to run one or more tests?  Start from the test rather than configuring an external tool and deploying to that. Let the framework handle the hard part.
+The point is that a benchmark test against a remote server should be as easy and clear to write as a unit test.  As far as is possible, data generation 
+should be defined in the same place it's used... in the test.
+- Measure where it matters
+The Benchmark framework has a way to inject measurements from the test code instead of relying on a mechanism that measures automatically behind the scenes.
+This allows the test writer to measure where it makes sense.  Measurements can be taken across the execution of the test locally or retrieved from a remote source.
+Either way the submission of the result to the Benchmark framework is under the test writer's control.
 
