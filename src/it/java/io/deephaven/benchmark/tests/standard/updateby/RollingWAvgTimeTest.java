@@ -13,7 +13,7 @@ public class RollingWAvgTimeTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
 
         var setup = """
@@ -28,6 +28,8 @@ public class RollingWAvgTimeTest {
 
     @Test
     public void rollingWAvgTime0Group3Ops() {
+        runner.setRowFactor(6);
+        runner.tables("timed");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingWAvgTime- 3 Ops No Groups", q, "int5", "timestamp", "int10");
     }

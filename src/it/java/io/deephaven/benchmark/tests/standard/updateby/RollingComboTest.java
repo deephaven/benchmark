@@ -13,9 +13,8 @@ public class RollingComboTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
-        
         setupStr = """
         from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
         from deephaven.updateby import rolling_avg_tick, rolling_max_tick, rolling_group_tick
