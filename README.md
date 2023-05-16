@@ -24,7 +24,7 @@ Tests are run client-server, so the test runner does not need to be co-located w
 from the engine(s) to reduce the affect of I/O and test setup on the results.
 
 Resources:
-- [System Requirements](docs/GettingStarted.md) - Getting set up to run benchmarks against Deephaven Community Core
+- [Getting Started](docs/GettingStarted.md) - Getting set up to run benchmarks against Deephaven Community Core
 - [Test-writing Basics](docs/TestWritingBasics.md) - How to generate data and use it for tests
 - [Collected Results](docs/CollectedResults.md) - What's in the benchmark results
 - [Running from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
