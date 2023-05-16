@@ -12,7 +12,7 @@ streamed Kafka topics, and replayed data.
 
 The project maintains several hundred standardized benchmarks for Deephaven query operations that are tracked both from release-to-release and 
 nightly. Results are regularly published to a read-only GCloud bucket available through the public storage API 
-[deephaven-benchmark](https://storage.googleapis.com/deephaven-benchmark)   
+[deephaven-benchmark](https://storage.googleapis.com/deephaven-benchmark).  
 
 The typical workflow of a Benchmark test is... *Configure table/column generation* --> *Execute Query* --> *Measure Results*.  This is all done inside a JUnit test class.
 
