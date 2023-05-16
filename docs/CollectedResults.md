@@ -1,7 +1,7 @@
-# Benchmark Collected Results
+# Collected Results
 
 Running Benchmark tests in an IDE produces results in a directory structure in the current (working) directory.  Running the same tests 
-from the command line through the deephaven-benchmark uber jar yields the same directory structure for each run while accumulating the
+from the command line through the deephaven-benchmark uber-jar yields the same directory structure for each run while accumulating the
 data from repeated runs instead of overwriting it.
 
 ### Example IDE-driven Directory Structure
@@ -44,7 +44,13 @@ What does each file mean?
 
 ## Benchmark Platform CSV
 
-The benchmark-platform csv contains details for the system/VM the test runner and Deephave Engine are running on including Available Processors, JVM version, OS version, etc.
+The benchmark-platform csv contains details for the system/VM where the test runner and Deephave Engine ran. 
+Details include Available Processors, JVM version, OS version, etc.
+
+Columns defined in the file are:
+- origin: The service where the property was collected
+- name: The property name
+- value: The property value for the service
 
 Properties defined in the file are:
 - java.version: The version of java running the application
@@ -54,6 +60,9 @@ Properties defined in the file are:
 - os.version: The version of the operating system hosting the application
 - available.processors: The number of CPUs the application is allowed to use
 - java.max.memory: Maximum Gigabytes of memory the application is allowed to use 
+- python.version: The version of python used in the Deephaven Engine
+- deephaven.version: The version of Deephaven tested against (client and server may be different)
+
 
 ### Example benchmark-platform.csv
 ````
@@ -65,6 +74,7 @@ test-runner,         os.name,                 Windows 10
 test-runner,         os.version,              10
 test-runner,         available.processors,    16
 test-runner,         java.max.memory,         15.98G
+test-runner,         deephaven.version,       0.22.0
 deephaven-engine,    java.version,            17.0.5
 deephaven-engine,    java.vm.name,            OpenJDK 64-Bit Server VM
 deephaven-engine,    java.class.version,      61
@@ -72,6 +82,7 @@ deephaven-engine,    os.name,                 Linux
 deephaven-engine,    os.version,              5.15.79.1-microsoft-standard-WSL2
 deephaven-engine,    available.processors,    12
 deephaven-engine,    java.max.memory,         42.00G
+deephaven-engine,    python.version,          3.10.6
 ````
 
 ## Benchmark Results CSV
@@ -79,19 +90,60 @@ deephaven-engine,    java.max.memory,         42.00G
 The benchmark-results.csv contains measurements taken of the course of each test run. One row is listed for each test.
 
 Fields supplied in the file are:
-- name: The name of the test
-- timestamp: Millis since epoch at the beginning of the test
-- duration: Seconds elapsed for the entire test run including setup and teardown
-- test-rate: The user-supplied processing rate in seconds for the test (i.e. rows/sec)
-- test-row-count: The number of rows processed
+- benchmark_name: The unique name of the benchmark
+- origin: The serice where the benchmark was collected
+- timestamp: Millis since epoch at the beginning of the benchmark
+- test_duration: Seconds elapsed for the entire test run including setup and teardown
+- op_duration: Seconds elapsed for the operation under measurement
+- op_rate: Processing rate supplied by the test-writer
+- row_count: The number of rows processed by the operation
 
 ### Example benchmark-results.csv
 ````
-name,timestamp,duration,test-rate,test-row-count
-Join Two Tables Using Kakfa Streams - Longhand Query,1672357348025,6.63,44208.66,100000
-Join Two Tables Using Kakfa Streams - Shorthand Query,1672357354657,7.96,25125.62,100000
-Join Two Tables Using Parquet File Views,1672357362620,6.57,523560.22,100000
-Join Two Tables Using Incremental Release of Paquet File Records,1672357369192,6.13,91575.09,100000
+benchmark_name,origin,timestamp,test_duration,op_duration,op_rate,row_count
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926395799,155.4960,5.4450,367309458,2000000000
+Select- 1 Calc Using 2 Cols -Inc,deephaven-engine,1683926551491,12.1970,3.5900,111420612,400000000
+Select- 2 Cals Using 2 Cols -Static,n/a,1683926563714,8.7480,8.7480,1143118,10000000
+SelectDistinct- 1 Group 250 Unique Vals -Static,deephaven-engine,1683926572487,195.0420,18.5530,64679566,1200000000
+````
+
+## Benchmark Metrics CSV
+
+The benchmark-metrics.csv contains metrics collected while running the benchmark.  Most metrics (like MXBean metrics) represent a snapshot
+at a moment in time. When these snapshots are taken and collected are up to the test-writer.  For example, in the standard benchmarks
+available in this project, metrics snaphosts are taken before and after the benchmark operation. The before-after metrics can be diffed
+to get things like Heap Gain or garbage collection counts.
+
+Field supplied in the file are:
+- benchmark_name: The unique name of the benchmark
+- origin: The serice where the metric was collected
+- timestamp: Millis since epoch when the metrics was recorded
+- category: A grouping category for the metric
+- type: What type of metric has been collected (Should be more narrowly focused than category)
+- name: A metric name that is unique within the category
+- value: The numeric value of the metric
+- note: Any addition clarifying information
+
+## Example benchmark-metrics.csv
+````
+benchmark_name,origin,timestamp,category,type,name,value,note
+Select- 1 Calc Using 2 Cols -Static,test-runner,1683926402500,setup,docker,restart,6700,standard
+Select- 1 Calc Using 2 Cols -Static,test-runner,1683926479998,source,generator,duration.secs,74.509,
+Select- 1 Calc Using 2 Cols -Static,test-runner,1683926479998,source,generator,record.count,50000000,
+Select- 1 Calc Using 2 Cols -Static,test-runner,1683926479998,source,generator,send.rate,671059.8719617764,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,ClassLoadingImpl,ClassLoading,TotalLoadedClassCount,13172,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,ClassLoadingImpl,ClassLoading,UnloadedClassCount,16,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,ObjectPendingFinalizationCount,0,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,HeapMemoryUsage Committed,9126805504,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,HeapMemoryUsage Init,1157627904,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,HeapMemoryUsage Max,25769803776,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,HeapMemoryUsage Used,2963455008,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,NonHeapMemoryUsage Committed,106430464,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,NonHeapMemoryUsage Init,7667712,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,NonHeapMemoryUsage Max,-1,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,MemoryImpl,Memory,NonHeapMemoryUsage Used,101707208,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,HotSpotThreadImpl,Threading,ThreadCount,50,
+Select- 1 Calc Using 2 Cols -Static,deephaven-engine,1683926545385,HotSpotThreadImpl,Threading,PeakThreadCount,50,
 ````
 
 ## Query Log
@@ -99,7 +151,7 @@ Join Two Tables Using Incremental Release of Paquet File Records,1672357369192,6
 Query logs record queries in the order in which they were run during a test. These include queries run by the framework automatically behind the scenes. 
 Any property variables supplied in a query are replaced with the actual values used during the test run. After a test is run, it is usually possible to 
 copy and paste the query into the Deephaven UI and run it, because parquet and kafka topic data is left intact. However, if Test B is run after Test A, 
-cut and paste of the queries recorded for Test A may not work. 
+running the recorded queries for Test A may not work, since cleanup is done automatically between tests.
 The log is in Markdown format for easier viewing.
 
 ### Example Query Log
