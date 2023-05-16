@@ -33,9 +33,9 @@ Resources:
 ## Concepts
 
 ### Self-guided API
-The *Bench* API uses the builder pattern to guide the test writer in generating data, executing queries, and fetching results.  
-There is a single API entry point where a user can follow the dots and look at the code-insight and Javadocs that pop up in the IDE. Provided properties 
-can be overriden by builder-style "with" methods like *withRowCount()*.  A middle ground is taken between text configuration and configuration 
+The *Bench* API uses the builder pattern to guide the test writer in generating data, executing queries, and fetching results. There is a single API 
+entry point where a user can follow the dots and look at the code-insight and Javadocs that pop up in the IDE. Provided properties 
+can be overriden by builder-style "with" methods like *withRowCount()*. A middle ground is taken between text configuration and configuration 
 fully-expressed in code to keep things simple and readable.
 
 ### Scale Rather Than Iterations
@@ -45,14 +45,14 @@ scope is processing large data sets, then why not actually measure against large
 
 ### Adjust Scale For Each Test
 When measuring a full set of benchmarks for transforming data, some benchmarks will naturally be faster than others (e.g. sums vs joins). Running all benchmarks
-at the same scale (e.g. 10 million rows) could yield results where one benchmark takes a minute and another takes 100 milliseconds.  Is the 100 ms test 
-meaningful, especially when measured in a JVM?  Not really, because there is no time to assess the impact of JVM ergonomics or OS background tasks.  Scale
+at the same scale (e.g. 10 million rows) could yield results where one benchmark takes a minute and another takes 100 milliseconds. Is the 100 ms test 
+meaningful, especially when measured in a JVM? Not really, because there is no time to assess the impact of JVM ergonomics or OS background tasks.  Scale
 multipliers can be set to amplify row count for tests that need it.
 
 ### Test-centric Design
-Want to know what tables and operations the test uses? Go to the test.  Want to know what the framework is doing behind the scenes?  Step through the test.
-Want to run one or more tests?  Start from the test rather than configuring an external tool and deploying to that. Let the framework handle the hard part.
-The point is that a benchmark test against a remote server should be as easy and clear to write as a unit test.  As far as is possible, data generation 
+Want to know what tables and operations the test uses? Go to the test. Want to know what the framework is doing behind the scenes? Step through the test.
+Want to run one or more tests? Start from the test rather than configuring an external tool and deploying to that. Let the framework handle the hard part.
+The point is that a benchmark test against a remote server should be as easy and clear to write as a unit test. As far as is possible, data generation 
 should be defined in the same place it's used... in the test.
 
 ### Running in Multiple Contexts
@@ -61,5 +61,5 @@ Deephaven Server.  Or packge tests in a jar and run them locally or remotely fro
 
 ### Measure Where It Matters
 The Benchmark framework has a way to inject measurements from the test code instead of relying on a mechanism that measures automatically behind the scenes.
-This allows the test writer to measure where it makes sense.  Measurements can be taken across the execution of the test locally or retrieved from a remote source.
+This allows the test writer to measure where it makes sense. Measurements can be taken across the execution of the test locally or retrieved from a remote source.
 Either way the submission of the result to the Benchmark framework is under the test writer's control.
