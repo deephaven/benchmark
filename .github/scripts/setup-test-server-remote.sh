@@ -37,7 +37,7 @@ title "-- Installing Maven --"
 apt install maven
 
 title "-- Installing Docker --"
-snap install docker
+./install-docker.sh
 
 title "-- Removing Git Benchmark Repositories --"
 rm -rf ${GIT_DIR}
