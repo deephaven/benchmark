@@ -1,4 +1,4 @@
-package io.deephaven.benchmark.tests.experimental;
+package io.deephaven.benchmark.tests.experimental.trades;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,7 +17,7 @@ import io.deephaven.benchmark.util.Exec;
  * Note: This class is for running tests in the <code>experimental</code> package. It will change as new experiments are
  * added and may require external setup (i.e. parquet files) to work.
  */
-public class ExperimentalTestRunner {
+public class TradesTestRunner {
     final Object testInst;
     private long scaleRowCount;
     private Bench api;
@@ -25,7 +25,7 @@ public class ExperimentalTestRunner {
     private Map<String, String[]> supportTables = new LinkedHashMap<>();
     private List<String> supportQueries = new ArrayList<>();
 
-    public ExperimentalTestRunner(Object testInst) {
+    public TradesTestRunner(Object testInst) {
         this.testInst = testInst;
         this.api = initialize(testInst);
         this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");

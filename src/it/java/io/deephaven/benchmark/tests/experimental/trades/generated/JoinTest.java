@@ -2,14 +2,14 @@
 package io.deephaven.benchmark.tests.experimental.trades.generated;
 
 import org.junit.jupiter.api.*;
-import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
+import io.deephaven.benchmark.tests.experimental.trades.TradesTestRunner;
 
 /**
  * Basic where tests that match the <code>provided</code> tests.
  */
 // TODO: autotune both sides of the join
 public class JoinTest {
-    final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
+    final TradesTestRunner runner = new TradesTestRunner(this);
 
     @BeforeEach
     public void setup() {

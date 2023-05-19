@@ -2,13 +2,13 @@
 package io.deephaven.benchmark.tests.experimental.trades.generated;
 
 import org.junit.jupiter.api.*;
-import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
+import io.deephaven.benchmark.tests.experimental.trades.TradesTestRunner;
 
 /**
  * Basic update tests that match the <code>provided</code> tests.
  */
 public class UpdateTest {
-    final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
+    final TradesTestRunner runner = new TradesTestRunner(this);
 
     @BeforeEach
     public void setup() {

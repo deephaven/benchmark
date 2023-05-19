@@ -2,14 +2,14 @@
 package io.deephaven.benchmark.tests.experimental.trades.provided;
 
 import org.junit.jupiter.api.*;
-import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
+import io.deephaven.benchmark.tests.experimental.trades.TradesTestRunner;
 
 /**
  * Basic aggregation tests for customers. Assumes that Deephaven is already running and that there is a
  * <code>quotes.parquet</code> file or link in the Engine's /data directory
  */
 public class AggTest {
-    final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
+    final TradesTestRunner runner = new TradesTestRunner(this);
 
     @BeforeEach
     public void setup() {

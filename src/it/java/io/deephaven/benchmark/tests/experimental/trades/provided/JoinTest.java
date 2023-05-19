@@ -2,7 +2,7 @@
 package io.deephaven.benchmark.tests.experimental.trades.provided;
 
 import org.junit.jupiter.api.*;
-import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
+import io.deephaven.benchmark.tests.experimental.trades.TradesTestRunner;
 
 /**
  * Basic where tests for customers. Assumes that Deephaven is already running and that there is a
@@ -11,7 +11,7 @@ import io.deephaven.benchmark.tests.experimental.ExperimentalTestRunner;
  */
 // TODO: autotune both sides of the join
 public class JoinTest {
-    final ExperimentalTestRunner runner = new ExperimentalTestRunner(this);
+    final TradesTestRunner runner = new TradesTestRunner(this);
 
     @BeforeEach
     public void setup() {

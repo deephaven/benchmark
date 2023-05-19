@@ -92,6 +92,7 @@ public class AvroKafkaGenerator implements Generator {
                         throw new RuntimeException("Failed to send to topic: " + topic, ex);
                     }
                 }
+                producer.flush();
                 Metrics metrics = new Metrics("test-runner", topic, "generator").set("duration.secs", duration / 1000.0)
                         .set("record.count", recCount).set("send.rate", recCount / (duration / 1000.0));
                 return metrics;
