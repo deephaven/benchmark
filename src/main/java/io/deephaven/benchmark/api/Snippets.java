@@ -52,6 +52,28 @@ class Snippets {
         """;
 
     /**
+     * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
+     * in the current query logic until that value is reached
+     * <p/>
+     * ex. bench_api_await_column_value_limit(table, 'count', 1000000)
+     * 
+     * @param table the table to monitor
+     * @param column the column name to monitor
+     * @param limit the upper bound for the monitored column value
+     */
+    static String bench_api_await_column_value_limit = """
+        from deephaven.table import Table
+        from deephaven.ugp import exclusive_lock
+
+        def bench_api_await_column_value_limit(table: Table, column: str, limit: int):
+            with exclusive_lock():
+                value = 0
+                while value < limit:
+                    table.j_table.awaitUpdate()
+                    value = table.j_object.getColumnSource(column).get(0)
+        """;
+
+    /**
      * Take a snapshot of a selection of JVM statistics. Multiple snapshots can be made in one query with each producing
      * a set of metrics that can be collected by <code>bench_api_metrics_collect</code>
      */
@@ -124,6 +146,7 @@ class Snippets {
         functionDefs += getFunction("bench_api_await_table_size", bench_api_await_table_size, query);
         functionDefs += getFunction("bench_api_metrics_snapshot", bench_api_metrics_snapshot, query);
         functionDefs += getFunction("bench_api_metrics_collect", bench_api_metrics_collect, query);
+        functionDefs += getFunction("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query);
         return functionDefs;
     }
 

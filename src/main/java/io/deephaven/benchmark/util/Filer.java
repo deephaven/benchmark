@@ -1,10 +1,7 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,9 +38,23 @@ public class Filer {
      */
     static public String getFileText(Path file) {
         try {
-            return new String(Files.readAllBytes(file)).replace("\r", "").trim();
+            return new String(Files.readString(file)).replace("\r", "").trim();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to get text contents of file: " + file, ex);
+        }
+    }
+
+    /**
+     * Write the given text to a file. Create if the file does not exist. Overwrite if it exists.
+     * 
+     * @param file the file to contain the text
+     * @param text the text to write to the file
+     */
+    static public void putFileText(Path file, String text) {
+        try (BufferedWriter out = Files.newBufferedWriter(file)) {
+            out.append(text);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to put text to file: " + file, ex);
         }
     }
 

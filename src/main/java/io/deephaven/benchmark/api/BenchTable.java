@@ -168,7 +168,7 @@ final public class BenchTable implements Closeable {
         generator = new AvroKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
         return generator.produce(getRowPause(), getRowCount(), getRunDuration());
     }
-    
+
     private Future<Metrics> generateWithJson() {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
