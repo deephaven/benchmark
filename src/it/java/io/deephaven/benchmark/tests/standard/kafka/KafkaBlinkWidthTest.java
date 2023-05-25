@@ -45,7 +45,7 @@ public class KafkaBlinkWidthTest {
     
     @Test
     public void CountBy1000ColsFromKafkaAvroBlink() {
-        runner.api.setName("CountBy- 1000 Cols Wide Avro Stream");
+        runner.api.setName("CountBy- 1000 Cols Wide Avro Blink");
         runner.restartWithHeap(10);
         runner.table(rowCount / 20, 1000, "long", "avro");
         runner.runTest("consumer_tbl.count_by('count')", "blink");

@@ -13,51 +13,51 @@ public class KafkaDataTypeTest {
     final int colCount = 20;
 
     @Test
-    public void CountBy20LongColsFromKafkaAvroAppend() {
-        runner.api.setName("CountBy- 20 Long Cols Avro Append");
+    public void NoOp20LongColsFromKafkaAvroAppend() {
+        runner.api.setName("NoOp- 20 Long Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "long", "avro");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
 
     @Test
-    public void CountBy20LongColsFromKafkaJsonAppend() {
-        runner.api.setName("CountBy- 20 Long Cols JSON Append");
+    public void NoOp20LongColsFromKafkaJsonAppend() {
+        runner.api.setName("NoOp- 20 Long Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "long", "json");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
     
     @Test
-    public void CountBy20DoubleColsFromKafkaAvroAppend() {
-        runner.api.setName("CountBy- 20 Double Cols Avro Append");
+    public void NoOp20DoubleColsFromKafkaAvroAppend() {
+        runner.api.setName("NoOp- 20 Double Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "double", "avro");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
 
     @Test
-    public void CountBy20DoubleColsFromKafkaJsonAppend() {
-        runner.api.setName("CountBy- 20 Double Cols JSON Append");
+    public void NoOpDoubleColsFromKafkaJsonAppend() {
+        runner.api.setName("NoOp- 20 Double Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "double", "json");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
     
     @Test
-    public void CountBy20DateTimeColsFromKafkaAvroAppend() {
-        runner.api.setName("CountBy- 20 DateTime Cols Avro Append");
+    public void NoOp20DateTimeColsFromKafkaAvroAppend() {
+        runner.api.setName("NoOp- 20 DateTime Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "timestamp-millis", "avro");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
 
     @Test
-    public void CountBy20DateTimeColsFromKafkaJsonAppend() {
-        runner.api.setName("CountBy- 20 DateTime Cols JSON Append");
+    public void NoOp20DateTimeColsFromKafkaJsonAppend() {
+        runner.api.setName("NoOp- 20 DateTime Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "timestamp-millis", "json");
-        runner.runTest("consumer_tbl.count_by('count')", "append");
+        runner.runTest("None", "append");
     }
 
     @AfterEach
