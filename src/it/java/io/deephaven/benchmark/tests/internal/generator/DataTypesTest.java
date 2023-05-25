@@ -20,6 +20,7 @@ public class DataTypesTest {
                 .add("col_double", "double", "3")
                 .add("col_float", "float", "4")
                 .add("col_string", "string", "5")
+                .withRowCount(10)
                 .generateParquet();
 
         var query = """
