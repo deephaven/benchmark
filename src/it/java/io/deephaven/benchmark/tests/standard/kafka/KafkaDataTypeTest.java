@@ -40,7 +40,7 @@ public class KafkaDataTypeTest {
     public void NoOpDoubleColsFromKafkaJsonAppend() {
         runner.api.setName("NoOp- 20 Double Cols JSON Append");
         runner.restartWithHeap(10);
-        runner.table(rowCount / 2, colCount, "double", "json");
+        runner.table(rowCount / 4, colCount, "double", "json");
         runner.runTest("None", "append");
     }
     
