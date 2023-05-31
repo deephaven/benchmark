@@ -24,7 +24,7 @@ public class MixedComboTest {
         max_before = rolling_max_tick(cols=["V = ${calc.col}"], rev_ticks=3, fwd_ticks=-1)
         prod_after = rolling_prod_time(ts_col="timestamp", cols=["W=${calc.col}"], rev_time="-00:00:01", fwd_time=int(3e9))
         
-        ema_tick_op = ema_tick(time_scale_ticks=100,cols=['X=${calc.col}'])
+        ema_tick_op = ema_tick(decay_ticks=100,cols=['X=${calc.col}'])
         min_op = cum_min(cols=['Y=${calc.col}'])
         sum_op = cum_sum(cols=['Z=${calc.col}'])
         """;

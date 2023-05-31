@@ -20,26 +20,26 @@ public class EmMinTimeTest {
 
     @Test
     public void emMinTime0Group1Col() {
-        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']))";
+        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', decay_time='00:00:02', cols=['X=int5']))";
         runner.test("EmMinTime- No Groups 1 Col", q, "int5", "timestamp");
     }
 
     @Test
     public void emMinTime1Group1Col() {
-        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']), by=['str100'])";
+        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', decay_time='00:00:02', cols=['X=int5']), by=['str100'])";
         runner.test("EmMinTime- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5", "timestamp");
     }
 
     @Test
     public void emMinTime2GroupsInt() {
-        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', time_scale='00:00:02', cols=['X=int5']), by=['str100','str150'])";
+        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', decay_time='00:00:02', cols=['X=int5']), by=['str100','str150'])";
         runner.test("EmMinTime- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150",
                 "int5", "timestamp");
     }
 
     @Test
     public void emMinTime2GroupsFloat() {
-        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', time_scale='00:00:02', cols=['X=float5']), by=['str100','str150'])";
+        var q = "timed.update_by(ops=emmin_time(ts_col='timestamp', decay_time='00:00:02', cols=['X=float5']), by=['str100','str150'])";
         runner.test("EmMinTime- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150",
                 "float5", "timestamp");
     }
