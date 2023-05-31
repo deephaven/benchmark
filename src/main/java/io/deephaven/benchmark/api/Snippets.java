@@ -11,7 +11,7 @@ class Snippets {
      * ex. mytable = bench_api_kafka_consume('mytopic', 'append')
      * 
      * @param topic a kafka topic name
-     * @param table_type a Deephaven table type <code>( append | stream | ring )</code>
+     * @param table_type a Deephaven table type <code>( append | blink | ring )</code>
      * @return a table that is populated with the rows from the topic
      */
     static String bench_api_kafka_consume = """
@@ -21,7 +21,7 @@ class Snippets {
         def bench_api_kafka_consume(topic: str, table_type: str):
             t_type = None
             if table_type == 'append': t_type = TableType.append()
-            elif table_type == 'stream': t_type = TableType.stream()
+            elif table_type == 'blink': t_type = TableType.blink()
             elif table_type == 'ring': t_type = TableType.ring()
             else: raise Exception('Unsupported kafka stream type: {}'.format(t_type))
 
