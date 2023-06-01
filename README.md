@@ -65,8 +65,10 @@ running everything on the same system or different system.
 
 ### Measure Where It Matters
 The Benchmark framework allows the test-writer to set each benchmark measurement from the test code instead of relying on a mechanism that measures 
-automatically behind the scenes. Measurements can be taken across the execution of the test locally with Timers like in this [example test](src/it/java/io/deephaven/benchmark/tests/internal/examples/stream/JoinTablesFromKafkaStreamTest.java) or retrieved from the remote Deephaven 
-instance where the test is running as is done in the [StandardTestRunner](src/it/java/io/deephaven/benchmark/tests/standard/StandardTestRunner.java) 
-used for nightly Deephaven benchmarks. Either way the submission of the result to the Benchmark framework is under the test writer's control.
+automatically behind the scenes. Measurements can be taken across the execution of the test locally with a *Timer* like in the 
+[JoinTablesFromKafkaStreamTest](src/it/java/io/deephaven/benchmark/tests/internal/examples/stream/JoinTablesFromKafkaStreamTest.java) example test
+or fetched from the remote Deephaven instance where the test is running as is done in the 
+[StandardTestRunner](src/it/java/io/deephaven/benchmark/tests/standard/StandardTestRunner.java) 
+used for nightly Deephaven benchmarks. Either way the submission of the result to the Benchmark framework is under the test-writer's control.
 
 
