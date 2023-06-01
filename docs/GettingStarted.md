@@ -11,8 +11,8 @@ and Deephaven Community Core.  (Running on multiple servers is out of the scope 
 
 ## Prerequisites for Running Existing Tests
 
-- System Memory: At least 32G (to run with the default settings)
-- CPU Threads: 16 is preferrable (can be run with less, but that misses the point)
+- System Memory: 32G (to run with the default settings)
+- CPU Threads: 16 is preferrable (can be run with less, but that may compromise the test execution quality)
 - Storage: 10G of free space (some for Deephaven install, some for generated data)
 
 ## Easy Installation Of Deephaven and Redpanda

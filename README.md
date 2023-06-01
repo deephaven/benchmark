@@ -2,12 +2,12 @@
 
 ![Operation Rate Change Tracking By Release](docs/BenchmarkChangeTable.png)
 
-The Benckmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
+The Benchmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
 framework as a runner and works from popular IDEs or from the command line. It is geared towards scale testing interfaces capable of ingesting 
 table data, transforming it, and returning tabular results. 
 
 Currently, most benchmarks that use the framework are aimed at broad coverage of single query operations executed in 
-[Deephaven Core Community](https://deephaven.io/community/) through the Barrage Java Client. Tests focus on querying static parquet files, 
+[Deephaven Community Core](https://deephaven.io/community/) through the Barrage Java Client. Tests focus on querying static parquet files, 
 streamed Kafka topics, and replayed data.
 
 The project maintains several hundred standardized benchmarks for Deephaven query operations that are tracked both from release-to-release and 
@@ -39,9 +39,12 @@ can be overriden by builder-style "with" methods like *withRowCount()*. A middle
 fully-expressed in code to keep things simple and readable.
 
 ### Scale Rather Than Iterations
-Repeating tests can be useful for testing the affects of caching (Load file multiple times, is it faster on subsequent loads?), or overcoming a lack of 
-precision in OS timers (Run a fast function many times and average), or average out variability between runs (There's always anomalies). But if the 
-context of the test is processing large data sets, then it's better to measure against large data sets.
+Repeating tests can be useful for testing the effects of caching (e.g. load file multiple times; is it faster on subsequent loads?), or overcoming a lack of 
+precision in OS timers (e.g. run a fast function many times and average), or average out variability between runs (there are always anomalies). On the other hand, 
+if the context of the test is processing large data sets, then it's better to measure against large data sets where possible. This provides a benchmark test
+that's closer to the real thing when it comes to memory consumption, garbage collection, thread usage, and JIT optimizations. Repeating tests, though useful in
+some scenarios, can have the effect of taking the operation under test out of the benchmark equation because of cached results, resets for each iteration, 
+limited heap usage, or smaller data sets that are too uniform.
 
 ### Adjust Scale For Each Test
 When measuring a full set of benchmarks for transforming data, some benchmarks will naturally be faster than others (e.g. sums vs joins). Running all benchmarks
@@ -57,10 +60,13 @@ should be defined in the same place it's used... in the test.
 
 ### Running in Multiple Contexts
 Tests are developed by test-writers, so why not make it easy for them?  Run tests from the IDE for ease of debugging. Point the tests to a local or a remote
-Deephaven Server instance.  Or package tests in a jar and run them locally or remotely from the Benchmark uber-jar. The same tests should work whether 
+Deephaven Server instance. Or package tests in a jar and run them locally or remotely from the Benchmark uber-jar. The same tests should work whether 
 running everything on the same system or different system.
 
 ### Measure Where It Matters
-The Benchmark framework has a way to inject measurements from the test code instead of relying on a mechanism that measures automatically behind the scenes.
-This allows the test writer to measure where it makes sense. Measurements can be taken across the execution of the test locally or retrieved from a remote source.
-Either way the submission of the result to the Benchmark framework is under the test writer's control.
+The Benchmark framework allows the test-writer to set each benchmark measurement from the test code instead of relying on a mechanism that measures 
+automatically behind the scenes. Measurements can be taken across the execution of the test locally with Timers like in this [example test](src/it/java/io/deephaven/benchmark/tests/internal/examples/stream/JoinTablesFromKafkaStreamTest.java) or retrieved from the remote Deephaven 
+instance where the test is running as is done in the [StandardTestRunner](src/it/java/io/deephaven/benchmark/tests/standard/StandardTestRunner.java) 
+used for nightly Deephaven benchmarks. Either way the submission of the result to the Benchmark framework is under the test writer's control.
+
+

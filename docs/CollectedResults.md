@@ -59,7 +59,7 @@ Properties defined in the file are:
 - os.name: The name of the operating system hosting the application
 - os.version: The version of the operating system hosting the application
 - available.processors: The number of CPUs the application is allowed to use
-- java.max.memory: Maximum Gigabytes of memory the application is allowed to use 
+- java.max.memory: Maximum amount of memory the application is allowed to use 
 - python.version: The version of python used in the Deephaven Engine
 - deephaven.version: The version of Deephaven tested against (client and server may be different)
 
@@ -111,15 +111,15 @@ SelectDistinct- 1 Group 250 Unique Vals -Static,deephaven-engine,1683926572487,1
 
 The benchmark-metrics.csv contains metrics collected while running the benchmark.  Most metrics (like MXBean metrics) represent a snapshot
 at a moment in time. When these snapshots are taken and collected are up to the test-writer.  For example, in the standard benchmarks
-available in this project, metrics snaphosts are taken before and after the benchmark operation. The before-after metrics can be diffed
-to get things like Heap Gain or garbage collection counts.
+available in this project, metrics snaphosts are taken before and after the benchmark operation. The before-after metrics can be compared
+to calculate things like Heap Gain or garbage collection counts.
 
 Field supplied in the file are:
 - benchmark_name: The unique name of the benchmark
 - origin: The serice where the metric was collected
 - timestamp: Millis since epoch when the metrics was recorded
 - category: A grouping category for the metric
-- type: What type of metric has been collected (Should be more narrowly focused than category)
+- type: The type of metric has been collected (should be more narrowly focused than category)
 - name: A metric name that is unique within the category
 - value: The numeric value of the metric
 - note: Any addition clarifying information
@@ -156,7 +156,7 @@ The log is in Markdown format for easier viewing.
 
 ### Example Query Log
 ~~~~
-# Test Class - io.deephaven.benchmark.tests.query.examples.stream.JoinTablesFromKafkaStream
+# Test Class - io.deephaven.benchmark.tests.internal.examples.stream.JoinTablesFromKafkaStreamTest
 
 ## Test - Count Records From Kakfa Stream
 
@@ -166,39 +166,52 @@ from deephaven import kafka_consumer as kc
 from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
 
 def bench_api_kafka_consume(topic: str, table_type: str):
-	t_type = None
-	if table_type == 'append': t_type = TableType.append()
-	elif table_type == 'stream': t_type = TableType.stream()
-	elif table_type == 'ring': t_type = TableType.ring()
-	else: raise Exception('Unsupported kafka stream type: {}'.format(t_type))
+    t_type = None
+    if table_type == 'append': t_type = TableType.append()
+    elif table_type == 'blink': t_type = TableType.blink()
+    elif table_type == 'ring': t_type = TableType.ring()
+    else: raise Exception('Unsupported kafka stream type: {}'.format(t_type))
 
-	return kc.consume(
-		{ 'bootstrap.servers' : 'redpanda:29092', 'schema.registry.url' : 'http://redpanda:8081' },
-		topic, partitions=None, offsets=kc.ALL_PARTITIONS_SEEK_TO_BEGINNING,
-		key_spec=KeyValueSpec.IGNORE, value_spec=kc.avro_spec(topic + '_record', schema_version='1'),
-		table_type=t_type)
+    return kc.consume(
+        { 'bootstrap.servers' : 'redpanda:29092', 'schema.registry.url' : 'http://redpanda:8081' },
+        topic, partitions=None, offsets=kc.ALL_PARTITIONS_SEEK_TO_BEGINNING,
+        key_spec=KeyValueSpec.IGNORE, value_spec=kc.avro_spec(topic + '_record', schema_version='1'),
+        table_type=t_type)
 
 from deephaven.table import Table
 from deephaven.ugp import exclusive_lock
 
 def bench_api_await_table_size(table: Table, row_count: int):
-	with exclusive_lock():
-		while table.j_table.size() < row_count:
-			table.j_table.awaitUpdate()
+    with exclusive_lock():
+        while table.j_table.size() < row_count:
+            table.j_table.awaitUpdate()
 
 ````
 
 ### Query 2
 ````
-from deephaven import agg
-
 kafka_stock_trans = bench_api_kafka_consume('stock_trans', 'append')
 bench_api_await_table_size(kafka_stock_trans, 100000)
+````
 
+### Query 3
+````
+kafka_stock_trans=None
+from deephaven import garbage_collect; garbage_collect()
 ````
 ~~~~
 
-In the above example, the user made a simple test to load a fixed number of records into a table from a kafka consumer (Query2). 
-However, since "bench_api_" functions where used, the definitions of those functions were automatically published to 
-Deephaven Engine ahead of the test run.
+The above log is an example of what you would see in *test-logs/io.deephaven.benchmark.tests.internal.examples.stream.JoinTablesFromKafkaStreamTest.query.md*
+when running the *JoinTablesFromKafkaStreamTest.countRecordsFromKafkaStream()* integration test.
+
+The log has several components:
+- Test Class: The fully-qualified class name of the test
+- Test: The description of the test the test-writer supplied
+- Query 1,2,3: The Deephaven queries executed in Deephaven in the order they were executed
+
+What the queries are doing:
+- Query 1: The definitions of some the Bench API convenience functions used in Query 2. The test-writer used *bench_api_kafka_consume()* and
+*bench_api_await_table_size()* in the query, and the Bench API automatically added the corresponding function definitions
+- Query 2: The part that the test-writer wrote for the test (see *JoinTablesFromKafkaStreamTest.countRecordsFromKafkaStream()*)
+- Query 3: The cleanup query added automatically by the Bench API
 
