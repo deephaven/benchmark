@@ -201,7 +201,7 @@ from deephaven import garbage_collect; garbage_collect()
 ````
 ~~~~
 
-The above log is an example of what you would see in *test-logs/io.deephaven.benchmark.tests.internal.examples.stream.JoinTablesFromKafkaStreamTest.query.md*
+The above log is an example of what you would see in *test&#x2011;logs/io.deephaven.benchmark.tests.internal.examples.stream.JoinTablesFromKafkaStreamTest.query.md*
 when running the *JoinTablesFromKafkaStreamTest.countRecordsFromKafkaStream()* integration test.
 
 The log has several components:
