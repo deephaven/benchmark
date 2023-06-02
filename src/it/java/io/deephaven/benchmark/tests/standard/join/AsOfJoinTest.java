@@ -20,19 +20,19 @@ public class AsOfJoinTest {
 
     @Test
     public void asOfJoinOn1Col1Match() {
-        var q = "source.aj(right, on=['str1M=r_str1M'])";
+        var q = "source.aj(right, on=['str1M >= r_str1M'])";
         runner.test("AsOfJoin- Join On 1 Col 1 Match", q, "str1M", "int250");
     }
 
     @Test
     public void asOfJoinOn2Cols1Match() {
-        var q = "source.aj(right, on=['str1M=r_str1M', 'int1M=r_int1M'])";
+        var q = "source.aj(right, on=['str1M = r_str1M', 'int1M >= r_int1M'])";
         runner.test("AsOfJoin- Join On 2 Cols 1 Match", q, "str1M", "int1M", "int250");
     }
 
     @Test
     public void asOfJoinOn2ColsManyMatch() {
-        var q = "source.aj(right, on=['str640=r_str640', 'str250=r_str250'])";
+        var q = "source.aj(right, on=['str640 = r_str640', 'str250 >= r_str250'])";
         runner.test("AsOfJoin- Join On 2 Cols Many Match", q, "str250", "str640", "int250");
     }
 
