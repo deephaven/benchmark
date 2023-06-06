@@ -1,6 +1,7 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
+import java.time.Duration;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
@@ -21,7 +22,7 @@ public class CumComboTest {
         from deephaven.updateby import cum_max, cum_min, cum_sum, cum_prod
         
         ema_tick_op = ema_tick(decay_ticks=100,cols=['U=${calc.col}'])
-        ema_time_op = ema_time(ts_col='timestamp', decay_time='00:00:02', cols=['V=${calc.col}'])
+        ema_time_op = ema_time(ts_col='timestamp', decay_time='PT2S', cols=['V=${calc.col}'])
         max_op = cum_max(cols=['W=${calc.col}'])
         min_op = cum_min(cols=['X=${calc.col}'])
         sum_op = cum_sum(cols=['Y=${calc.col}'])

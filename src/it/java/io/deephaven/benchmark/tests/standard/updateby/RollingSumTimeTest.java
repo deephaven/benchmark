@@ -18,9 +18,9 @@ public class RollingSumTimeTest {
 
         var setup = """
         from deephaven.updateby import rolling_sum_time
-        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=int5"], rev_time="00:00:01", fwd_time="00:00:01")
-        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=int5"], rev_time="00:00:03", fwd_time=int(-1e9))
-        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-00:00:01", fwd_time=int(3e9))
+        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=int5"], rev_time="PT1S", fwd_time="PT1S")
+        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=int5"], rev_time="PT3S", fwd_time=int(-1e9))
+        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-PT1S", fwd_time=int(3e9))
         
         """;
         runner.addSetupQuery(setup);
@@ -50,9 +50,9 @@ public class RollingSumTimeTest {
     @Test
     public void rollingSumTime2Groups3OpsFloat() {
         var setup = """
-        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=float5"], rev_time="00:00:01", fwd_time="00:00:01")
-        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=float5"], rev_time="00:00:03", fwd_time=int(-1e9))
-        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=float5"], rev_time="-00:00:01", fwd_time=int(3e9))
+        contains_row = rolling_sum_time(ts_col="timestamp", cols=["X=float5"], rev_time="PT1S", fwd_time="PT1S")
+        before_row = rolling_sum_time(ts_col="timestamp", cols=["Y=float5"], rev_time="PT3S", fwd_time=int(-1e9))
+        after_row = rolling_sum_time(ts_col="timestamp", cols=["Z=float5"], rev_time="-PT1S", fwd_time=int(3e9))
         """;
         runner.addSetupQuery(setup);
 
