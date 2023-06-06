@@ -43,10 +43,10 @@ class Snippets {
      */
     static String bench_api_await_table_size = """
         from deephaven.table import Table
-        from deephaven.ugp import exclusive_lock
+        from deephaven.update_graph import exclusive_lock
 
         def bench_api_await_table_size(table: Table, row_count: int):
-            with exclusive_lock():
+            with exclusive_lock(table):
                 while table.j_table.size() < row_count:
                     table.j_table.awaitUpdate()
         """;

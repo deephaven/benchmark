@@ -206,8 +206,8 @@ public class StandardTestRunner {
         result = ${operation}
         source_filter.start()
         
-        UGP = jpy.get_type("io.deephaven.engine.updategraph.UpdateGraphProcessor")
-        UGP.DEFAULT.requestRefresh()
+        from deephaven.execution_context import get_exec_ctx
+        get_exec_ctx().update_graph.requestRefresh()
         source_filter.waitForCompletion()
         end_time = time.perf_counter_ns()
         bench_api_metrics_snapshot()

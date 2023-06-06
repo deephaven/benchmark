@@ -261,7 +261,7 @@ final public class BenchTable implements Closeable {
         from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
         from deephaven.parquet import write
         from deephaven.table import Table
-        from deephaven.ugp import exclusive_lock
+        from deephaven.update_graph import exclusive_lock
 
         ${table.name} = kc.consume(
             { 'bootstrap.servers' : '${kafka.consumer.addr}', 'schema.registry.url' : 'http://${schema.registry.addr}' },
@@ -270,7 +270,7 @@ final public class BenchTable implements Closeable {
             table_type=TableType.append()).view(formulas=[${table.columns}])
 
         def wait_ticking_table_update(table: Table, row_count: int):
-            with exclusive_lock():
+            with exclusive_lock(table):
                 while table.size < row_count:
                     table.j_table.awaitUpdate()
 

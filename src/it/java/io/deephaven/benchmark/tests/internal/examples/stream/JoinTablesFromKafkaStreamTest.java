@@ -54,7 +54,7 @@ public class JoinTablesFromKafkaStreamTest {
         from deephaven import kafka_consumer as kc
         from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
         from deephaven.table import Table
-        from deephaven.ugp import exclusive_lock
+        from deephaven.update_graph import exclusive_lock
 
         kafka_stock_info = kc.consume(
             { 'bootstrap.servers' : '${kafka.consumer.addr}', 'schema.registry.url' : 'http://${schema.registry.addr}' },
@@ -88,7 +88,7 @@ public class JoinTablesFromKafkaStreamTest {
         record_count = stock_exchange.agg_by([agg.sum_('RecordCount')])
 
         def await_table_size(table: Table, row_count: int):
-            with exclusive_lock():
+            with exclusive_lock(table):
                 while table.j_table.size() < row_count:
                     table.j_table.awaitUpdate()
 
