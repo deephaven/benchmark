@@ -6,9 +6,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import io.deephaven.benchmark.generator.AvroKafkaGenerator;
-import io.deephaven.benchmark.generator.ColumnDefs;
-import io.deephaven.benchmark.generator.Generator;
+import io.deephaven.benchmark.generator.*;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Ids;
 
@@ -121,11 +119,13 @@ final public class BenchTable implements Closeable {
         bench.addFuture(future);
     }
 
-    /*
-     * Not implemented public void generateJson() { String bootstrapServer = bench.property("client.redpanda.addr",
-     * "localhost:9092"); generator = new JsonKafkaGenerator(bootstrapServer, tableName, columns); var future =
-     * generator.produce(getRowPause(), getRowCount(), getRunDuration()); bench.addFuture(future); }
+    /**
+     * Generate the table asynchronously through Kafka using JSON serialization
      */
+    public void generateJson() {
+        var future = generateWithJson();
+        bench.addFuture(future);
+    }
 
     /**
      * Generate the table synchronously to a parquet file in the engine's data directory. If a parquet file already
@@ -163,6 +163,13 @@ final public class BenchTable implements Closeable {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
         generator = new AvroKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
+        return generator.produce(getRowPause(), getRowCount(), getRunDuration());
+    }
+
+    private Future<Metrics> generateWithJson() {
+        String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
+        String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
+        generator = new JsonKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
         return generator.produce(getRowPause(), getRowCount(), getRunDuration());
     }
 
