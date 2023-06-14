@@ -157,7 +157,7 @@ public class ExperimentalTestRunner {
         source_filter.start()
         
         from deephaven.execution_context import get_exec_ctx
-        get_exec_ctx().update_graph.requestRefresh()
+        get_exec_ctx().update_graph.j_update_graph.requestRefresh()
         source_filter.waitForCompletion()
         end_time = time.perf_counter_ns()
         

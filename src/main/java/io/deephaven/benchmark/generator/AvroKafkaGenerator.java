@@ -22,7 +22,8 @@ import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Threads;
 
 /**
- * Generator that produces rows to a Kafka topic according to the provided column definitions
+ * Generator that produces rows to a Kafka topic according to the provided column definitions. The generator uses Avro
+ * formatting and automatically generates and publishes the correct schema for use by the producer and consumer.
  */
 public class AvroKafkaGenerator implements Generator {
     final private ExecutorService queue = Threads.single("AvroKafkaGenerator");
