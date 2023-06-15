@@ -21,35 +21,35 @@ public class EmaTickTest {
     @Test
     public void emaTick0Group1Col() {
         runner.setScaleFactors(30, 15);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=int5']))";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']))";
         runner.test("EmaTick- No Groups 1 Col", q, "int5");
     }
 
     @Test
     public void emaTick0Group2Cols() {
         runner.setScaleFactors(15, 8);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=int5','Y=int10']))";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5','Y=int10']))";
         runner.test("EmaTick- No Groups 2 Cols", q, "int5", "int10");
     }
 
     @Test
     public void emaTick1Group1Col() {
         runner.setScaleFactors(9, 1);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=int5']), by=['str100'])";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100'])";
         runner.test("EmaTick- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5");
     }
 
     @Test
     public void emaTick1Group2Cols() {
         runner.setScaleFactors(5, 1);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
         runner.test("EmaTick- 1 Group 100 Unique Vals 2 Cols", q, "str100", "int5", "int10");
     }
 
     @Test
     public void emaTick2GroupsInt() {
         runner.setScaleFactors(5, 1);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=int5']), by=['str100','str150'])";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100','str150'])";
         runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150",
                 "int5");
     }
@@ -57,7 +57,7 @@ public class EmaTickTest {
     @Test
     public void emaTick2GroupsFloat() {
         runner.setScaleFactors(5, 1);
-        var q = "timed.update_by(ops=ema_tick(time_scale_ticks=100,cols=['X=float5']), by=['str100','str150'])";
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=float5']), by=['str100','str150'])";
         runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150",
                 "float5");
     }

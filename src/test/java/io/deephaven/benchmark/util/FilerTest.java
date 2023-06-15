@@ -15,6 +15,14 @@ public class FilerTest {
     }
 
     @Test
+    public void putFileText() throws Exception {
+        Path p = Paths.get(getClass().getResource("filertest.txt").toURI());
+        p = p.resolveSibling("filtertest2.txt");
+        Filer.putFileText(p, "One Two\nThree Four");
+        assertEquals("One Two\nThree Four", Files.readString(p), "Wrong file text");
+    }
+
+    @Test
     public void getUrlText() throws Exception {
         URL url = getClass().getResource("filertest.txt");
         assertEquals("One Two Three\nFour Five Six", Filer.getURLText(url), "Wrong file text");

@@ -13,16 +13,15 @@ public class RollingComboTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
-        
         setupStr = """
         from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
         from deephaven.updateby import rolling_avg_tick, rolling_max_tick, rolling_group_tick
          
-        sum_contains = rolling_sum_time(ts_col="timestamp", cols=["U=${calc.col}"], rev_time="00:00:01", fwd_time="00:00:01")
-        min_before = rolling_min_time(ts_col="timestamp", cols=["V=${calc.col}"], rev_time="00:00:03", fwd_time=int(-1e9))
-        prod_after = rolling_prod_time(ts_col="timestamp", cols=["W=${calc.col}"], rev_time="-00:00:01", fwd_time=int(3e9))
+        sum_contains = rolling_sum_time(ts_col="timestamp", cols=["U=${calc.col}"], rev_time="PT1S", fwd_time="PT1S")
+        min_before = rolling_min_time(ts_col="timestamp", cols=["V=${calc.col}"], rev_time="PT3S", fwd_time=int(-1e9))
+        prod_after = rolling_prod_time(ts_col="timestamp", cols=["W=${calc.col}"], rev_time="-PT1S", fwd_time=int(3e9))
         
         avg_contains = rolling_avg_tick(cols=["X = ${calc.col}"], rev_ticks=1, fwd_ticks=1)
         max_before = rolling_max_tick(cols=["Y = ${calc.col}"], rev_ticks=3, fwd_ticks=-1)

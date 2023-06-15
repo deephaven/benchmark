@@ -20,21 +20,20 @@ public class ReverseAsOfJoinTest {
 
     @Test
     public void reverseAsOfJoinOn1Col1Match() {
-        var q = "source.raj(right, on=['str1M=r_str1M'])";
-        runner.test("ReverseAsOfJoin- Join On 1 Col 1 Match",  q, "str1M", "int250");
+        var q = "source.raj(right, on=['str1M <= r_str1M'])";
+        runner.test("ReverseAsOfJoin- Join On 1 Col 1 Match", q, "str1M", "int250");
     }
 
     @Test
     public void reverseAsOfJoinOn2Cols1Match() {
-        var q = "source.raj(right, on=['str1M=r_str1M', 'int1M=r_int1M'])";
+        var q = "source.raj(right, on=['str1M = r_str1M', 'int1M <= r_int1M'])";
         runner.test("ReverseAsOfJoin- Join On 2 Cols 1 Match", q, "str1M", "int1M", "int250");
     }
 
     @Test
     public void reverseAsOfJoinOn2ColsManyMatch() {
-        var q = "source.raj(right, on=['str640=r_str640', 'str250=r_str250'])";
-        runner.test("ReverseAsOfJoin- Join On 2 Cols Many Match", q, "str250", "str640",
-                "int250");
+        var q = "source.raj(right, on=['str640 = r_str640', 'str250 <= r_str250'])";
+        runner.test("ReverseAsOfJoin- Join On 2 Cols Many Match", q, "str250", "str640", "int250");
     }
 
 }

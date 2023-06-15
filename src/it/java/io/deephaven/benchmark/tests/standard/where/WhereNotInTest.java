@@ -28,7 +28,7 @@ public class WhereNotInTest {
 
     @Test
     public void whereNotIn1Filter() {
-        runner.setScaleFactors(100, 10);
+        runner.setScaleFactors(80, 10);
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "str250", "int250");
     }

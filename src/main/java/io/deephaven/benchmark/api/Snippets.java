@@ -11,7 +11,7 @@ class Snippets {
      * ex. mytable = bench_api_kafka_consume('mytopic', 'append')
      * 
      * @param topic a kafka topic name
-     * @param table_type a Deephaven table type <code>( append | stream | ring )</code>
+     * @param table_type a Deephaven table type <code>( append | blink | ring )</code>
      * @return a table that is populated with the rows from the topic
      */
     static String bench_api_kafka_consume = """
@@ -21,7 +21,7 @@ class Snippets {
         def bench_api_kafka_consume(topic: str, table_type: str):
             t_type = None
             if table_type == 'append': t_type = TableType.append()
-            elif table_type == 'stream': t_type = TableType.stream()
+            elif table_type == 'blink': t_type = TableType.blink()
             elif table_type == 'ring': t_type = TableType.ring()
             else: raise Exception('Unsupported kafka stream type: {}'.format(t_type))
 
@@ -43,12 +43,34 @@ class Snippets {
      */
     static String bench_api_await_table_size = """
         from deephaven.table import Table
-        from deephaven.ugp import exclusive_lock
+        from deephaven.update_graph import exclusive_lock
 
         def bench_api_await_table_size(table: Table, row_count: int):
-            with exclusive_lock():
+            with exclusive_lock(table):
                 while table.j_table.size() < row_count:
                     table.j_table.awaitUpdate()
+        """;
+
+
+    /**
+     * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
+     * in the current query logic until that value is reached
+     * <p/>
+     * ex. bench_api_await_column_value_limit(table, 'count', 1000000)
+     * 
+     * @param table the table to monitor
+     * @param column the column name to monitor
+     * @param limit the upper bound for the monitored column value
+     */
+    static String bench_api_await_column_value_limit = """
+        from deephaven.table import Table
+        from deephaven.update_graph import exclusive_lock
+        def bench_api_await_column_value_limit(table: Table, column: str, limit: int):
+            with exclusive_lock(table):
+                value = 0
+                while value < limit:
+                    table.j_table.awaitUpdate()
+                    value = table.j_object.getColumnSource(column).get(0)
         """;
 
     /**
@@ -124,6 +146,7 @@ class Snippets {
         functionDefs += getFunction("bench_api_await_table_size", bench_api_await_table_size, query);
         functionDefs += getFunction("bench_api_metrics_snapshot", bench_api_metrics_snapshot, query);
         functionDefs += getFunction("bench_api_metrics_collect", bench_api_metrics_collect, query);
+        functionDefs += getFunction("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query);
         return functionDefs;
     }
 

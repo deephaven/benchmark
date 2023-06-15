@@ -30,7 +30,7 @@ public class DataTypesTest {
         """;
 
         api.query(query).fetchAfter("meta", table -> {
-            assertEquals("io.deephaven.time.DateTime", table.getValue(0, "DataType").toString(), "Wrong data type");
+            assertEquals("java.time.Instant", table.getValue(0, "DataType").toString(), "Wrong data type");
             assertEquals("long", table.getValue(1, "DataType").toString(), "Wrong data type");
             assertEquals("int", table.getValue(2, "DataType").toString(), "Wrong data type");
             assertEquals("double", table.getValue(3, "DataType").toString(), "Wrong data type");
