@@ -13,6 +13,7 @@ from urllib.request import urlopen
 script_uri = 'https://storage.googleapis.com/deephaven-benchmark/benchmark_tables.dh.py'
 with urlopen(script_uri) as r:
     benchmark_category_arg = 'release'  # release | nightly    
+    benchmark_max_runs_arg = 10  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 ````
 
