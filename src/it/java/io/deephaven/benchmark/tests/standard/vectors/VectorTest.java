@@ -12,7 +12,7 @@ public class VectorTest {
 
     @Test
     public void vectorAggDenseData() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.table("source", "linearConv");
         runner.setScaleFactors(12, 12);
         runner.addSetupQuery("source = source.group_by(['str1M'])");
