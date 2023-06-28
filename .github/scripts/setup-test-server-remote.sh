@@ -68,10 +68,10 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
-sudo docker ps -a -q | xargs --no-run-if-empty -n 1 sudo docker stop
-sudo docker ps -a -q | xargs --no-run-if-empty -n 1 sudo docker rm
-sudo docker images -a -q | xargs --no-run-if-empty -n 1 sudo docker rmi
-sudo docker system prune --volumes --force
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm
+docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi
+docker system prune --volumes --force
 rm -rf ${DEEPHAVEN_DIR}
 
 title "-- Installing Deephaven and Redpanda --"
