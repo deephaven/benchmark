@@ -1,6 +1,6 @@
 # Deephaven Benchmark
 
-![Operation Rate Change Tracking By Release](docs/BenchmarkChangeTable.png)
+![Operation Rate Change Tracking By Release](./benchmark-summary.svg)
 
 The Benchmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
 framework as a runner and works from popular IDEs or from the command line. It is geared towards scale testing interfaces capable of ingesting 
