@@ -22,28 +22,28 @@ public class DateTimeFormulaTest {
     public void parseInstant() {
         setup(1, 1, 1);
         var q = "source.update(formulas=['New1 = parseInstant(`2023-05-31T04:52:14.001 ET`)'])";
-        runner.test("ParseInstant- parseInstant(String)", q, "int250");
+        runner.test("ParseInstant- DateTime String with Timezone", q, "int250");
     }
 
     @Test
     public void parseDuration() {
         setup(3, 10, 2);
         var q = "source.update(formulas=['New1 = parseDuration(`PT4H52M14S`)'])";
-        runner.test("ParseDuration- parseDuration(String)", q, "int250");
+        runner.test("ParseDuration- PT Duration String", q, "int250");
     }
 
     @Test
     public void parseLocalTime() {
         setup(3, 10, 1);
         var q = "source.update(formulas=['New1 = parseLocalTime(`04:52:14.001`)'])";
-        runner.test("ParseLocalTime- parseLocalTime(String)", q, "int250");
+        runner.test("ParseLocalTime- Time String)", q, "int250");
     }
 
     @Test
     public void epochNanosToZonedDateTime() {
         setup(3, 8, 5);
         var q = "source.update(formulas=['New1 = epochNanosToZonedDateTime(1000000, java.time.ZoneId.systemDefault())'])";
-        runner.test("EpochNanosToZonedDateTime- epochNanosToZonedDateTime(long, ZoneId)", q, "int250");
+        runner.test("EpochNanosToZonedDateTime- Nanos Long and ZoneId", q, "int250");
     }
 
     private void setup(int rowFactor, int staticFactor, int incFactor) {
