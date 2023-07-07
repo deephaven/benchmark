@@ -1,0 +1,68 @@
+<svg viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    div {
+      background-color: black;
+      color: #f0f0ee;
+      font: 3.0px fira sans,sans-serif;
+    }
+    td {
+      text-align: right;
+      color: #9edc6f;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      padding-left: 1px;
+      padding-right: 1px;
+    }
+    table td:nth-child(1) { 
+      text-align: left;
+      color: #f0f0ee;
+    }
+    table tr:nth-child(odd) {
+      background-color: #2d2a2e;
+    }
+    table tr:nth-child(even) {
+      background-color: #1a171a;
+    }
+    th {
+      background-color: #1a171a;
+      font-weight: bold;
+    }
+    rect {
+      fill: green;
+    }
+    
+  </style>
+
+  <!-- <polygon points="5,5 195,10 185,185 10,195" /> -->
+  
+  <!-- <g data-Name="group" stroke="black" fill="green" stroke-width="0.1" >
+    <a href="https://deephaven.io/">
+      <rect x="10" y="10" width="5" height="5" />
+    </a>
+  </g> -->
+
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <a href="https://deephaven.io/"><img src="deephaven-logo.svg" /></a>
+      <table cellspacing="0">
+      
+        <thead>
+          <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
+        </thead>
+      	<tbody>
+      	  <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${MedianBy- 2 Group 160K Unique Combos Float}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${AsOfJoin- Join On 2 Cols 1 Match}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${EmsTime- 2 Groups 15K Unique Combos 1 Col Int}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Int}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${SelectDistinct- 1 Group 250 Unique Vals}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${Where- 2 Filters}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${RollingWAvgTick- 3 Ops 2 Groups 15K Unique Combos Float}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${RollingCountTick- 3 Ops 2 Groups 15K Unique Combos Float}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	  <tr><td>${Sort- 2 Cols Default Order}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+      	</tbody>
+      	
+      </table>
+    </div>
+  </foreignObject>
+</svg>

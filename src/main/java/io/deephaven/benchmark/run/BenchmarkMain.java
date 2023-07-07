@@ -1,6 +1,8 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.run;
 
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.platform.console.ConsoleLauncher;
 import io.deephaven.benchmark.api.Bench;
@@ -31,7 +33,10 @@ public class BenchmarkMain {
         setSystemProperties();
         int exitCode = ConsoleLauncher.execute(System.out, System.err, args).getExitCode();
         if (exitCode == 0) {
-            new ResultSummary(Paths.get(Bench.rootOutputDir)).summarize();
+            Path outputDir = Paths.get(Bench.rootOutputDir);
+            URL csv = new ResultSummary(outputDir).summarize();
+            URL svgTemplate = BenchmarkMain.class.getResource("profile/benchmark-summary.template.svg");
+            new SvgSummary(csv, svgTemplate, outputDir).summarize();
         }
         return exitCode;
     }

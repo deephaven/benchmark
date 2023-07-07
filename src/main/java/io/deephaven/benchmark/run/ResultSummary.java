@@ -3,6 +3,7 @@ package io.deephaven.benchmark.run;
 
 import static java.nio.file.StandardOpenOption.*;
 import java.io.BufferedWriter;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,9 +23,10 @@ class ResultSummary {
         this.summaryFile = getSummaryFile(rootDir, "benchmark-summary-results.csv");
     }
 
-    void summarize() {
+    URL summarize() {
         if (!Files.exists(rootDir)) {
             System.out.println("Skipping summary because of missing output directory: " + rootDir);
+            return null;
         }
         try (BufferedWriter out = Files.newBufferedWriter(summaryFile, CREATE, WRITE, TRUNCATE_EXISTING)) {
             boolean isHeaderWritten = false;
@@ -40,6 +42,7 @@ class ResultSummary {
                         writeSummaryLine(runId, lines.get(i), out);
                 } ;
             }
+            return summaryFile.toUri().toURL();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to write summary results: " + summaryFile, ex);
         }
