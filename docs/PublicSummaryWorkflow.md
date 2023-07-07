@@ -4,7 +4,7 @@
 Benchmarks for Deephaven are run nightly on a bare metal server. Results for successful runs are collected in a read-only
 GCloud bucket that is publically available through the ReST API at <https://storage.googleapis.com/deephaven-benchmark>.
 
-The easiest way to access and use the Benchmark data is to run a [Python snippet](docs/PublishedResults.md) in a 
+The easiest way to access and use the Benchmark data is to run a [Python snippet](PublishedResults.md) in a 
 [Deephaven Community Core](https://deephaven.io/community/) (DHC) installation. This requires access to GCloud for that instance.
 
 ## Benchmark Summary
@@ -12,7 +12,7 @@ As of this writing there are nearly 600 benchmarks produced nightly for DHC. Tha
 a more concise way of measuring up DHC query operations. 
 
 A summary can be added to the README.md for the [Benchmark Project](https://github.com/stanbrub/benchmark) to give a
-simple overview of common query operations. An example is provided in the following 
+simple overview of common query operations. An example is provided in the following forked
 [README](https://github.com/stanbrub/benchmark/tree/embed-benchmark-summary-readme).
 
 ### Workflow
@@ -32,7 +32,7 @@ Cons:
 - The battle of caches (GCloud, Github, Browser) can delay visibility of changes
 
 ## Digging Deeper Demo
-Even though there is a [Python snippet](docs/PublishedResults.md) that creates
+Even though there is a [Python snippet](PublishedResults.md) that creates
 some tables from the data in the GCloud bucket, users that want to explore DHC benchmarks may be reluctant to download
 and install DHC just to look at benchmarks. Navigating from the Benchmark Summary to a Demo DHC worker provides a way
 to explore DHC operation performance without dealing with installation and compatability issues.
@@ -43,7 +43,7 @@ a level of scrutiny that could make benchmark tests and performance better.
 ### Existing Demo Server Workflow (Using Python Snippet)
 At [Deephaven IO](https://deephaven.io/) there is a "Try Demo" button that points the user to a live DHC installation
 that has some pre-defined notebooks and data. A Benchmark folder seems to fit well here. Adding the 
-[Python snippet](docs/PublishedResults.md) to a notebook can provide access to any of the Benchmark data in the cloud.
+[Python snippet](PublishedResults.md) to a notebook can provide access to any of the Benchmark data in the cloud.
 
 Pros:
 - Use an existing and maintained Demo cluster
