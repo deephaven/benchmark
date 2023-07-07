@@ -35,7 +35,7 @@ Cons:
 Even though there is a [Python snippet](PublishedResults.md) that creates
 some tables from the data in the GCloud bucket, users that want to explore DHC benchmarks may be reluctant to download
 and install DHC just to look at benchmarks. Navigating from the Benchmark Summary to a Demo DHC worker provides a way
-to explore DHC operation performance without dealing with installation and compatability issues.
+to explore DHC operation performance without the effort of installation and potential troubleshooting.
 
 Having a Demo that uses real Deephaven data rather than mocked up data shows confidence in the product. It also allows
 a level of scrutiny that could make benchmark tests and performance better.
