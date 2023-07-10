@@ -22,7 +22,7 @@ api.table("stock_trans").fixed()
 This generates a parquet file on the server with the path *data/stock_trans.parquet* for use in subsequent queries.
 
 ### Table Behavior:
-Define table generation for column data distribution and row count limits according to the following contract:
+Define table generation for default column data distribution and row count limits according to the following contract:
 - default
   - The generated table row count is limited only by the _scale.row.count_ property, unless overridden by
     _withRowCount()_. The column ranges have no effect on the generated row count.
