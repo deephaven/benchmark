@@ -14,7 +14,7 @@ public class ColumnDefsTest {
                 .add("symbol", "string", "ABC[1-11]")
                 .add("price", "float", "[100-105]")
                 .add("priceAgain", "int", "[100-105]");
-        columnDefs.setFixed();
+        columnDefs.setDefaultDistribution("incremental");
 
         assertEquals(3, columnDefs.columns.size(), "Wrong def count");
 
@@ -95,7 +95,7 @@ public class ColumnDefsTest {
                 .add("symbol", "string", "ABC[1-10]")
                 .add("price", "float", "[100-105]")
                 .add("priceAgain", "int", "[100-105]", "linearConv");
-        columnDefs.setFixed();
+        columnDefs.setDefaultDistribution("incremental");
 
         assertEquals("""
                 name,type,values,distribution
@@ -107,9 +107,9 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_Fixed() {
+    public void nextValue_Incremental() {
         ColumnDefs columnDefs = new ColumnDefs(5).add("v", "string", "s[1-7]");
-        columnDefs.setFixed();
+        columnDefs.setDefaultDistribution("incremental");
 
         var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs.nextValue(0, i, 10)).toList();
         assertEquals("[s1, s2, s3, s4, s5, s6, s7, s1, s2, s3]", vals.toString(), "Wrong generated sequence");
@@ -130,13 +130,13 @@ public class ColumnDefsTest {
     @Test
     public void nextValue_Random() {
         var columnDefs1 = new ColumnDefs(5).add("v", "string", "s[1-7]");
-        columnDefs1.setRandom();
+        columnDefs1.setDefaultDistribution("random");
 
         var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs1.nextValue(0, i, 10)).toList();
         assertEquals("[s6, s6, s1, s2, s1, s5, s7, s1, s6, s5]", vals.toString(), "Wrong generated sequence");
 
         var columnDefs2 = new ColumnDefs(5).add("v", "string", "s[1-7]");
-        columnDefs2.setRandom();
+        columnDefs1.setDefaultDistribution("random");
 
         Map<String, Set<Integer>> unique = new LinkedHashMap<>();
 

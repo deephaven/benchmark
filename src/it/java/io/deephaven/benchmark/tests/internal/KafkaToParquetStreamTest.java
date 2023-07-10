@@ -10,7 +10,7 @@ public class KafkaToParquetStreamTest {
 
     @Test
     public void makeParquetFile() {
-        api.table("orders").random()
+        api.table("orders")
                 .add("symbol", "string", "SYM[1-1000]")
                 .add("price", "float", "[10-20]")
                 .add("qty", "int", "1")

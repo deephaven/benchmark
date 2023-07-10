@@ -303,7 +303,7 @@ public class StandardTestRunner {
     }
 
     void generateSourceTable(String distribution) {
-        api.table("source").random()
+        api.table("source")
                 .add("int250", "int", "[1-250]", distribution)
                 .add("int640", "int", "[1-640]", distribution)
                 .add("int1M", "int", "[1-1000000]", distribution)
