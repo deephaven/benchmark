@@ -10,12 +10,12 @@ import java.util.*;
  * <p/>
  * Note: All possible data values are loaded up front to prevent object-creation during production. This can take a
  * considerable amount of memory for larger scales, especially for generated strings.
+ * <p/>
  */
 public class ColumnDefs {
     final int valueCacheSize;
-    final Random random = new Random(20221130);
     final List<ColumnDef> columns = new ArrayList<>();
-    private boolean isFixed = false;
+    private String defaultDistribution = "random";
 
     public ColumnDefs() {
         this(1024);
@@ -40,7 +40,7 @@ public class ColumnDefs {
      * @return true if incremental/fixed, otherwise false.
      */
     public boolean isFixed() {
-        return isFixed;
+        return "incremental".equals(defaultDistribution);
     }
 
     /**
@@ -51,7 +51,7 @@ public class ColumnDefs {
      * @return the maximum number of values defined in this set
      */
     public long getMaxValueCount() {
-        return columns.stream().mapToLong(c -> c.maker.def.size()).max().getAsLong();
+        return columns.stream().mapToLong(c -> c.maker.getDefSize()).max().getAsLong();
     }
 
     /**
@@ -78,14 +78,14 @@ public class ColumnDefs {
      * Set all column definitions to generate data incrementally.
      */
     public void setFixed() {
-        isFixed = true;
+        defaultDistribution = "incremental";
     }
 
     /**
      * Set all column definitions to generate data randomly.
      */
     public void setRandom() {
-        isFixed = false;
+        defaultDistribution = "random";
     }
 
     /**
@@ -94,11 +94,18 @@ public class ColumnDefs {
      * @param name the column name
      * @param type the column type
      * @param valueDef the range data (ex. "[1-10]", "str[1-100]ing")
+     * @param distribution override default distribution function (random, fixed) with another one, or null
      * @return this
      */
-    public ColumnDefs add(String name, String type, String valueDef) {
-        columns.add(new ColumnDef(name, type, valueDef, getMaker(type, valueDef)));
+    public ColumnDefs add(String name, String type, String valueDef, String distribution) {
+        var maker = getMaker(type, valueDef);
+        maker.setDistribution(distribution, name + ':' + type + ':' + valueDef);
+        columns.add(new ColumnDef(name, type, valueDef, maker));
         return this;
+    }
+
+    public ColumnDefs add(String name, String type, String valueDef) {
+        return add(name, type, valueDef, null);
     }
 
     /**
@@ -106,25 +113,27 @@ public class ColumnDefs {
      * column next column value according to <code>isFixed</code>
      * 
      * @param columnIndex the index of the column
-     * @param seed a value to use to get the next value (typically row id)
+     * @param seed a value to use to get the next value (e.g. row id)
+     * @param the maximum value that could be used as a seed (e.g. row count)
      * @return the next value according to the column definition
      */
-    public Object nextValue(int columnIndex, long seed) {
-        return columns.get(columnIndex).maker().next(seed);
+    public Object nextValue(int columnIndex, long seed, long max) {
+        return columns.get(columnIndex).maker().next(seed, max);
     }
 
     /**
-     * Get the column definitions as a string. It intentionall avoids OS-specific line endings.
+     * Get the column definitions as a string. It intentionally avoids OS-specific line endings.
      * <p/>
      * Note: This method is used to write table definitions for comparison to the file system. Do not change without
      * understanding the impact.
      * 
-     * @return a
+     * @return a string describing this column definition
      */
     public String describe() {
-        String str = "name,type,values\n";
+        var str = "name,type,values,distribution\n";
         for (ColumnDef c : columns) {
-            str += String.join(",", c.name(), c.type(), c.valueDef()) + "\n";
+            var distribution = c.maker.getDistribution().toLowerCase();
+            str += String.join(",", c.name(), c.type(), c.valueDef(), distribution) + "\n";
         }
         return str;
     }
@@ -236,6 +245,9 @@ public class ColumnDefs {
     abstract class Maker {
         final List<Object> cache = new ArrayList<>();
         final ValueDef def;
+        private String distributionName = null;
+        private String distributionId = null;
+        private DFunction distribution = null;
 
         Maker(ValueDef def) {
             this.def = def;
@@ -247,9 +259,32 @@ public class ColumnDefs {
 
         abstract Object value(long index);
 
-        final Object next(long seed) {
-            long index = isFixed ? (seed % def.size()) : random.nextLong(0, def.size());
+        final Object next(long seed, long max) {
+            ensureDistributionFunc();
+            long index = (long) distribution.apply(0, max, seed, 0, def.size());
             return (index < cache.size()) ? cache.get((int) index) : value(index);
+        }
+
+        private long getDefSize() {
+            ensureDistributionFunc();
+            return def.size();
+        }
+
+        private String getDistribution() {
+            ensureDistributionFunc();
+            return distributionName;
+        }
+
+        private void setDistribution(String distribution, String id) {
+            this.distributionName = distribution;
+            this.distributionId = id;
+        }
+
+        private void ensureDistributionFunc() {
+            if (distributionName == null)
+                distributionName = defaultDistribution;
+            if (distribution == null)
+                distribution = DFunction.get(distributionName, distributionId);
         }
     }
 

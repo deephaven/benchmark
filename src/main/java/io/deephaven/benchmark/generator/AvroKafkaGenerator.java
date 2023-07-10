@@ -77,7 +77,7 @@ public class AvroKafkaGenerator implements Generator {
                         }
                         GenericRecord rec = new GenericData.Record(schema.rawSchema());
                         for (int i = 0, n = columnDefs.getCount(); i < n; i++) {
-                            rec.put(i, columnDefs.nextValue(i, recCount));
+                            rec.put(i, columnDefs.nextValue(i, recCount, maxRecordCount));
                         }
                         producer.send(new ProducerRecord<>(topic, rec));
                         if (perRecordPauseMillis <= 0)

@@ -75,7 +75,7 @@ public class JsonKafkaGenerator implements Generator {
                             if (i > 0)
                                 json.append(',');
                             append(json, colNames.get(i)).append(':');
-                            append(json, columnDefs.nextValue(i, recCount));
+                            append(json, columnDefs.nextValue(i, recCount, maxRecordCount));
                         }
                         json.append('}');
                         producer.send(new ProducerRecord<>(topic, json.toString()));

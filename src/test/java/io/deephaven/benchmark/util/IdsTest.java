@@ -42,4 +42,11 @@ public class IdsTest {
         assertTrue(Ids.isRunId(max), "Should be valid id");
     }
 
+    @Test
+    public void hash64() {
+        assertEquals(65, Ids.hash64("A"));
+        assertEquals(59610663905L, Ids.hash64("AAAAAAA"));
+        assertEquals(5448659364008734959L, Ids.hash64("col1:int:[1-100]"));
+    }
+
 }

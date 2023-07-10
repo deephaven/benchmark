@@ -55,24 +55,24 @@ public class StandardTestRunner {
             mainTable = names[0];
 
         for (String name : names) {
-            switch (name) {
-                case "source":
-                    generateSourceTable();
-                    break;
-                case "right":
-                    generateRightTable();
-                    break;
-                case "timed":
-                    generateTimedTable();
-                    break;
-                default:
-                    throw new RuntimeException("Undefined table name: " + name);
-            }
+            generateTable(name, null);
         }
     }
 
     /**
-     * Add a query to be run outside the benchmark measurement but before the benchmark query
+     * name
+     * 
+     * @param name
+     * @param distribution
+     */
+    public void table(String name, String distribution) {
+        mainTable = name;
+        generateTable(name, distribution);
+    }
+
+    /**
+     * Add a query to be run outside the benchmark measurement but before the benchmark query. This query can transform
+     * the main table or supporting table, set up aggregations or updateby operations, etc.
      * 
      * @param query the query to run before benchmark
      */
@@ -85,7 +85,7 @@ public class StandardTestRunner {
      * Given that some operations use less memory than others, scaling up the generated rows per operation is more
      * effective than using scale factors {@link #setScaleFactors(int, int)}.
      * 
-     * @param rowCountFactor a multipier applied against {@code scale.row.count}
+     * @param rowCountFactor a multiplier applied against {@code scale.row.count}
      */
     public void setRowFactor(int rowCountFactor) {
         this.rowCountFactor = rowCountFactor;
@@ -99,9 +99,8 @@ public class StandardTestRunner {
      * Simulate a higher row count by specifying a multiplier (Factor) for the row count. For example, if
      * scale.row.count=10, and staticFactor=2, the resulting row count used for the static test and rate will be 20
      * 
-     * @param rowCountFactor the multiplier for the row count
-     * @param staticFactor the multiplier for (scale.row.count * rowCountFactor) for the static test
-     * @param incFactor the multiplier for (scale.row.count * rowCountFactor) for the inc test
+     * @param staticFactor the multiplier used to "merge-amplify" rows for the static test
+     * @param incFactor the multiplier used to "merge-amplify" rows for the inc test
      */
     public void setScaleFactors(int staticFactor, int incFactor) {
         this.staticFactor = staticFactor;
@@ -168,11 +167,11 @@ public class StandardTestRunner {
         var staticQuery = """
         ${loadSupportTables}
         ${mainTable} = ${readTable}
+        loaded_tbl_size = ${mainTable}.size
+        ${setupQueries}
 
         garbage_collect()
-        
-        ${setupQueries}
-        
+
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -182,7 +181,7 @@ public class StandardTestRunner {
         
         stats = new_table([
             double_col("elapsed_nanos", [end_time - begin_time]),
-            long_col("processed_row_count", [${mainTable}.size]),
+            long_col("processed_row_count", [loaded_tbl_size]),
             long_col("result_row_count", [result.size]),
         ])
         """;
@@ -192,15 +191,15 @@ public class StandardTestRunner {
     Result runIncTest(String name, String operation, String read, String... loadColumns) {
         var incQuery = """
         ${loadSupportTables}
-        loaded = ${readTable}
+        ${mainTable} = ${readTable}
+        loaded_tbl_size = ${mainTable}.size
+        ${setupQueries}
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
-        ${mainTable} = loaded.where(source_filter)
+        ${mainTable} = ${mainTable}.where(source_filter)
         
         garbage_collect()
         
-        ${setupQueries}
-
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -215,7 +214,7 @@ public class StandardTestRunner {
         
         stats = new_table([
             double_col("elapsed_nanos", [end_time - begin_time]),
-            long_col("processed_row_count", [loaded.size]),
+            long_col("processed_row_count", [loaded_tbl_size]),
             long_col("result_row_count", [result.size]),
         ])
         """;
@@ -287,39 +286,55 @@ public class StandardTestRunner {
         api.metrics().add(metrics);
     }
 
-    void generateSourceTable() {
+    void generateTable(String name, String distribution) {
+        switch (name) {
+            case "source":
+                generateSourceTable(distribution);
+                break;
+            case "right":
+                generateRightTable(distribution);
+                break;
+            case "timed":
+                generateTimedTable(distribution);
+                break;
+            default:
+                throw new RuntimeException("Undefined table name: " + name);
+        }
+    }
+
+    void generateSourceTable(String distribution) {
         api.table("source").random()
-                .add("int250", "int", "[1-250]")
-                .add("int640", "int", "[1-640]")
-                .add("int1M", "int", "[1-1000000]")
-                .add("float5", "float", "[1-5]")
-                .add("str250", "string", "[1-250]")
-                .add("str640", "string", "[1-640]")
-                .add("str1M", "string", "[1-1000000]")
+                .add("int250", "int", "[1-250]", distribution)
+                .add("int640", "int", "[1-640]", distribution)
+                .add("int1M", "int", "[1-1000000]", distribution)
+                .add("float5", "float", "[1-5]", distribution)
+                .add("str250", "string", "[1-250]", distribution)
+                .add("str640", "string", "[1-640]", distribution)
+                .add("str1M", "string", "[1-1000000]", distribution)
                 .withRowCount(scaleRowCount)
                 .generateParquet();
     }
 
-    void generateRightTable() {
+    void generateRightTable(String distribution) {
         supportTables.add("right");
         api.table("right").fixed()
-                .add("r_str250", "string", "[1-250]")
-                .add("r_str640", "string", "[1-640]")
-                .add("r_int1M", "int", "[1-1000000]")
-                .add("r_str1M", "string", "[1-1000000]")
-                .add("r_str10K", "string", "[1-100000]")
+                .add("r_str250", "string", "[1-250]", distribution)
+                .add("r_str640", "string", "[1-640]", distribution)
+                .add("r_int1M", "int", "[1-1000000]", distribution)
+                .add("r_str1M", "string", "[1-1000000]", distribution)
+                .add("r_str10K", "string", "[1-100000]", distribution)
                 .generateParquet();
     }
 
-    void generateTimedTable() {
+    void generateTimedTable(String distribution) {
         long baseTime = 1676557157537L;
         api.table("timed").fixed()
                 .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]")
-                .add("int5", "int", "[1-5]")
-                .add("int10", "int", "[1-10]")
-                .add("float5", "float", "[1-5]")
-                .add("str100", "string", "[1-100]")
-                .add("str150", "string", "[1-150]")
+                .add("int5", "int", "[1-5]", distribution)
+                .add("int10", "int", "[1-10]", distribution)
+                .add("float5", "float", "[1-5]", distribution)
+                .add("str100", "string", "[1-100]", distribution)
+                .add("str150", "string", "[1-150]", distribution)
                 .generateParquet();
     }
 

@@ -42,6 +42,20 @@ final public class BenchTable implements Closeable {
     }
 
     /**
+     * Add a column definition for the table schema
+     * 
+     * @param name the name of the column
+     * @param type the type of the column ( <code>string | long | int | double | float</code> )
+     * @param valuesDef range or combination of range and string
+     * @param distribution the name of the distribution ( <code>linearConv</code> )
+     * @return this instance
+     */
+    public BenchTable add(String name, String type, String valuesDef, String distribution) {
+        columns.add(name, type, valuesDef, distribution);
+        return this;
+    }
+
+    /**
      * Override the profile's row count (e.g. scale.row.count)
      * 
      * @param generatedRowCount how many rows the table should have
@@ -204,7 +218,6 @@ final public class BenchTable implements Closeable {
     private String getTableDefinition() {
         return "row.count=" + getRowCount() + "\n"
                 + "compression=" + getCompression() + "\n"
-                + "isfixed=" + columns.isFixed() + "\n"
                 + columns.describe();
     }
 

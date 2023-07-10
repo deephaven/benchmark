@@ -61,6 +61,26 @@ public class Ids {
         return time + '.' + cnt + '.' + rand;
     }
 
+    /**
+     * Return a 64 bit hashcode for the given char sequence
+     * 
+     * @param s char sequence to hash
+     * @return a long hash
+     */
+    static public long hash64(CharSequence s) {
+        long h = 0;
+        for (int i = 0, n = s.length(); i < n; i++) {
+            h = 31 * h + s.charAt(i);
+        }
+        return h;
+    }
+
+    /**
+     * Convert long to URL base64
+     * 
+     * @param num the number to convert
+     * @return a base64 string representing the given number
+     */
     static String toBase64(long num) {
         String s = Base64.getUrlEncoder().encodeToString(BigInteger.valueOf(num).toByteArray());
         return s.replace("=", "");
