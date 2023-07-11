@@ -235,7 +235,7 @@ public class ExperimentalTestRunner {
     }
 
     void generateQuotesTable(long rowCount) {
-        api.table("quotes_g").random()
+        api.table("quotes_g")
                 .add("Date", "string", "2023-01-04")
                 .add("Sym", "string", "S[1-431]")
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")
@@ -248,7 +248,7 @@ public class ExperimentalTestRunner {
     }
 
     void generateTradesTable(long rowCount) {
-        api.table("trades_g").random()
+        api.table("trades_g")
                 .add("Date", "string", "2023-01-04")
                 .add("Sym", "string", "S[1-430]")
                 .add("Timestamp", "timestamp-millis", "[1-21600000]")

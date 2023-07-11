@@ -22,6 +22,7 @@ final public class BenchTable implements Closeable {
     private int rowPauseMillis = -1;
     private String compression = null;
     private Generator generator = null;
+    private boolean isFixed = false;
 
     BenchTable(Bench bench, String tableName) {
         this.tableName = tableName;
@@ -103,25 +104,17 @@ final public class BenchTable implements Closeable {
     }
 
     /**
-     * Direct table generation to sequence through column ranges instead of randomizing them. For example, the range
-     * [1-1000] would produce exact 1000 column values, assuming it was the largest column range. If col1=[1-1000] and
-     * col2=[1-10], the row count would be 1000
+     * Direct the table generator to produce column values according to an incremental distribution and rows up the
+     * maximum defined by all column ranges. For example, if col1 has range [1-10] and col2 has range [1-20] the total
+     * number of rows generated will be 20, unless {@code withRowCount()} is used to override it.
+     * <p/>
+     * Calling this method will override the default of fixed = false and distribution = random.
      * 
      * @return this instance
      */
     public BenchTable fixed() {
-        columns.setFixed();
-        return this;
-    }
-
-    /**
-     * Direct table generation to randomized column values according to their ranges. Maximum row count is determined by
-     * configured row count (e.g. scale.row.count)
-     * 
-     * @return this instance
-     */
-    public BenchTable random() {
-        columns.setRandom();
+        isFixed = true;
+        columns.setDefaultDistribution("incremental");
         return this;
     }
 
@@ -197,7 +190,7 @@ final public class BenchTable implements Closeable {
         if (rowCount > 0)
             return rowCount;
 
-        long count = columns.isFixed() ? columns.getMaxValueCount() : 0;
+        long count = isFixed ? columns.getMaxValueCount() : 0;
         if (count > 0)
             return count;
 

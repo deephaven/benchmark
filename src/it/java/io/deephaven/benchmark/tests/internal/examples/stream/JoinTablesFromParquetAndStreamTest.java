@@ -22,7 +22,7 @@ public class JoinTablesFromParquetAndStreamTest {
                 .add("exchange", "string", "EXCHANGE[1-10]")
                 .generateParquet();
 
-        api.table("stock_trans").random()
+        api.table("stock_trans")
                 .add("symbol", "string", "SYM[1-10000]")
                 .add("price", "float", "[100-200]")
                 .add("buys", "int", "[1-100]")

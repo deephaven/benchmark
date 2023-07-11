@@ -46,7 +46,7 @@ class ParquetTestSetup {
     }
 
     void generateCompressedTable(String codec) {
-        api.table("compressed").random()
+        api.table("compressed")
                 .add("str100K", "string", "SYM[1-100000]")
                 .add("str10K", "string", "SYM[1-10000]")
                 .add("long100K", "long", "[1-100000]")

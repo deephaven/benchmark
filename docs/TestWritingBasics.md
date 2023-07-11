@@ -12,7 +12,7 @@ There is no need to memorize a class structure for the API.  Everthing starts fr
 ## Table Generation
 Table data can be produced by defining columns, types, and sample data.
 ````
-api.table("stock_trans").random()
+api.table("stock_trans").fixed()
 	.add("symbol", "string", "SYM[1-1000]")
 	.add("price", "float", "[100-200]")
 	.add("buys", "int", "[1-100]")
@@ -21,9 +21,17 @@ api.table("stock_trans").random()
 ````
 This generates a parquet file on the server with the path *data/stock_trans.parquet* for use in subsequent queries.
 
-### Table Types:
-- random: Will choose random values for each column range inclusive of the boundaries
-- fixed: Will iterate through the range inclusive of the boundaries.  Table row count will be the longest range.
+### Table Behavior:
+Define table generation for default column data distribution and row count limits according to the following contract:
+- default
+  - The generated table row count is limited only by the _scale.row.count_ property, unless overridden by
+    _withRowCount()_. The column ranges have no effect on the generated row count.
+  - The default distribution for column data is "random"
+- fixed()
+  - The generated table row count grows to the largest range of all column definitions, unless that is overridden
+    by _withRowCount()_. So if col1 is [1-10] and col2 is [1-20] the generated row count is 20. Using _withRowCount(30)_
+    would make the generated row count 30. Using _withRowCount(5)_ would make the generated row count 5.
+  - The default distribution for column data is "incremental"
 
 ### Column Types:
 - string

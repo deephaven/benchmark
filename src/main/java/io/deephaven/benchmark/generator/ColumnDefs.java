@@ -35,12 +35,12 @@ public class ColumnDefs {
     }
 
     /**
-     * Get whether or not column values are selected incrementally through the range or random
+     * Set the default column distribution for columns that do not have a distribution defined.
      * 
-     * @return true if incremental/fixed, otherwise false.
+     * @param distribution the distribution name (e.g. {@code random | incremental})
      */
-    public boolean isFixed() {
-        return "incremental".equals(defaultDistribution);
+    public void setDefaultDistribution(String distribution) {
+        defaultDistribution = distribution;
     }
 
     /**
@@ -75,26 +75,12 @@ public class ColumnDefs {
     }
 
     /**
-     * Set all column definitions to generate data incrementally.
-     */
-    public void setFixed() {
-        defaultDistribution = "incremental";
-    }
-
-    /**
-     * Set all column definitions to generate data randomly.
-     */
-    public void setRandom() {
-        defaultDistribution = "random";
-    }
-
-    /**
      * Add a new column definition.
      * 
      * @param name the column name
      * @param type the column type
      * @param valueDef the range data (ex. "[1-10]", "str[1-100]ing")
-     * @param distribution override default distribution function (random, fixed) with another one, or null
+     * @param distribution override default distribution function (e.g. random, incremental) with another one, or null
      * @return this
      */
     public ColumnDefs add(String name, String type, String valueDef, String distribution) {
@@ -109,8 +95,7 @@ public class ColumnDefs {
     }
 
     /**
-     * Get the next value for the column in the given index. This supports incremental and random retrieval of the
-     * column next column value according to <code>isFixed</code>
+     * Get the next value for the column in the given index according to the columns defined distribution.
      * 
      * @param columnIndex the index of the column
      * @param seed a value to use to get the next value (e.g. row id)

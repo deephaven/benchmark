@@ -90,7 +90,7 @@ class ScaleTestRunner {
     }
 
     void generateTable(String tableName, long rowCount) {
-        api.table(tableName).random()
+        api.table(tableName)
                 .add("int250", "int", "[1-250]")
                 .add("int640", "int", "[1-640]")
                 .add("int1M", "int", "[1-1000000]")
