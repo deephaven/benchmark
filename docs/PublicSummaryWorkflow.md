@@ -80,7 +80,26 @@ Cons:
 - Another cluster to maintain
 - User access maintenance
 
+## Ideal Path
+After discussions, the ideal path is to do "Existing Demo Server Workflow (Using Python Snippet)". This 
+provides the lowest maintenance/cost approach. However, poking a hole in the firewal for GCloud bucket
+http storage access is complicated by the fact that the Demo cluster installation uses Kubernetes.
 
+## Workable Path
+Since the Demo clusters use Kubernetes Kubes and the Kubernetes Firewall, the pushback on the Ideal Path
+is the difficulty in properly allowing HTTP access to a public GCloud bucket.  (The "Why" is beyond this
+document's scope.) Instead, the possibility is to mount a GCP drive and copy/sync data nightly from GCloud 
+after a successful build.
+
+### From Chip
+- A GCP drive is created.
+- Your benchmark stuff gets the data to the GCP drive using some mechanism such as gsutil rsync or by mounting the drive into the machine running the tests and writing directly.
+- The demo system will create a Kube persistent volume that refers to the GCP drive.
+- When a worker is spun up, it mounts the Kube persistent volume so that it can be seen locally on a path such as /data/benchmark
+- A script or jupyter file can then access the data via the mounted /data/benchmark path.
+
+Resources:
+- https://devopscube.com/persistent-volume-google-kubernetes-engine/
 
 
 
