@@ -38,7 +38,7 @@ class ParquetTestSetup {
 
     void restartDocker(Bench api) {
         var timer = api.timer();
-        if (!Exec.restartDocker(api.property("docker.compose.file", "")))
+        if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");

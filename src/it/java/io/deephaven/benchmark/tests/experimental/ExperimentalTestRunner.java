@@ -231,7 +231,8 @@ public class ExperimentalTestRunner {
 
     void restartDocker(Bench api) {
         var dockerComposeFile = api.property("docker.compose.file", "");
-        Exec.restartDocker(dockerComposeFile);
+        var deephavenHostPort = api.property("deephaven.addr", "");
+        Exec.restartDocker(dockerComposeFile, deephavenHostPort);
     }
 
     void generateQuotesTable(long rowCount) {

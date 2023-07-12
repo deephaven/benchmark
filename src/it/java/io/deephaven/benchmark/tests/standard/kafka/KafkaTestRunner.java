@@ -181,11 +181,12 @@ class KafkaTestRunner {
 
     private void restartDocker(Bench api, int heapGigs) {
         String dockerComposeFile = api.property("docker.compose.file", "");
-        if (dockerComposeFile.isBlank())
+        String deephavenHostPort = api.property("deephaven.addr", "");
+        if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
             return;
         dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
         var timer = api.timer();
-        Exec.restartDocker(dockerComposeFile);
+        Exec.restartDocker(dockerComposeFile, deephavenHostPort);
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
