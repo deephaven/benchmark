@@ -1,29 +1,35 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
-import java.io.*;
+import java.net.*;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Utils for executing processes from the command line.
  * </p>
- * Note: No effort has been made to make this secure or prevent any horror.ss
+ * Note: No effort has been made to make this secure
  */
 public class Exec {
     /**
-     * Restart a docker container using <code>docker compose</code>. If the given compose file is blank skip.
+     * Restart a docker container using <code>docker compose</code>. If the given compose file property is blank skip.
      * 
      * @param dockerComposeFile the path to the relevant docker-compose.yml
+     * @param deephavenHostPort the host:port of the Deephaven service
      * @return true if attempted docker restart, otherwise false
      */
-    static public boolean restartDocker(String dockerComposeFile) {
-        if (dockerComposeFile.isBlank())
+    static public boolean restartDocker(String dockerComposeFile, String deephavenHostPort) {
+        if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
             return false;
-        exec("sudo docker compose -f " + dockerComposeFile + " down");
-        Threads.sleep(1000);
+        exec("sudo docker compose -f " + dockerComposeFile + " down --timeout 0");
         exec("sudo docker compose -f " + dockerComposeFile + " up -d");
-        Threads.sleep(3000);
-        return true;
+        long beginTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - beginTime < 10000) {
+            var status = getUrlStatus("http://" + deephavenHostPort + "/ide/");
+            if (status)
+                return true;
+            Threads.sleep(100);
+        }
+        return false;
     }
 
     /**
@@ -46,12 +52,24 @@ public class Exec {
         }
     }
 
-    static String copyToString(InputStream input) throws Exception {
-        var out = new StringWriter();
-        try (InputStream in = input) {
-            for (int i = 0; i < in.available(); i++)
-                out.write(in.read());
-            return out.toString();
+    static boolean getUrlStatus(String uri) {
+        var url = createUrl(uri);
+        try {
+            var connect = url.openConnection();
+            if (!(connect instanceof HttpURLConnection))
+                return false;
+            var code = ((HttpURLConnection) connect).getResponseCode();
+            return (code == 200);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    static URL createUrl(String uri) {
+        try {
+            return new URL(uri);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Bad URL: " + uri);
         }
     }
 
