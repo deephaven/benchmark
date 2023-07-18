@@ -19,8 +19,8 @@ public class SvgSummaryTest {
     public void summarize() throws Exception {
         var template = getClass().getResource("test-summary.template.svg");
         var csv = getClass().getResource("test-benchmark-results.csv");
-        var outDir = Paths.get(template.toURI()).getParent();
-        var summary = new SvgSummary(csv, template, outDir);
+        var svg = Paths.get(template.toURI()).resolveSibling("benchmark-summary.svg");
+        var summary = new SvgSummary(csv, template, svg);
         Files.deleteIfExists(summary.svgFile);
         summary.summarize();
         assertEquals("""
@@ -33,22 +33,23 @@ public class SvgSummaryTest {
             </style>
             <foreignObject x="0" y="0" width="100%" height="100%">
               <div xmlns="http://www.w3.org/1999/xhtml">
+                <table><tr><th>Deephaven</th><th>Summary</th><th>2023-07-18</th></tr></table>
                 <table cellspacing="0">
                   <thead>
                     <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
                   </thead>
                   <tbody>
-                    <tr><td>AvgBy- 2 Groups 160K Unique Combos Int -Static</td><td>12.068</td><td>14,915,478</td><td>180,000,000</td></tr>
-                    <tr><td>AvgBy- 2 Groups 160K Unique Combos Int -Inc</td><td>12.487</td><td>9,609,994</td><td>120,000,000</td></tr>
-                    <tr><td>MedianBy- 2 Group 160K Unique Combos Float -Static</td><td>16.602</td><td>2,409,348</td><td>40,000,000</td></tr>
-                    <tr><td>MedianBy- 2 Group 160K Unique Combos Float -Inc</td><td>17.963</td><td>2,226,799</td><td>40,000,000</td></tr>
-                    <tr><td>NoOp- 20 Double Cols JSON Append</td><td>11.860</td><td>210,792</td><td>2,500,000</td></tr>
+                    <tr><td>Avg By Row1</td><td>12.068</td><td>14,915,478</td><td>180,000,000</td></tr>
+                    <tr><td>Median By Row2</td><td>17.963</td><td>2,226,799</td><td>40,000,000</td></tr>
+                    <tr><td>Kafka Read Row 3</td><td>11.860</td><td>210,792</td><td>2,500,000</td></tr>
                   </tbody>
+                  <tfoot><tr><td colspan="4">* threads=16 heap=24g os=ubuntu 22.04.1 lts</td></tr></tfoot>
                 </table>
               </div>
             </foreignObject>
           </svg>
-                """.replace("\r", "").trim(), Filer.getFileText(summary.svgFile));
+          """.trim().replaceAll("[2-9]{4}[-][1-12]{1,2}[-][1-12]{1,2}", "2023-7-18"),
+                Filer.getFileText(summary.svgFile));
     }
 
 }

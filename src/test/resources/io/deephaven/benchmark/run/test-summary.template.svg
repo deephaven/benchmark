@@ -7,15 +7,17 @@
   </style>
   <foreignObject x="0" y="0" width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
+      <table><tr><th>Deephaven</th><th>Summary</th><th>${run_date}</th></tr></table>
       <table cellspacing="0">
         <thead>
           <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
         </thead>
         <tbody>
-          <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-          <tr><td>${MedianBy- 2 Group 160K Unique Combos Float}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-          <tr><td>${NoOp- 20 Double Cols JSON Append}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+          <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>Avg By Row1}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+          <tr><td>${MedianBy- 2 Group 160K Unique Combos Float -Inc=>Median By Row2}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
+          <tr><td>${NoOp- 20 Double Cols JSON Append=>Kafka Read Row 3}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
         </tbody>
+        <tfoot><tr><td colspan="4">* threads=${dh_threads} heap=${dh_heap} os=${os_name}</td></tr></tfoot>
       </table>
     </div>
   </foreignObject>

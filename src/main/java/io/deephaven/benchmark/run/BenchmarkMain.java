@@ -36,7 +36,7 @@ public class BenchmarkMain {
             Path outputDir = Paths.get(Bench.rootOutputDir);
             URL csv = new ResultSummary(outputDir).summarize();
             URL svgTemplate = BenchmarkMain.class.getResource("profile/benchmark-summary.template.svg");
-            new SvgSummary(csv, svgTemplate, outputDir).summarize();
+            new SvgSummary(csv, svgTemplate, outputDir.resolve("benchmark-summary.svg")).summarize();
         }
         return exitCode;
     }
