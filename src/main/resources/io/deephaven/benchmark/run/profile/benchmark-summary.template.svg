@@ -66,7 +66,7 @@
       <table cellspacing="0">
       
         <thead>
-          <tr><th>Benchmark Operation <span class="run_date">(${run_date})</span></th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
+          <tr><th>Operation Benchmark <span class="run_date">(${run_date})</span></th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
         </thead>
       	<tbody>
       	  <tr><td>${Where- 2 Filters -Static=>Where with 2 Filters - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
@@ -85,7 +85,7 @@
       	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int -Inc=>Rolling 3 Sums by 2 Groups of 15K Unique Combos - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>      	  
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="4">* threads: ${dh_threads}, heap: ${dh_heap}, os: ${os_name}</td></tr>
+		  <tr><td colspan="4">* threads=${dh_threads} heap=${dh_heap} os=${os_name}</td></tr>
 		</tfoot>
       </table>
     </div>
