@@ -48,8 +48,8 @@ public class SvgSummaryTest {
               </div>
             </foreignObject>
           </svg>
-          """.replace("\r", "").trim().replaceAll("[2-9]{4}[-][1-12]{1,2}[-][1-12]{1,2}", "2023-7-18"),
-                Filer.getFileText(summary.svgFile));
+          """.replace("\r", "").trim(),
+                Filer.getFileText(summary.svgFile).replaceAll("[0-9]{4}[-][0-9]{2}[-][0-9]{2}", "2023-07-18"));
     }
 
 }
