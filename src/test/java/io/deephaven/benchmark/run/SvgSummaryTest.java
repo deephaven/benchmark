@@ -39,11 +39,10 @@ public class SvgSummaryTest {
                     <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
                   </thead>
                   <tbody>
-                    <tr><td>Avg By Row1</td><td>12.068</td><td>14,915,478</td><td>180,000,000</td></tr>
-                    <tr><td>Median By Row2</td><td>17.963</td><td>2,226,799</td><td>40,000,000</td></tr>
-                    <tr><td>Kafka Read Row 3</td><td>11.860</td><td>210,792</td><td>2,500,000</td></tr>
+                    <tr><td>Avg By Row1</td><td>14,915,478</td><td>9,609,994</td></tr>
+                    <tr><td>Median By Row2</td><td>2,409,348</td><td>2,226,799</td></tr>
                   </tbody>
-                  <tfoot><tr><td colspan="4">* threads=16 heap=24g os=ubuntu 22.04.1 lts</td></tr></tfoot>
+                  <tfoot><tr><td colspan="3">* threads=16 heap=24g os=ubuntu-22.04.1-lts benchmark-count=5</td></tr></tfoot>
                 </table>
               </div>
             </foreignObject>

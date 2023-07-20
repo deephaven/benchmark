@@ -10,14 +10,15 @@ in an instance of the Deephaven Engine.
 ````
 from urllib.request import urlopen
 
-script_uri = 'https://storage.googleapis.com/deephaven-benchmark/benchmark_tables.dh.py'
-with urlopen(script_uri) as r:
+root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
+with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
+    benchmark_storage_uri_arg = root + '/deephaven-benchmark'
     benchmark_category_arg = 'release'  # release | nightly    
-    benchmark_max_runs_arg = 10  # Latest X runs to include   
+    benchmark_max_runs_arg = 2  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 ````
 
-This will download the available benchmarks for the given benchmark category (release or nightly), merge test runs together, and generate some 
+This will process the available benchmarks for the given benchmark category (release or nightly), merge test runs together, and generate some 
 useful Deephaven tables that can be used to explore the benchmarks.
 
 Requirements:

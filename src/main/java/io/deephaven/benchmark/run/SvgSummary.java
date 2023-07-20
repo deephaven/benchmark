@@ -20,7 +20,7 @@ import io.deephaven.benchmark.util.Numbers;
  */
 class SvgSummary {
     final String varRegex = "(\\$\\{[^}]+\\})";
-    final String subsRegex = "^.*" + String.join(".*", varRegex, varRegex, varRegex, varRegex) + ".*$";
+    final String subsRegex = "^.*<td>" + String.join(".*", varRegex, varRegex, varRegex) + "</td>.*$";
     final Map<String, Benchmark> benchmarks;
     final String svgTemplate;
     final Path outputDir;
@@ -49,13 +49,15 @@ class SvgSummary {
         var out = new StringBuilder();
         svgTemplate.lines().forEach(line -> {
             if (line.matches(subsRegex)) {
-                String[] subs = line.replaceAll(subsRegex, "$1,$2,$3,$4").split(",");
+                String[] subs = line.replaceAll(subsRegex, "$1,$2,$3").split(",");
                 var benchmarkDescr = toVariableName(subs[0]);
                 String[] benchmark = benchmarkDescr.split("=>");
                 if (benchmark.length != 2)
                     throw new RuntimeException(
                             "Benchmark label must be of the form ${benchmark_name=>label}. Found: " + line.trim());
-                line = replaceBenchVars(line, subs, benchmark[0].trim(), benchmark[1].trim());
+                line = replaceBenchName(line, subs[0], benchmark[1].trim());
+                line = replaceBenchRate(line, subs[1], benchmark[0].trim() + " -Static", "op_rate");
+                line = replaceBenchRate(line, subs[2], benchmark[0].trim() + " -Inc", "op_rate");
                 println(out, line);
             } else {
                 println(out, line);
@@ -73,23 +75,25 @@ class SvgSummary {
             if (i == 0) {
                 IntStream.range(0, values.length).forEach(pos -> header.put(values[pos], pos));
             } else {
-                var benchmark = new Benchmark(header, values);
-                benchmarks.put(benchmark.getValue("benchmark_name"), benchmark);
+                var next = new Benchmark(header, values);
+                var existing = benchmarks.get(next.getName());
+                if (next.isNewerThan(existing))
+                    benchmarks.put(next.getName(), next);
             }
         } ;
         return benchmarks;
     }
 
-    String replaceBenchVars(String line, String[] subs, String benchName, String benchDescr) {
+    String replaceBenchName(String line, String benchVar, String benchLabel) {
+        return line.replace(benchVar, benchLabel);
+    }
+
+    String replaceBenchRate(String line, String varName, String benchName, String rateColName) {
         var benchmark = benchmarks.get(benchName);
         if (benchmark == null)
             return line;
-        line = line.replace(subs[0], benchDescr);
-        for (int i = 1; i < subs.length; i++) {
-            var val = benchmark.getValue(toVariableName(subs[i]));
-            line = line.replace(subs[i], Numbers.formatNumber(val));
-        }
-        return line;
+        var rate = benchmark.getValue(toVariableName(rateColName));
+        return line.replace(varName, Numbers.formatNumber(rate));
     }
 
     private String replaceRunDate(String line) {
@@ -101,7 +105,8 @@ class SvgSummary {
     private String replacePlatformVars(String line) {
         line = line.replace("${dh_threads}", "16");
         line = line.replace("${dh_heap}", "24G".toLowerCase());
-        return line.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase());
+        line = line.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase().replace(" ", "-"));
+        return line.replace("${benchmark_count}", "" + benchmarks.size());
     }
 
     private void println(StringBuilder str, String line) {
@@ -120,6 +125,18 @@ class SvgSummary {
             if (index == null)
                 throw new RuntimeException("Undefined benchmark column name: " + colName);
             return values[index].trim();
+        }
+
+        String getName() {
+            return getValue("benchmark_name");
+        }
+
+        long getTimestamp() {
+            return Numbers.parseNumber(getValue("timestamp")).longValue();
+        }
+
+        boolean isNewerThan(Benchmark other) {
+            return (other == null) ? true : (getTimestamp() > other.getTimestamp());
         }
     }
 

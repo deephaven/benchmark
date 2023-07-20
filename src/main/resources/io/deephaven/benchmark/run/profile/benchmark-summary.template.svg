@@ -1,4 +1,4 @@
-<svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 530 350" xmlns="http://www.w3.org/2000/svg">
   <style>
     div {
       background-color: black;
@@ -10,8 +10,8 @@
       color: #9edc6f;
       padding-top: 0px;
       padding-bottom: 0px;
-      padding-left: 3px;
-      padding-right: 3px;
+      padding-left: 5px;
+      padding-right: 5px;
     }
     table td:nth-child(1) { 
       text-align: left;
@@ -27,9 +27,12 @@
 	  color: #65c4d8;
       background-color: #1a171a;
       font-weight: bold;
+      padding-left: 5px;
+      padding-right: 5px;
     }
-	.run_date {
+	.run_date, .rate {
 	  color: #ee5e82;
+	  font: 10px fira sans,sans-serif;
 	}
 	tfoot td:nth-child(1) { 
       text-align: left;
@@ -64,28 +67,24 @@
         </svg>
       </a>
       <table cellspacing="0">
-      
         <thead>
-          <tr><th>Operation Benchmark <span class="run_date">(${run_date})</span></th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
+          <tr><th>Operation Benchmark <span class="run_date">(${run_date})</span></th><th>Static<span class="rate"> (rows/sec)</span></th><th>Ticking<span class="rate"> (rows/sec)</span></th></tr>
         </thead>
       	<tbody>
-      	  <tr><td>${Where- 2 Filters -Static=>Where with 2 Filters - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${Where- 2 Filters -Inc=>Where with 2 Filters - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${SelectDistinct- 1 Group 250 Unique Vals -Static=>Select Distinct on 1 Group of 250 Unique Values - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${SelectDistinct- 1 Group 250 Unique Vals -Inc=>Select Distinct on 1 Group of 250 Unique Values - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>Average by 2 Groups of 160K Unique Combos - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int -Inc=>Average by 2 Groups of 160K Unique Combos - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${Sort- 2 Cols Default Order -Static=>Sort 2 Columns - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${Sort- 2 Cols Default Order -Inc=>Sort 2 Columns - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${Join- Join On 2 Cols 1 Match -Static=>Join on 2 Columns Matching 1 Row Each - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${Join- Join On 2 Cols 1 Match -Inc=>Join on 2 Columns Matching 1 Row Each - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int -Static=>Time-based EMA by 2 Groups of 15K Unique Combos - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int -Inc=>Time-based EMA by 2 Groups of 15K Unique Combos - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int -Static=>Rolling 3 Sums by 2 Groups of 15K Unique Combos - Static}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>
-      	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int -Inc=>Rolling 3 Sums by 2 Groups of 15K Unique Combos - Inc}</td><td>${op_duration}</td><td>${op_rate}</td><td>${row_count}</td></tr>      	  
+      	  <tr><td>${Where- 2 Filters=>Where with 2 Filters}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${Update- 2 Calcs Using Int=>Update with 2 New Calculated Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${SelectDistinct- 1 Group 250 Unique Vals=>Select Distinct on 1 Group of 250 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int=>Average by 2 Groups of 160K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${Sort- 2 Cols Default Order=>Sort 2 Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${Join- Join On 2 Cols 1 Match=>Join on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${CumSum- 1 Group 100 Unique Vals 2 Cols=>Cumulative Sum by 1 Group on 2 Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int=>Time-based EMA by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int=>Rolling 3 Sums by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals=>Rolling 3 Vector Columns by 1 Group of 100 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${AsOfJoin- Join On 2 Cols 1 Match=>AsOfJoin on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="4">* threads=${dh_threads} heap=${dh_heap} os=${os_name}</td></tr>
+		  <tr><td colspan="3">* threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
 		</tfoot>
       </table>
     </div>
