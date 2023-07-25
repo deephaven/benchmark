@@ -21,7 +21,7 @@
 
 ## Digger Deeper into the Demo
 
-A [Benchmark Demo](https://controller.try-dh.demo.community.deephaven.io/) is provided on the Deephaven Code Studio
+A [Benchmark Demo](https://controller.try-dh.demo.community.deephaven.io/get_ide) is provided on the Deephaven Code Studio
 demo cluster. Among other Demo notebooks is a Benchmark notebook (TBD) that provides scripts to generate comparative 
 benchmark and metric tables using a copy of the latest benchmark results. Users can then experiment with Deephaven 
 operations and charting visualize the data.
