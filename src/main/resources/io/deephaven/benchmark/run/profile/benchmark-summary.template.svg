@@ -84,7 +84,7 @@
       	  <tr><td>${AsOfJoin- Join On 2 Cols 1 Match=>AsOfJoin on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="3">* threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
+		  <tr><td colspan="3">* cpu-threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
 		</tfoot>
       </table>
     </div>
