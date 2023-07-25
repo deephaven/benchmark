@@ -1,4 +1,4 @@
-<svg viewBox="0 0 530 350" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 580 350" xmlns="http://www.w3.org/2000/svg">
   <style>
     div {
       background-color: black;
@@ -10,8 +10,8 @@
       color: #9edc6f;
       padding-top: 0px;
       padding-bottom: 0px;
-      padding-left: 5px;
-      padding-right: 5px;
+      padding-left: 3px;
+      padding-right: 3px;
     }
     table td:nth-child(1) { 
       text-align: left;
@@ -80,7 +80,7 @@
       	  <tr><td>${CumSum- 1 Group 100 Unique Vals 2 Cols=>Cumulative Sum by 1 Group on 2 Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	  <tr><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int=>Time-based EMA by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int=>Rolling 3 Sums by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals=>Rolling 3 Vector Columns by 1 Group of 100 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals=>Rolling 3 Vectors by 1 Group of 100 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	  <tr><td>${AsOfJoin- Join On 2 Cols 1 Match=>AsOfJoin on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
       	</tbody>
       	<tfoot>
