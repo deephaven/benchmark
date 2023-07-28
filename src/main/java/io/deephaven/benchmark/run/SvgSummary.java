@@ -12,11 +12,14 @@ import io.deephaven.benchmark.util.Filer;
 import io.deephaven.benchmark.util.Numbers;
 
 /**
- * Generates an SVG from a template that contains variables (e.g. {@code ${op_duration}}) referencing benchmark data
- * from the Benchmark Result.
+ * Generates an SVG file from a template that contains variables (e.g. <code>${op_duration}</code>) referencing
+ * benchmark data from the benchmark result produced by the {@code ResultSummary}. If the benchmark results summary
+ * contains more than one run, the values for the newest run are used.
  * <p/>
+ * Note: This class is used to transform the specific template format defined in {@code benchmark-summary.template.svg}
+ * against the {@code benchmark-results.csv} file. It is not general-purpose nor bulletproof.
  * 
- * @see benchmark-summary.template.svg
+ * @see {@code benchmark-summary.template.svg} for an example of a template that works.
  */
 class SvgSummary {
     final String varRegex = "(\\$\\{[^}]+\\})";
@@ -31,7 +34,7 @@ class SvgSummary {
      * 
      * @param benchmarkCsv the benchmark result data referenced by the template
      * @param svgTemplate the template containing references to the benchmark data
-     * @param outputDir the output dir
+     * @param svgFile the svg file path to produce
      */
     SvgSummary(URL benchmarkCsv, URL svgTemplate, Path svgFile) {
         this.benchmarks = readBenchmarks(benchmarkCsv);
@@ -40,6 +43,9 @@ class SvgSummary {
         this.svgFile = svgFile;
     }
 
+    /**
+     * Generate an SVG file based on benchmark results CSV
+     */
     void summarize() {
         if (!Files.exists(outputDir)) {
             System.out.println("Skipping SVG summary because of missing output directory: " + outputDir);
@@ -66,7 +72,7 @@ class SvgSummary {
         Filer.putFileText(svgFile, out);
     }
 
-    Map<String, Benchmark> readBenchmarks(URL csv) {
+    private Map<String, Benchmark> readBenchmarks(URL csv) {
         var header = new HashMap<String, Integer>();
         var benchmarks = new HashMap<String, Benchmark>();
         var csvLines = Filer.getURLText(csv).lines().toList();
@@ -84,11 +90,11 @@ class SvgSummary {
         return benchmarks;
     }
 
-    String replaceBenchName(String line, String benchVar, String benchLabel) {
+    private String replaceBenchName(String line, String benchVar, String benchLabel) {
         return line.replace(benchVar, benchLabel);
     }
 
-    String replaceBenchRate(String line, String varName, String benchName, String rateColName) {
+    private String replaceBenchRate(String line, String varName, String benchName, String rateColName) {
         var benchmark = benchmarks.get(benchName);
         if (benchmark == null)
             return line;
