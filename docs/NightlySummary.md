@@ -9,7 +9,7 @@
   - [Static](https://deephaven.io/core/docs/how-to-guides/data-import-export/parquet-flat): Parquet data is read into memory and made
   available to the operation as a whole
   - [Ticking](https://deephaven.io/core/docs/conceptual/deephaven-overview/): Data is released incrementally each cycle 
-- The Operation Benchmark date shows the day when the benchmarks where collected, which is the latest successful run
+- The Benchmark Date shows the day when the benchmarks where collected, which is the latest successful run
 
 ## Basic Benchmark Methodology
 
@@ -22,6 +22,6 @@
 ## Digger Deeper into the Demo
 
 A [Benchmark Demo](https://controller.try-dh.demo.community.deephaven.io/get_ide) is provided on the Deephaven Code Studio
-demo cluster. Among other Demo notebooks is a Benchmark notebook (TBD) that provides scripts to generate comparative 
+demo cluster. Among other Demo notebooks is a Benchmark notebook (TBD) that provides scripts that generate comparative 
 benchmark and metric tables using a copy of the latest benchmark results. Users can then experiment with Deephaven 
-operations and charting visualize the data.
+query operations and charting to visualize the data.
