@@ -34,13 +34,13 @@ services:
     volumes:
       - ./data:/data
     environment:
-      - START_OPTS=-Xmx24g
+      - "START_OPTS=-Xmx24g -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
 
   redpanda:
     command:
     - redpanda
     - start
-    - --smp 2 
+    - --smp 2
     - --memory 2G
     - --reserve-memory 0M
     - --overprovisioned

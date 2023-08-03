@@ -1,0 +1,23 @@
+<svg viewBox="0 0 170 95" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    div {
+      color: #f0f0ee;
+      font: 3.0px fira sans,sans-serif;
+    }
+  </style>
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <table><tr><th>Deephaven</th><th>Summary</th><th>${run_date}</th></tr></table>
+      <table cellspacing="0">
+        <thead>
+          <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int=>Avg By Row1}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+          <tr><td>${MedianBy- 2 Group 160K Unique Combos Float=>Median By Row2}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">* threads=${dh_threads} heap=${dh_heap} os=${os_name} benchmark-count=${benchmark_count}</td></tr></tfoot>
+      </table>
+    </div>
+  </foreignObject>
+</svg>

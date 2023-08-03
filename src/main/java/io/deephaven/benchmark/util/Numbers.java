@@ -1,10 +1,14 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
+import java.text.DecimalFormat;
+
 /**
  * Provide help with commonly used number parsing
  */
 public class Numbers {
+    static final DecimalFormat decimalFormat = new DecimalFormat("#,##0.000");
+    static final DecimalFormat integralFormat = new DecimalFormat("#,##0");
 
     /**
      * Get a <code>Number</code> for the given value. If it is already a number, return it, otherwise attempt to parse
@@ -26,6 +30,25 @@ public class Numbers {
             return Double.parseDouble(val.toString());
         } catch (Exception ex) {
             throw new RuntimeException("Bad number value: " + val);
+        }
+    }
+
+    /**
+     * Apply and pre-defined formatting to a given number to produce a string
+     * 
+     * @param val the value to format
+     * @return the formatted value
+     */
+    static public String formatNumber(Object val) {
+        if (val == null)
+            return null;
+        var num = parseNumber(val);
+        if (num instanceof Double || num instanceof Float) {
+            return decimalFormat.format(((Number) num).doubleValue());
+        } else if (num instanceof Long || num instanceof Integer || num instanceof Short || num instanceof Byte) {
+            return integralFormat.format(((Number) num).longValue());
+        } else {
+            return val.toString();
         }
     }
 

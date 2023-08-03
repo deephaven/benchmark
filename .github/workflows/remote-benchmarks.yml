@@ -57,6 +57,16 @@ jobs:
       with:
         credentials_json: ${{secrets.BENCHMARK_GCLOUD}}
         
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      
+    - name: Backup Existing Benchmark Summary SVG
+      run: |
+        SUMMARY_PREFIX=gs://deephaven-benchmark/${RUN_TYPE}/benchmark-summary
+        if gsutil stat ${SUMMARY_PREFIX}.svg &>/dev/null; then
+          gsutil mv ${SUMMARY_PREFIX}.svg ${SUMMARY_PREFIX}.prev.svg &>/dev/null
+        fi
+
     - name: Upload Benchmark Results to GCloud
       uses: google-github-actions/upload-cloud-storage@v1
       with:
