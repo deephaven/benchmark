@@ -105,7 +105,7 @@
           <rect class="d" x="9" y="19" width="8" height="8" />
           <rect class="e" x="17" y="11" width="8" height="8" />
         </svg>
-        <h1>Benchmark Date: <small class="run_date">2023-07-23</small></h1>
+        <h1>Benchmark Date: <small class="run_date">${run_date}</small></h1>
       </header>
       <table cellspacing="0">
         <thead>
