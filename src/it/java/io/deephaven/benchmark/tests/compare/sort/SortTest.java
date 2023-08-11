@@ -15,44 +15,43 @@ public class SortTest {
     @Test
     @Order(1)
     public void deephavenSort() {
-        runner.tables("source");
-        var setup = "source = read('/data/source.parquet').select()";
-        runner.addSetupQuery(setup);
-
-        var op = "source.sort(order_by=['str250', 'str640'])";
+        runner.initDeephaven(1, "source", null, "int640", "str250");
+        var setup = """
+        from deephaven.parquet import read
+        source = read('/data/source.parquet').select()
+        """;
+        var op = "source.sort(order_by=['str250', 'int640'])";
         var msize = "source.size";
         var rsize = "result.size";
-        runner.test("Deephaven Sort", op, msize, rsize);
+        runner.test("Deephaven Sort", setup, op, msize, rsize);
     }
 
     @Test
     @Order(2)
     public void pyarrowSort() {
+        runner.initPython("pyarrow");
         var setup = """
         import pyarrow.dataset as ds
         source = ds.dataset('/data/source.parquet', format="parquet").to_table()
         """;
-        runner.addSetupQuery(setup);
-
-        var op = "source.sort_by([('str250','ascending'), ('str640','ascending')])";
+        var op = "source.sort_by([('str250','ascending'), ('int640','ascending')])";
         var msize = "source.num_rows";
         var rsize = "result.num_rows";
-        runner.test("PyArrow Sort", op, msize, rsize);
+        runner.test("PyArrow Sort", setup, op, msize, rsize);
     }
     
     @Test
     @Order(3)
     public void pandasSort() {
+        runner.initPython("fastparquet", "pandas");
         var setup = """
         import pandas as pd
         source = pd.read_parquet('/data/source.parquet')
         """;
-        runner.addSetupQuery(setup);
-
-        var op = "source.sort_values(by=['str250','str640'])";
+        var op = "source.sort_values(by=['str250','int640'])";
         var msize = "len(source)";
         var rsize = "len(result)";
-        runner.test("Pandas Sort", op, msize, rsize);
+        runner.test("Pandas Sort", setup, op, msize, rsize);
     }
 
 }
