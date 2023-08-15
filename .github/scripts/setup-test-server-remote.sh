@@ -20,7 +20,7 @@ HOST=`hostname`
 GIT_DIR=/root/git
 GIT_REPO=$1
 GIT_BRANCH=$2
-RUN_TYPE=$3                     # ex. "nightly" or "release"
+RUN_TYPE=$3                     # ex. nightly | release | compare
 DEEPHAVEN_DIR=/root/deephaven
 
 title () { echo; echo $1; }
@@ -82,3 +82,4 @@ docker compose pull
 
 title "-- Starting Deephaven and Redpanda --"
 docker compose up -d
+

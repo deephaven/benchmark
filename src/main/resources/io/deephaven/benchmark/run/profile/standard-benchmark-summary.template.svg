@@ -112,17 +112,17 @@
           <tr><th>Benchmark Operation</th><th>Static<small class="rate"> (rows/sec)</small></th><th>Ticking<small class="rate"> (rows/sec)</small></th></tr>
         </thead>
       	<tbody>
-      	  <tr><td>${Where- 2 Filters=>Where with 2 Filters}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${Update- 2 Calcs Using Int=>Update with 2 New Calculated Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${SelectDistinct- 1 Group 250 Unique Vals=>Select Distinct on 1 Group of 250 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int=>Average by 2 Groups of 160K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${Sort- 2 Cols Default Order=>Sort 2 Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${Join- Join On 2 Cols 1 Match=>Join on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${CumSum- 1 Group 100 Unique Vals 2 Cols=>Cumulative Sum by 1 Group on 2 Columns}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int=>Time-based EMA by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int=>Rolling 3 Sums by 2 Groups of 15K Unique Combos}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals=>Rolling 3 Vectors by 1 Group of 100 Unique Values}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-      	  <tr><td>${AsOfJoin- Join On 2 Cols 1 Match=>AsOfJoin on 2 Columns Matching 1 Row Each}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+      	  <tr><td>Where with 2 Filters</td><td>${Where- 2 Filters -Static=>op_rate}</td><td>${Where- 2 Filters -Inc=>op_rate}</td></tr>
+      	  <tr><td>Update with 2 New Calculated Columns</td><td>${Update- 2 Calcs Using Int -Static=>op_rate}</td><td>${Update- 2 Calcs Using Int -Inc=>op_rate}</td></tr>
+      	  <tr><td>Select Distinct on 1 Group of 250 Unique Values</td><td>${SelectDistinct- 1 Group 250 Unique Vals -Static=>op_rate}</td><td>${SelectDistinct- 1 Group 250 Unique Vals -Inc=>op_rate}</td></tr>
+      	  <tr><td>Average by 2 Groups of 160K Unique Combos</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>op_rate}</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Inc=>op_rate}</td></tr>
+      	  <tr><td>Sort 2 Columns</td><td>${Sort- 2 Cols Default Order -Static=>op_rate}</td><td>${Sort- 2 Cols Default Order -Inc=>op_rate}</td></tr>
+      	  <tr><td>Join on 2 Columns Matching 1 Row Each</td><td>${Join- Join On 2 Cols 1 Match -Static=>op_rate}</td><td>${Join- Join On 2 Cols 1 Match -Inc=>op_rate}</td></tr>
+      	  <tr><td>Cumulative Sum by 1 Group on 2 Columns</td><td>${CumSum- 1 Group 100 Unique Vals 2 Cols -Static=>op_rate}</td><td>${CumSum- 1 Group 100 Unique Vals 2 Cols -Inc=>op_rate}</td></tr>
+      	  <tr><td>Time-based EMA by 2 Groups of 15K Unique Combos</td><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int -Static=>op_rate}</td><td>${EmaTime- 2 Groups 15K Unique Combos 1 Col Int -Inc=>op_rate}</td></tr>
+      	  <tr><td>Rolling 3 Sums by 2 Groups of 15K Unique Combos</td><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int -Static=>op_rate}</td><td>${RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int -Inc=>op_rate}</td></tr>
+      	  <tr><td>Rolling 3 Vectors by 1 Group of 100 Unique Values</td><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals -Static=>op_rate}</td><td>${RollingGroupTick- 3 Ops 1 Group 100 Unique Vals -Inc=>op_rate}</td></tr>
+      	  <tr><td>AsOfJoin on 2 Columns Matching 1 Row Each</td><td>${AsOfJoin- Join On 2 Cols 1 Match -Static=>op_rate}</td><td>${AsOfJoin- Join On 2 Cols 1 Match -Inc=>op_rate}</td></tr>
       	</tbody>
       	<tfoot>
 		  <tr><td colspan="3">* cpu-threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>

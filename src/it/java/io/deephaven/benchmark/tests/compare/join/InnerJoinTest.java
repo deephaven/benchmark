@@ -9,7 +9,7 @@ import io.deephaven.benchmark.tests.compare.CompareTestRunner;
  * Competitive tests for the inner join operation.
  */
 @TestMethodOrder(OrderAnnotation.class)
-public class JoinTest {
+public class InnerJoinTest {
     final CompareTestRunner runner = new CompareTestRunner(this);
 
     @Test

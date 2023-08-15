@@ -5,6 +5,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
@@ -12,7 +13,7 @@ import io.deephaven.benchmark.util.Filer;
 import io.deephaven.benchmark.util.Numbers;
 
 /**
- * Generates an SVG file from a template that contains variables (e.g. <code>${op_duration}</code>) referencing
+ * Generates an SVG file from a template that contains variables (e.g. <code>${My Agg=>op_duration}</code>) referencing
  * benchmark data from the benchmark result produced by the {@code ResultSummary}. If the benchmark results summary
  * contains more than one run, the values for the newest run are used.
  * <p/>
@@ -22,8 +23,7 @@ import io.deephaven.benchmark.util.Numbers;
  * @see {@code benchmark-summary.template.svg} for an example of a template that works.
  */
 class SvgSummary {
-    final String varRegex = "(\\$\\{[^}]+\\})";
-    final String subsRegex = "^.*<td>" + String.join(".*", varRegex, varRegex, varRegex) + "</td>.*$";
+    final String varRegex = "\\$\\{([^}]+)\\}";
     final Map<String, Benchmark> benchmarks;
     final String svgTemplate;
     final Path outputDir;
@@ -44,7 +44,7 @@ class SvgSummary {
     }
 
     /**
-     * Generate an SVG file based on benchmark results CSV
+     * Generate SVG files based on benchmark results CSV applied to a template
      */
     void summarize() {
         if (!Files.exists(outputDir)) {
@@ -52,23 +52,19 @@ class SvgSummary {
             return;
         }
 
-        var out = new StringBuilder();
-        svgTemplate.lines().forEach(line -> {
-            if (line.matches(subsRegex)) {
-                String[] subs = line.replaceAll(subsRegex, "$1,$2,$3").split(",");
-                var benchmarkDescr = toVariableName(subs[0]);
-                String[] benchmark = benchmarkDescr.split("=>");
-                if (benchmark.length != 2)
-                    throw new RuntimeException(
-                            "Benchmark label must be of the form ${benchmark_name=>label}. Found: " + line.trim());
-                line = replaceBenchName(line, subs[0], benchmark[1].trim());
-                line = replaceBenchRate(line, subs[1], benchmark[0].trim() + " -Static", "op_rate");
-                line = replaceBenchRate(line, subs[2], benchmark[0].trim() + " -Inc", "op_rate");
-                println(out, line);
-            } else {
-                println(out, line);
-            }
+        var template = replacePlatformVars(svgTemplate);
+        var out = Pattern.compile(varRegex).matcher(template).replaceAll(match -> {
+            var split = match.group(1).split("=>");
+            if (split.length < 2)
+                return "$0";
+            var benchName = split[0].trim();
+            var columnName = split[1].trim();
+            var benchmark = benchmarks.get(benchName);
+            if (benchmark == null)
+                return "$0";
+            return Numbers.formatNumber(benchmark.getValue(columnName));
         });
+
         Filer.putFileText(svgFile, out);
     }
 
@@ -86,43 +82,17 @@ class SvgSummary {
                 if (next.isNewerThan(existing))
                     benchmarks.put(next.getName(), next);
             }
-        } ;
+        }
         return benchmarks;
     }
 
-    private String replaceBenchName(String line, String benchVar, String benchLabel) {
-        return line.replace(benchVar, benchLabel);
-    }
-
-    private String replaceBenchRate(String line, String varName, String benchName, String rateColName) {
-        var benchmark = benchmarks.get(benchName);
-        if (benchmark == null)
-            return line;
-        var rate = benchmark.getValue(toVariableName(rateColName));
-        return line.replace(varName, Numbers.formatNumber(rate));
-    }
-
-    private String replaceRunDate(String line) {
+    private String replacePlatformVars(String str) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return line.replace("${run_date}", dtf.format(LocalDateTime.now()));
-    }
-
-    // Note: Platform variables are hardcoded for now.
-    private String replacePlatformVars(String line) {
-        line = line.replace("${dh_threads}", "16");
-        line = line.replace("${dh_heap}", "24G".toLowerCase());
-        line = line.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase().replace(" ", "-"));
-        return line.replace("${benchmark_count}", "" + benchmarks.size());
-    }
-
-    private void println(StringBuilder str, String line) {
-        line = replaceRunDate(line);
-        line = replacePlatformVars(line);
-        str.append(line).append('\n');
-    }
-
-    private String toVariableName(String curlyVar) {
-        return curlyVar.replaceAll("^\\$\\{", "").replaceAll("\\}$", "");
+        str = str.replace("${run_date}", dtf.format(LocalDateTime.now()));
+        str = str.replace("${dh_threads}", "16");
+        str = str.replace("${dh_heap}", "24G".toLowerCase());
+        str = str.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase().replace(" ", "-"));
+        return str.replace("${benchmark_count}", "" + benchmarks.size());
     }
 
     record Benchmark(Map<String, Integer> header, String[] values) {

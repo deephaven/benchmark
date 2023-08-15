@@ -35,10 +35,16 @@ public class BenchmarkMain {
         if (exitCode == 0) {
             Path outputDir = Paths.get(Bench.rootOutputDir);
             URL csv = new ResultSummary(outputDir).summarize();
-            URL svgTemplate = BenchmarkMain.class.getResource("profile/benchmark-summary.template.svg");
-            new SvgSummary(csv, svgTemplate, outputDir.resolve("benchmark-summary.svg")).summarize();
+            toSummarySvg(csv, "standard", outputDir, "nightly");
+            toSummarySvg(csv, "standard", outputDir, "release");
+            toSummarySvg(csv, "compare", outputDir, "compare");
         }
         return exitCode;
+    }
+
+    static void toSummarySvg(URL csv, String tmpPrefix, Path outputDir, String outputPrefix) {
+        URL svgTemplate = BenchmarkMain.class.getResource("profile/" + tmpPrefix + "-benchmark-summary.template.svg");
+        new SvgSummary(csv, svgTemplate, outputDir.resolve(outputPrefix + "-benchmark-summary.svg")).summarize();
     }
 
     // Set system properties for running from the command line

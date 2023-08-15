@@ -13,8 +13,10 @@
           <tr><th>Benchmark</th><th>Op Duration</th><th>Op Rate</th><th>Row Count</th></tr>
         </thead>
         <tbody>
-          <tr><td>${AvgBy- 2 Groups 160K Unique Combos Int=>Avg By Row1}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
-          <tr><td>${MedianBy- 2 Group 160K Unique Combos Float=>Median By Row2}</td><td>${static_rate}</td><td>${inc_rate}</td></tr>
+          <tr><td>Avg By Row1</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>op_rate}</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Inc=>op_rate}</td></tr>
+          <tr><td>Median By Row2</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Static=>op_rate}</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Inc=>op_rate}</td></tr>
+          <tr><td>Avg By Row1</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>op_rate}</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Inc=>op_rate}</td></tr>
+          <tr><td>Median By Row2</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Static=>op_rate}</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Inc=>op_rate}</td></tr>
         </tbody>
         <tfoot><tr><td colspan="3">* threads=${dh_threads} heap=${dh_heap} os=${os_name} benchmark-count=${benchmark_count}</td></tr></tfoot>
       </table>

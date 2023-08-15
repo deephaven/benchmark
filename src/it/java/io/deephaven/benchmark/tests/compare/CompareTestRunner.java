@@ -193,7 +193,6 @@ public class CompareTestRunner {
             api.query(query).fetchAfter("stats", table -> {
                 long loadedRowCount = table.getSum("processed_row_count").longValue();
                 long resultRowCount = table.getSum("result_row_count").longValue();
-                System.out.println("**Result Row Count: " + resultRowCount);
                 long elapsedNanos = table.getSum("elapsed_nanos").longValue();
                 var r = new Result(loadedRowCount, Duration.ofNanos(elapsedNanos), resultRowCount);
                 result.set(r);
@@ -234,7 +233,6 @@ public class CompareTestRunner {
             api.setName("# Docker Restart");
             if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
                 return;
-            System.out.println("Restarted Docker Full");
         } finally {
             api.close();
         }
@@ -248,7 +246,6 @@ public class CompareTestRunner {
             String deephavenHostPort = api.property("deephaven.addr", "");
             if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
                 return;
-            System.out.println("Restarted Docker " + heapGigs);
             dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
             Exec.restartDocker(dockerComposeFile, deephavenHostPort);
         } finally {
