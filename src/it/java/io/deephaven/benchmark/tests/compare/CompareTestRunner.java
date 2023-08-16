@@ -241,7 +241,7 @@ public class CompareTestRunner {
     void restartDocker(int heapGigs) {
         var api = Bench.create("# Docker Restart");
         try {
-            api.setName("# Docker Restart");
+            api.setName("# Docker Restart " + heapGigs + "G");
             String dockerComposeFile = api.property("docker.compose.file", "");
             String deephavenHostPort = api.property("deephaven.addr", "");
             if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())

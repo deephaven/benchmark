@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.deephaven.benchmark.generator.*;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Ids;
+import io.deephaven.benchmark.util.Log;
 
 /**
  * Represents the configuration of table name and columns.
@@ -146,16 +147,24 @@ final public class BenchTable implements Closeable {
             usedExistingParquet.set(table.getValue(0, "UsedExistingParquet").toString().equalsIgnoreCase("true"));
         }).execute();
 
-        if (usedExistingParquet.get())
+        if (usedExistingParquet.get()) {
+            Log.info("Table '%s' with %s rows already exists. Skipping", tableName, getRowCount());
             return;
+        }
+        Log.info("Generating table '%s' with %s rows", tableName, getRowCount());
+        long beginTime = System.currentTimeMillis();
 
         if (rowPauseMillis < 0)
             withRowPause(0, ChronoUnit.MILLIS);
 
         bench.awaitCompletion(generateWithAvro());
+        Log.info("Produce Data Duration: " + (System.currentTimeMillis() - beginTime));
+        beginTime = System.currentTimeMillis();
 
         q = replaceTableAndGeneratorFields(kafkaToParquetQuery);
         bench.query(q).execute();
+
+        Log.info("DH Write Table Duration: " + (System.currentTimeMillis() - beginTime));
     }
 
     /**
