@@ -53,7 +53,7 @@ jobs:
         rm -f ${RUN_TYPE}/*.csv
         # Rename the svg summary table according to run type. Discard the rest
         TMP_SVG_DIR=${RUN_TYPE}/tmp-svg
-        mkdir -p ${TMP_SVG_DIR} && cp *.svg ${TMP_SVG_DIR}
+        mkdir -p ${TMP_SVG_DIR} && cp ${RUN_TYPE}/*.svg ${TMP_SVG_DIR}
         cp ${TMP_SVG_DIR}/${RUN_TYPE}-benchmark-summary.svg ${RUN_TYPE}/benchmark-summary.svg
         rm -rf ${TMP_SVG_DIR}
 
@@ -85,3 +85,4 @@ jobs:
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
+
