@@ -17,5 +17,5 @@ if [[ $# -lt 4 ]]; then
 	exit 1
 fi
 
-ssh ${USER}@${HOST} 'bash -s' "${@:5}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
+ssh -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' "${@:5}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
 
