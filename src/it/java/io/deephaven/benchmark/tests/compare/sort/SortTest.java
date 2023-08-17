@@ -6,7 +6,11 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 
 /**
- * Competitive tests for the sort operation. Sorts rows of data from the source according to the defined columns
+ * Product comparison tests for sort operations. Tests read the same parquet data. To avoid an unfair
+ * advantage where some products may partition or group data during the read, parquet read time is included in the
+ * benchmark results.
+ * <p/>
+ * Each test sorts a table by a string and an integer
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class SortTest {

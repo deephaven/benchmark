@@ -6,7 +6,11 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 
 /**
- * Competitive tests for the distinct operation
+ * Product comparison tests for the distinct (or select distinct) group operation. Tests read the same parquet data. To
+ * avoid an unfair advantage where some products may partition or group data during the read, parquet read time is
+ * included in the benchmark results.
+ * <p/>
+ * Each test produces a table result that contains rows unique according to a string and an integer
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class DistinctTest {
@@ -39,7 +43,7 @@ public class DistinctTest {
         var rsize = "result.num_rows";
         runner.test("PyArrow Distinct", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(3)
     public void pandasDistinct() {

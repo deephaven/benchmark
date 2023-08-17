@@ -6,7 +6,11 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 
 /**
- * Competitive tests for the average by group operation.
+ * Product comparison tests for the average by group operation. Tests read the same parquet data. To avoid an unfair
+ * advantage where some products may partition or group data during the read, parquet read time is included in the
+ * benchmark results.
+ * <p/>
+ * Each test calculates two new average columns and groups by a string and an integer
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class AverageByTest {
@@ -43,7 +47,7 @@ public class AverageByTest {
         var rsize = "result.num_rows";
         runner.test("PyArrow Average By", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(3)
     public void pandasAverageBy() {
@@ -61,30 +65,5 @@ public class AverageByTest {
         var rsize = "len(result)";
         runner.test("Pandas Average By", setup, op, msize, rsize);
     }
-    
-//    @Test
-//    @Order(4)
-//    public void flinkAverageBy() {
-//        runner.usePip("apache-flink");
-//        var setup = """
-//        import pandas as pd
-//        from pyflink.common import Row
-//        from pyflink.table import (EnvironmentSettings, TableEnvironment, TableDescriptor, Schema, DataTypes, FormatDescriptor)
-//        from pyflink.table.expressions import lit, col
-//        from pyflink.table.udf import udtf
-//
-//        t_env = TableEnvironment.create(EnvironmentSettings.in_batch_mode())
-//        t_env.get_config().set("parallelism.default", "1")
-//
-//        source = pd.read_parquet('/data/source.parquet')
-//        source = t_env.from_pandas(source)
-//        """;
-//        var op = """
-//        None
-//        """;
-//        var msize = "len(source)";
-//        var rsize = "len(result)";
-//        runner.test("Pandas Average By", setup, op, msize, rsize);
-//    }
 
 }

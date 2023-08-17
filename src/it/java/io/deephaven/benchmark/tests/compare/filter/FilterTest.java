@@ -6,7 +6,12 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 
 /**
- * Competitive tests for the filter (where) operation.   160,000,000 scale
+ * Product comparison tests for filter (where) operations. Tests read the same parquet data. To avoid an unfair
+ * advantage where some products may partition or group data during the read, parquet read time is included in the
+ * benchmark results.
+ * <p/>
+ * Each test produces a table result filtered by three criteria; value is an exact string, value > an integer, value <
+ * an integer
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class FilterTest {
@@ -43,7 +48,7 @@ public class FilterTest {
         var rsize = "result.num_rows";
         runner.test("PyArrow Filter", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(3)
     public void pandasFilter() {

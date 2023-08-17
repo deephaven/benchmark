@@ -6,7 +6,11 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 
 /**
- * Competitive tests for the inner join operation.
+ * Product comparison tests for inner join operations. Tests read the same parquet data. To avoid an unfair
+ * advantage where some products may partition or group data during the read, parquet read time is included in the
+ * benchmark results.
+ * <p/>
+ * Each test produces a table that is the result of two tables intersected by a string and an integer
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class InnerJoinTest {

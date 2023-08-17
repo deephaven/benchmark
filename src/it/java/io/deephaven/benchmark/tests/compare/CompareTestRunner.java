@@ -12,18 +12,18 @@ import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Filer;
 
 /**
- * A wrapper for the Bench api that allows the running of small (single-operation) tests without requiring the
- * boilerplate logic like imports, parquet reads, time measurement logic, etc. Each <code>test</code> runs produces one
- * benchmark in the standard benchmark result csv file. In contrast to the {@code StandardTestRunner}, this runner can
- * run both Deephaven query and command line Python tests but can only do so with static parquet data.
+ * A wrapper for the Bench api that allows running tests for the purpose of comparing Deephaven to other products that
+ * perform similar operations. It allows running Deephaven operations or using Deephaven as an agent to run command line
+ * python tests in the same environment (e.g. Docker).
  * <p/>
- * Note: This runner is meant to keep the majority of single-operations compact and readable, not to cover every
- * possible case. Standard query API code can be used in conjunction as long as conventions are followed (ex. main file
- * is "source")
+ * One of two initializers must be called to set up which type of tests is desired; {@code initDeephaven()} or
+ * {@code initPython()}. Deephaven tests run queries inside of Deephaven like the standard benchmarks. Python tests use
+ * Deephaven as an agent to run python scripts from the command line by first installing required pip modules in a
+ * python virtual environment and then running each test from there.
  * <p/>
  * Note: This runner requires test ordering, so it follows that tests in a single test class are meant to be run as a
- * group. This violates the standard convention that every test be able to be run by itself. This is done for practical
- * purposes, though it is not ideal
+ * group. This violates the standard Benchmark convention that every test be able to be run by itself. This is done for
+ * practical purposes, though it is not ideal.
  */
 public class CompareTestRunner {
     final Object testInst;
@@ -74,8 +74,8 @@ public class CompareTestRunner {
      * results csv.
      * 
      * @param name the benchmark name
-     * @param setup code to run before the measured operation
-     * @param operation coed to run that is measured
+     * @param setup code to run before the operation
+     * @param operation code to run that produces the result
      * @param mainSizeGetter code to get the row size of the table being processed
      * @param resultSizeGetter code to get the row size of the result after the operation
      */
@@ -83,6 +83,17 @@ public class CompareTestRunner {
         test(name, 0, setup, operation, mainSizeGetter, resultSizeGetter);
     }
 
+    /**
+     * Run a benchmark test, filling in the provided code snippets for each stage. Record the result in the benchmark
+     * results csv.
+     * 
+     * @param name the benchmark name
+     * @param expectedRowCount the maximum row count expected as a result
+     * @param setup code to run before the operation
+     * @param operation code to run that produces the result
+     * @param mainSizeGetter code to get the row size of the table being processed
+     * @param resultSizeGetter code to get the row size of the result after the operation
+     */
     public void test(String name, long expectedRowCount, String setup, String operation, String mainSizeGetter,
             String resultSizeGetter) {
         Result result;
@@ -93,14 +104,14 @@ public class CompareTestRunner {
             result = runDeephavenTest(name, setup, operation, mainSizeGetter, resultSizeGetter);
         }
         var rcount = result.resultRowCount();
-        var ecount = getExpectedRowCount(expectedRowCount);
+        var ecount = (expectedRowCount < 1) ? Long.MAX_VALUE : expectedRowCount;
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result row count: " + rcount);
     }
 
-    long getExpectedRowCount(long expectedRowCount) {
-        return (expectedRowCount < 1) ? Long.MAX_VALUE : expectedRowCount;
-    }
-
+    /**
+     * Tell Deephaven to install python packages using pip in its environment. Note: This assumes that after these
+     * packages are installed, Deephaven will only be used as an agent to run command line python code
+     */
     void installPipPackages() {
         var query = """
         text = '''PACKAGES='${pipPackages}'
