@@ -4,6 +4,7 @@ package io.deephaven.benchmark.tests.compare.join;
 import static org.junit.jupiter.api.MethodOrderer.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
+import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for inner join operations. Tests read the same parquet data. To avoid an unfair
@@ -18,14 +19,14 @@ public class InnerJoinTest {
 
     @Test
     @Order(1)
-    public void deephavenJoin() {
+    public void deephavenInnerJoin() {
         runner.initDeephaven(2, "source", "right", "int1M", "str250", "r_int1M", "r_str250");
-        var setup = """
-        from deephaven.parquet import read
+        var setup = "from deephaven.parquet import read";
+        var op = """
         source = read('/data/source.parquet').select()
         right = read('/data/right.parquet').select()
+        result = source.join(right, on=['str250 = r_str250', 'int1M = r_int1M'])
         """;
-        var op = "source.join(right, on=['str250 = r_str250', 'int1M = r_int1M'])";
         var msize = "source.size";
         var rsize = "result.size";
         runner.test("Deephaven Inner Join", setup, op, msize, rsize);
@@ -33,14 +34,14 @@ public class InnerJoinTest {
 
     @Test
     @Order(2)
-    public void pyarrowJoin() {
+    public void pyarrowInnerJoin() {
         runner.initPython("pyarrow");
-        var setup = """
-        import pyarrow.dataset as ds
+        var setup = "import pyarrow.dataset as ds";
+        var op = """
         source = ds.dataset('/data/source.parquet', format="parquet").to_table()
         right = ds.dataset('/data/right.parquet', format="parquet").to_table()
+        result = source.join(right, keys=['str250','int1M'], right_keys=['r_str250','r_int1M'], join_type='inner')    
         """;
-        var op = "source.join(right, keys=['str250','int1M'], right_keys=['r_str250','r_int1M'], join_type='inner')";
         var msize = "source.num_rows";
         var rsize = "result.num_rows";
         runner.test("PyArrow Inner Join", setup, op, msize, rsize);
@@ -48,17 +49,34 @@ public class InnerJoinTest {
     
     @Test
     @Order(3)
-    public void pandasJoin() {
+    public void pandasInnerJoin() {
         runner.initPython("fastparquet", "pandas");
-        var setup = """
-        import pandas as pd
+        var setup = "import pandas as pd";
+        var op = """
         source = pd.read_parquet('/data/source.parquet')
         right = pd.read_parquet('/data/right.parquet')
+        result = source.merge(right, left_on=['str250','int1M'], right_on=['r_str250','r_int1M'], how='inner')
         """;
-        var op = "source.merge(right, left_on=['str250','int1M'], right_on=['r_str250','r_int1M'], how='inner')";
         var msize = "len(source)";
         var rsize = "len(result)";
         runner.test("Pandas Inner Join", setup, op, msize, rsize);
+    }
+    
+    @Test
+    @Order(4)
+    public void flinkInnerJoin() {
+        runner.initPython("apache-flink", "jdk-11");
+        var op = """
+        source = pd.read_parquet('/data/source.parquet')
+        loaded_size = len(source)
+        source = t_env.from_pandas(source)
+        right = pd.read_parquet('/data/right.parquet')
+        right = t_env.from_pandas(right)
+        result = source.join(right, (col('str250') == col('r_str250')) & (col('int1M') == col('r_int1M'))).execute()
+        """;
+        var msize = "loaded_size";
+        var rsize = "count_rows(result)";
+        runner.test("Flink Inner Join", Setup.flink, op, msize, rsize);
     }
 
 }

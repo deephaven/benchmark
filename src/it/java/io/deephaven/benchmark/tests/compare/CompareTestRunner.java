@@ -27,7 +27,7 @@ import io.deephaven.benchmark.util.Filer;
  */
 public class CompareTestRunner {
     final Object testInst;
-    final List<String> pipPackages = new ArrayList<>();
+    final Set<String> requiredPackages = new LinkedHashSet<>();
     private Bench api = null;
 
     public CompareTestRunner(Object testInst) {
@@ -66,7 +66,8 @@ public class CompareTestRunner {
     public void initPython(String... packages) {
         restartDocker(1);
         initialize(testInst);
-        pipPackages.addAll(Arrays.asList(packages));
+        requiredPackages.addAll(Arrays.asList(packages));
+        requiredPackages.add("install-jdk");
     }
 
     /**
@@ -97,8 +98,8 @@ public class CompareTestRunner {
     public void test(String name, long expectedRowCount, String setup, String operation, String mainSizeGetter,
             String resultSizeGetter) {
         Result result;
-        if (pipPackages.size() > 0) {
-            installPipPackages();
+        if (requiredPackages.size() > 0) {
+            installRequiredPackages();
             result = runPythonTest(name, setup, operation, mainSizeGetter, resultSizeGetter);
         } else {
             result = runDeephavenTest(name, setup, operation, mainSizeGetter, resultSizeGetter);
@@ -106,13 +107,16 @@ public class CompareTestRunner {
         var rcount = result.resultRowCount();
         var ecount = (expectedRowCount < 1) ? Long.MAX_VALUE : expectedRowCount;
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result row count: " + rcount);
+        System.out.println("Result Count: " + rcount);
     }
 
     /**
-     * Tell Deephaven to install python packages using pip in its environment. Note: This assumes that after these
-     * packages are installed, Deephaven will only be used as an agent to run command line python code
+     * Tell Deephaven to install required python or java packages in its environment. Note: This assumes that after
+     * these packages are installed, Deephaven will only be used as an agent to run command line python code
      */
-    void installPipPackages() {
+    void installRequiredPackages() {
+        var pipPackages = requiredPackages.stream().filter(p -> !isJavaPackage(p)).toList();
+
         var query = """
         text = '''PACKAGES='${pipPackages}'
         VENV_PATH=~/deephaven-benchmark-venv
@@ -123,9 +127,35 @@ public class CompareTestRunner {
             ./bin/pip install ${PKG}
         done
         '''
-        run_script('bash', 'setup-benchmark-workspace.sh', text)
+        save_file('setup-benchmark-workspace.sh', text)
+        run_script('bash', 'setup-benchmark-workspace.sh')
         """;
         query = query.replace("${pipPackages}", String.join(" ", pipPackages));
+        api.query(query).execute();
+
+        requiredPackages.forEach(p -> installJavaPackage(p));
+    }
+
+    boolean isJavaPackage(String javaDescr) {
+        return javaDescr.matches("jdk-[0-9]+");
+    }
+
+    void installJavaPackage(String javaDescr) {
+        if (!isJavaPackage(javaDescr))
+            return;
+        var version = javaDescr.replaceAll("jdk-([0-9]+)", "$1");
+        var query = """
+        text = '''
+        import os, jdk
+        if not os.path.exists('./jdk-${version}'):
+            jdk.install('11', vendor='Temurin', path='./')
+            os.system('mv jdk*/ jdk-${version}')
+            os.system('echo JAVA_HOME=$PWD/jdk-${version} > ENV_VARS.sh')
+        '''
+        save_file('install-jdk.py', text)
+        run_script('./bin/python', 'install-jdk.py')
+        """;
+        query = query.replace("${version}", String.join(" ", version));
         api.query(query).execute();
     }
 
@@ -143,7 +173,7 @@ public class CompareTestRunner {
         var query = """
         begin_time = time.perf_counter_ns()
         ${setupQueries}
-        result = ${operation}
+        ${operation}
         op_duration = time.perf_counter_ns() - begin_time
         
         stats = new_table([
@@ -166,10 +196,20 @@ public class CompareTestRunner {
      */
     Result runPythonTest(String name, String setup, String operation, String mainSizeGetter, String resultSizeGetter) {
         var query = """
+        text = '''#!/usr/bin/env bash
+        touch ENV_VARS.sh
+        source ENV_VARS.sh
+        ./bin/python $1
+        '''
+        save_file('run-benchmark-test.sh', text)
+        """;
+        api.query(query).execute();
+
+        query = """
         text = '''import time
-        begin_time = time.perf_counter_ns()
         ${setupQueries}
-        result = ${operation}
+        begin_time = time.perf_counter_ns()
+        ${operation}
         op_duration = time.perf_counter_ns() - begin_time
         main_size = ${mainSizeGetter}
         result_size = ${resultSizeGetter}
@@ -177,7 +217,8 @@ public class CompareTestRunner {
         print("-- Test Results --")
         print("{", "'duration':", op_duration, ", 'main_size':", main_size, ", 'result_size':", result_size, "}")
         '''
-        result = run_script('./bin/python', 'benchmark-test.py', text)
+        save_file('benchmark-test.py', text)
+        result = run_script('./run-benchmark-test.sh', 'benchmark-test.py')
         result = eval(result.splitlines()[-1])
         
         stats = new_table([
@@ -224,11 +265,16 @@ public class CompareTestRunner {
 
         user_home = str(Path.home())
         benchmark_home = user_home + '/deephaven-benchmark-venv'
-
-        def run_script(runner, script_name, script_text):
+        
+        def save_file(file_name, file_text):
             os.makedirs(benchmark_home, exist_ok=True)
-            with open(benchmark_home + '/' + script_name, 'w') as f:
-                f.write(script_text)
+            file_path = benchmark_home + '/' + file_name
+            with open(file_path, 'w') as f:
+                f.write(file_text)
+            st = os.stat(file_path)
+            os.chmod(file_path, st.st_mode | stat.S_IEXEC)
+
+        def run_script(runner, script_name):
             command_array = [runner, script_name]
             output=subprocess.check_output(command_array, cwd=benchmark_home).decode("utf-8")
             print(output)
