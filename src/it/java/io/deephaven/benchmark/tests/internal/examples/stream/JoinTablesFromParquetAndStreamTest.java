@@ -45,7 +45,6 @@ public class JoinTablesFromParquetAndStreamTest {
         api.setName("Join Two Tables Using Parquet File Views");
 
         var query = """
-        from deephaven.time import now
         from deephaven import agg
         from deephaven.parquet import read
 
@@ -98,7 +97,6 @@ public class JoinTablesFromParquetAndStreamTest {
         api.setName("Join Two Tables Using Incremental Release of Parquet File Records");
 
         var query = """
-        from deephaven.time import now
         from deephaven import agg
         from deephaven.parquet import read
 

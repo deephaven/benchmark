@@ -50,9 +50,9 @@ public class RollingWAvgTickTest {
     public void rollingWAvgTick2Groups3OpsFloat() {
         runner.setScaleFactors(2, 1);
         var setup = """
-        contains_row = rolling_wavg_tick(weight_col='int10', cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
-        before_row = rolling_wavg_tick(weight_col='int10', cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_wavg_tick(weight_col='int10', cols=["After = float5"], rev_ticks=-1, fwd_ticks=3)
+        contains_row = rolling_wavg_tick('int10', cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
+        before_row = rolling_wavg_tick('int10', cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)
+        after_row = rolling_wavg_tick('int10', cols=["After = float5"], rev_ticks=-1, fwd_ticks=3)
         """;
         runner.addSetupQuery(setup);
 
