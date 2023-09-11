@@ -109,14 +109,14 @@
       </header>
       <table cellspacing="0">
         <thead>
-          <tr><th>Benchmark</th><th>Deephaven<small class="rate"> (rows/sec)</small></th><th>PyArrow<small class="rate"> (rows/sec)</small></th><th>Pandas<small class="rate"> (rows/sec)</small></th><th>Flink<small class="rate"> (rows/sec)</small></th></tr>
+          <tr><th>Benchmark</th><th>Deephaven<small class="rate"> (rows/sec)</small></th><th>PyArrow<small class="rate"> (rows/sec)</small></th><th>Pandas<small class="rate"> (rows/sec)</small></th></tr>
         </thead>
       	<tbody>
-      	  <tr><td>Filters</td><td>${Deephaven Filter=>op_rate}</td><td>${PyArrow Filter=>op_rate}</td><td>${Pandas Filter=>op_rate}</td><td>${Flink Filter=>op_rate}</td></tr>
-      	  <tr><td>Distinct</td><td>${Deephaven Distinct=>op_rate}</td><td>${PyArrow Distinct=>op_rate}</td><td>${Pandas Distinct=>op_rate}</td><td>${Flink Distinct=>op_rate}</td></tr>
-      	  <tr><td>Average By</td><td>${Deephaven Average By=>op_rate}</td><td>${PyArrow Average By=>op_rate}</td><td>${Pandas Average By=>op_rate}</td><td>${Flink Average By=>op_rate}</td></tr>
-      	  <tr><td>Inner Join</td><td>${Deephaven Inner Join=>op_rate}</td><td>${PyArrow Inner Join=>op_rate}</td><td>${Pandas Inner Join=>op_rate}</td><td>${Flink Inner Join=>op_rate}</td></tr>
-      	  <tr><td>Sort</td><td>${Deephaven Sort=>op_rate}</td><td>${PyArrow Sort=>op_rate}</td><td>${Pandas Sort=>op_rate}</td><td>${Flink Sort=>op_rate}</td></tr>
+      	  <tr><td>Filters</td><td>${Deephaven Filter=>op_rate}</td><td>${PyArrow Filter=>op_rate}</td><td>${Pandas Filter=>op_rate}</td></tr>
+      	  <tr><td>Distinct</td><td>${Deephaven Distinct=>op_rate}</td><td>${PyArrow Distinct=>op_rate}</td><td>${Pandas Distinct=>op_rate}</td></tr>
+      	  <tr><td>Average By</td><td>${Deephaven Average By=>op_rate}</td><td>${PyArrow Average By=>op_rate}</td><td>${Pandas Average By=>op_rate}</td></tr>
+      	  <tr><td>Inner Join</td><td>${Deephaven Inner Join=>op_rate}</td><td>${PyArrow Inner Join=>op_rate}</td><td>${Pandas Inner Join=>op_rate}</td></tr>
+      	  <tr><td>Sort</td><td>${Deephaven Sort=>op_rate}</td><td>${PyArrow Sort=>op_rate}</td><td>${Pandas Sort=>op_rate}</td></tr>
       	</tbody>
       	<tfoot>
 		  <tr><td colspan="3">* cpu-threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
