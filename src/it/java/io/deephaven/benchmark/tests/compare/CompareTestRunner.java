@@ -28,6 +28,7 @@ import io.deephaven.benchmark.util.Filer;
 public class CompareTestRunner {
     final Object testInst;
     final Set<String> requiredPackages = new LinkedHashSet<>();
+    final Map<String,String> downloadFiles = new LinkedHashMap<>();
     private Bench api = null;
 
     public CompareTestRunner(Object testInst) {
@@ -41,6 +42,10 @@ public class CompareTestRunner {
      */
     public Bench api() {
         return api;
+    }
+    
+    public void addDownloadFiles(String sourceUri, String destDir) {
+        downloadFiles.put(sourceUri, destDir);
     }
 
     /**
@@ -115,7 +120,7 @@ public class CompareTestRunner {
      * these packages are installed, Deephaven will only be used as an agent to run command line python code
      */
     void installRequiredPackages() {
-        var pipPackages = requiredPackages.stream().filter(p -> !isJavaPackage(p)).toList();
+        var pipPackages = requiredPackages.stream().filter(p -> !isJdkPackage(p)).toList();
 
         var query = """
         text = '''PACKAGES='${pipPackages}'
@@ -134,14 +139,15 @@ public class CompareTestRunner {
         api.query(query).execute();
 
         requiredPackages.forEach(p -> installJavaPackage(p));
+        downloadFiles.forEach((s,d) -> placeDownloadFile(s, d));
     }
-
-    boolean isJavaPackage(String javaDescr) {
+    
+    boolean isJdkPackage(String javaDescr) {
         return javaDescr.matches("jdk-[0-9]+");
     }
 
     void installJavaPackage(String javaDescr) {
-        if (!isJavaPackage(javaDescr))
+        if (!isJdkPackage(javaDescr))
             return;
         var version = javaDescr.replaceAll("jdk-([0-9]+)", "$1");
         var query = """
@@ -158,6 +164,24 @@ public class CompareTestRunner {
         query = query.replace("${version}", String.join(" ", version));
         api.query(query).execute();
     }
+    
+    void placeDownloadFile(String sourceUri, String destDir) {
+        var query = """
+        text = '''
+        import requests, os
+
+        dest = '${destDir}/' + os.path.basename('${sourceUri}')
+        r = requests.get('${sourceUri}', allow_redirects=True)
+        open(dest, 'wb').write(r.content)
+        '''
+        save_file('install-file.py', text)
+        run_script('./bin/python', 'install-file.py')
+        """;
+        query = query.replace("${sourceUri}", sourceUri);
+        query = query.replace("${destDir}", destDir);
+        api.query(query).execute();
+    }
+
 
     /**
      * Run the test in Deephaven proper. Do not push to the command line.

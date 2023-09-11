@@ -11,7 +11,10 @@ import io.deephaven.benchmark.tests.compare.Setup;
  * advantage where some products may partition or group data during the read, parquet read time is included in the
  * benchmark results.
  * <p/>
- * Each test calculates two new average columns and groups by a string and an integer
+ * Each test calculates two new average columns and groups by a string and an integer.
+ * <p/>
+ * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
+ * the desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class AverageByTest {
@@ -66,22 +69,22 @@ public class AverageByTest {
         var rsize = "len(result)";
         runner.test("Pandas Average By", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(4)
+    @Disabled
     public void flinkAverageBy() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """
-        source = pd.read_parquet('/data/source.parquet')
-        loaded_size = len(source)
-        source = t_env.from_pandas(source)
-        result = source.group_by(col('str250'), col('int640')).select(
-            col('str250'), col('int640'), col('int250').avg, col('int640').avg
-        ).execute()
+        t_env.execute_sql("CREATE TABLE source(int250 INT,int640 INT,str250 STRING) WITH ('connector'='filesystem','path'='/data/source.parquet','format'='parquet')")
+        t_env.execute_sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT) WITH ('connector'='filesystem','path'='/data/results.csv','format'='csv')")
+        #t_env.execute_sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT) WITH ('connector'='blackhole')")
+        t_env.execute_sql("INSERT INTO results SELECT str250,int640,AVG(int250) AS Avg1,AVG(int640) AS Avg2 FROM source GROUP BY str250, int640").wait()
         """;
-        var msize = "loaded_size";
-        var rsize = "count_rows(result)";
-        runner.test("Flink Average By", Setup.flink, op, msize, rsize);
+
+        var msize = "count_rows('source')";
+        var rsize = "count_rows('results')"; // Change to 1 for using blackhole connector
+        runner.test("Flink Average By", Setup.flink(runner), op, msize, rsize);
     }
 
 }

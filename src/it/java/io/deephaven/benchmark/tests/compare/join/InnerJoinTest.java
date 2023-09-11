@@ -7,11 +7,14 @@ import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
- * Product comparison tests for inner join operations. Tests read the same parquet data. To avoid an unfair
- * advantage where some products may partition or group data during the read, parquet read time is included in the
- * benchmark results.
+ * Product comparison tests for inner join operations. Tests read the same parquet data. To avoid an unfair advantage
+ * where some products may partition or group data during the read, parquet read time is included in the benchmark
+ * results.
  * <p/>
- * Each test produces a table that is the result of two tables intersected by a string and an integer
+ * Each test produces a table that is the result of two tables intersected by a string and an integer.
+ * <p/>
+ * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
+ * the desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class InnerJoinTest {
@@ -46,7 +49,7 @@ public class InnerJoinTest {
         var rsize = "result.num_rows";
         runner.test("PyArrow Inner Join", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(3)
     public void pandasInnerJoin() {
@@ -61,9 +64,10 @@ public class InnerJoinTest {
         var rsize = "len(result)";
         runner.test("Pandas Inner Join", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(4)
+    @Disabled
     public void flinkInnerJoin() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """
@@ -72,11 +76,11 @@ public class InnerJoinTest {
         source = t_env.from_pandas(source)
         right = pd.read_parquet('/data/right.parquet')
         right = t_env.from_pandas(right)
-        result = source.join(right, (col('str250') == col('r_str250')) & (col('int1M') == col('r_int1M'))).execute()
+        result = source.join(right, (col('str250') == col('r_str250')) & (col('int1M') == col('r_int1M'))).to_pandas()
         """;
         var msize = "loaded_size";
-        var rsize = "count_rows(result)";
-        runner.test("Flink Inner Join", Setup.flink, op, msize, rsize);
+        var rsize = "len(result)";
+        runner.test("Flink Inner Join", Setup.flink(runner), op, msize, rsize);
     }
 
 }

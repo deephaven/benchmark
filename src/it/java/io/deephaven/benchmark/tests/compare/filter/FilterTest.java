@@ -12,7 +12,10 @@ import io.deephaven.benchmark.tests.compare.Setup;
  * benchmark results.
  * <p/>
  * Each test produces a table result filtered by three criteria; value is an exact string, value > an integer, value <
- * an integer
+ * an integer.
+ * <p/>
+ * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
+ * the desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class FilterTest {
@@ -63,20 +66,21 @@ public class FilterTest {
         var rsize = "len(result)";
         runner.test("Pandas Filter", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(4)
+    @Disabled
     public void flinkFilter() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """
         source = pd.read_parquet('/data/source.parquet')
         loaded_size = len(source)
         source = t_env.from_pandas(source)
-        result = source.filter((col('str250') == '250') & (col('int640') > 100) & (col('int640') < 540)).execute()
+        result = source.filter((col('str250') == '250') & (col('int640') > 100) & (col('int640') < 540)).to_pandas()
         """;
         var msize = "loaded_size";
-        var rsize = "count_rows(result)";
-        runner.test("Flink Filter", Setup.flink, op, msize, rsize);
+        var rsize = "len(result)";
+        runner.test("Flink Filter", Setup.flink(runner), op, msize, rsize);
     }
 
 }

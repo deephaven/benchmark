@@ -7,11 +7,13 @@ import io.deephaven.benchmark.tests.compare.CompareTestRunner;
 import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
- * Product comparison tests for sort operations. Tests read the same parquet data. To avoid an unfair
- * advantage where some products may partition or group data during the read, parquet read time is included in the
- * benchmark results.
+ * Product comparison tests for sort operations. Tests read the same parquet data. To avoid an unfair advantage where
+ * some products may partition or group data during the read, parquet read time is included in the benchmark results.
  * <p/>
- * Each test sorts a table by a string and an integer
+ * Each test sorts a table by a string and an integer.
+ * <p/>
+ * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
+ * the desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class SortTest {
@@ -44,7 +46,7 @@ public class SortTest {
         var rsize = "result.num_rows";
         runner.test("PyArrow Sort", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(3)
     public void pandasSort() {
@@ -58,20 +60,21 @@ public class SortTest {
         var rsize = "len(result)";
         runner.test("Pandas Sort", setup, op, msize, rsize);
     }
-    
+
     @Test
     @Order(4)
+    @Disabled
     public void flinkSort() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """
         source = pd.read_parquet('/data/source.parquet')
         loaded_size = len(source)
         source = t_env.from_pandas(source)
-        result = source.order_by(col('str250'), col('int640')).execute()
+        result = source.order_by(col('str250'), col('int640')).to_pandas()
         """;
         var msize = "loaded_size";
-        var rsize = "loaded_size";    // count_rows takes for ever, so here we are
-        runner.test("Flink Sort", Setup.flink, op, msize, rsize);
+        var rsize = "len(result)";
+        runner.test("Flink Sort", Setup.flink(runner), op, msize, rsize);
     }
 
 }

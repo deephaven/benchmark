@@ -11,7 +11,10 @@ import io.deephaven.benchmark.tests.compare.Setup;
  * avoid an unfair advantage where some products may partition or group data during the read, parquet read time is
  * included in the benchmark results.
  * <p/>
- * Each test produces a table result that contains rows unique according to a string and an integer
+ * Each test produces a table result that contains rows unique according to a string and an integer.
+ * <p/>
+ * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
+ * the desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class DistinctTest {
@@ -61,17 +64,18 @@ public class DistinctTest {
 
     @Test
     @Order(4)
+    @Disabled
     public void flinkDistinct() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """
         source = pd.read_parquet('/data/source.parquet')
         loaded_size = len(source)
         source = t_env.from_pandas(source)
-        result = source.select(col('str250'), col('int640')).distinct().execute()
+        result = source.select(col('str250'), col('int640')).distinct().to_pandas()
         """;
         var msize = "loaded_size";
-        var rsize = "count_rows(result)";
-        runner.test("Flink Distinct", Setup.flink, op, msize, rsize);
+        var rsize = "len(result)";
+        runner.test("Flink Distinct", Setup.flink(runner), op, msize, rsize);
     }
 
 }
