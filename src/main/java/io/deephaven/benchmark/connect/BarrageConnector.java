@@ -24,8 +24,10 @@ import io.deephaven.client.impl.FieldInfo;
 import io.deephaven.client.impl.TableHandle;
 import io.deephaven.client.impl.TableHandleManager;
 import io.deephaven.client.impl.script.Changes;
+import io.deephaven.engine.context.ExecutionContext;
 import io.deephaven.engine.table.TableUpdate;
 import io.deephaven.engine.table.impl.InstrumentedTableUpdateListener;
+import io.deephaven.engine.updategraph.impl.PeriodicUpdateGraph;
 import io.deephaven.extensions.barrage.BarrageSnapshotOptions;
 import io.deephaven.extensions.barrage.BarrageSubscriptionOptions;
 import io.deephaven.extensions.barrage.table.BarrageTable;
@@ -220,7 +222,15 @@ public class BarrageConnector implements AutoCloseable {
         BarrageSessionFactory barrageSessionFactory = DaggerDeephavenBarrageRoot.create().factoryBuilder()
                 .managedChannel(channel).scheduler(scheduler).allocator(bufferAllocator).build();
 
-        return barrageSessionFactory.newBarrageSession();
+        var barrageSession = barrageSessionFactory.newBarrageSession();
+        getExecutionContext().open();
+        return barrageSession;
+    }
+
+    private ExecutionContext getExecutionContext() {
+        final var updateGraph = PeriodicUpdateGraph.newBuilder("DEFAULT").existingOrBuild();
+        return ExecutionContext.newBuilder().markSystemic().emptyQueryScope().newQueryLibrary()
+                .setUpdateGraph(updateGraph).build();
     }
 
     record Subscription(TableHandle handle, BarrageSubscription subscription) {
