@@ -47,6 +47,6 @@ public class Setup {
         var destDir = "lib/python3.10/site-packages/pyflink/lib";
         var apacheUri = "https://repo1.maven.org/maven2/org/apache/";
         var uri = apacheUri + prod + '/' + artifact + '/' + version + '/' + artifact + '-' + version + ".jar";
-        r.addDownloadFiles(uri, destDir);
+        r.addDownloadFile(uri, destDir);
     }
 }

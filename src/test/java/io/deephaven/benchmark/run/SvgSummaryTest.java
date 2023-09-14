@@ -12,9 +12,10 @@ public class SvgSummaryTest {
     @Test
     public void summarize() throws Exception {
         var template = getClass().getResource("test-summary.template.svg");
-        var csv = getClass().getResource("test-benchmark-results.csv");
+        var benchmarkCsv = getClass().getResource("test-benchmark-results.csv");
+        var platformCsv = getClass().getResource("test-platform-results.csv");
         var svg = Paths.get(template.toURI()).resolveSibling("benchmark-summary.svg");
-        var summary = new SvgSummary(csv, template, svg);
+        var summary = new SvgSummary(platformCsv, benchmarkCsv, template, svg);
         Files.deleteIfExists(summary.svgFile);
         summary.summarize();
         assertEquals("""

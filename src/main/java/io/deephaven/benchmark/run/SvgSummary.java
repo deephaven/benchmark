@@ -24,7 +24,8 @@ import io.deephaven.benchmark.util.Numbers;
  */
 class SvgSummary {
     final String varRegex = "\\$\\{([^}]+)\\}";
-    final Map<String, Benchmark> benchmarks;
+    final Map<String, Row> benchmarks;
+    final Map<String, Row> platformProps;
     final String svgTemplate;
     final Path outputDir;
     final Path svgFile;
@@ -36,8 +37,9 @@ class SvgSummary {
      * @param svgTemplate the template containing references to the benchmark data
      * @param svgFile the svg file path to produce
      */
-    SvgSummary(URL benchmarkCsv, URL svgTemplate, Path svgFile) {
-        this.benchmarks = readBenchmarks(benchmarkCsv);
+    SvgSummary(URL platformCsv, URL benchmarkCsv, URL svgTemplate, Path svgFile) {
+        this.benchmarks = readSummaryCsv(benchmarkCsv, "benchmark_name");
+        this.platformProps = readSummaryCsv(platformCsv, "origin", "name");
         this.svgTemplate = Filer.getURLText(svgTemplate);
         this.outputDir = svgFile.getParent();
         this.svgFile = svgFile;
@@ -57,27 +59,31 @@ class SvgSummary {
             var split = match.group(1).split("=>");
             if (split.length < 2)
                 return "$0";
-            var benchName = split[0].trim();
+            var lookupName = split[0].trim();
             var columnName = split[1].trim();
-            var benchmark = benchmarks.get(benchName);
-            if (benchmark == null)
-                return "$0";
-            return Numbers.formatNumber(benchmark.getValue(columnName));
+            var platformProp = platformProps.get(lookupName);
+            var benchmark = benchmarks.get(lookupName);
+            if (platformProp != null)
+                return platformProp.getValue(columnName);
+            if (benchmark != null)
+                return Numbers.formatNumber(benchmark.getValue(columnName));
+            return "$0";
+
         });
 
         Filer.putFileText(svgFile, out);
     }
 
-    private Map<String, Benchmark> readBenchmarks(URL csv) {
+    private Map<String, Row> readSummaryCsv(URL csv, String... nameColumns) {
         var header = new HashMap<String, Integer>();
-        var benchmarks = new HashMap<String, Benchmark>();
+        var benchmarks = new HashMap<String, Row>();
         var csvLines = Filer.getURLText(csv).lines().toList();
         for (int i = 0, n = csvLines.size(); i < n; i++) {
             String[] values = csvLines.get(i).split(",");
             if (i == 0) {
                 IntStream.range(0, values.length).forEach(pos -> header.put(values[pos], pos));
             } else {
-                var next = new Benchmark(header, values);
+                var next = new Row(header, values, nameColumns);
                 var existing = benchmarks.get(next.getName());
                 if (next.isNewerThan(existing))
                     benchmarks.put(next.getName(), next);
@@ -89,13 +95,20 @@ class SvgSummary {
     private String replacePlatformVars(String str) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         str = str.replace("${run_date}", dtf.format(LocalDateTime.now()));
-        str = str.replace("${dh_threads}", "16");
-        str = str.replace("${dh_heap}", "24G".toLowerCase());
         str = str.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase().replace(" ", "-"));
         return str.replace("${benchmark_count}", "" + benchmarks.size());
     }
 
-    record Benchmark(Map<String, Integer> header, String[] values) {
+    record PlatformProp(Map<String, Integer> header, String[] values) {
+        String getValue(String colName) {
+            Integer index = header.get(colName);
+            if (index == null)
+                throw new RuntimeException("Undefined platform column name: " + colName);
+            return values[index].trim();
+        }
+    }
+
+    record Row(Map<String, Integer> header, String[] values, String... lookupColumns) {
         String getValue(String colName) {
             Integer index = header.get(colName);
             if (index == null)
@@ -104,15 +117,16 @@ class SvgSummary {
         }
 
         String getName() {
-            return getValue("benchmark_name");
+            var name = "";
+            for (int i = 0, n = lookupColumns.length; i < n; i++) {
+                var v = getValue(lookupColumns[i]);
+                name += (i == 0) ? v : (">>" + v);
+            }
+            return name;
         }
 
-        long getTimestamp() {
-            return Numbers.parseNumber(getValue("timestamp")).longValue();
-        }
-
-        boolean isNewerThan(Benchmark other) {
-            return (other == null) ? true : (getTimestamp() > other.getTimestamp());
+        boolean isNewerThan(Row other) {
+            return (other == null) ? true : (getValue("run_id").compareTo(other.getValue("run_id")) > 0);
         }
     }
 

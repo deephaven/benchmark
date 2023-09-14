@@ -18,7 +18,7 @@
           <tr><td>Avg By Row1</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Static=>op_rate}</td><td>${AvgBy- 2 Groups 160K Unique Combos Int -Inc=>op_rate}</td></tr>
           <tr><td>Median By Row2</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Static=>op_rate}</td><td>${MedianBy- 2 Group 160K Unique Combos Float -Inc=>op_rate}</td></tr>
         </tbody>
-        <tfoot><tr><td colspan="3">* threads=${dh_threads} heap=${dh_heap} os=${os_name} benchmark-count=${benchmark_count}</td></tr></tfoot>
+        <tfoot><tr><td colspan="3">* threads=${deephaven-engine>>available.processors=>value} heap=${deephaven-engine>>java.max.memory=>value} os=${os_name} benchmark-count=${benchmark_count}</td></tr></tfoot>
       </table>
     </div>
   </foreignObject>

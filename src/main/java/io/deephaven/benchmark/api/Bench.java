@@ -17,6 +17,10 @@ import io.deephaven.benchmark.util.Timer;
 
 /**
  * The root accessor class for the API. Use <code>Bench.create(this)</code> in a typical JUnit test to start things off
+ * <p/>
+ * Bench API methods are not thread-safe, nor are they intended to be. It makes no sense to run benchmark tests in
+ * parallel. If parallel tests are desired to shorten overall test time, use the standalone uber-jar and select separate
+ * sets of test packages to run on different systems simultaneously.
  */
 final public class Bench {
     static final public String rootOutputDir = "results";
@@ -24,7 +28,6 @@ final public class Bench {
     static final public String metricsFileName = "benchmark-metrics.csv";
     static final Profile profile = new Profile();
     static final public Path outputDir = initializeOutputDirectory();
-    static final Platform platform = new Platform(outputDir);
 
     static public Bench create(Object testInst) {
         Bench v = new Bench(testInst.getClass());
@@ -35,6 +38,7 @@ final public class Bench {
     final Object testInst;
     final BenchResult result;
     final BenchMetrics metrics;
+    final BenchPlatform platform;
     final QueryLog queryLog;
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
@@ -44,6 +48,7 @@ final public class Bench {
         this.testInst = testInst;
         this.result = new BenchResult(outputDir);
         this.metrics = new BenchMetrics(outputDir);
+        this.platform = new BenchPlatform(outputDir);
         this.queryLog = new QueryLog(outputDir, testInst);
     }
 
@@ -156,12 +161,21 @@ final public class Bench {
     }
 
     /**
-     * Get the result for this Benchmark instance (e.g. test) used for collecting rates
+     * Get the metrics for this Benchmark instance (e.g. test) used for collecting metric values
      * 
-     * @return the result instance
+     * @return the metrics instance
      */
     public BenchMetrics metrics() {
         return metrics;
+    }
+
+    /**
+     * Get the platform for this Benchmark instance (e.g. test) used for collecting platform properties
+     * 
+     * @return the platform instance
+     */
+    public BenchPlatform platform() {
+        return platform;
     }
 
     /**
@@ -221,7 +235,7 @@ final public class Bench {
         Path dir = Paths.get(rootOutputDir);
         if (isTimestamped)
             dir = dir.resolve(Ids.runId());
-        Filer.deleteAll(dir);
+        Filer.delete(dir);
         try {
             return Files.createDirectories(dir);
         } catch (Exception ex) {

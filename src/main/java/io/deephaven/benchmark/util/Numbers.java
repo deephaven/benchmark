@@ -52,4 +52,17 @@ public class Numbers {
         }
     }
 
+    /**
+     * Format a given byte count into Gigabytes. ex. 1g, 200g
+     * 
+     * @param bytes the byte count to convert
+     * @return a string of the form 1g
+     */
+    static public String formatBytesToGigs(Object val) {
+        if (val == null)
+            return null;
+        long bytes = parseNumber(val).longValue();
+        return "" + (bytes / 1024 / 1024 / 1024) + "g";
+    }
+
 }

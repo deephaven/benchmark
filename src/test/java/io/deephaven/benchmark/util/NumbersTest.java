@@ -26,4 +26,10 @@ public class NumbersTest {
         assertEquals("0", Numbers.formatNumber("0"), "Should be 0");
     }
 
+    @Test
+    public void formatBytesToGigs() {
+        assertNull(Numbers.formatBytesToGigs(null), "Should be null");
+        assertEquals("24g", Numbers.formatBytesToGigs(25769803776L));
+    }
+
 }

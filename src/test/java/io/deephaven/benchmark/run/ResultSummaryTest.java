@@ -12,7 +12,7 @@ public class ResultSummaryTest {
     @Test
     public void summarize() throws Exception {
         Path rootDir = Paths.get(getClass().getResource("findme.txt").toURI()).resolveSibling("test-data");
-        var summary = new ResultSummary(rootDir);
+        var summary = new ResultSummary(rootDir, "test-summarize-result.csv");
         summary.summarize();
         assertEquals("""
                 run-id,name,timestamp,duration,test-rate

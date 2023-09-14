@@ -34,17 +34,19 @@ public class BenchmarkMain {
         int exitCode = ConsoleLauncher.execute(System.out, System.err, args).getExitCode();
         if (exitCode == 0) {
             Path outputDir = Paths.get(Bench.rootOutputDir);
-            URL csv = new ResultSummary(outputDir).summarize();
-            toSummarySvg(csv, "standard", outputDir, "nightly");
-            toSummarySvg(csv, "standard", outputDir, "release");
-            toSummarySvg(csv, "compare", outputDir, "compare");
+            URL platformCsv = new ResultSummary(outputDir, "platform-summary-results.csv").summarize();
+            URL benchmarkCsv = new ResultSummary(outputDir, "benchmark-summary-results.csv").summarize();
+            toSummarySvg(platformCsv, benchmarkCsv, "standard", outputDir, "nightly");
+            toSummarySvg(platformCsv, benchmarkCsv, "standard", outputDir, "release");
+            toSummarySvg(platformCsv, benchmarkCsv, "compare", outputDir, "compare");
         }
         return exitCode;
     }
 
-    static void toSummarySvg(URL csv, String tmpPrefix, Path outputDir, String outputPrefix) {
+    static void toSummarySvg(URL platformCsv, URL benchCsv, String tmpPrefix, Path outputDir, String outputPrefix) {
         URL svgTemplate = BenchmarkMain.class.getResource("profile/" + tmpPrefix + "-benchmark-summary.template.svg");
-        new SvgSummary(csv, svgTemplate, outputDir.resolve(outputPrefix + "-benchmark-summary.svg")).summarize();
+        new SvgSummary(platformCsv, benchCsv, svgTemplate, outputDir.resolve(outputPrefix + "-benchmark-summary.svg"))
+                .summarize();
     }
 
     // Set system properties for running from the command line

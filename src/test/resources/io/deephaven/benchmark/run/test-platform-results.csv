@@ -1,0 +1,18 @@
+run_id,origin,name,value
+1,test-runner,java.version,17.0.8.1
+1,test-runner,java.vm.name,OpenJDK 64-Bit Server VM
+1,test-runner,java.class.version,61.0
+1,test-runner,os.name,Linux
+1,test-runner,os.version,5.17.0-1035-oem
+1,test-runner,available.processors,24
+1,test-runner,java.max.memory,8g
+1,test-runner,deephaven.version,0.28.0
+1,deephaven-engine,python.version,3.10.12
+1,deephaven-engine,java.version,17.0.8.1
+1,deephaven-engine,java.vm.name,OpenJDK 64-Bit Server VM
+1,deephaven-engine,java.class.version,61.0
+1,deephaven-engine,os.name,Linux
+1,deephaven-engine,os.version,5.17.0-1035-oem
+1,deephaven-engine,available.processors,16
+1,deephaven-engine,java.max.memory,24g
+1,deephaven-engine,deephaven.version,0.28.0

@@ -5,27 +5,34 @@ import java.io.BufferedWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.connect.ResultTable;
 import io.deephaven.benchmark.util.Filer;
+import io.deephaven.benchmark.util.Numbers;
 import io.deephaven.engine.exceptions.ArgumentException;
 
 /**
  * Collects various properties about the running client and server used during a benchmark run and stores them in the
- * benchmark results directory.
+ * benchmark results directory. Since properties are potentially collected from multiple tests, and there is a single
+ * platform property file for an entire test run, properties, once added, are not permitted to be overwritten.
  */
-class Platform {
+public class BenchPlatform {
     static final String platformFileName = "benchmark-platform.csv";
-    static final String[] header = {"origin", "name", "value"};
+    static final Map<String, Property> properties = new LinkedHashMap<>();
+    static boolean hasBeenCommitted = false;
     final Path platformFile;
-    private boolean hasBeenCommitted = false;
+
 
     /**
      * Initialize platform detail collection with the default result file name.
      * 
      * @param parent the parent directory of the platform file
      */
-    Platform(Path parent) {
+    BenchPlatform(Path parent) {
         this(parent, platformFileName);
     }
 
@@ -35,24 +42,31 @@ class Platform {
      * @param parent the parent directory of the platform file
      * @param platformFileName the name the file to store platform properties
      */
-    Platform(Path parent, String platformFileName) {
+    BenchPlatform(Path parent, String platformFileName) {
         this.platformFile = parent.resolve(platformFileName);
     }
 
+    public BenchPlatform add(String origin, String name, Object value) {
+        benchApiAddProperty(properties, origin, name, value);
+        return this;
+    }
+
     /**
-     * Ensure that collected plaform properties have been saved
+     * Ensure that collected platform properties have been saved
      */
     void commit() {
-        if (hasBeenCommitted)
-            return;
-        hasBeenCommitted = true;
-        try (BufferedWriter out = Files.newBufferedWriter(platformFile)) {
-            out.write(String.join(",", header));
-            out.newLine();
-            writeTestProps(out);
-            writeEngineProps(out);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to write platform file: " + platformFile, ex);
+        if (!hasBeenCommitted) {
+            hasBeenCommitted = true;
+            Filer.delete(platformFile);
+            writeLine(new Property("origin", "name", "value", new AtomicBoolean(true)), platformFile);
+            addTestProps(properties);
+            addEngineProps(properties);
+        }
+        for (Property prop : properties.values()) {
+            if (!prop.isWritten().get()) {
+                writeLine(prop, platformFile);
+                prop.isWritten().set(true);
+            }
         }
     }
 
@@ -62,7 +76,7 @@ class Platform {
      * @param query the query used to get/make the property table
      * @return a cached result table containing properties
      */
-    ResultTable fetchResult(String query) {
+    protected ResultTable fetchResult(String query) {
         Bench api = new Bench(Bench.class);
         api.setName("# Write Platform Details"); // # means skip adding to results file
 
@@ -96,11 +110,12 @@ class Platform {
         return v.matches("[0-9]+\\.[0-9]+\\.[0-9]+") ? v : "Unknown";
     }
 
-    private void writeTestProps(BufferedWriter benchApiProps) throws Exception {
+    private void addTestProps(Map<String, Property> benchApiProps) {
         var dhInst = new ArgumentException();
         var benchApiOrigin = "test-runner";
         var deephavenVersion = getDeephavenVersion(dhInst, "/META-INF/maven/io.deephaven/deephaven-benchmark/pom.xml");
 
+        // Java Properties (These match the Python calls in addEngineProps
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.version", System.getProperty("java.version"));
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.vm.name", System.getProperty("java.vm.name"));
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.class.version",
@@ -113,7 +128,7 @@ class Platform {
         benchApiAddProperty(benchApiProps, benchApiOrigin, "deephaven.version", deephavenVersion);
     }
 
-    private void writeEngineProps(BufferedWriter out) throws Exception {
+    private void addEngineProps(Map<String, Property> benchApiProps) {
         var query = """
         import jpy
         from deephaven import new_table, input_table
@@ -155,13 +170,38 @@ class Platform {
             String origin = t.getValue(r, "origin").toString();
             String name = t.getValue(r, "name").toString();
             String value = t.getValue(r, "value").toString();
-            benchApiAddProperty(out, origin, name, value);
+            benchApiAddProperty(properties, origin, name, value);
         }
     }
 
-    private void benchApiAddProperty(BufferedWriter out, String type, String name, Object value) throws Exception {
-        out.write(String.join(",", type, name, value.toString()));
-        out.newLine();
+    private void benchApiAddProperty(Map<String, Property> properties, String origin, String name, Object value) {
+        var v = formatValue(name, value);
+        var prop = new Property(origin, name, v, new AtomicBoolean(false));
+        properties.putIfAbsent(prop.getName(), prop);
+    }
+
+    static void writeLine(Property prop, Path file) {
+        try (BufferedWriter out = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+            out.write(String.join(",", prop.origin(), prop.name(), prop.value()));
+            out.newLine();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to write result to file: " + file, ex);
+        }
+    }
+
+    private String formatValue(String name, Object value) {
+        switch (name) {
+            case "java.max.memory":
+                return Numbers.formatBytesToGigs(value);
+            default:
+                return value.toString();
+        }
+    }
+
+    record Property(String origin, String name, String value, AtomicBoolean isWritten) {
+        String getName() {
+            return origin + ">>" + name;
+        }
     }
 
 }

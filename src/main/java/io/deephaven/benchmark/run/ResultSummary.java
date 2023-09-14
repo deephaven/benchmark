@@ -18,9 +18,9 @@ class ResultSummary {
     final Path rootDir;
     final Path summaryFile;
 
-    ResultSummary(Path rootDir) {
+    ResultSummary(Path rootDir, String resultFileName) {
         this.rootDir = rootDir;
-        this.summaryFile = getSummaryFile(rootDir, "benchmark-summary-results.csv");
+        this.summaryFile = getSummaryFile(rootDir, resultFileName);
     }
 
     URL summarize() {

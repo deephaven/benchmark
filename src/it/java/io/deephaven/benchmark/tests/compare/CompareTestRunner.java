@@ -28,7 +28,7 @@ import io.deephaven.benchmark.util.Filer;
 public class CompareTestRunner {
     final Object testInst;
     final Set<String> requiredPackages = new LinkedHashSet<>();
-    final Map<String,String> downloadFiles = new LinkedHashMap<>();
+    final Map<String, String> downloadFiles = new LinkedHashMap<>();
     private Bench api = null;
 
     public CompareTestRunner(Object testInst) {
@@ -43,8 +43,16 @@ public class CompareTestRunner {
     public Bench api() {
         return api;
     }
-    
-    public void addDownloadFiles(String sourceUri, String destDir) {
+
+    /**
+     * Download and place the given file into the environment Deephaven is running in. If the destination directory is
+     * specified as a relative path, the download file will be placed relative to the root of the virtual environment
+     * this test runner is using for python scripts and pip installs.
+     * 
+     * @param sourceUri a URI (ex. https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9-tests.jar)
+     * @param destDir a directory to place the downloaded file into
+     */
+    public void addDownloadFile(String sourceUri, String destDir) {
         downloadFiles.put(sourceUri, destDir);
     }
 
@@ -72,7 +80,8 @@ public class CompareTestRunner {
         restartDocker(1);
         initialize(testInst);
         requiredPackages.addAll(Arrays.asList(packages));
-        requiredPackages.add("install-jdk");
+        if (Arrays.stream(packages).anyMatch(p -> p.startsWith("jdk")))
+            requiredPackages.add("install-jdk");
     }
 
     /**
@@ -120,32 +129,69 @@ public class CompareTestRunner {
      * these packages are installed, Deephaven will only be used as an agent to run command line python code
      */
     void installRequiredPackages() {
+        var pipPackagesMarker = "--- Bench Pip Installed Versions ---";
         var pipPackages = requiredPackages.stream().filter(p -> !isJdkPackage(p)).toList();
 
         var query = """
         text = '''PACKAGES='${pipPackages}'
         VENV_PATH=~/deephaven-benchmark-venv
+        PIP_INSTALL_VERSIONS=pip-install-versions.txt
         rm -rf ${VENV_PATH}/*
         python3 -m venv ${VENV_PATH}
         cd ${VENV_PATH}
         for PKG in ${PACKAGES}; do
             ./bin/pip install ${PKG}
+            ./bin/pip list | grep -E "^${PKG}\s+.*" >> ${PIP_INSTALL_VERSIONS}
         done
+        echo "${pipPackagesMarker}"
+        cat ${PIP_INSTALL_VERSIONS}
         '''
         save_file('setup-benchmark-workspace.sh', text)
-        run_script('bash', 'setup-benchmark-workspace.sh')
+        result = run_script('bash', 'setup-benchmark-workspace.sh')
+        
+        pip_versions = new_table([
+            string_col("versions", [result]),
+        ])
         """;
         query = query.replace("${pipPackages}", String.join(" ", pipPackages));
-        api.query(query).execute();
+        query = query.replace("${pipPackagesMarker}", pipPackagesMarker);
+        api.query(query).fetchAfter("pip_versions", table -> {
+            boolean isPastMarker = false;
+            for (String line : table.getValue(0, "versions").toString().lines().toList()) {
+                line = line.trim();
+                if (!isPastMarker && line.equals(pipPackagesMarker)) {
+                    isPastMarker = true;
+                    continue;
+                }
+                if (!isPastMarker)
+                    continue;
+
+                String[] s = line.split("\\s+");
+                if (s.length > 1)
+                    api.platform().add("deephaven-engine", "pip." + s[0] + ".version", s[1]);
+            }
+        }).execute();
 
         requiredPackages.forEach(p -> installJavaPackage(p));
-        downloadFiles.forEach((s,d) -> placeDownloadFile(s, d));
+        downloadFiles.forEach((s, d) -> placeDownloadFile(s, d));
     }
-    
+
+    /**
+     * Determine if the given package descriptor has the form of a java package descriptor.
+     * 
+     * @param javaDescr a package descriptor like 'jdk-11'
+     * @return true if the given descriptor describes a java package, otherwise false
+     */
     boolean isJdkPackage(String javaDescr) {
         return javaDescr.matches("jdk-[0-9]+");
     }
 
+    /**
+     * Download and install a java package according to the descriptor (@see isJdkPackage()) into the virtual
+     * environment where python and pip are installed.
+     * 
+     * @param javaDescr a description like 'jdk-11'
+     */
     void installJavaPackage(String javaDescr) {
         if (!isJdkPackage(javaDescr))
             return;
@@ -164,7 +210,14 @@ public class CompareTestRunner {
         query = query.replace("${version}", String.join(" ", version));
         api.query(query).execute();
     }
-    
+
+    /**
+     * Download and place the given source URL to the given destination directory. (@see addDownloadFile()) This method
+     * uses python on the Deephaven server to download and place.
+     * 
+     * @param sourceUri the file to download
+     * @param destDir the directory to put the downloaded file in
+     */
     void placeDownloadFile(String sourceUri, String destDir) {
         var query = """
         text = '''
@@ -285,7 +338,7 @@ public class CompareTestRunner {
         import subprocess, os, stat, time
         from pathlib import Path
         from deephaven import new_table, garbage_collect
-        from deephaven.column import long_col, double_col
+        from deephaven.column import long_col, double_col, string_col
 
         user_home = str(Path.home())
         benchmark_home = user_home + '/deephaven-benchmark-venv'

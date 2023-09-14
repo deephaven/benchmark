@@ -13,21 +13,24 @@ import java.util.stream.Collectors;
  * Utility class for manipulating files and directories.
  */
 public class Filer {
-
     /**
-     * Delete the given directory recursively
+     * Delete the given file or directory. Directories are deleted recursively
      * 
-     * @param dir the directory to delete
+     * @param path the directory to delete
      */
-    static public void deleteAll(Path dir) {
+    static public void delete(Path path) {
         try {
-            if (!Files.exists(dir))
+            if (!Files.exists(path))
                 return;
-            Files.walk(dir)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile).forEach(File::delete);
+            if (!Files.isDirectory(path)) {
+                Files.deleteIfExists(path);
+            } else {
+                Files.walk(path)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile).forEach(File::delete);
+            }
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to delete directory: " + dir);
+            throw new RuntimeException("Failed to delete path: " + path);
         }
     }
 

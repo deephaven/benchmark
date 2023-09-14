@@ -109,7 +109,7 @@
       </header>
       <table cellspacing="0">
         <thead>
-          <tr><th>Benchmark</th><th>Deephaven<small class="rate"> (rows/sec)</small></th><th>PyArrow<small class="rate"> (rows/sec)</small></th><th>Pandas<small class="rate"> (rows/sec)</small></th></tr>
+          <tr><th>Benchmark</th><th>Deephaven ${deephaven-engine>>deephaven.version=>value}<small class="rate"> (rows/sec)</small></th><th>PyArrow<small class="rate"> (rows/sec)</small></th><th>Pandas<small class="rate"> (rows/sec)</small></th></tr>
         </thead>
       	<tbody>
       	  <tr><td>Filters</td><td>${Deephaven Filter=>op_rate}</td><td>${PyArrow Filter=>op_rate}</td><td>${Pandas Filter=>op_rate}</td></tr>
@@ -119,7 +119,7 @@
       	  <tr><td>Sort</td><td>${Deephaven Sort=>op_rate}</td><td>${PyArrow Sort=>op_rate}</td><td>${Pandas Sort=>op_rate}</td></tr>
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="3">* cpu-threads=${dh_threads} heap=${dh_heap} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
+		  <tr><td colspan="3">* cpu-threads=${deephaven-engine>>available.processors=>value} heap=${deephaven-engine>>java.max.memory=>value} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
 		</tfoot>
       </table>
     </div>
