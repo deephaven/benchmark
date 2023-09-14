@@ -109,7 +109,11 @@
       </header>
       <table cellspacing="0">
         <thead>
-          <tr><th>Benchmark</th><th>Deephaven ${deephaven-engine>>deephaven.version=>value}<small class="rate"> (rows/sec)</small></th><th>PyArrow<small class="rate"> (rows/sec)</small></th><th>Pandas<small class="rate"> (rows/sec)</small></th></tr>
+          <tr><th>Benchmark</th>
+              <th>Deephaven ${deephaven-engine>>deephaven.version=>value}<small class="rate"> (rows/sec)</small></th>
+              <th>PyArrow ${python-dh-agent>>pip.pyarrow.version=>value}<small class="rate"> (rows/sec)</small>
+              </th><th>Pandas ${python-dh-agent>>pip.pandas.version=>value}<small class="rate"> (rows/sec)</small></th>
+        </tr>
         </thead>
       	<tbody>
       	  <tr><td>Filters</td><td>${Deephaven Filter=>op_rate}</td><td>${PyArrow Filter=>op_rate}</td><td>${Pandas Filter=>op_rate}</td></tr>

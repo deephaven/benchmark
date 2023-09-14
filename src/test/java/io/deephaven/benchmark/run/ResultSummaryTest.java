@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.util.Filer;
 
 public class ResultSummaryTest {
@@ -12,7 +13,7 @@ public class ResultSummaryTest {
     @Test
     public void summarize() throws Exception {
         Path rootDir = Paths.get(getClass().getResource("findme.txt").toURI()).resolveSibling("test-data");
-        var summary = new ResultSummary(rootDir, "test-summarize-result.csv");
+        var summary = new ResultSummary(rootDir, "test-summarize-result.csv", Bench.resultFileName);
         summary.summarize();
         assertEquals("""
                 run-id,name,timestamp,duration,test-rate

@@ -126,7 +126,7 @@ class SvgSummary {
         }
 
         boolean isNewerThan(Row other) {
-            return (other == null) ? true : (getValue("run_id").compareTo(other.getValue("run_id")) > 0);
+            return (other == null) ? true : (getValue("run-id").compareTo(other.getValue("run-id")) > 0);
         }
     }
 

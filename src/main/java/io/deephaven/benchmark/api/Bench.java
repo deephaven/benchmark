@@ -26,6 +26,7 @@ final public class Bench {
     static final public String rootOutputDir = "results";
     static final public String resultFileName = "benchmark-results.csv";
     static final public String metricsFileName = "benchmark-metrics.csv";
+    static final public String platformFileName = "benchmark-platform.csv";
     static final Profile profile = new Profile();
     static final public Path outputDir = initializeOutputDirectory();
 

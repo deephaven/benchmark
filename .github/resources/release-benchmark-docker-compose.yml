@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   deephaven:
-    image: ghcr.io/deephaven/server:0.27.1
+    image: ghcr.io/deephaven/server:0.28.0
     ports:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:

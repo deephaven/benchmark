@@ -10,17 +10,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.util.Ids;
 
 class ResultSummary {
     static final String headerPrefix = "run-id";
     final Path rootDir;
     final Path summaryFile;
+    final String runResultFileName;
 
-    ResultSummary(Path rootDir, String resultFileName) {
+    ResultSummary(Path rootDir, String summaryFileName, String runResultFileName) {
         this.rootDir = rootDir;
-        this.summaryFile = getSummaryFile(rootDir, resultFileName);
+        this.summaryFile = getSummaryFile(rootDir, summaryFileName);
+        this.runResultFileName = runResultFileName;
     }
 
     URL summarize() {
@@ -68,7 +69,7 @@ class ResultSummary {
                     return;
                 if (!Files.isDirectory(d))
                     return;
-                Path resultFile = d.resolve(Bench.resultFileName);
+                Path resultFile = d.resolve(runResultFileName);
                 if (Files.exists(resultFile))
                     resultFiles.add(resultFile);
             });

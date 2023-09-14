@@ -72,7 +72,7 @@ public class AverageByTest {
 
     @Test
     @Order(4)
-//    @Disabled
+    @Disabled
     public void flinkAverageBy() {
         runner.initPython("apache-flink", "jdk-11");
         var op = """

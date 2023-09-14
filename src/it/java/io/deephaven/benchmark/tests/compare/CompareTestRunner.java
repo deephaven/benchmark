@@ -168,7 +168,7 @@ public class CompareTestRunner {
 
                 String[] s = line.split("\\s+");
                 if (s.length > 1)
-                    api.platform().add("deephaven-engine", "pip." + s[0] + ".version", s[1]);
+                    api.platform().add("python-dh-agent", "pip." + s[0] + ".version", s[1]);
             }
         }).execute();
 

@@ -21,7 +21,6 @@ import io.deephaven.engine.exceptions.ArgumentException;
  * platform property file for an entire test run, properties, once added, are not permitted to be overwritten.
  */
 public class BenchPlatform {
-    static final String platformFileName = "benchmark-platform.csv";
     static final Map<String, Property> properties = new LinkedHashMap<>();
     static boolean hasBeenCommitted = false;
     final Path platformFile;
@@ -33,7 +32,7 @@ public class BenchPlatform {
      * @param parent the parent directory of the platform file
      */
     BenchPlatform(Path parent) {
-        this(parent, platformFileName);
+        this(parent, Bench.platformFileName);
     }
 
     /**

@@ -33,12 +33,12 @@ public class BenchmarkMain {
         setSystemProperties();
         int exitCode = ConsoleLauncher.execute(System.out, System.err, args).getExitCode();
         if (exitCode == 0) {
-            Path outputDir = Paths.get(Bench.rootOutputDir);
-            URL platformCsv = new ResultSummary(outputDir, "platform-summary-results.csv").summarize();
-            URL benchmarkCsv = new ResultSummary(outputDir, "benchmark-summary-results.csv").summarize();
-            toSummarySvg(platformCsv, benchmarkCsv, "standard", outputDir, "nightly");
-            toSummarySvg(platformCsv, benchmarkCsv, "standard", outputDir, "release");
-            toSummarySvg(platformCsv, benchmarkCsv, "compare", outputDir, "compare");
+            Path d = Paths.get(Bench.rootOutputDir);
+            URL platformCsv = new ResultSummary(d, "platform-summary-results.csv", Bench.platformFileName).summarize();
+            URL benchmarkCsv = new ResultSummary(d, "benchmark-summary-results.csv", Bench.resultFileName).summarize();
+            toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "nightly");
+            toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "release");
+            toSummarySvg(platformCsv, benchmarkCsv, "compare", d, "compare");
         }
         return exitCode;
     }
