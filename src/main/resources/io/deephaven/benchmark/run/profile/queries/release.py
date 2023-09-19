@@ -1,47 +1,56 @@
 # Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending 
 #
-# Supporting Deephaven queries to use the benchmark_snippet to investigate changes between nightly benchmarks
-# - Drill into nightly rate gain/loss for a single operations for a date-time range
+# Supporting Deephaven queries to use the benchmark_snippet to investigate changes between releases
+# - Generate tables for best and wost static rates between the latest release and previous
+# - Generate table using same benchmarks as standard summmary SVG for comparison to previous releases
 # Requirements: Deephaven 0.23.0 or greater
 
 from urllib.request import urlopen
 
 root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
-with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.next.py') as r:
+with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_storage_uri_arg = root + '/deephaven-benchmark'
-    benchmark_category_arg = 'nightly'  # release | nightly    
-    benchmark_max_runs_arg = 20  # Latest X runs to include   
+    benchmark_category_arg = 'release'  # release | nightly    
+    benchmark_max_runs_arg = 5  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
-def gain(start:float, end:float) -> float:
-    return (end - start) / start * 100.0
+newest_benchmarks = bench_results_change.sort_descending(['timestamp']).first_by(['benchmark_name'])
 
-def op_by_date_range(begin_millis, end_millis, op_prefix):
-    interval_millis = 43200000
-    begin_interval = int(begin_millis / interval_millis)
-    end_interval = int(end_millis / interval_millis)
+from deephaven import numpy as dhnp
 
-    return bench_results_diff.where([
-        "begin_interval <= (int)(timestamp / interval_millis)", 
-        "end_interval >= (int)(timestamp / interval_millis)", 
-        "benchmark_name.startsWith(`" + op_prefix + "`)"
-    ]).sort([
-        'timestamp', 'benchmark_name'
-    ]).update([
-        'timestamp=epochMillisToInstant(timestamp)'
-    ]).group_by([
-        'benchmark_name', 'origin'
-    ]).view([
-        'Benchmark=benchmark_name', 'Start=timestamp[0]', 'End=timestamp[len(timestamp)-1]', 
-        'Start_Rate=op_rate[0]', 'End_Rate=op_rate[len(op_rate)-1]',
-        'Rate_Change=(float)gain(Start_Rate, End_Rate)',
-        'Start_Heap_Used=(long)heap_used[0]', 'End_Heap_Used=(long)heap_used[len(heap_used)-1]',
-        'Heap_Used_Change=(float)gain(Start_Heap_Used, End_Heap_Used)',
-        'Start_NonHeap_Used=(long)non_heap_used[0]', 'End_NonHeap_Used=(long)non_heap_used[len(non_heap_used)-1]',
-        'NonHeap_Used_Change=(float)gain(Start_NonHeap_Used, End_NonHeap_Used)'
-    ]).where([
-        '!Benchmark.contains(`Rows Per`)'
-    ])
+versions = {}
+version_vectors = dhnp.to_numpy(newest_benchmarks.view(["op_group_versions"]))
+for vector in version_vectors:
+    for vers in vector:
+        for v in vers.toArray():
+            versions['V_' + v.replace('.','_')] = 0
+vers = list(versions.keys())
+versLen = len(vers)
 
-last_by_range = op_by_date_range(1693470171012, 1693988753474, 'LastBy-')
+past_static_rates = newest_benchmarks.where([
+    'versLen <= len(op_group_rates)', 'benchmark_name.endsWith(`-Static`)'
+]).update([
+    'Change=(op_group_rates[versLen-1] - op_group_rates[versLen-2])/op_group_rates[versLen-1]*100'
+]).update([
+    (vers[i] + "=op_group_rates[" + str(i) + "]") for i in reversed(range(versLen))
+]).view([
+    'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
+    'Duration=op_duration','Variability=op_rate_variability','Change'] + [
+    vers[i] for i in reversed(range(versLen))
+])
 
+worst_static_rate_changes = past_static_rates.sort(['Change']).head_by(25)
+best_static_rate_changes = past_static_rates.sort_descending(['Change']).head_by(25)
+
+summary_bechmark_names = [
+    'Where- 2 Filters','Update- 2 Calcs Using Int','SelectDistinct- 1 Group 250 Unique Vals',
+    'AvgBy- 2 Groups 160K Unique Combos Int','Sort- 2 Cols Default Order',
+    'Join- Join On 2 Cols 1 Match','CumSum- 1 Group 100 Unique Vals 2 Cols',
+    'EmaTime- 2 Groups 15K Unique Combos 1 Col Int',
+    'RollingSumTick- 3 Ops 2 Groups 15K Unique Combos Int',
+    'RollingGroupTick- 3 Ops 1 Group 100 Unique Vals','AsOfJoin- Join On 2 Cols 1 Match'
+]
+
+summary_benchmarks = past_static_rates.where_one_of([
+    ("Static_Benchmark='" + name + "'") for name in summary_bechmark_names
+])
