@@ -1,6 +1,7 @@
 # Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending 
 #
-# Deephaven query to run against historical benchmark data stored in GCloud bucket
+# Deephaven query to run against historical benchmark data stored in GCloud bucket and produce
+# some useful correlated tables
 # Requirements: Deephaven 0.23.0 or greater
 
 import os, re, glob
@@ -52,8 +53,9 @@ def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None
 # Load standard tables from GCloud or local storage according to category
 # If this script is run from exec(), accept the benchmark_category_arg
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
-default_category = 'release'
-default_max_runs = 10
+default_category = 'nightly'
+default_max_runs = 5
+default_history = 5
 
 storage_uri = benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
 category = benchmark_category_arg if 'benchmark_category_arg' in globals() else default_category
@@ -113,14 +115,15 @@ def format_rates(rates):
     return ' '.join("{:,}".format(r) for r in rates)
 
 from deephaven.updateby import rolling_group_tick
-op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=5, fwd_ticks=0)
+op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=default_history, fwd_ticks=0)
+op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=default_history, fwd_ticks=0)
+
 bench_results_change = bench_results_diff.sort(['benchmark_name', 'origin', 'deephaven_version', 'timestamp'])
-bench_results_change = bench_results_change.update_by(ops=[op_group], by=['benchmark_name', 'origin'])
+bench_results_change = bench_results_change.update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin'])
 bench_results_change = bench_results_change.update(
     ['op_rate_variability=(double)rstd(op_group_rates)', 'op_rate_change=(double)rchange(op_group_rates)']
 )
 bench_results_change = bench_results_change.view(
     ['benchmark_name', 'origin', 'timestamp', 'deephaven_version', 'op_duration', 'op_rate', 
-    'op_rate_variability', 'op_rate_change', 'op_rate_change', 'op_group_rates=format_rates(op_group_rates)']
+    'op_rate_variability', 'op_rate_change', 'op_rate_change', 'op_group_rates', 'op_group_versions']
 )
-

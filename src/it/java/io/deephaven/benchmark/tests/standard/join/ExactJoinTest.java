@@ -5,7 +5,7 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the natural_join table operation. Column values will be added to each left row from exactly one
+ * Standard tests for the exact_join table operation. Column values will be added to each left row from exactly one
  * matched row from the right table or null if no matches
  */
 public class ExactJoinTest {

@@ -5,7 +5,11 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the join table operation. The output table contains rows that have matching values in both tables
+ * Standard tests for the join table operation. The output table contains all of the rows and columns of the left table
+ * plus additional columns containing data from the right table. For columns appended to the left table, row values
+ * equal the row values from the right table where the key values in the left and right tables are equal. If there is no
+ * matching key in the right table, appended row values are NULL. If there are multiple matches, the operation will
+ * fail.
  */
 public class JoinTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
