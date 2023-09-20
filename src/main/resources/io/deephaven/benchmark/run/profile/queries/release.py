@@ -30,7 +30,7 @@ versLen = len(vers)
 past_static_rates = newest_benchmarks.where([
     'versLen <= len(op_group_rates)', 'benchmark_name.endsWith(`-Static`)'
 ]).update([
-    'Change=(op_group_rates[versLen-1] - op_group_rates[versLen-2])/op_group_rates[versLen-1]*100'
+    'Change=(float)gain(op_group_rates[versLen-2], op_group_rates[versLen-1])'
 ]).update([
     (vers[i] + "=op_group_rates[" + str(i) + "]") for i in reversed(range(versLen))
 ]).view([

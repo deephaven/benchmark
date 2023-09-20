@@ -13,9 +13,6 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 20  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
-def gain(start:float, end:float) -> float:
-    return (end - start) / start * 100.0
-
 def op_by_date_range(begin_millis, end_millis, op_prefix):
     interval_millis = 43200000
     begin_interval = int(begin_millis / interval_millis)
