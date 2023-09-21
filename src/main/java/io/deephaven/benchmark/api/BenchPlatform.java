@@ -129,7 +129,7 @@ public class BenchPlatform {
 
     private void addEngineProps(Map<String, Property> benchApiProps) {
         var query = """
-        import jpy
+        import jpy, sys
         from deephaven import new_table, input_table
         from deephaven import dtypes as dht
         from deephaven.column import string_col
