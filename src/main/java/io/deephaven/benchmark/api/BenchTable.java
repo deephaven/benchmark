@@ -236,6 +236,9 @@ final public class BenchTable implements Closeable {
 
         return query.replace("${table.name}", tableName)
                 .replace("${compression.codec}", compression)
+                .replace("${max.dict.keys}", ", max_dictionary_keys=2000000")
+                .replace("${max.dict.bytes}", ", max_dictionary_size=20000000")
+                .replace("${target.page.bytes}", ", target_page_size=2000000")
                 .replace("${table.columns}", columns.getQuotedColumns())
                 .replace("${table.rowcount}", Long.toString(getRowCount()))
                 .replace("${table.duration}", Long.toString(getRunDuration()))
@@ -305,7 +308,7 @@ final public class BenchTable implements Closeable {
 
         with open(table_gen_def_file, 'w') as f:
             f.write(table_gen_def_text)
-        write(${table.name}, table_gen_parquet ${compression.codec})
+        write(${table.name}, table_gen_parquet ${compression.codec} ${max.dict.keys} ${max.dict.bytes} ${target.page.bytes})
         os.link(table_gen_parquet, table_parquet)
 
         del ${table.name}
