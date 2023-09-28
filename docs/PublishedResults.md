@@ -8,7 +8,7 @@ The easiest way to access the published benchmark results is by running the foll
 in an instance of the Deephaven Engine.
 
 ````
-from urllib.request import urlopen
+from urllib.request import urlopen; import os
 
 root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:

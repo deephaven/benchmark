@@ -53,6 +53,19 @@ public class Numbers {
     }
 
     /**
+     * Format a number value according to the given pattern
+     * 
+     * @param val a number value as a String or Number
+     * @param pattern a DecimalFormat-supported pattern
+     * @return the formatted number or null if none was given
+     */
+    static public String formatNumber(Object val, String pattern) {
+        if (val == null)
+            return null;
+        return new DecimalFormat(pattern).format(parseNumber(val));
+    }
+
+    /**
      * Format a given byte count into Gigabytes. ex. 1g, 200g
      * 
      * @param bytes the byte count to convert

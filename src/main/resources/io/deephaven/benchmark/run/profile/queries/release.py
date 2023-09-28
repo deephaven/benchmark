@@ -5,7 +5,7 @@
 # - Generate table using same benchmarks as standard summmary SVG for comparison to previous releases
 # Requirements: Deephaven 0.23.0 or greater
 
-from urllib.request import urlopen
+from urllib.request import urlopen; import os
 
 root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
