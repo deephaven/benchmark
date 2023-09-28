@@ -43,13 +43,18 @@ public class PublishNotification {
      * Generate the tables and publish to Slack
      */
     public void publish() {
-        System.out.println("Generating Publish SVG(s)");
         var query = Filer.getURLText(queryFile);
         var svgTemp = new String[] {Filer.getURLText(svgTemplate)};
         Bench api = Bench.create("# Publish Notification");
         api.setName("# Publish");
-        slackUri = api.property("slack.send.url", "");
         slackChannel = api.property("slack.channel", "");
+        slackUri = api.property("slack.send.url", "");
+        if (slackChannel.isBlank() || slackUri.isBlank()) {
+            api.close();
+            System.out.println("-- Slack properties is not defined, skipping query notification");
+            return;
+        }
+        System.out.println("-- Running notification queries");
         var aquery = api.query(query);
         aquery.fetchAfter("platform_details", table -> {
             svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
@@ -67,8 +72,6 @@ public class PublishNotification {
     }
 
     void publishToSlack(Path outDir) {
-        if (slackUri.isBlank() || slackChannel.isBlank())
-            return;
         var message = "Nightly Benchmark Changes Since Last Release\n";
         for (String table : tables) {
             message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```";
@@ -80,6 +83,7 @@ public class PublishNotification {
         payload = payload.replace("${channel}", slackChannel);
         payload = payload.replace("${msg}", message);
         try {
+            System.out.println("-- Pushing notification to Slack");
             URL url = new URL(slackUri);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -89,7 +93,7 @@ public class PublishNotification {
             byte[] out = payload.getBytes(StandardCharsets.UTF_8);
             OutputStream stream = conn.getOutputStream();
             stream.write(out);
-            System.out.println("Slack Response: " + conn.getResponseCode() + " " + conn.getResponseMessage());
+            System.out.println("-- Slack Response: " + conn.getResponseCode() + " " + conn.getResponseMessage());
             conn.disconnect();
         } catch (Exception ex) {
             System.out.println("Failed to Post to channel: " + slackChannel);

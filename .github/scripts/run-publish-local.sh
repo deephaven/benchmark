@@ -6,8 +6,8 @@ set -o nounset
 
 # Run queries that publish a secret slack channel. Queries operation exclusively
 # the deephaven-benchmark GCloud bucket
-if [[ $# != 2 ]]; then
-  echo "$0: Missing slack-channel and slack-uri arguments"
+if [[ $# != 3 ]]; then
+  echo "$0: Missing run type or slack-channel or slack-uri arguments"
   exit 1
 fi
 
@@ -15,9 +15,10 @@ CWD=`pwd`
 RUN_DIR=${CWD}/publish
 GIT_DIR=${CWD}
 DEEPHAVEN_DIR=${CWD}
-SLACK_CHANNEL=$1
-SLACK_URL=$2
-BENCH_PROPS_NAME=publish-scale-benchmark.properties
+RUN_TYPE=$1
+SLACK_CHANNEL=$2
+SLACK_URL=$3
+BENCH_PROPS_NAME=${RUN_TYPE}-scale-benchmark.properties
 BENCH_PROPS_PATH=${GIT_DIR}/.github/resources/${BENCH_PROPS_NAME}
 
 mkdir -p ${RUN_DIR}

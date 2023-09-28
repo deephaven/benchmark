@@ -78,6 +78,10 @@ jobs:
       with:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
+   
+    - name: Pulish Slack Notification Tables
+      run: |
+        run-publish-local.sh ${RUN_TYPE} "${{secrets.SLACK_CHANNEL}}" "${{secrets.SLACK_URL}}" 
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
@@ -86,4 +90,5 @@ jobs:
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
+
 
