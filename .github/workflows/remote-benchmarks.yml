@@ -99,7 +99,7 @@ jobs:
    
     - name: Pulish Slack Notification Tables
       run: |
-        ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.SLACK_CHANNEL}}" "${{secrets.SLACK_URL}}" 
+        ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.BENCHMARK_SLACK_CHANNEL}}" "${{secrets.BENCHMARK_SLACK_URL}}" 
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
@@ -108,3 +108,5 @@ jobs:
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
+
+
