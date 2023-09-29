@@ -42,7 +42,9 @@ jobs:
       run: docker compose up -d
 
     - name: Build with Maven
-      run: mvn -B verify --file pom.xml 
+      run: |
+        mvn -B verify --file pom.xml
+        rm -rf results
     
     - name: Setup Local and Remote Scripts
       run: |
