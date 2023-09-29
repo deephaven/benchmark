@@ -13,14 +13,18 @@ on:
         type: string
 
 jobs:
-  build:
+  process-benchmarks:
 
     runs-on: ubuntu-22.04
     env:
+      SD: .github/scripts
+      HOST: ${{secrets.BENCHMARK_HOST}}
+      USER: ${{secrets.BENCHMARK_USER}}
+      REPO: ${{github.repository}}
+      BRANCH: ${{github.ref_name}}
       RUN_TYPE: ${{inputs.run-type}}
 
     steps:
-    - uses: actions/checkout@v3
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
@@ -38,19 +42,7 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B verify --file pom.xml
-
-  process-benchmarks:
-
-    runs-on: ubuntu-22.04
-    env:
-      SD: .github/scripts
-      HOST: ${{secrets.BENCHMARK_HOST}}
-      USER: ${{secrets.BENCHMARK_USER}}
-      REPO: ${{github.repository}}
-      BRANCH: ${{github.ref_name}}
-      RUN_TYPE: ${{inputs.run-type}}
-
-    steps:
+    
     - uses: actions/checkout@v3
     - name: Setup Local and Remote Scripts
       run: |
