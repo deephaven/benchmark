@@ -215,7 +215,7 @@ public class StandardTestRunner {
         stats = new_table([
             double_col("elapsed_nanos", [end_time - begin_time]),
             long_col("processed_row_count", [loaded_tbl_size]),
-            long_col("result_row_count", [result.size]),
+            long_col("result_row_count", [result.size])
         ])
         """;
         return runTest(name + " -Inc", incQuery, operation, read, loadColumns);
@@ -246,6 +246,7 @@ public class StandardTestRunner {
                 metrics.set("static_scale_factor", staticFactor);
                 metrics.set("inc_scale_factor", incFactor);
                 metrics.set("row count factor", rowCountFactor);
+                api.metrics().add(metrics);
             }).execute();
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
