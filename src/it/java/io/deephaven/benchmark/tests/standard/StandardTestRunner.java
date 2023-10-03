@@ -245,7 +245,7 @@ public class StandardTestRunner {
                 var metrics = new Metrics(Timer.now(), "test-runner", "setup", "test");
                 metrics.set("static_scale_factor", staticFactor);
                 metrics.set("inc_scale_factor", incFactor);
-                metrics.set("row count factor", rowCountFactor);
+                metrics.set("row_count_factor", rowCountFactor);
                 api.metrics().add(metrics);
             }).execute();
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());

@@ -1,15 +1,23 @@
 package io.deephaven.benchmark.tests.standard.parquet;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Timer;
 
+/**
+ * Test reading and writing parquet files with various data types and compression codecs.
+ */
 class ParquetTestRunner {
     final Object testInst;
     final Bench api;
-    final long scaleRowCount;
+    private int rowCountFactor = 1;
+    private int scaleFactor = 1;
+    private long scaleRowCount;
 
     ParquetTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -17,11 +25,28 @@ class ParquetTestRunner {
         this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
     }
 
-    void runReadTest(String testName, String codec, String...columnNames) {
+    /**
+     * Set a multiplier for the generated rows and a multiplier for simulating more rows with {@code merge}
+     * 
+     * @param rowCountFactor the multiplier for the scale.row.count property
+     * @param scaleFactor the multiplier for how many merges to do on the generated table to simulate more rows
+     */
+    void setScaleFactors(int rowCountFactor, int scaleFactor) {
+        this.rowCountFactor = rowCountFactor;
+        this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+        this.scaleFactor = scaleFactor;
+    }
+
+    /**
+     * Read a benchmark that measures parquet read performance. This tests always runs after a corresponding write test.
+     * 
+     * @param testName name that will appear in the results as the benchmark name
+     */
+    void runReadTest(String testName) {
         var q = """
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
-        source = read('/data/source.${colName}.${codec}.parquet')
+        source = read('/data/source.ptr.parquet').select()
         end_time = time.perf_counter_ns()
         bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
@@ -32,22 +57,26 @@ class ParquetTestRunner {
             long_col("result_row_count", [source.size])
         ])
         """;
-        q = q.replace("${rowCount}", "" + scaleRowCount);
-        q = q.replace("${colName}", formatNames(columnNames));
-        q = q.replace("${codec}", codec);
         runTest(testName, q);
     }
 
-    void runWriteTest(String testName, String codec, String...columnNames) {
+    /**
+     * Run a benchmark the measures parquet write performance.
+     * 
+     * @param testName the benchmark name to record with the measurement
+     * @param codec a compression codec
+     * @param columnNames the names of the pre-defined columns to generate
+     */
+    void runWriteTest(String testName, String codec, String... columnNames) {
         var q = """
-        source = empty_table(${rowCount}).update([
+        source = merge([empty_table(${rowCount}).update([
             ${generators}
-        ])
+        ])] * ${scaleFactor})
         
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         write(
-            source, '/data/source.${colName}.${codec}.parquet', compression_codec_name='${codec}', 
+            source, '/data/source.ptr.parquet', compression_codec_name='${codec}', 
             max_dictionary_keys=2000000, max_dictionary_size=20000000, target_page_size=2000000
         )
         end_time = time.perf_counter_ns()
@@ -61,36 +90,56 @@ class ParquetTestRunner {
         ])
         """;
         q = q.replace("${rowCount}", "" + scaleRowCount);
-        q = q.replace("${colName}", formatNames(columnNames));
-        q = q.replace("${codec}", codec);
+        q = q.replace("${scaleFactor}", "" + scaleFactor);
+        q = q.replace("${codec}", codec.equalsIgnoreCase("none") ? "UNCOMPRESSED" : codec);
         q = q.replace("${generators}", getGenerators(columnNames));
         runTest(testName, q);
     }
 
+    /**
+     * Run the test through barrage java client, collect the results, and report them.
+     * 
+     * @param testName the benchmark name to record with the results
+     * @param query the test query to run
+     */
     void runTest(String testName, String query) {
         try {
             api.setName(testName);
             api.query(query).fetchAfter("stats", table -> {
                 long rowCount = table.getSum("processed_row_count").longValue();
                 long elapsedNanos = table.getSum("elapsed_nanos").longValue();
-                // long resultRowCount = table.getSum("result_row_count").longValue();
+                long resultRowCount = table.getSum("result_row_count").longValue();
+                assertEquals(scaleRowCount * scaleFactor, resultRowCount);
                 api.result().test("deephaven-engine", Duration.ofNanos(elapsedNanos), rowCount);
             }).fetchAfter("standard_metrics", table -> {
                 api.metrics().add(table);
+                var metrics = new Metrics(Timer.now(), "test-runner", "setup", "test");
+                metrics.set("static_scale_factor", scaleFactor);
+                metrics.set("row_count_factor", rowCountFactor);
+                api.metrics().add(metrics);
             }).execute();
         } finally {
             api.close();
         }
     }
 
-    String getGenerators(String...columnNames) {
-        var gens = "";
-        for(String columnName: columnNames) {
-            gens += "'" + columnName + "=" + getGenerator(columnName) + "'\n"; 
-        }
-        return gens;
+    /**
+     * Get the lines of code required to generate the data for pre-defined column names
+     * 
+     * @param columnNames the column names to generate code for
+     * @return the lines of code needed to generate column ndata
+     */
+    String getGenerators(String... columnNames) {
+        return Arrays.stream(columnNames).map(c -> "'" + c + "=" + getGenerator(c) + "'")
+                .collect(Collectors.joining(",\n")) + '\n';
     }
-    
+
+    /**
+     * Get the code needed for generating data for the given pre-defined column name.
+     * 
+     * @param columnName the column name to generate data for
+     * @return the data generation code
+     */
     String getGenerator(String columnName) {
         String g = "";
         switch (columnName) {
@@ -109,20 +158,29 @@ class ParquetTestRunner {
             case "bigDec10K":
                 g = "(ii % 10 == 0) ? null : java.math.BigDecimal.valueOf(ii % 10000)";
                 break;
+            case "array1K":
+                g = "(ii % 10 == 0) ? null : new int[]{i,i+1,i+2,i+3,i+4,i+5}";
+                break;
+            case "vector1K":
+                g = "(ii % 10 == 0) ? null : new io.deephaven.vector.IntVectorDirect(i,i+1,i+2,i+3,i+4,i+5)";
+                break;
             default:
                 throw new RuntimeException("Undefined column: " + columnName);
         }
         return g;
     }
-    
-    String formatNames(String...names) {
-        return String.join("_", names);
-    }
 
+    /**
+     * Initialize the test client and its properties. Restart Docker if it is local to the test client and the
+     * {@code docker.compose.file} set.
+     * 
+     * @param testInst the test instance this runner is associated with.
+     * @return a new Bench API instance.
+     */
     Bench initialize(Object testInst) {
         var query = """
         import time
-        from deephaven import empty_table, garbage_collect
+        from deephaven import empty_table, garbage_collect, new_table, merge
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read, write
         """;
@@ -133,6 +191,11 @@ class ParquetTestRunner {
         return api;
     }
 
+    /**
+     * Restart Docker if it is local to this test runner and the {@code docker.compose.file} set.
+     * 
+     * @param api the Bench API for this test runner.
+     */
     void restartDocker(Bench api) {
         var timer = api.timer();
         if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
