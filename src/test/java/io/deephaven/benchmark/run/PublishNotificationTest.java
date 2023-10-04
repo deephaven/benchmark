@@ -29,7 +29,7 @@ public class PublishNotificationTest {
     @Test
     public void generateSvg() throws Exception {
         URL svgTemplate = getClass().getResource("test-publish.template.svg");
-        Path svgFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("worst_since_last_version.svg");
+        Path svgFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("nightly_worst_rate_change.svg");
         String svgTemp = Filer.getURLText(svgTemplate);
         var p = new PublishNotification(null, svgTemplate, svgFile.getParent());
         var t = CachedResultTable.create(plat, "|");
@@ -70,7 +70,7 @@ public class PublishNotificationTest {
     @Test
     public void generateCsv() throws Exception {
         URL svgTemplate = getClass().getResource("test-publish.template.svg");
-        Path csvFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("worst_since_last_version.csv");
+        Path csvFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("nightly_worst_rate_change.csv");
         var p = new PublishNotification(null, svgTemplate, csvFile.getParent());
         var t = CachedResultTable.create(plat, "|");
         t = CachedResultTable.create(csv, "|");

@@ -19,7 +19,7 @@ import io.deephaven.benchmark.util.Filer;
  */
 public class PublishNotification {
     static final String rowIndent = " ".repeat(10);
-    final String[] tables = {"worst_since_last_version"};
+    final String[] tables = {"nightly_worst_rate_change"};
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
