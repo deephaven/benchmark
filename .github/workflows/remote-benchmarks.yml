@@ -78,6 +78,10 @@ jobs:
       with:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
+        
+    - name: Sync GCloud with Demo NFS
+      run: |
+        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="gsutil -m -q rsync -r -d -J -x '^.*/test-logs/.*$' gs://deephaven-benchmark deephaven-benchmark"
 
     - name: Archive Results
       uses: actions/upload-artifact@v3
