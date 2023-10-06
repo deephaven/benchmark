@@ -1,3 +1,9 @@
+# Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending 
+#
+# Supporting Deephaven queries to use the benchmark_snippet to investigate changes between nightly benchmarks
+# - Make two tables; one cryptic and small, the other clearer with more rows
+# Requirements: Deephaven 0.23.0 or greater
+
 from urllib.request import urlopen; import os
 root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
@@ -33,7 +39,18 @@ nightly_worst_rate_change = bench_results.where([
     'Since_Release=(float)gain(avg_rate_in[1],op_rate[0])/100'
 ]).sort([
     'Change'
-]).head_by(20).format_columns([
+])
+
+nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).format_columns([
     'Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
     'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)'
 ])
+
+nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
+    'Static_Benchmark=Static_Benchmark.substring(0, 20)+`...`',
+    'Chng5d=Change','Var5d=Variability','Rate','RlsChng=Since_Release'
+]).format_columns([
+    'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+    'ChngRls=Decimal(`0.0%`)'
+])
+

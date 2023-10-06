@@ -60,9 +60,11 @@ public class PublishNotification {
             svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
         });
         for (String tableName : tables) {
-            aquery.fetchAfter(tableName, table -> {
-                generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
+            aquery.fetchAfter(tableName + "_small", table -> {
                 generateCsv(table, outputDir, tableName + ".csv");
+            });
+            aquery.fetchAfter(tableName + "_large", table -> {
+                generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
             });
         }
         aquery.execute();
