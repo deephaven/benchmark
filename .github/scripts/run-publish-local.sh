@@ -17,14 +17,14 @@ GIT_DIR=${CWD}
 DEEPHAVEN_DIR=${CWD}
 RUN_TYPE=$1
 SLACK_CHANNEL=$2
-SLACK_URL=$3
+SLACK_TOKEN=$3
 BENCH_PROPS_NAME=${RUN_TYPE}-scale-benchmark.properties
 BENCH_PROPS_PATH=${GIT_DIR}/.github/resources/${BENCH_PROPS_NAME}
 
 mkdir -p ${RUN_DIR}
 cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
 rm -f ${RUN_DIR}/deephaven-benchmark*-tests.jar
-cat ${BENCH_PROPS_PATH} | sed 's|${slackUrl}|'"${SLACK_URL}|g" | sed 's|${slackChannel}'"|${SLACK_CHANNEL}|g" > ${RUN_DIR}/${BENCH_PROPS_NAME}
+cat ${BENCH_PROPS_PATH} | sed 's|${slackToken}|'"${SLACK_TOKEN}|g" | sed 's|${slackChannel}'"|${SLACK_CHANNEL}|g" > ${RUN_DIR}/${BENCH_PROPS_NAME}
 
 cd ${DEEPHAVEN_DIR}
 sudo docker compose down

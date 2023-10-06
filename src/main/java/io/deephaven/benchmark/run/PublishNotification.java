@@ -23,7 +23,7 @@ public class PublishNotification {
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
-    private String slackUri = "";
+    private String slackToken = "";
     private String slackChannel = "";
 
     /**
@@ -48,8 +48,8 @@ public class PublishNotification {
         Bench api = Bench.create("# Publish Notification");
         api.setName("# Publish");
         slackChannel = api.property("slack.channel", "");
-        slackUri = api.property("slack.send.url", "");
-        if (slackChannel.isBlank() || slackUri.isBlank()) {
+        slackToken = api.property("slack.token", "");
+        if (slackChannel.isBlank() || slackToken.isBlank()) {
             api.close();
             System.out.println("-- Slack properties is not defined, skipping query notification --");
             return;
@@ -78,18 +78,19 @@ public class PublishNotification {
         }
 
         var payload = """
-        {"channel": "${channel}", "stanbrubaker": "webhookbot", "icon_emoji": ":horse_racing:", "text": "${msg}"}
+        {"channel": "${channel}", "text": "${msg}"}
         """;
         payload = payload.replace("${channel}", slackChannel);
         payload = payload.replace("${msg}", message);
         try {
             System.out.println("-- Pushing notification to Slack --");
-            URL url = new URL(slackUri);
+            URL url = new URL("https://slack.com/api/chat.postMessage");
             var c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("POST");
             c.setDoOutput(true);
             c.setRequestProperty("Content-Type", "application/json");
             c.setRequestProperty("Accept", "application/json");
+            c.setRequestProperty("Authorization", "Bearer " + slackToken);
             byte[] out = payload.getBytes(StandardCharsets.UTF_8);
             OutputStream stream = c.getOutputStream();
             stream.write(out);
