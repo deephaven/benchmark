@@ -95,8 +95,8 @@ after a successful build.
 - A GCP drive is created.
 - Your benchmark stuff gets the data to the GCP drive using some mechanism such as gsutil rsync or by mounting the drive into the machine running the tests and writing directly.
 - The demo system will create a Kube persistent volume that refers to the GCP drive.
-- When a worker is spun up, it mounts the Kube persistent volume so that it can be seen locally on a path such as /data/benchmark
-- A script or jupyter file can then access the data via the mounted /data/benchmark path.
+- When a worker is spun up, it mounts the Kube persistent volume so that it can be seen locally on a path such as /nfs/benchmark
+- A script or jupyter file can then access the data via the mounted /nfs/benchmark path.
 
 Resources:
 - https://devopscube.com/persistent-volume-google-kubernetes-engine/
