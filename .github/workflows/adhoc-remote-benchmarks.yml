@@ -1,0 +1,19 @@
+# Run benchmarks on a remote system according to 
+# resources/release-benchmark-docker-compose.yml
+# - Calls the reusable worflow remote-benchmarks.yml
+# - Used for testing the full workflow without affecting 
+#   permanent data in other categoriees (like release, nightly)
+# - Produces temporary data that is not preserved long term 
+
+name: Adhoc Benchmark Test on Docker Deephaven
+
+on:
+  workflow_dispatch:
+    branches: [ "**" ]
+
+jobs:
+  process-release-benchmarks:
+    uses: ./.github/workflows/remote-benchmarks.yml
+    with:
+      run-type: adhoc
+    secrets: inherit
