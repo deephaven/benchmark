@@ -17,8 +17,11 @@ HOST=`hostname`
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
 
-# Match run type (nightly, release, compare) to benchmark test package
+# Match run type (nightly, release, compare, adhoc) to benchmark test package
 case ${RUN_TYPE} in
+  adhoc)
+    TEST_PACKAGE=io.deephaven.benchmark.tests.standard.aggby
+    ;;
   compare)
     TEST_PACKAGE=io.deephaven.benchmark.tests.compare
     ;;
