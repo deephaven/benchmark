@@ -40,6 +40,7 @@ public class BenchmarkMain {
             URL benchmarkCsv = new ResultSummary(d, "benchmark-summary-results.csv", Bench.resultFileName).summarize();
             toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "nightly");
             toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "release");
+            toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "adhoc");
             toSummarySvg(platformCsv, benchmarkCsv, "compare", d, "compare");
         }
         return exitCode;
