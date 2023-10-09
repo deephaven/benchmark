@@ -98,8 +98,12 @@ jobs:
       with:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
-   
-    - name: Pulish Slack Notification Tables
+
+    - name: Sync GCloud with Demo NFS
+      run: |
+        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="gsutil -m -q rsync -r -d -J -x '^.*/test-logs/.*$' gs://deephaven-benchmark /nfs/deephaven-benchmark"
+ 
+    - name: Publish Slack Notification Tables
       run: |
         ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.BENCHMARK_SLACK_CHANNEL}}" "${{secrets.BENCHMARK_SLACK_TOKEN}}" 
 
