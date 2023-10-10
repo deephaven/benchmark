@@ -52,7 +52,7 @@ nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).format_c
 ])
 
 nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
-    'Static_Benchmark=Static_Benchmark.substring(0, 20)+`...`',
+    'Static_Benchmark=Static_Benchmark.substring(0, Math.min(50,Static_Benchmark.length()))+`...`',
     'Chng5d=Change','Var5d=Variability','Rate','ChngRls=Since_Release'
 ]).format_columns([
     'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
