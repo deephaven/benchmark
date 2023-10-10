@@ -14,11 +14,15 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 public class ParquetCodecTest {
     final ParquetTestRunner runner = new ParquetTestRunner(this);
     final String[] usedColumns = {"str10K", "long10K", "int10K", "short10K", "bigDec10K", "array1K", "vector1K"};
+    
+    @BeforeEach
+    public void setup() {
+        runner.setScaleFactors(5, 1);
+    }
 
     @Test
     @Order(1)
     public void writeMultiColSnappy() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- Snappy Multi Col -Static", "SNAPPY", usedColumns);
     }
 
@@ -31,7 +35,6 @@ public class ParquetCodecTest {
     @Test
     @Order(3)
     public void writeMultiColZstd() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- Zstd Multi Col -Static", "ZSTD", usedColumns);
     }
 
@@ -44,7 +47,6 @@ public class ParquetCodecTest {
     @Test
     @Order(5)
     public void writeMultiColLzo() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- Lzo Multi Col -Static", "LZO", usedColumns);
     }
 
@@ -57,7 +59,6 @@ public class ParquetCodecTest {
     @Test
     @Order(7)
     public void writeMultiColLz4Raw() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- Lz4Raw Multi Col -Static", "LZ4_RAW", usedColumns);
     }
 
@@ -70,7 +71,6 @@ public class ParquetCodecTest {
     @Test
     @Order(9)
     public void writeMultiColGzip() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- Gzip Multi Col -Static", "GZIP", usedColumns);
     }
 
@@ -83,7 +83,6 @@ public class ParquetCodecTest {
     @Test
     @Order(11)
     public void writeMultiColNone() {
-        runner.setScaleFactors(5, 1);
         runner.runWriteTest("ParquetWrite- No Codec Multi Col -Static", "NONE", usedColumns);
     }
 
