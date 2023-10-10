@@ -36,7 +36,7 @@ nightly_worst_rate_change = bench_results.where([
 ]).group_by([
     'benchmark_name','origin'
 ]).view([
-    'Static_Benchmark=benchmark_name.replace(`-Static`,``)',
+    'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
     'Variability=(float)var_rate_ex[0]/100',
     'Rate=op_rate[0]',
     'Change=(float)gain(avg_rate_ex[0],op_rate[0])/100',
