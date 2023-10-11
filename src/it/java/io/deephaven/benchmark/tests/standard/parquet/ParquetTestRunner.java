@@ -15,7 +15,7 @@ import io.deephaven.benchmark.util.Timer;
 class ParquetTestRunner {
     final Object testInst;
     final Bench api;
-    private int rowCountFactor = 1;
+    private double rowCountFactor = 1;
     private int scaleFactor = 1;
     private long scaleRowCount;
 
@@ -31,7 +31,7 @@ class ParquetTestRunner {
      * @param rowCountFactor the multiplier for the scale.row.count property
      * @param scaleFactor the multiplier for how many merges to do on the generated table to simulate more rows
      */
-    void setScaleFactors(int rowCountFactor, int scaleFactor) {
+    void setScaleFactors(double rowCountFactor, int scaleFactor) {
         this.rowCountFactor = rowCountFactor;
         this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
         this.scaleFactor = scaleFactor;
@@ -140,34 +140,22 @@ class ParquetTestRunner {
      * @param columnName the column name to generate data for
      * @return the data generation code
      */
-    String getGenerator(String columnName) {
-        String g = "";
-        switch (columnName) {
-            case "str10K":
-                g = "(ii % 10 == 0) ? null : (`` + (ii % 10000))";
-                break;
-            case "long10K":
-                g = "(ii % 10 == 0) ? null : (ii % 10000)";
-                break;
-            case "int10K":
-                g = "(ii % 10 == 0) ? null : ((int)(ii % 10000))";
-                break;
-            case "short10K":
-                g = "(ii % 10 == 0) ? null : ((short)(ii % 10000))";
-                break;
-            case "bigDec10K":
-                g = "(ii % 10 == 0) ? null : java.math.BigDecimal.valueOf(ii % 10000)";
-                break;
-            case "array1K":
-                g = "(ii % 10 == 0) ? null : new int[]{i,i+1,i+2,i+3,i+4,i+5}";
-                break;
-            case "vector1K":
-                g = "(ii % 10 == 0) ? null : new io.deephaven.vector.IntVectorDirect(i,i+1,i+2,i+3,i+4,i+5)";
-                break;
-            default:
-                throw new RuntimeException("Undefined column: " + columnName);
-        }
-        return g;
+    String getGenerator(final String columnName) {
+        var array5 = "java.util.stream.IntStream.range((int)(ii % 5),(int)((ii % 5) + 5)).toArray()";
+        var array1K = "java.util.stream.IntStream.range((int)(ii % 1000),(int)((ii % 1000) + 1000)).toArray()";
+        var gen = switch (columnName) {
+            case "str10K" -> "(`` + (ii % 10000))";
+            case "long10K" -> "(ii % 10000)";
+            case "int10K" -> "((int)(ii % 10000))";
+            case "short10K" -> "((short)(ii % 10000))";
+            case "bigDec10K" -> "java.math.BigDecimal.valueOf(ii % 10000)";
+            case "array5" -> array5;
+            case "vector5" -> "new io.deephaven.vector.IntVectorDirect(" + array5 + ")";
+            case "array1K" -> array1K;
+            case "vector1K" -> "new io.deephaven.vector.IntVectorDirect(" + array1K + ")";
+            default -> throw new RuntimeException("Undefined column: " + columnName);
+        };
+        return "(ii % 10 == 0) ? null : " + gen;
     }
 
     /**
