@@ -38,10 +38,10 @@ class ParquetTestRunner {
         this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
         this.scaleFactor = scaleFactor;
     }
-    
+
     /**
-     * Use the default settings in deephaven-core for parquet dictionary and page size instead of the
-     * defaults used for benchmarks
+     * Use the default settings in deephaven-core for parquet dictionary and page size instead of the defaults used for
+     * benchmarks
      */
     void useParquetDefaultSettings() {
         this.useParquetDefaultSettings = true;
@@ -161,11 +161,11 @@ class ParquetTestRunner {
             case "short10K" -> "((short)(ii % 10000))";
             case "bigDec10K" -> "java.math.BigDecimal.valueOf(ii % 10000)";
             case "intArr5" -> array5;
-            case "intVec5" -> "new io.deephaven.vector.IntVectorDirect(" + array5 + ")";
+            case "intVec5" -> "vec(" + array5 + ")";
             case "intArr1K" -> array1K;
-            case "intVec1K" -> "new io.deephaven.vector.IntVectorDirect(" + array1K + ")";
+            case "intVec1K" -> "vec(" + array1K + ")";
             case "objArr5" -> objArr5;
-            case "objVec5" -> "new io.deephaven.vector.ObjectVectorDirect(" + objArr5 + ")";
+            case "objVec5" -> "vecObj(" + objArr5 + ")";
             default -> throw new RuntimeException("Undefined column: " + columnName);
         };
         return "(ii % 10 == 0) ? null : " + gen;
