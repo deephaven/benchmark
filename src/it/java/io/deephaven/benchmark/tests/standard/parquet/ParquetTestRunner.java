@@ -13,11 +13,13 @@ import io.deephaven.benchmark.util.Timer;
  * Test reading and writing parquet files with various data types and compression codecs.
  */
 class ParquetTestRunner {
+    final String parquetCfg = "max_dictionary_keys=2000000, max_dictionary_size=20000000, target_page_size=2000000";
     final Object testInst;
     final Bench api;
     private double rowCountFactor = 1;
     private int scaleFactor = 1;
     private long scaleRowCount;
+    private boolean useParquetDefaultSettings = false;
 
     ParquetTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -35,6 +37,14 @@ class ParquetTestRunner {
         this.rowCountFactor = rowCountFactor;
         this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
         this.scaleFactor = scaleFactor;
+    }
+    
+    /**
+     * Use the default settings in deephaven-core for parquet dictionary and page size instead of the
+     * defaults used for benchmarks
+     */
+    void useParquetDefaultSettings() {
+        this.useParquetDefaultSettings = true;
     }
 
     /**
@@ -76,8 +86,7 @@ class ParquetTestRunner {
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         write(
-            source, '/data/source.ptr.parquet', compression_codec_name='${codec}', 
-            max_dictionary_keys=2000000, max_dictionary_size=20000000, target_page_size=2000000
+            source, '/data/source.ptr.parquet', compression_codec_name='${codec}'${parquetSettings}
         )
         end_time = time.perf_counter_ns()
         bench_api_metrics_snapshot()
@@ -93,6 +102,7 @@ class ParquetTestRunner {
         q = q.replace("${scaleFactor}", "" + scaleFactor);
         q = q.replace("${codec}", codec.equalsIgnoreCase("none") ? "UNCOMPRESSED" : codec);
         q = q.replace("${generators}", getGenerators(columnNames));
+        q = q.replace("${parquetSettings}", useParquetDefaultSettings ? "" : (",\n    " + parquetCfg));
         runTest(testName, q);
     }
 
@@ -143,16 +153,19 @@ class ParquetTestRunner {
     String getGenerator(final String columnName) {
         var array5 = "java.util.stream.IntStream.range((int)(ii % 5),(int)((ii % 5) + 5)).toArray()";
         var array1K = "java.util.stream.IntStream.range((int)(ii % 1000),(int)((ii % 1000) + 1000)).toArray()";
+        var objArr5 = "java.util.stream.Stream.of(`1`,null,`3`,null,`5`).toArray()";
         var gen = switch (columnName) {
             case "str10K" -> "(`` + (ii % 10000))";
             case "long10K" -> "(ii % 10000)";
             case "int10K" -> "((int)(ii % 10000))";
             case "short10K" -> "((short)(ii % 10000))";
             case "bigDec10K" -> "java.math.BigDecimal.valueOf(ii % 10000)";
-            case "array5" -> array5;
-            case "vector5" -> "new io.deephaven.vector.IntVectorDirect(" + array5 + ")";
-            case "array1K" -> array1K;
-            case "vector1K" -> "new io.deephaven.vector.IntVectorDirect(" + array1K + ")";
+            case "intArr5" -> array5;
+            case "intVec5" -> "new io.deephaven.vector.IntVectorDirect(" + array5 + ")";
+            case "intArr1K" -> array1K;
+            case "intVec1K" -> "new io.deephaven.vector.IntVectorDirect(" + array1K + ")";
+            case "objArr5" -> objArr5;
+            case "objVec5" -> "new io.deephaven.vector.ObjectVectorDirect(" + objArr5 + ")";
             default -> throw new RuntimeException("Undefined column: " + columnName);
         };
         return "(ii % 10 == 0) ? null : " + gen;

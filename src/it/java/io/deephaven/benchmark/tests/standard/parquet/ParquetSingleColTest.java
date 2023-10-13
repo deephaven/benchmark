@@ -5,49 +5,73 @@ import org.junit.jupiter.api.*;
 /**
  * Standard tests for writing single column parquet for different column types.
  */
-public class ParquetSingleColTest {
+class ParquetSingleColTest {
     final ParquetTestRunner runner = new ParquetTestRunner(this);
 
     @Test
-    public void writeOneStringCol() {
+    void writeOneStringCol() {
         runner.setScaleFactors(5, 15);
         runner.runWriteTest("ParquetWrite- 1 String Col -Static", "SNAPPY", "str10K");
     }
 
     @Test
-    public void writeOneBigDecimalCol() {
+    void writeOneBigDecimalCol() {
         runner.setScaleFactors(5, 6);
         runner.runWriteTest("ParquetWrite- 1 Big Decimal Col -Static", "SNAPPY", "bigDec10K");
     }
 
     @Test
-    public void writeOneLongCol() {
+    void writeOneLongCol() {
         runner.setScaleFactors(5, 15);
         runner.runWriteTest("ParquetWrite- 1 Long Col -Static", "SNAPPY", "long10K");
     }
 
     @Test
-    public void writeOneIntCol() {
+    void writeOneIntCol() {
         runner.setScaleFactors(5, 30);
         runner.runWriteTest("ParquetWrite- 1 Int Col -Static", "SNAPPY", "int10K");
     }
 
     @Test
-    public void writeOneShortCol() {
+    void writeOneShortCol() {
         runner.setScaleFactors(5, 35);
         runner.runWriteTest("ParquetWrite- 1 Short Col -Static", "SNAPPY", "short10K");
     }
 
     @Test
-    public void writeOneArrayCol() {
+    void writeOneInt1KArrayCol() {
         runner.setScaleFactors(0.10, 1);
-        runner.runWriteTest("ParquetWrite- 1 Int Array Col -Static", "SNAPPY", "array1K");
+        runner.runWriteTest("ParquetWrite- 1 Array Col of 1K Ints -Static", "SNAPPY", "intArr1K");
     }
 
     @Test
-    public void writeOneVectorCol() {
+    void writeOneInt1KVectorCol() {
         runner.setScaleFactors(0.10, 1);
-        runner.runWriteTest("ParquetWrite- 1 Int Vector Col -Static", "SNAPPY", "vector1K");
+        runner.runWriteTest("ParquetWrite- 1 Vector Col of 1K Ints -Static", "SNAPPY", "intVec1K");
+    }
+    
+    @Test
+    void writeOneInt5ArrayCol() {
+        runner.setScaleFactors(2, 4);
+        runner.runWriteTest("ParquetWrite- 1 Array Col of 5 Ints -Static", "SNAPPY", "intArr5");
+    }
+
+    @Test
+    void writeOneInt5VectorCol() {
+        runner.setScaleFactors(2, 4);
+        runner.runWriteTest("ParquetWrite- 1 Vector Col of 5 Ints -Static", "SNAPPY", "intVec5");
+    }
+
+    @Test
+    void writeOneObjectArrayCol() {
+        runner.setScaleFactors(2, 2);
+        runner.runWriteTest("ParquetWrite- 1 Array Col of 3 Strings and 2 Nulls -Static", "SNAPPY", "objArr5");
+    }
+
+    @Test
+    void writeOneObjectVectorCol() {
+        runner.setScaleFactors(2, 1);
+        runner.runWriteTest("ParquetWrite- 1 Vector Col of 3 String and 2 Nulls -Static", "SNAPPY", "objVec5");
     }
 
 }
