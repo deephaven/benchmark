@@ -27,7 +27,7 @@ public class InlineFormulaTest {
     
     @Test
     public void updateCalcsFormula() {
-        runner.setScaleFactors(100, 80);
+        runner.setScaleFactors(110, 80);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calcs);
         runner.test("Update-Sum 2 Calcs Using 2 Cols", 1, q, "int250", "int640");
     }
