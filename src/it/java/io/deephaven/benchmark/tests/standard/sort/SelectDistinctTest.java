@@ -1,5 +1,5 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
-package io.deephaven.benchmark.tests.standard.select;
+package io.deephaven.benchmark.tests.standard.sort;
 
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
