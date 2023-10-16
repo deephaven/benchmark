@@ -13,7 +13,7 @@ public class DateTimeFormulaTest {
 
     @Test
     public void now() {
-        setup(6, 40, 5);
+        setup(6, 35, 15);
         var q = "source.update(formulas=['New1 = now()'])";
         runner.test("Now- now()", q, "int250");
     }
@@ -27,22 +27,24 @@ public class DateTimeFormulaTest {
 
     @Test
     public void parseDuration() {
-        setup(3, 10, 2);
+        setup(2, 9, 1);
         var q = "source.update(formulas=['New1 = parseDuration(`PT4H52M14S`)'])";
         runner.test("ParseDuration- PT Duration String", q, "int250");
     }
 
     @Test
     public void parseLocalTime() {
-        setup(3, 10, 1);
+        setup(2, 7, 1);
         var q = "source.update(formulas=['New1 = parseLocalTime(`04:52:14.001`)'])";
         runner.test("ParseLocalTime- Time String)", q, "int250");
     }
 
     @Test
     public void epochNanosToZonedDateTime() {
-        setup(3, 8, 5);
-        var q = "source.update(formulas=['New1 = epochNanosToZonedDateTime(1000000, java.time.ZoneId.systemDefault())'])";
+        setup(2, 11, 10);
+        var q = """
+        source.update(formulas=['New1=epochNanosToZonedDateTime(1697240421926014741L,java.time.ZoneOffset.UTC)'])
+        """;
         runner.test("EpochNanosToZonedDateTime- Nanos Long and ZoneId", q, "int250");
     }
 
