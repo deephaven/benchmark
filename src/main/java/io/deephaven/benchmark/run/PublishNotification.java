@@ -74,13 +74,16 @@ public class PublishNotification {
     }
 
     void publishToSlack(Path outDir) {
-        var message = "Nightly Benchmark Changes Since Last Release\n";
+        var message = "Nightly Benchmark Changes " +
+                "<https://github.com/deephaven/benchmark/blob/main/docs/PublishedResults.md| (Dig Deeper)>\n";
+        // "<https://controller.try-dh.demo.community.deephaven.io/get_ide| (Benchmark Dashboards)>\n";
         for (String table : tables) {
             message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```";
         }
 
         var payload = """
-        {"channel": "${channel}", "text": "${msg}"}
+        {"channel": "${channel}", "icon_emoji": ":horse_racing:", "unfurl_links": "false", 
+         "unfurl_media": "false", "text": "${msg}"}
         """;
         payload = payload.replace("${channel}", slackChannel);
         payload = payload.replace("${msg}", message);
