@@ -1,4 +1,4 @@
-from urllib.request import urlopen
+from urllib.request import urlopen; import os
 
 root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:

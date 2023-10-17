@@ -4,7 +4,7 @@
 # - Drill into nightly rate gain/loss for a single operations for a date-time range
 # Requirements: Deephaven 0.23.0 or greater
 
-from urllib.request import urlopen
+from urllib.request import urlopen; import os
 
 root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
@@ -14,7 +14,7 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     exec(r.read().decode(), globals(), locals())
 
 def op_by_date_range(begin_millis, end_millis, op_prefix):
-    interval_millis = 43200000
+    interval_millis = 43200000	# 12 hour interval
     begin_interval = int(begin_millis / interval_millis)
     end_interval = int(end_millis / interval_millis)
 

@@ -32,4 +32,13 @@ public class NumbersTest {
         assertEquals("24g", Numbers.formatBytesToGigs(25769803776L));
     }
 
+    @Test
+    public void formatNumberPattern() {
+        assertNull(Numbers.formatNumber(null, null), "Should be null");
+        assertEquals("1,234.6", Numbers.formatNumber(1234.5679, "#,##0.0"), "Should have 1 decimal place w/ commas");
+        assertEquals("1,235", Numbers.formatNumber(1234.5679, "#,##0"), "Should have 0 decimal places w/ commas");
+        assertEquals("12.3%", Numbers.formatNumber(0.123, "0.0%"), "Should be converted to percent");
+        assertEquals("123,000.0%", Numbers.formatNumber(1230, "#,##0.0%"), "Should be converted to percent");
+    }
+
 }

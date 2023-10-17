@@ -3,7 +3,6 @@ package io.deephaven.benchmark.run;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.junit.platform.console.ConsoleLauncher;
 import io.deephaven.benchmark.api.Bench;
 
@@ -31,9 +30,12 @@ public class BenchmarkMain {
 
     static int main1(String[] args) {
         setSystemProperties();
+        if (args.length > 0 && args[0].equals("publish"))
+            return publish(Bench.rootOutputDir);
+
         int exitCode = ConsoleLauncher.execute(System.out, System.err, args).getExitCode();
         if (exitCode == 0) {
-            Path d = Paths.get(Bench.rootOutputDir);
+            Path d = Bench.rootOutputDir;
             URL platformCsv = new ResultSummary(d, "platform-summary-results.csv", Bench.platformFileName).summarize();
             URL benchmarkCsv = new ResultSummary(d, "benchmark-summary-results.csv", Bench.resultFileName).summarize();
             toSummarySvg(platformCsv, benchmarkCsv, "standard", d, "nightly");
@@ -45,9 +47,20 @@ public class BenchmarkMain {
     }
 
     static void toSummarySvg(URL platformCsv, URL benchCsv, String tmpPrefix, Path outputDir, String outputPrefix) {
-        URL svgTemplate = BenchmarkMain.class.getResource("profile/" + tmpPrefix + "-benchmark-summary.template.svg");
-        new SvgSummary(platformCsv, benchCsv, svgTemplate, outputDir.resolve(outputPrefix + "-benchmark-summary.svg"))
-                .summarize();
+        URL svgTemplate = resource("profile/" + tmpPrefix + "-benchmark-summary.template.svg");
+        Path outSvg = outputDir.resolve(outputPrefix + "-benchmark-summary.svg");
+        new SvgSummary(platformCsv, benchCsv, svgTemplate, outSvg).summarize();
+    }
+
+    static int publish(Path outputDir) {
+        URL svgTemplate = resource("profile/deephaven-table.template.svg");
+        URL query = resource("profile/queries/publish.py");
+        new PublishNotification(query, svgTemplate, outputDir).publish();
+        return 0;
+    }
+
+    static URL resource(String name) {
+        return BenchmarkMain.class.getResource(name);
     }
 
     // Set system properties for running from the command line

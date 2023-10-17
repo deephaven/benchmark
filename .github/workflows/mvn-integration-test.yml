@@ -25,10 +25,10 @@ jobs:
     - name: Docker Pull Deephaven and Redpanda
       run: |
         cp .github/resources/integration-docker-compose.yml docker-compose.yml
-        docker-compose pull
+        docker compose pull
 
     - name: Docker Up Deephaven and Redpanda
-      run: docker-compose up -d
+      run: docker compose up -d
 
     - name: Build with Maven
       run: mvn -B verify --file pom.xml 
@@ -36,9 +36,9 @@ jobs:
     - name: Save Docker Logs
       run: |
         mkdir logs
-        docker-compose logs --no-color > logs/docker.log &
+        docker compose logs --no-color > logs/docker.log &
         sleep 10
-        docker-compose down
+        docker compose down
 
     - name: Archive Results
       uses: actions/upload-artifact@v3

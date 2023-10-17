@@ -23,7 +23,7 @@ import io.deephaven.benchmark.util.Timer;
  * sets of test packages to run on different systems simultaneously.
  */
 final public class Bench {
-    static final public String rootOutputDir = "results";
+    static final public Path rootOutputDir = Paths.get("results");
     static final public String resultFileName = "benchmark-results.csv";
     static final public String metricsFileName = "benchmark-metrics.csv";
     static final public String platformFileName = "benchmark-platform.csv";
@@ -233,7 +233,7 @@ final public class Bench {
     static private Path initializeOutputDirectory() {
         setSystemProperties();
         boolean isTimestamped = profile.propertyAsBoolean("timestamp.test.results", "false");
-        Path dir = Paths.get(rootOutputDir);
+        Path dir = rootOutputDir;
         if (isTimestamped)
             dir = dir.resolve(Ids.runId());
         Filer.delete(dir);
