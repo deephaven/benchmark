@@ -104,6 +104,14 @@ add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'Collectio
 import statistics
 def rstd(rates):
     return statistics.pstdev(rates) * 100.0 / statistics.mean(rates)
+    
+def zscore(rate, rates):
+    return (rate - statistics.mean(rates)) / statistics.pstdev(rates)
+
+def zprob(zscore):
+    lower = -abs(zscore)
+    upper = abs(zscore)
+    return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
 
 from array import array
 def rchange(rates) -> float:
@@ -112,11 +120,15 @@ def rchange(rates) -> float:
     m = statistics.mean(rates[:-1])
     return (rates[-1] - m) / m * 100.0
 
-def format_rates(rates):
-    return ' '.join("{:,}".format(r) for r in rates)
-    
 def gain(start:float, end:float) -> float:
     return (end - start) / start * 100.0
+
+def format_rates(rates):
+    return ' '.join("{:,}".format(r) for r in rates)
+
+def truncate(text, size):
+    if len(text) < size - 3: return text
+    return text[:size-3] + '...'
 
 from deephaven.updateby import rolling_group_tick
 op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)

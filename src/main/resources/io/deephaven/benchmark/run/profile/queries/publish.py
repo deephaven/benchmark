@@ -12,19 +12,6 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 45  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
-import statistics
-def zscore(rate, rates):
-    return (rate - statistics.mean(rates)) / statistics.pstdev(rates)
-
-def zprob(zscore):
-    lower = -abs(zscore)
-    upper = abs(zscore)
-    return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
-
-def truncate(text, size):
-    if len(text) < size - 3: return text
-    return text[:size-3] + '...'
-
 # Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
 platform_details = bench_platforms.sort_descending(['run_id']).group_by(['run_id']).first_by().ungroup()
 
@@ -77,3 +64,7 @@ nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
     'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
     'ChngRls=Decimal(`0.0%`)','ScrProb=Decimal(`0.00%`)'
 ])
+
+bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
+bench_results_change = bench_results_diff = None
+
