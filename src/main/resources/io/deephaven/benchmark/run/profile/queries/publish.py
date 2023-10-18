@@ -17,11 +17,22 @@ def zscore(rate, rates):
     return (rate - statistics.mean(rates)) / statistics.pstdev(rates)
 
 def zprob(zscore):
-  lower = -abs(zscore)
-  upper = abs(zscore)
-  return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
+    lower = -abs(zscore)
+    upper = abs(zscore)
+    return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
 
+def truncate(text, size):
+    if len(text) < size - 3: return text
+    return text[:size-3] + '...'
+
+# Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
 platform_details = bench_platforms.sort_descending(['run_id']).group_by(['run_id']).first_by().ungroup()
+
+# Ensure that deleted benchmarks are not included in latest benchmarks
+latest_benchmark_names = bench_results.view([
+    'epoch_day=(int)(timestamp/1000/60/60/24)','benchmark_name'
+]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
+bench_results = bench_results.where_in(latest_benchmark_names,['benchmark_name=benchmark_name'])
 
 nightly_worst_rate_change = bench_results.where([
     'benchmark_name.endsWith(`-Static`)'
@@ -60,8 +71,8 @@ nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).format_c
 ])
 
 nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
-    'Static_Benchmark=Static_Benchmark.substring(0, Math.min(50,Static_Benchmark.length()))+`...`',
-    'Chng5d=Change','Var5d=Variability','Rate','ChngRls=Since_Release','ScrProb=Score_Prob'
+    'Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
+    'Var5d=Variability','Rate','ChngRls=Since_Release','ScrProb=Score_Prob'
 ]).format_columns([
     'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
     'ChngRls=Decimal(`0.0%`)','ScrProb=Decimal(`0.00%`)'
