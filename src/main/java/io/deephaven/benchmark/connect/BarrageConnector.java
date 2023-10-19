@@ -115,11 +115,11 @@ public class BarrageConnector implements AutoCloseable {
             try {
                 BarrageSubscriptionOptions options = BarrageSubscriptionOptions.builder().build();
                 TableHandleManager snapshotManager = session.session().batch();
-                
+
                 TableCreationLogic logic = findTable(table).ticket().ticketId().table().logic();
                 TableHandle handle = snapshotManager.executeLogic(logic);
                 BarrageSubscription subscription = session.subscribe(handle, options);
-                
+
                 BarrageTable snapTable = subscription.snapshotEntireTable();
                 tableHandler.accept(CachedResultTable.create(snapTable));
                 return new Subscription(handle, subscription);
