@@ -9,7 +9,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.4.0</version>
 				<executions>
 					<execution>
 						<id>add-test-source</id>
@@ -27,7 +27,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.10.1</version>
+				<version>3.11.0</version>
 				<configuration>
 					<source>17</source>
 					<target>17</target>
@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.4.1</version>
+				<version>3.5.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -81,7 +81,7 @@
 				<!-- For spotless to work on Windows, Set git config global 'core.autocrlf' to true -->
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
-				<version>2.33.0</version>
+				<version>2.40.0</version>
 				<configuration>
 					<java>
 						<includes>
@@ -107,7 +107,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.2</version>
 				<configuration>
 					<excludes>
 						<exclude>/io/deephaven/benchmark/tests/**/*Test</exclude>
@@ -124,7 +124,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.2</version>
 				<configuration>
 					<forkCount>0</forkCount>
 					<includes>
@@ -163,32 +163,32 @@
 			<artifactId>netty-all</artifactId>
 			<version>4.1.79.Final</version>
 		</dependency>
-		<!-- Added because of conflict with 1.49.1 -->
+		<!-- Added because of conflict with 1.49.1 --> 
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
-			<version>1.50.1</version>
+			<version>1.50.0</version> 
 		</dependency>
 		<!-- Added because of conflict with 3.17.3 -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.21.7</version>
+			<version>3.21.7</version> 
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
 			<artifactId>kafka-avro-serializer</artifactId>
-			<version>7.3.1</version>
+			<version>7.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.28.0</version>
+			<version>0.29.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
-			<version>0.28.0</version>
+			<version>0.29.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
