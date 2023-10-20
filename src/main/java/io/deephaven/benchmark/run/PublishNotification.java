@@ -51,8 +51,7 @@ public class PublishNotification {
             slackChannel = api.property("slack.channel", "");
             slackToken = api.property("slack.token", "");
             if (slackChannel.isBlank() || slackToken.isBlank()) {
-                api.close();
-                System.out.println("-- Slack properties is not defined, skipping query notification --");
+                System.out.println("-- Slack properties are not defined. Skipping query notification --");
                 return;
             }
             System.out.println("-- Running notification queries --");
