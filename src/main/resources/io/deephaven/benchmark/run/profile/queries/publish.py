@@ -39,25 +39,23 @@ nightly_worst_rate_change = bench_results.where([
     'prob=(float)zprob(score)'
 ]).group_by([
     'benchmark_name','origin'
-]).view([
+]).update(['latest_score=score[0]'])
+
+nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).view([
     'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
     'Variability=(float)var_rate_ex[0]/100',
     'Rate=op_rate[0]',
     'Change=(float)gain(avg_rate_ex[0],op_rate[0])/100',
     'Since_Release=(float)gain(avg_rate_in[1],op_rate[0])/100',
     'Score=score[0]','Score_Prob=prob[0]'
-]).where([
-    'Score_Prob <= 0.10'
 ]).sort([
     'Score'
-])
-
-nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).format_columns([
+]).format_columns([
     'Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
     'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)','Score_Prob=Decimal(`0.00%`)'
 ])
 
-nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
+nightly_worst_rate_change_small = nightly_worst_rate_change_large.head_by(10).view([
     'Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
     'Var5d=Variability','Rate','ChngRls=Since_Release','ScrProb=Score_Prob'
 ]).format_columns([
