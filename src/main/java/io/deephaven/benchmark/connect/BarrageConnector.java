@@ -28,7 +28,6 @@ import io.deephaven.engine.context.ExecutionContext;
 import io.deephaven.engine.table.TableUpdate;
 import io.deephaven.engine.table.impl.InstrumentedTableUpdateListener;
 import io.deephaven.engine.updategraph.impl.PeriodicUpdateGraph;
-import io.deephaven.extensions.barrage.BarrageSnapshotOptions;
 import io.deephaven.extensions.barrage.BarrageSubscriptionOptions;
 import io.deephaven.extensions.barrage.table.BarrageTable;
 import io.deephaven.qst.TableCreationLogic;
@@ -53,7 +52,7 @@ public class BarrageConnector implements AutoCloseable {
     final private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
     final private BufferAllocator bufferAllocator = new RootAllocator();
     final private Map<String, Subscription> subscriptions = new LinkedHashMap<>();
-    final private Map<String, Snapshot> snapshots = new LinkedHashMap<>();
+    final private Map<String, Subscription> snapshots = new LinkedHashMap<>();
     final private Set<String> variableNames = new HashSet<>();
     final private AtomicBoolean isClosed = new AtomicBoolean(false);
     private Changes changes = null;
@@ -114,14 +113,16 @@ public class BarrageConnector implements AutoCloseable {
         MetricsFuture future = new MetricsFuture(metrics);
         snapshots.computeIfAbsent(table, s -> {
             try {
-                BarrageSnapshotOptions options = BarrageSnapshotOptions.builder().build();
+                BarrageSubscriptionOptions options = BarrageSubscriptionOptions.builder().build();
                 TableHandleManager snapshotManager = session.session().batch();
+
                 TableCreationLogic logic = findTable(table).ticket().ticketId().table().logic();
                 TableHandle handle = snapshotManager.executeLogic(logic);
-                BarrageSnapshot snapshot = session.snapshot(handle, options);
-                BarrageTable snapshotTable = snapshot.entireTable();
-                tableHandler.accept(CachedResultTable.create(snapshotTable));
-                return new Snapshot(handle, snapshot);
+                BarrageSubscription subscription = session.subscribe(handle, options);
+
+                BarrageTable snapTable = subscription.snapshotEntireTable();
+                tableHandler.accept(CachedResultTable.create(snapTable));
+                return new Subscription(handle, subscription);
             } catch (Exception ex) {
                 throw new RuntimeException("Failed to fetch snapshot table data: " + table, ex);
             } finally {

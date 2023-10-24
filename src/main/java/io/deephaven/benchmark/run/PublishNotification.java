@@ -46,44 +46,46 @@ public class PublishNotification {
         var query = Filer.getURLText(queryFile);
         var svgTemp = new String[] {Filer.getURLText(svgTemplate)};
         Bench api = Bench.create("# Publish Notification");
-        api.setName("# Publish");
-        slackChannel = api.property("slack.channel", "");
-        slackToken = api.property("slack.token", "");
-        if (slackChannel.isBlank() || slackToken.isBlank()) {
+        try {
+            api.setName("# Publish");
+            slackChannel = api.property("slack.channel", "");
+            slackToken = api.property("slack.token", "");
+            if (slackChannel.isBlank() || slackToken.isBlank()) {
+                System.out.println("-- Slack properties are not defined. Skipping query notification --");
+                return;
+            }
+            System.out.println("-- Running notification queries --");
+            var aquery = api.query(query);
+            aquery.fetchAfter("platform_details", table -> {
+                svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
+            });
+            for (String tableName : tables) {
+                aquery.fetchAfter(tableName + "_small", table -> {
+                    generateCsv(table, outputDir, tableName + ".csv");
+                });
+                aquery.fetchAfter(tableName + "_large", table -> {
+                    generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
+                });
+            }
+            aquery.execute();
+        } finally {
             api.close();
-            System.out.println("-- Slack properties is not defined, skipping query notification --");
-            return;
         }
-        System.out.println("-- Running notification queries --");
-        var aquery = api.query(query);
-        aquery.fetchAfter("platform_details", table -> {
-            svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
-        });
-        for (String tableName : tables) {
-            aquery.fetchAfter(tableName + "_small", table -> {
-                generateCsv(table, outputDir, tableName + ".csv");
-            });
-            aquery.fetchAfter(tableName + "_large", table -> {
-                generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
-            });
-        }
-        aquery.execute();
-        api.close();
 
         publishToSlack(outputDir);
     }
 
     void publishToSlack(Path outDir) {
         var message = "Nightly Benchmark Changes " +
-                "<https://github.com/deephaven/benchmark/blob/main/docs/PublishedResults.md| (Dig Deeper)>\n";
-        // "<https://controller.try-dh.demo.community.deephaven.io/get_ide| (Benchmark Dashboards)>\n";
+                "<https://controller.try-dh.demo.community.deephaven.io/get_ide| (Benchmark Tables)>\n";
+        // "<https://github.com/deephaven/benchmark/blob/main/docs/PublishedResults.md| (Dig Deeper)>\n";
+
         for (String table : tables) {
             message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```";
         }
 
         var payload = """
-        {"channel": "${channel}", "icon_emoji": ":horse_racing:", "unfurl_links": "false", 
-         "unfurl_media": "false", "text": "${msg}"}
+        {"channel": "${channel}", "unfurl_links": "false", "unfurl_media": "false", "text": "${msg}"}
         """;
         payload = payload.replace("${channel}", slackChannel);
         payload = payload.replace("${msg}", message);
