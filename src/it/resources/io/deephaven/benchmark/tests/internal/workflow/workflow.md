@@ -29,6 +29,8 @@ The data staged on the Deephaven server covers three main cases
 - Obsolete: Benchmarks that have history but are not longer used
 - Recently Added: Benchmarks that have more than one run but were not run in the previous Deephaven version
 - New: Benchmarks that only have one run
+- Filtered Out: Benchmarks that are not included in the query (e.g. -Inc)
+- Rate Outlier: Benchmarks that simulate a regressive change in rate
 - Existing: Benchmarks that have run in the current and previous versions
 
 **Obsolete**                                    
