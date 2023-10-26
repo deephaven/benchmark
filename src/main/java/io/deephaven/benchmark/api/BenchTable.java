@@ -232,13 +232,14 @@ final public class BenchTable implements Closeable {
 
         String codec = getCompression();
         codec = codec.equals("NONE") ? "UNCOMPRESSED" : codec;
+        codec = codec.equals("LZ4") ? "LZ4_RAW" : codec;
         String compression = String.format(", compression_codec_name='%s'", codec);
 
         return query.replace("${table.name}", tableName)
                 .replace("${compression.codec}", compression)
                 .replace("${max.dict.keys}", ", max_dictionary_keys=2000000")
-                .replace("${max.dict.bytes}", ", max_dictionary_size=20000000")
-                .replace("${target.page.bytes}", ", target_page_size=2000000")
+                .replace("${max.dict.bytes}", ", max_dictionary_size=16777216")
+                .replace("${target.page.bytes}", ", target_page_size=2097152")
                 .replace("${table.columns}", columns.getQuotedColumns())
                 .replace("${table.rowcount}", Long.toString(getRowCount()))
                 .replace("${table.duration}", Long.toString(getRunDuration()))
