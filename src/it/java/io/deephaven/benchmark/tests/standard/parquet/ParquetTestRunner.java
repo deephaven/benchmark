@@ -13,7 +13,7 @@ import io.deephaven.benchmark.util.Timer;
  * Test reading and writing parquet files with various data types and compression codecs.
  */
 class ParquetTestRunner {
-    final String parquetCfg = "max_dictionary_keys=2000000, max_dictionary_size=20000000, target_page_size=2000000";
+    final String parquetCfg = "max_dictionary_keys=1048576, max_dictionary_size=1048576, target_page_size=65536";
     final Object testInst;
     final Bench api;
     private double rowCountFactor = 1;
