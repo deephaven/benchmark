@@ -1,0 +1,15 @@
+benchmark_name,origin,timestamp,test_duration,op_duration,op_rate,row_count
+CumCombo- 6 Ops No Groups -Static,deephaven-engine,1697436675586,8.1600,2.0090,29865604,60000000
+WhereNotIn- 1 Filter Col -Static,deephaven-engine,1697436998214,19.6680,13.1180,365909437,4800000000
+ReverseAsOfJoin- Join On 2 Cols 1 Match -Static,deephaven-engine,1697437411905,17.2390,10.1920,1962323,20000000
+ReverseAsOfJoin- Join On 2 Cols 1 Match -Inc,deephaven-engine,1697437429146,19.9440,13.4250,1489757,20000000
+VarBy- 2 Group 160K Unique Combos Float -Static,deephaven-engine,1697438090274,21.6240,14.6190,12312743,180000000
+SelectDistinct- 1 Group 250 Unique Vals -Static,deephaven-engine,1697439062495,27.5870,20.8790,57474016,1200000000
+WhereOneOf- 2 Filters -Static,deephaven-engine,1697440137952,27.4130,20.4620,293226468,6000000000
+Where- 2 Filters -Static,deephaven-engine,1697440205086,18.4940,11.8320,1014198782,12000000000
+Vector- 5 Calcs 1M Groups Dense Data -Static,deephaven-engine,1697440381383,138.6590,10.2690,46742623,480000000
+ParquetWrite- Lz4Raw Multi Col -Static,deephaven-engine,1697441521164,33.6460,17.6230,2837201,50000000
+ParquetRead- Lz4Raw Multi Col -Static,deephaven-engine,1697441554812,19.9990,11.2150,4458314,50000000
+AsOfJoin- Join On 2 Cols 1 Match -Static,deephaven-engine,1697444189504,17.2120,9.5400,2096436,20000000
+AsOfJoin- Join On 2 Cols 1 Match -Inc,deephaven-engine,1697444206717,20.5780,14.0780,1420656,20000000
+WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals -Static,deephaven-engine,1697445556893,22.1660,14.8290,6743543,100000000

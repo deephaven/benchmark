@@ -12,6 +12,22 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 45  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
+import statistics
+def rstd(rates):
+    rates = [i for i in rates if i >= 0]
+    mean = statistics.mean(rates)
+    return (statistics.pstdev(rates) * 100.0 / mean) if mean != 0 else 0.0
+    
+def zscore(rate, rates):
+    rates = [i for i in rates if i >= 0]
+    std = statistics.pstdev(rates)
+    return ((rate - statistics.mean(rates)) / std) if std != 0 else 0.0
+
+def zprob(zscore):
+    lower = -abs(zscore)
+    upper = abs(zscore)
+    return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
+
 # Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
 platform_details = bench_platforms.sort_descending(['run_id']).group_by(['run_id']).first_by().ungroup()
 
@@ -21,7 +37,7 @@ latest_benchmark_names = bench_results.view([
 ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
 bench_results = bench_results.where_in(latest_benchmark_names,['benchmark_name=benchmark_name'])
 
-nightly_worst_rate_change = bench_results.where([
+nightly_score = bench_results.where([
     'benchmark_name.endsWith(`-Static`)'
 ]).exact_join(
     bench_platforms.where(['name=`deephaven.version`']),
@@ -32,32 +48,34 @@ nightly_worst_rate_change = bench_results.where([
     'benchmark_name','deephaven_version','origin'
 ]).head_by(2, [
     'benchmark_name','origin'
-]).update([
-    'past_5_rates_ex=op_rate_[i].subVector(1,6)','past_5_rates_in=op_rate','op_rate=op_rate[0]',
-    'avg_rate_ex=avg(past_5_rates_ex)','var_rate_ex=rstd(past_5_rates_ex)',
-    'avg_rate_in=avg(past_5_rates_in)','score=(float)zscore(op_rate,past_5_rates_ex)',
-    'prob=(float)zprob(score)'
 ]).group_by([
     'benchmark_name','origin'
-]).view([
-    'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
-    'Variability=(float)var_rate_ex[0]/100',
-    'Rate=op_rate[0]',
-    'Change=(float)gain(avg_rate_ex[0],op_rate[0])/100',
-    'Since_Release=(float)gain(avg_rate_in[1],op_rate[0])/100',
-    'Score=score[0]','Score_Prob=prob[0]'
-]).where([
-    'Score_Prob <= 0.10'
-]).sort([
-    'Score'
+]).update([
+    'all_rates=vec(concat(op_rate[0],op_rate[1]))',
+    'all_past_rates=all_rates.subVector(1,len(all_rates))',
+    'past_5_rates=all_past_rates.subVector(0,6)',
+    'last_5_prev_vers_rates=ifelseObj(op_rate[1]!=null,op_rate[1],op_rate[0]).subVector(0,6)',
+    'op_rate=all_rates[0]','var_rate=(float)rstd(past_5_rates)',
+    'avg_rate=avg(past_5_rates)','prev_vers_avg_rate=avg(last_5_prev_vers_rates)',
+    'score=(float)zscore(op_rate,past_5_rates)',
+    'prev_vers_score=(float)zscore(op_rate,last_5_prev_vers_rates)',
+    'prob=(float)zprob(score)'
 ])
 
-nightly_worst_rate_change_large = nightly_worst_rate_change.head_by(20).format_columns([
+nightly_worst_score_large = nightly_score.head_by(20).view([
+    'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
+    'Variability=(float)var_rate/100','Rate=op_rate',
+    'Change=(float)gain(avg_rate,op_rate)/100',
+    'Since_Release=(float)gain(prev_vers_avg_rate,op_rate)/100',
+    'Score=score','Score_Prob=prob'
+]).sort([
+    'Score'
+]).format_columns([
     'Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
     'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)','Score_Prob=Decimal(`0.00%`)'
 ])
 
-nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
+nightly_worst_score_small = nightly_worst_score_large.head_by(10).view([
     'Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
     'Var5d=Variability','Rate','ChngRls=Since_Release','ScrProb=Score_Prob'
 ]).format_columns([
@@ -67,4 +85,3 @@ nightly_worst_rate_change_small = nightly_worst_rate_change.head_by(10).view([
 
 bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
 bench_results_change = bench_results_diff = None
-

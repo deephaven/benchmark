@@ -27,7 +27,7 @@ def get_remote_run_ids(parent_uri, category, max_runs=10):
 # Get the latest file-based run_ids for the benchmark category up to max_runs
 def get_local_run_ids(parent_uri, category, max_runs=10):
     run_ids = []
-    text = '\n'.join(glob.glob(parent_uri.replace('file://','') + '/' + category + '/run-*'))
+    text = os.linesep.join(glob.glob(parent_uri.replace('file://','') + '/' + category + '/run-*'))
     for run_id in re.findall('.*/run-([a-z0-9]+)'.format(category), text, re.MULTILINE):
         run_ids.append(run_id)
     run_ids.sort(reverse=True)
@@ -100,13 +100,16 @@ add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Young Generation', 'Collect
 add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'CollectionCount', 'g1_old_collect_count')
 add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'CollectionTime', 'g1_old_collect_time')
 
-# Create a table showing percentage variability and change in rates
 import statistics
 def rstd(rates):
-    return statistics.pstdev(rates) * 100.0 / statistics.mean(rates)
+    rates = [i for i in rates if i >= 0]
+    mean = statistics.mean(rates)
+    return (statistics.pstdev(rates) * 100.0 / mean) if mean != 0 else 0.0
     
 def zscore(rate, rates):
-    return (rate - statistics.mean(rates)) / statistics.pstdev(rates)
+    rates = [i for i in rates if i >= 0]
+    std = statistics.pstdev(rates)
+    return ((rate - statistics.mean(rates)) / std) if std != 0 else 0.0
 
 def zprob(zscore):
     lower = -abs(zscore)
@@ -130,6 +133,7 @@ def truncate(text, size):
     if len(text) < size - 3: return text
     return text[:size-3] + '...'
 
+# Create a table showing percentage variability and change in rates
 from deephaven.updateby import rolling_group_tick
 op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)
 op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=history_runs, fwd_ticks=0)
