@@ -9,7 +9,5 @@ WhereOneOf- 2 Filters -Static,deephaven-engine,1697440137952,27.4130,20.4620,293
 Where- 2 Filters -Static,deephaven-engine,1697440205086,18.4940,11.8320,1014198782,12000000000
 Vector- 5 Calcs 1M Groups Dense Data -Static,deephaven-engine,1697440381383,138.6590,10.2690,46742623,480000000
 ParquetWrite- Lz4Raw Multi Col -Static,deephaven-engine,1697441521164,33.6460,17.6230,2837201,50000000
-ParquetRead- Lz4Raw Multi Col -Static,deephaven-engine,1697441554812,19.9990,11.2150,4458314,50000000
 AsOfJoin- Join On 2 Cols 1 Match -Static,deephaven-engine,1697444189504,17.2120,9.5400,2096436,20000000
 AsOfJoin- Join On 2 Cols 1 Match -Inc,deephaven-engine,1697444206717,20.5780,14.0780,1420656,20000000
-WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals -Static,deephaven-engine,1697445556893,22.1660,14.8290,6743543,100000000

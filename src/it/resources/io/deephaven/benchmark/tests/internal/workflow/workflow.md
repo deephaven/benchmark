@@ -14,9 +14,6 @@ The following metrics are currently required when running the base table query s
 must be included in the _benchmark-metrics.csv_ files that are staged for the workflow tests.
 
 ```
-grep -E "benchmark_name,|HeapMemoryUsage Used|HeapMemoryUsage Committed|G1 Young Generation|G1 Old Generation"
-```
-```
 add_metric_value_diff('MemoryImpl', 'Memory', 'HeapMemoryUsage Used', "heap_used")
 add_metric_value_diff('MemoryImpl', 'Memory', 'NonHeapMemoryUsage Used', "non_heap_used")
 add_metric_value_diff('MemoryImpl', 'Memory', 'HeapMemoryUsage Committed', 'heap_committed')
@@ -30,16 +27,25 @@ add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'Collectio
 ## Benchmarks Used for Test Coverage
 The data staged on the Deephaven server covers three main cases
 - Obsolete: Benchmarks that have history but are not longer used
-- New: Benchmarks that have at least one run but were not run in the previous Deephaven version 
+- Recently Added: Benchmarks that have more than one run but were not run in the previous Deephaven version
+- New: Benchmarks that only have one run
 - Existing: Benchmarks that have run in the current and previous versions
 
 **Obsolete**                                    
 - ParquetWrite- LZ4 2 Strs 2 Longs 2 Dbls -Static
-- ParquetRead- LZ4 2 Strs 2 Longs 2 Dbls -Static|
+- ParquetRead- LZ4 2 Strs 2 Longs 2 Dbls -Static
+
+**Recently Added**
+- ParquetWrite- Lz4Raw Multi Col -Static
 
 **New**
-- ParquetWrite- Lz4Raw Multi Col -Static
-- ParquetRead- Lz4Raw Multi Col -Static
+- ParquetRead- 1 String Col -Static
+
+**Filtered Out**
+- AsOfJoin- Join On 2 Cols 1 Match -Inc
+
+**Rate Outlier**
+- AsOfJoin- Join On 2 Cols 1 Match -Static
 
 **Existing**
 - VarBy- 2 Group 160K Unique Combos Float -Static
@@ -47,12 +53,6 @@ The data staged on the Deephaven server covers three main cases
 - Where- 2 Filters -Static
 - Vector- 5 Calcs 1M Groups Dense Data -Static
 - WhereOneOf- 2 Filters -Static
-- WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals -Static
 - CumCombo- 6 Ops No Groups -Static
 - SelectDistinct- 1 Group 250 Unique Vals -Static
-- AsOfJoin- Join On 2 Cols 1 Match -Static
-- AsOfJoin- Join On 2 Cols 1 Match -Inc
 
-```
-grep -E "benchmark_name,|ParquetWrite- LZ4 2 Strs 2 Longs 2 Dbls -Static|ParquetRead- LZ4 2 Strs 2 Longs 2 Dbls -Static|ParquetWrite- Lz4Raw Multi Col -Static|ParquetRead- Lz4Raw Multi Col -Static|VarBy- 2 Group 160K Unique Combos Float -Static|WhereNotIn- 1 Filter Col -Static|Where- 2 Filters -Static|Vector- 5 Calcs 1M Groups Dense Data -Static|WhereOneOf- 2 Filters -Static|WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals -Static|CumCombo- 6 Ops No Groups -Static|SelectDistinct- 1 Group 250 Unique Vals -Static|AsOfJoin- Join On 2 Cols 1 Match -Static|AsOfJoin- Join On 2 Cols 1 Match -Inc"
-```
