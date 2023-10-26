@@ -14,8 +14,8 @@ import io.deephaven.benchmark.util.Filer;
  */
 public class PublishTest {
     final String[] csvFileNames = {"benchmark-metrics.csv", "benchmark-platform.csv", "benchmark-results.csv"};
-    final String[] stageRunIds = {"run-1bc89703ab", "run-1bcdbd28c2", "run-1bd2e385a7", "run-1bd80a0738",
-            "run-1bdd3080da", "run-1bf1cb8f1b", "run-1bf6f1a736", "run-1bfc184e13", "run-1c013f1353"};
+    final String[] stageRunIds = {"run-1bc89703ab", "run-1bd2e385a7", "run-1bd80a0738", "run-1bdd3080da",
+            "run-1bf1cb8f1b", "run-1bf6f1a736", "run-1bfc184e13", "run-1c013f1353", "run-1c06655366", "run-1c0b8bfec6"};
     final Bench api = Bench.create(this);
 
     @BeforeEach
@@ -35,20 +35,19 @@ public class PublishTest {
         q = updateQuerySnippetSourceDirectories(q);
 
         api.query(q).fetchAfter("nightly_worst_score_small", table -> {
-            assertEquals(
-                """
+            assertEquals("""
                 Static_Benchmark|Chng5d|Var5d|Rate|ChngRls|ScrProb
-                VarBy- 2 Group 160K Unique Combos Float|-4.5%|1.4%|11,756,253|-5.0%|0.14%
-                WhereNotIn- 1 Filter Col|-1.6%|0.8%|358,744,394|-1.0%|5.69%
-                CumCombo- 6 Ops No Groups|-1.8%|1.2%|29,126,213|-1.8%|14.56%
-                AsOfJoin- Join On 2 Cols 1 Match|-0.9%|2.4%|1,979,218|-0.9%|70.50%
-                Where- 2 Filters|-1.3%|6.3%|961,307,378|-3.7%|83.63%
-                ParquetWrite- Lz4Raw Multi Col|1.5%|3.6%|2,880,350|0.9%|67.55%
-                WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique ...|1.7%|1.6%|6,721,785|0.2%|27.95%
-                Vector- 5 Calcs 1M Groups Dense Data|13.5%|12.3%|47,913,755|5.4%|27.30%
-                SelectDistinct- 1 Group 250 Unique Vals|1.7%|1.3%|58,195,926|1.2%|21.81%
-                WhereOneOf- 2 Filters|8.2%|5.3%|325,044,693|9.0%|12.58%""",
-                table.toCsv("|"), "Wrong score table results");
+                AsOfJoin- Join On 2 Cols 1 Match|-44.1%|1.0%|1,111,111|-44.1%|0.00%
+                ReverseAsOfJoin- Join On 2 Cols 1 Match|-3.2%|2.5%|1,933,301|-3.2%|20.89%
+                WhereNotIn- 1 Filter Col|-0.3%|1.0%|362,236,812|-0.7%|76.96%
+                VarBy- 2 Group 160K Unique Combos Float|-0.2%|2.2%|12,213,326|-0.7%|94.35%
+                ParquetWrite- Lz4Raw Multi Col|0.8%|3.7%|2,869,769|1.0%|82.35%
+                SelectDistinct- 1 Group 250 Unique Vals|0.6%|1.3%|57,973,815|0.7%|65.86%
+                Where- 2 Filters|2.7%|6.0%|990,671,179|-1.0%|65.47%
+                Vector- 5 Calcs 1M Groups Dense Data|9.8%|13.2%|46,943,765|2.4%|45.55%
+                WhereOneOf- 2 Filters|6.7%|5.8%|325,609,160|9.0%|24.50%
+                CumCombo- 6 Ops No Groups|3.8%|1.4%|30,721,966|3.9%|0.78%""",
+                    table.toCsv("|"), "Wrong score table results");
         }).execute();
         api.awaitCompletion();
     }
@@ -70,6 +69,13 @@ public class PublishTest {
     }
 
     private void stageRuns(String srcUri, String dstDir, String... runIds) throws Exception {
+        var q = """
+        import os
+        os.system('rm -rf /data/it-deephaven-benchmark')
+        """;
+        api.query(q).execute();
+        api.awaitCompletion();
+
         for (String runId : runIds) {
             for (String fileName : csvFileNames) {
                 var relPath = '/' + runId + '/' + fileName;
@@ -92,10 +98,10 @@ public class PublishTest {
         api.query(q).execute();
         api.awaitCompletion();
     }
-    
+
     private String getURLText(URL publishUrl) {
         var text = Filer.getURLText(publishUrl);
-        return text.endsWith("\n")?text:(text + '\n');
+        return text.endsWith("\n") ? text : (text + '\n');
     }
 
 }

@@ -11,5 +11,4 @@ Where- 2 Filters -Static,deephaven-engine,1697181688065,18.7990,11.8860,10095911
 Vector- 5 Calcs 1M Groups Dense Data -Static,deephaven-engine,1697181867367,139.1080,9.9920,48038430,480000000
 AsOfJoin- Join On 2 Cols 1 Match -Static,deephaven-engine,1697185024039,18.1680,10.2930,1943068,20000000
 AsOfJoin- Join On 2 Cols 1 Match -Inc,deephaven-engine,1697185042209,20.5490,13.7780,1451589,20000000
-WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals -Static,deephaven-engine,1697186400127,21.3790,14.5590,6868603,100000000
 ParquetRead- LZ4 2 Strs 2 Longs 2 Dbls -Static,deephaven-engine,1697188158790,12.3460,0.6150,32520325,20000000

@@ -31,12 +31,24 @@ def zprob(zscore):
 # Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
 platform_details = bench_platforms.sort_descending(['run_id']).group_by(['run_id']).first_by().ungroup()
 
-# Ensure that deleted benchmarks are not included in latest benchmarks
+# Ensure that deleted benchmarks are not included in the scores
 latest_benchmark_names = bench_results.view([
     'epoch_day=(int)(timestamp/1000/60/60/24)','benchmark_name'
 ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
-bench_results = bench_results.where_in(latest_benchmark_names,['benchmark_name=benchmark_name'])
 
+# Ensure the newest benchmarks, which have no past data, are not included in scores
+new_benchmark_names = bench_results.where_in(
+    latest_benchmark_names,['benchmark_name=benchmark_name']
+).group_by(['benchmark_name']).where(['len(op_rate) < 2']).ungroup()
+
+# Get benchmarks that have enough data to compare multiple days
+bench_results = bench_results.where_in(
+    latest_benchmark_names,['benchmark_name']
+).where_not_in(
+    new_benchmark_names,['benchmark_name']
+)
+
+# Get static benchmarks and compare to last 5 days and previous release
 nightly_score = bench_results.where([
     'benchmark_name.endsWith(`-Static`)'
 ]).exact_join(
@@ -51,7 +63,7 @@ nightly_score = bench_results.where([
 ]).group_by([
     'benchmark_name','origin'
 ]).update([
-    'all_rates=vec(concat(op_rate[0],op_rate[1]))',
+    'all_rates=vec(concat(op_rate[0],op_rate[1]))',  
     'all_past_rates=all_rates.subVector(1,len(all_rates))',
     'past_5_rates=all_past_rates.subVector(0,6)',
     'last_5_prev_vers_rates=ifelseObj(op_rate[1]!=null,op_rate[1],op_rate[0]).subVector(0,6)',
