@@ -27,7 +27,7 @@ def get_remote_run_ids(parent_uri, category, max_runs=10):
 # Get the latest file-based run_ids for the benchmark category up to max_runs
 def get_local_run_ids(parent_uri, category, max_runs=10):
     run_ids = []
-    text = '\n'.join(glob.glob(parent_uri.replace('file://','') + '/' + category + '/run-*'))
+    text = os.linesep.join(glob.glob(parent_uri.replace('file://','') + '/' + category + '/run-*'))
     for run_id in re.findall('.*/run-([a-z0-9]+)'.format(category), text, re.MULTILINE):
         run_ids.append(run_id)
     run_ids.sort(reverse=True)

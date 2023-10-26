@@ -5,6 +5,14 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>deephaven-benchmark</name>
 	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/it/resources</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -21,6 +29,20 @@
 							<sources>
 								<source>src/it/java</source>
 							</sources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>add-test-resource</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>add-test-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>src/it/resources</directory>
+								</resource>
+							</resources>
 						</configuration>
 					</execution>
 				</executions>
@@ -163,17 +185,17 @@
 			<artifactId>netty-all</artifactId>
 			<version>4.1.79.Final</version>
 		</dependency>
-		<!-- Added because of conflict with 1.49.1 --> 
+		<!-- Added because of conflict with 1.49.1 -->
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
-			<version>1.50.0</version> 
+			<version>1.50.0</version>
 		</dependency>
 		<!-- Added because of conflict with 3.17.3 -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.21.7</version> 
+			<version>3.21.7</version>
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
