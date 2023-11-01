@@ -74,25 +74,44 @@ nightly_score = bench_results.where([
     'prob=(float)zprob(score)'
 ])
 
-nightly_worst_score_large = nightly_score.head_by(20).view([
+nightly_worst_score_large = nightly_score.view([
     'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
     'Variability=(float)var_rate/100','Rate=op_rate',
     'Change=(float)gain(avg_rate,op_rate)/100',
     'Since_Release=(float)gain(prev_vers_avg_rate,op_rate)/100',
     'Score=score','Score_Prob=prob'
-]).sort([
-    'Score'
-]).format_columns([
+]).sort(['Score']).head_by(20).format_columns([
     'Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
-    'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)','Score_Prob=Decimal(`0.00%`)'
+    'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)',
+    'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'
 ])
 
 nightly_worst_score_small = nightly_worst_score_large.head_by(10).view([
     'Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
-    'Var5d=Variability','Rate','ChngRls=Since_Release','ScrProb=Score_Prob'
+    'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob'   
 ]).format_columns([
     'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
-    'ChngRls=Decimal(`0.0%`)','ScrProb=Decimal(`0.00%`)'
+    'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'
+])
+
+nightly_best_score_large = nightly_score.view([
+    'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
+    'Variability=(float)var_rate/100','Rate=op_rate',
+    'Change=(float)gain(avg_rate,op_rate)/100',
+    'Since_Release=(float)gain(prev_vers_avg_rate,op_rate)/100',
+    'Score=score','Score_Prob=prob'
+]).sort_descending(['Score']).head_by(20).format_columns([
+    'Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
+    'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)',
+    'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'
+])
+
+nightly_best_score_small = nightly_best_score_large.head_by(10).view([
+    'Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
+    'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob'   
+]).format_columns([
+    'Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+    'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'
 ])
 
 bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
