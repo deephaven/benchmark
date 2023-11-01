@@ -39,16 +39,26 @@ def get_run_ids(storage_uri, category, max_runs):
     else: 
         return get_local_run_ids(storage_uri, category, max_runs)
 
+# Read csv into a table (Currently, pandas is used for gzipped csv)
+def dh_read_csv(uri, schema=None):
+    uri = uri.replace('file:///','/')
+    try:
+        tbl = read_csv(uri + '.gz', schema) if schema else read_csv(uri + '.gz')
+        print('Got ' + uri + '.gz')
+    except Exception:
+        tbl = read_csv(uri, schema) if schema else read_csv(uri)
+        print('Got ' + uri)
+    return tbl
+
 # Merge together benchmark runs from the GCloud bucket for the same csv (e.g. benchmark_results.csv)
 def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None):
-    merged_table = None
+    tables = []
     for run_id in run_ids:
         table_uri = parent_uri + '/' + category + '/run-' + run_id + '/' + csv_file_name
-        print("Getting " + table_uri)
-        table_csv = read_csv(table_uri, schema) if schema else read_csv(table_uri)
-        table_csv = table_csv.update(['run_id = "' + run_id + '"'])
-        merged_table = merge([merged_table, table_csv]) if merged_table else table_csv
-    return merged_table
+        table_csv = dh_read_csv(table_uri, schema)
+        table_csv = table_csv.update_view(['run_id = "' + run_id + '"'])
+        tables.append(table_csv)
+    return merge(tables)
 
 # Load standard tables from GCloud or local storage according to category
 # If this script is run from exec(), accept the benchmark_category_arg
@@ -140,7 +150,7 @@ op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], 
 
 bench_results_change = bench_results_diff.sort(['benchmark_name', 'origin', 'deephaven_version', 'timestamp'])
 bench_results_change = bench_results_change.update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin'])
-bench_results_change = bench_results_change.update(
+bench_results_change = bench_results_change.update_view(
     ['op_rate_variability=(float)rstd(op_group_rates)', 'op_rate_change=(float)rchange(op_group_rates)']
 )
 bench_results_change = bench_results_change.view(
