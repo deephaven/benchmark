@@ -19,7 +19,7 @@ import io.deephaven.benchmark.util.Filer;
  */
 public class PublishNotification {
     static final String rowIndent = " ".repeat(10);
-    final String[] tables = {"nightly_worst_score"};
+    final String[] tables = {"nightly_worst_score", "nightly_best_score"};
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
@@ -78,10 +78,10 @@ public class PublishNotification {
     void publishToSlack(Path outDir) {
         var message = "Nightly Benchmark Changes " +
                 "<https://controller.try-dh.demo.community.deephaven.io/get_ide| (Benchmark Tables)>\n";
-        // "<https://github.com/deephaven/benchmark/blob/main/docs/PublishedResults.md| (Dig Deeper)>\n";
 
         for (String table : tables) {
-            message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```";
+            message += "*" + table.replace("_", " ") + "*\n";
+            message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```\n";
         }
 
         var payload = """

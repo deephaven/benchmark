@@ -36,18 +36,32 @@ public class PublishTest {
 
         api.query(q).fetchAfter("nightly_worst_score_small", table -> {
             assertEquals("""
-                Static_Benchmark|Chng5d|Var5d|Rate|ChngRls|ScrProb
-                AsOfJoin- Join On 2 Cols 1 Match|-44.1%|1.0%|1,111,111|-44.1%|0.00%
-                ReverseAsOfJoin- Join On 2 Cols 1 Match|-3.2%|2.5%|1,933,301|-3.2%|20.89%
-                WhereNotIn- 1 Filter Col|-0.3%|1.0%|362,236,812|-0.7%|76.96%
-                VarBy- 2 Group 160K Unique Combos Float|-0.2%|2.2%|12,213,326|-0.7%|94.35%
-                ParquetWrite- Lz4Raw Multi Col|0.8%|3.7%|2,869,769|1.0%|82.35%
-                SelectDistinct- 1 Group 250 Unique Vals|0.6%|1.3%|57,973,815|0.7%|65.86%
-                Where- 2 Filters|2.7%|6.0%|990,671,179|-1.0%|65.47%
-                Vector- 5 Calcs 1M Groups Dense Data|9.8%|13.2%|46,943,765|2.4%|45.55%
-                WhereOneOf- 2 Filters|6.7%|5.8%|325,609,160|9.0%|24.50%
-                CumCombo- 6 Ops No Groups|3.8%|1.4%|30,721,966|3.9%|0.78%""",
-                    table.toCsv("|"), "Wrong score table results");
+                Static_Benchmark|Chng5d|Var5d|Rate|ChngRls|Scr|ScrProb
+                AsOfJoin- Join On 2 Cols 1 Match|-44.1%|1.0%|1,111,111|-44.1%|-44.9|0.00%
+                ReverseAsOfJoin- Join On 2 Cols 1 Match|-3.2%|2.5%|1,933,301|-3.2%|-1.3|20.89%
+                WhereNotIn- 1 Filter Col|-0.3%|1.0%|362,236,812|-0.7%|-0.3|76.96%
+                VarBy- 2 Group 160K Unique Combos Float|-0.2%|2.2%|12,213,326|-0.7%|-0.1|94.35%
+                ParquetWrite- Lz4Raw Multi Col|0.8%|3.7%|2,869,769|1.0%|0.2|82.35%
+                SelectDistinct- 1 Group 250 Unique Vals|0.6%|1.3%|57,973,815|0.7%|0.4|65.86%
+                Where- 2 Filters|2.7%|6.0%|990,671,179|-1.0%|0.4|65.47%
+                Vector- 5 Calcs 1M Groups Dense Data|9.8%|13.2%|46,943,765|2.4%|0.7|45.55%
+                WhereOneOf- 2 Filters|6.7%|5.8%|325,609,160|9.0%|1.2|24.50%
+                CumCombo- 6 Ops No Groups|3.8%|1.4%|30,721,966|3.9%|2.7|0.78%""",
+                    table.toCsv("|"), "Wrong worst score table results");
+        }).fetchAfter("nightly_best_score_small", table -> {
+            assertEquals("""
+                Static_Benchmark|Chng5d|Var5d|Rate|ChngRls|Scr|ScrProb
+                CumCombo- 6 Ops No Groups|3.8%|1.4%|30,721,966|3.9%|2.7|0.78%
+                WhereOneOf- 2 Filters|6.7%|5.8%|325,609,160|9.0%|1.2|24.50%
+                Vector- 5 Calcs 1M Groups Dense Data|9.8%|13.2%|46,943,765|2.4%|0.7|45.55%
+                Where- 2 Filters|2.7%|6.0%|990,671,179|-1.0%|0.4|65.47%
+                SelectDistinct- 1 Group 250 Unique Vals|0.6%|1.3%|57,973,815|0.7%|0.4|65.86%
+                ParquetWrite- Lz4Raw Multi Col|0.8%|3.7%|2,869,769|1.0%|0.2|82.35%
+                VarBy- 2 Group 160K Unique Combos Float|-0.2%|2.2%|12,213,326|-0.7%|-0.1|94.35%
+                WhereNotIn- 1 Filter Col|-0.3%|1.0%|362,236,812|-0.7%|-0.3|76.96%
+                ReverseAsOfJoin- Join On 2 Cols 1 Match|-3.2%|2.5%|1,933,301|-3.2%|-1.3|20.89%
+                AsOfJoin- Join On 2 Cols 1 Match|-44.1%|1.0%|1,111,111|-44.1%|-44.9|0.00%""",
+                    table.toCsv("|"), "Wrong best score table results");
         }).execute();
         api.awaitCompletion();
     }
