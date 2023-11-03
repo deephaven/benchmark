@@ -41,6 +41,7 @@ final public class Bench {
     final BenchMetrics metrics;
     final BenchPlatform platform;
     final QueryLog queryLog;
+    final BenchLog runLog;
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
     private boolean isClosed = false;
@@ -51,6 +52,7 @@ final public class Bench {
         this.metrics = new BenchMetrics(outputDir);
         this.platform = new BenchPlatform(outputDir);
         this.queryLog = new QueryLog(outputDir, testInst);
+        this.runLog = new BenchLog(outputDir, testInst);
     }
 
     /**
@@ -64,6 +66,7 @@ final public class Bench {
         this.result.setName(name);
         this.metrics.setName(name);
         this.queryLog.setName(name);
+        this.runLog.setName(name);
     }
 
     /**
@@ -180,6 +183,15 @@ final public class Bench {
     }
 
     /**
+     * Get the metrics for this Benchmark instance (e.g. test) used for collecting metric values
+     * 
+     * @return the metrics instance
+     */
+    public BenchLog log() {
+        return runLog;
+    }
+
+    /**
      * Has this Bench api instance been closed along with all connectors and files opened since creating the instance
      * 
      * @return true if already closed, otherwise false
@@ -206,6 +218,7 @@ final public class Bench {
         result.commit();
         metrics.commit();
         platform.commit();
+        runLog.close();
         queryLog.close();
     }
 

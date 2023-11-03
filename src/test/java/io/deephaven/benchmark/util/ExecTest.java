@@ -2,6 +2,7 @@
 package io.deephaven.benchmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 public class ExecTest {
@@ -9,7 +10,7 @@ public class ExecTest {
     public void exec() {
         var os = System.getProperty("os.name");
         var cmd = os.contains("Windows") ? "cmd /c echo Ack" : "echo Ack";
-        assertEquals(0, Exec.exec(cmd), "Wrong response");
+        assertEquals("Ack", Exec.exec(Paths.get("."), cmd), "Wrong response");
     }
 
 }

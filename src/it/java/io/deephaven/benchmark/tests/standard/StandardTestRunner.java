@@ -173,9 +173,11 @@ public class StandardTestRunner {
         garbage_collect()
 
         bench_api_metrics_snapshot()
+        print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
         result = ${operation}
         end_time = time.perf_counter_ns()
+        print('${logOperationEnd}')
         bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
@@ -201,6 +203,7 @@ public class StandardTestRunner {
         garbage_collect()
         
         bench_api_metrics_snapshot()
+        print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
         result = ${operation}
         source_filter.start()
@@ -209,6 +212,7 @@ public class StandardTestRunner {
         get_exec_ctx().update_graph.j_update_graph.requestRefresh()
         source_filter.waitForCompletion()
         end_time = time.perf_counter_ns()
+        print('${logOperationEnd}')
         bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
@@ -225,12 +229,16 @@ public class StandardTestRunner {
         if (api.isClosed())
             api = initialize(testInst);
         api.setName(name);
+        var logBeginMarker = getLogSnippet("Begin", name);
+        var logEndMarker = getLogSnippet("End", name);
         query = query.replace("${readTable}", read);
         query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
         query = query.replace("${setupQueries}", String.join("\n", setupQueries));
         query = query.replace("${operation}", operation);
+        query = query.replace("${logOperationBegin}", logBeginMarker);
+        query = query.replace("${logOperationEnd}", logEndMarker);
 
         try {
             var result = new AtomicReference<Result>();
@@ -251,6 +259,7 @@ public class StandardTestRunner {
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
         } finally {
+            addDockerLog(api, logBeginMarker, logEndMarker);
             api.close();
         }
     }
@@ -262,6 +271,11 @@ public class StandardTestRunner {
     String loadSupportTables() {
         return supportTables.stream().map(t -> t + " = read('/data/" + t + ".parquet').select()\n")
                 .collect(Collectors.joining(""));
+    }
+
+    String getLogSnippet(String beginEnd, String name) {
+        beginEnd = "BENCH_" + beginEnd.toUpperCase() + "_TEST";
+        return String.join(",", ">>>>> " + beginEnd, name, beginEnd + " <<<<<");
     }
 
     Bench initialize(Object testInst) {
@@ -276,6 +290,17 @@ public class StandardTestRunner {
         restartDocker(api);
         api.query(query).execute();
         return api;
+    }
+
+    void addDockerLog(Bench api, String beginMarker, String endMarker) {
+        var timer = api.timer();
+        var logText = Exec.getDockerLog(api.property("docker.compose.file", ""));
+        if (logText == null)
+            return;
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
+        metrics.set("log", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
+        api.log().add("deephaven-engine", logText);
     }
 
     void restartDocker(Bench api) {
