@@ -7,6 +7,10 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
 
+/**
+ * Test to see what metrics are available in the remote Deephaven Server. Note. These tests should pass when DH is
+ * either JVM 17 or JVM 21
+ */
 public class MetricsCollectionTest {
     final Bench api = Bench.create(this);
 
@@ -23,7 +27,8 @@ public class MetricsCollectionTest {
         api.query(query).fetchAfter("mymetrics", table -> {
             assertEquals("timestamp, origin, category, type, name, value, note", formatCols(table.getColumnNames()),
                     "Wrong column names");
-            assertEquals(21, table.getRowCount(), "Wrong row count");
+            int rowCount = table.getRowCount();
+            assertTrue(rowCount == 21 || rowCount == 23, "Wrong row count. Got " + rowCount);
             assertEquals("ClassLoadingImpl", table.getValue(0, "category"), "Wrong bean name");
             assertEquals("TotalLoadedClassCount", table.getValue(0, "name"), "Wrong ");
             assertTrue(table.getValue(3, "value").toString()
@@ -45,7 +50,8 @@ public class MetricsCollectionTest {
         api.query(query).fetchAfter("mymetrics", table -> {
             assertEquals("timestamp, origin, category, type, name, value, note", formatCols(table.getColumnNames()),
                     "Wrong column names");
-            assertEquals(42, table.getRowCount(), "Wrong row count");
+            int rowCount = table.getRowCount();
+            assertTrue(rowCount == 42 || rowCount == 46, "Wrong row count. Got " + rowCount);
         }).execute();
     }
 
@@ -60,7 +66,8 @@ public class MetricsCollectionTest {
         """;
 
         api.query(query).fetchAfter("mymetrics", table -> {
-            assertEquals(21, table.getRowCount(), "Wrong row count");
+            int rowCount = table.getRowCount();
+            assertTrue(rowCount == 21 || rowCount == 23, "Wrong row count. Got " + rowCount);
             api.metrics().add(table);
         }).execute();
         api.close();
