@@ -14,7 +14,25 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 5  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
-newest_benchmarks = bench_results_change.sort_descending(['timestamp']).first_by(['benchmark_name'])
+# Return a table containing only non-obsolete benchmarks that have at least two versions
+# Candidate for pulling up into deephaven_tables.py
+def latest_comparable_benchmarks(results_tbl):
+    latest_benchmark_names = results_tbl.view([
+        'epoch_day=(int)(timestamp/1000/60/60/24)','benchmark_name'
+    ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
+
+    new_benchmark_names = results_tbl.where_in(
+        latest_benchmark_names,['benchmark_name=benchmark_name']
+    ).group_by(['benchmark_name']).where(['len(op_rate) < 2']).ungroup()
+
+    results_tbl = results_tbl.where_in(
+        latest_benchmark_names,['benchmark_name']  # Exclude obsolete benchmarks
+    ).where_not_in(
+        new_benchmark_names,['benchmark_name']  # Exclude single-version benchmarks
+    ).sort_descending(['timestamp']).first_by(['benchmark_name'])
+    return results_tbl
+
+newest_benchmarks = latest_comparable_benchmarks(bench_results_change)
 
 from deephaven import numpy as dhnp
 
@@ -25,18 +43,21 @@ for vector in version_vectors:
         for v in vers.toArray():
             versions['V_' + v.replace('.','_')] = 0
 vers = list(versions.keys())
+vers.reverse()
 versLen = len(vers)
 
 past_static_rates = newest_benchmarks.where([
-    'versLen <= len(op_group_rates)', 'benchmark_name.endsWith(`-Static`)'
+    'benchmark_name.endsWith(`-Static`)'
 ]).update([
-    'Change=(float)gain(op_group_rates[versLen-2], op_group_rates[versLen-1])'
+    'op_group_rates=vec(reverse(op_group_rates)).subVector(0, versLen)',
+    'op_group_versions=vecObj(reverseObj(op_group_versions)).subVector(0, versLen)',
+    'Change=(float)gain(op_group_rates[1], op_group_rates[0])'
 ]).update([
-    (vers[i] + "=op_group_rates[" + str(i) + "]") for i in reversed(range(versLen))
+    (vers[i] + "=op_group_rates[" + str(i) + "]") for i in range(versLen)
 ]).view([
     'Static_Benchmark=benchmark_name.replace(` -Static`,``)',
     'Duration=op_duration','Variability=op_rate_variability','Change'] + [
-    vers[i] for i in reversed(range(versLen))
+    vers[i] for i in range(versLen)
 ])
 
 worst_static_rate_changes = past_static_rates.sort(['Change']).head_by(25)
