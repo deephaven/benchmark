@@ -21,7 +21,7 @@ class CsvColTypeTest {
     @Order(2)
     void readThreeIntegralCols() {
         runner.setScaleFactors(5, 2);
-        runner.runCsvReadTest("CsvRead- 3 Long Cols -Static");
+        runner.runCsvReadTest("CsvRead- 3 Long Cols -Static", "short10K", "int10K", "long10K");
     }
 
     @Test
@@ -35,7 +35,7 @@ class CsvColTypeTest {
     @Order(4)
     void readOneStringCol() {
         runner.setScaleFactors(5, 10);
-        runner.runCsvReadTest("CsvRead- 1 String Col -Static");
+        runner.runCsvReadTest("CsvRead- 1 String Col -Static", "str10K");
     }
 
     @Test
@@ -49,7 +49,7 @@ class CsvColTypeTest {
     @Order(6)
     void readOneBigDecimalCol() {
         runner.setScaleFactors(5, 10);
-        runner.runCsvReadTest("CsvRead- 1 Big Decimal Col -Static");
+        runner.runCsvReadTest("CsvRead- 1 Big Decimal Col -Static", "bigDec10K");
     }
 
     @Test
@@ -63,7 +63,7 @@ class CsvColTypeTest {
     @Order(8)
     void readOneInt1KArrayCol() {
         runner.setScaleFactors(0.10, 200);
-        runner.runCsvReadTest("CsvRead- 1 Array Col of 1K Ints -Static");
+        runner.runCsvReadTest("CsvRead- 1 Array Col of 1K Ints -Static", "intArr1K");
     }
 
     @Test
@@ -77,7 +77,7 @@ class CsvColTypeTest {
     @Order(10)
     void readOneInt1KVectorCol() {
         runner.setScaleFactors(0.10, 100);
-        runner.runCsvReadTest("CsvRead- 1 Vector Col of 1K Ints -Static");
+        runner.runCsvReadTest("CsvRead- 1 Vector Col of 1K Ints -Static", "intVec1K");
     }
 
     @Test
@@ -91,7 +91,7 @@ class CsvColTypeTest {
     @Order(12)
     void readOneInt5ArrayCol() {
         runner.setScaleFactors(2, 10);
-        runner.runCsvReadTest("CsvRead- 1 Array Col of 5 Ints -Static");
+        runner.runCsvReadTest("CsvRead- 1 Array Col of 5 Ints -Static", "intArr5");
     }
 
     @Test
@@ -105,7 +105,7 @@ class CsvColTypeTest {
     @Order(14)
     void readOneInt5VectorCol() {
         runner.setScaleFactors(2, 10);
-        runner.runCsvReadTest("CsvRead- 1 Vector Col of 5 Ints -Static");
+        runner.runCsvReadTest("CsvRead- 1 Vector Col of 5 Ints -Static", "intVec5");
     }
 
     @Test
@@ -119,7 +119,7 @@ class CsvColTypeTest {
     @Order(16)
     void readOneObjectArrayCol() {
         runner.setScaleFactors(2, 8);
-        runner.runCsvReadTest("CsvRead- 1 Array Col of 3 Strings and 2 Nulls -Static");
+        runner.runCsvReadTest("CsvRead- 1 Array Col of 3 Strings and 2 Nulls -Static", "objArr5");
     }
 
     @Test
@@ -133,7 +133,7 @@ class CsvColTypeTest {
     @Order(18)
     void readOneObjectVectorCol() {
         runner.setScaleFactors(2, 10);
-        runner.runCsvReadTest("CsvRead- 1 Vector Col of 3 String and 2 Nulls -Static");
+        runner.runCsvReadTest("CsvRead- 1 Vector Col of 3 String and 2 Nulls -Static", "objVec5");
     }
 
 }

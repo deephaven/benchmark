@@ -52,8 +52,10 @@ class FileTestRunner {
      * 
      * @param testName name that will appear in the results as the benchmark name
      */
-    void runCsvReadTest(String testName) {
-        runReadTest(testName, "read_csv('/data/source.ptr.csv')");
+    void runCsvReadTest(String testName, String... columnNames) {
+        var q = "read_csv('/data/source.ptr.csv', ${types})";
+        q = q.replace("${types}", getTypes(columnNames));
+        runReadTest(testName, q);
     }
 
     /**
@@ -98,7 +100,7 @@ class FileTestRunner {
      * 
      * @param testName name that will appear in the results as the benchmark name
      */
-    private void runReadTest(String testName, String readQuery) {
+    private void runReadTest(String testName, String readQuery, String... columnNames) {
         var q = """
         bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
@@ -208,6 +210,27 @@ class FileTestRunner {
         return "(ii % 10 == 0) ? null : " + gen;
     }
 
+    private String getTypes(String... cols) {
+        return "{" + Arrays.stream(cols).map(c -> "'" + c + "':" + getType(c)).collect(Collectors.joining(",")) + "}";
+    }
+
+    private String getType(String columnName) {
+        return switch (columnName) {
+            case "str10K" -> "dht.string";
+            case "long10K" -> "dht.long";
+            case "int10K" -> "dht.int_";
+            case "short10K" -> "dht.short";
+            case "bigDec10K" -> "dht.BigDecimal";
+            case "intArr5" -> "dht.int_array";
+            case "intVec5" -> "dht.int_array";
+            case "intArr1K" -> "dht.int_array";
+            case "intVec1K" -> "dht.int_array";
+            case "objArr5" -> "string_array";
+            case "objVec5" -> "string_array";
+            default -> throw new RuntimeException("Undefined column: " + columnName);
+        };
+    }
+
     /**
      * Initialize the test client and its properties. Restart Docker if it is local to the test client and the
      * {@code docker.compose.file} set.
@@ -222,6 +245,7 @@ class FileTestRunner {
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read, write
         from deephaven import read_csv, write_csv
+        from deephaven import dtypes as dht
         """;
 
         Bench api = Bench.create(testInst);
