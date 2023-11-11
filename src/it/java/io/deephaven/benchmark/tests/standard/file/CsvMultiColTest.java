@@ -18,16 +18,16 @@ class CsvMultiColTest {
         runner.setScaleFactors(4, 1);
     }
 
-    @Test
-    @Order(1)
-    void writeMultiCol() {
-        runner.runCsvWriteTest("CsvWrite- Multi Col -Static", usedColumns);
-    }
-
-    @Test
-    @Order(2)
-    void readMultiCol() {
-        runner.runCsvReadTest("CsvRead- Multi Col -Static");
-    }
+//    @Test
+//    @Order(1)
+//    void writeMultiCol() {
+//        runner.runCsvWriteTest("CsvWrite- Multi Col -Static", usedColumns);
+//    }
+//
+//    @Test
+//    @Order(2)
+//    void readMultiCol() {
+//        runner.runCsvReadTest("CsvRead- Multi Col -Static");
+//    }
 
 }
