@@ -7,7 +7,7 @@
 import os, re, glob
 import deephaven.dtypes as dht
 from deephaven import read_csv, merge, agg, empty_table
-from urllib.request import urlopen
+from urllib.request import urlopen, urlretrieve
 
 # Schema for benchmstk-results.csv
 s_results = {'benchmark_name':dht.string, 'origin':dht.string,'timestamp':dht.long,'test_duration':dht.double,
@@ -39,21 +39,56 @@ def get_run_ids(storage_uri, category, max_runs):
     else: 
         return get_local_run_ids(storage_uri, category, max_runs)
 
+# Cache an HTTP url into a local directory and return the local path  
+def cache_remote_csv(uri):
+    try:
+        out_path = re.sub('^http.*/deephaven-benchmark/', '/data/deephaven-benchmark/', uri)
+        os.makedirs(os.path.dirname(out_path), mode=0o777, exist_ok=True)
+    except Exception as ex:
+        print('Error downloading file:', out_path, ':', ex)
+        return uri
+    try:
+        out_path_gz = out_path + '.gz'
+        if os.path.exists(out_path_gz): return out_path_gz
+        urlretrieve(uri + '.gz', out_path_gz)
+        print('Cache', uri + '.gz')
+        return out_path_gz
+    except Exception:
+        try:
+            if os.path.exists(out_path): return out_path
+            urlretrieve(uri, out_path)
+            print('Cache', uri)
+            return out_path
+        except Exception as ex:
+            print('Error caching file:', out_path, ':', ex)
+            return uri
+
+# Read csv into a table (Currently, pandas is used for gzipped csv)
+def dh_read_csv(uri, schema=None):
+    uri = uri.replace('file:///','/')
+    uri = cache_remote_csv(uri) if uri.startswith('http') else uri
+    try:
+        tbl = read_csv(uri + '.gz', schema) if schema else read_csv(uri + '.gz')
+        print('Load ' + uri + '.gz')
+    except Exception:
+        tbl = read_csv(uri, schema) if schema else read_csv(uri)
+        print('Load ' + uri)
+    return tbl
+
 # Merge together benchmark runs from the GCloud bucket for the same csv (e.g. benchmark_results.csv)
 def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None):
-    merged_table = None
+    tables = []
     for run_id in run_ids:
         table_uri = parent_uri + '/' + category + '/run-' + run_id + '/' + csv_file_name
-        print("Getting " + table_uri)
-        table_csv = read_csv(table_uri, schema) if schema else read_csv(table_uri)
-        table_csv = table_csv.update(['run_id = "' + run_id + '"'])
-        merged_table = merge([merged_table, table_csv]) if merged_table else table_csv
-    return merged_table
+        table_csv = dh_read_csv(table_uri, schema)
+        table_csv = table_csv.update_view(['run_id = "' + run_id + '"'])
+        tables.append(table_csv)
+    return merge(tables)
 
 # Load standard tables from GCloud or local storage according to category
 # If this script is run from exec(), accept the benchmark_category_arg
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
-default_category = 'nightly'
+default_category = 'ZTEST'
 default_max_runs = 5
 default_history_runs = 5
 
@@ -140,7 +175,7 @@ op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], 
 
 bench_results_change = bench_results_diff.sort(['benchmark_name', 'origin', 'deephaven_version', 'timestamp'])
 bench_results_change = bench_results_change.update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin'])
-bench_results_change = bench_results_change.update(
+bench_results_change = bench_results_change.update_view(
     ['op_rate_variability=(float)rstd(op_group_rates)', 'op_rate_change=(float)rchange(op_group_rates)']
 )
 bench_results_change = bench_results_change.view(
