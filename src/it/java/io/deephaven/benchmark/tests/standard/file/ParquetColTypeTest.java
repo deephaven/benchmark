@@ -41,14 +41,14 @@ class ParquetColTypeTest {
     @Test
     @Order(5)
     void writeOneBigDecimalCol() {
-        runner.setScaleFactors(5, 3);
+        runner.setScaleFactors(5, 4);
         runner.runParquetWriteTest("ParquetWrite- 1 Big Decimal Col -Static", "NONE", "bigDec10K");
     }
 
     @Test
     @Order(6)
     void readOneBigDecimalCol() {
-        runner.setScaleFactors(5, 3);
+        runner.setScaleFactors(5, 4);
         runner.runParquetReadTest("ParquetRead- 1 Big Decimal Col -Static");
     }
 
