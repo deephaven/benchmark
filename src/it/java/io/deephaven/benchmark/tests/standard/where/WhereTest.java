@@ -18,7 +18,7 @@ public class WhereTest {
 
     @Test
     public void where1Filter() {
-        runner.setScaleFactors(300, 15);
+        runner.setScaleFactors(260, 170);
         var q = """
         source.where(filters=["str250 = '250'"]);
         """;
@@ -27,7 +27,7 @@ public class WhereTest {
     
     @Test
     public void where2Filters() {
-        runner.setScaleFactors(200, 20);
+        runner.setScaleFactors(210, 170);
         var q = """
         source.where(filters=["str250 = '250'", "str640 = '640'"]);
         """;
@@ -36,7 +36,7 @@ public class WhereTest {
     
     @Test
     public void whereFilterInList() {
-        runner.setScaleFactors(200, 20);
+        runner.setScaleFactors(190, 160);
         var q = """
         source.where(filters=["str250 in '250', '1', '249', '2', '248'"]);
         """;
@@ -45,7 +45,7 @@ public class WhereTest {
     
     @Test
     public void whereOneOf2Filters() {
-        runner.setScaleFactors(100, 7);
+        runner.setScaleFactors(80, 75);
         var q = """
         source.where_one_of(filters=["str250 = '250'", "str640 = '640'"]);
         """;
