@@ -28,14 +28,14 @@ public class WhereNotInTest {
 
     @Test
     public void whereNotIn1Filter() {
-        runner.setScaleFactors(80, 10);
+        runner.setScaleFactors(90, 55);
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "str250", "int250");
     }
 
     @Test
     public void whereNotIn2Filter() {
-        runner.setScaleFactors(50, 5);
+        runner.setScaleFactors(70, 60);
         var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
         runner.test("WhereNotIn- 2 Filter Cols", q, "str250", "str640", "int250");
     }

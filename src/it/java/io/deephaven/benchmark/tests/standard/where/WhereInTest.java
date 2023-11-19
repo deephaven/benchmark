@@ -28,14 +28,14 @@ public class WhereInTest {
 
     @Test
     public void whereIn1Filter() {
-        runner.setScaleFactors(300, 20);
+        runner.setScaleFactors(210, 150);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix'])";
         runner.test("WhereIn- 1 Filter Col", q, "str250", "int250");
     }
 
     @Test
     public void whereIn2Filter() {
-        runner.setScaleFactors(40, 5);
+        runner.setScaleFactors(85, 60);
         var q = "source.where_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
         runner.test("WhereIn- 2 Filter Cols", q, "str250", "str640", "int250");
     }
