@@ -51,7 +51,7 @@ past_static_rates = newest_benchmarks.where([
 ]).update([
     'op_group_rates=vec(reverse(op_group_rates)).subVector(0, versLen)',
     'op_group_versions=vecObj(reverseObj(op_group_versions)).subVector(0, versLen)',
-    'Change=(float)gain(op_group_rates[1], op_group_rates[0])'
+    'Change=gain(op_group_rates[1], op_group_rates[0])'
 ]).update([
     (vers[i] + "=op_group_rates[" + str(i) + "]") for i in range(versLen)
 ]).view([
