@@ -31,11 +31,11 @@ def op_by_date_range(begin_millis, end_millis, op_prefix):
     ]).view([
         'Benchmark=benchmark_name', 'Start=timestamp[0]', 'End=timestamp[len(timestamp)-1]', 
         'Start_Rate=op_rate[0]', 'End_Rate=op_rate[len(op_rate)-1]',
-        'Rate_Change=(float)gain(Start_Rate, End_Rate)',
+        'Rate_Change=gain(Start_Rate, End_Rate)',
         'Start_Heap_Used=(long)heap_used[0]', 'End_Heap_Used=(long)heap_used[len(heap_used)-1]',
-        'Heap_Used_Change=(float)gain(Start_Heap_Used, End_Heap_Used)',
+        'Heap_Used_Change=gain(Start_Heap_Used, End_Heap_Used)',
         'Start_NonHeap_Used=(long)non_heap_used[0]', 'End_NonHeap_Used=(long)non_heap_used[len(non_heap_used)-1]',
-        'NonHeap_Used_Change=(float)gain(Start_NonHeap_Used, End_NonHeap_Used)'
+        'NonHeap_Used_Change=gain(Start_NonHeap_Used, End_NonHeap_Used)'
     ]).where([
         '!Benchmark.contains(`Rows Per`)'
     ])

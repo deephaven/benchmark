@@ -136,17 +136,17 @@ add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'Collectio
 add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'CollectionTime', 'g1_old_collect_time')
 
 import statistics
-def rstd(rates):
+def rstd(rates) -> float:
     rates = [i for i in rates if i >= 0]
     mean = statistics.mean(rates)
     return (statistics.pstdev(rates) * 100.0 / mean) if mean != 0 else 0.0
     
-def zscore(rate, rates):
+def zscore(rate, rates) -> float:
     rates = [i for i in rates if i >= 0]
     std = statistics.pstdev(rates)
     return ((rate - statistics.mean(rates)) / std) if std != 0 else 0.0
 
-def zprob(zscore):
+def zprob(zscore) -> float:
     lower = -abs(zscore)
     upper = abs(zscore)
     return 1 - (statistics.NormalDist().cdf(upper) - statistics.NormalDist().cdf(lower))
@@ -158,7 +158,7 @@ def rchange(rates) -> float:
     m = statistics.mean(rates[:-1])
     return (rates[-1] - m) / m * 100.0
 
-def gain(start:float, end:float) -> float:
+def gain(start, end) -> float:
     return (end - start) / start * 100.0
 
 def format_rates(rates):
