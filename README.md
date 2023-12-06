@@ -2,6 +2,7 @@
 
 [Summary of Latest Successful Nightly Benchmarks](docs/NightlySummary.md)
 ![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/benchmark-summary.svg?)
+
 The Benchmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
 framework as a runner and works from popular IDEs or from the command line. It is geared towards scale testing interfaces capable of ingesting 
 table data, transforming it, and returning tabular results. 
