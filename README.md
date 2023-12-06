@@ -2,8 +2,6 @@
 
 [Summary of Latest Successful Nightly Benchmarks](docs/NightlySummary.md)
 ![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/benchmark-summary.svg?)
-![Operation Rate Product Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/benchmark-summary.svg?)
-
 The Benchmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
 framework as a runner and works from popular IDEs or from the command line. It is geared towards scale testing interfaces capable of ingesting 
 table data, transforming it, and returning tabular results. 
@@ -72,4 +70,6 @@ or fetched from the remote Deephaven instance where the test is running as is do
 [StandardTestRunner](src/it/java/io/deephaven/benchmark/tests/standard/StandardTestRunner.java) 
 used for nightly Deephaven benchmarks. Either way the submission of the result to the Benchmark framework is under the test-writer's control.
 
-
+# How Does Deephaven Compare?
+[Summary of Product Comparison Benchmarks](docs/ComparisonSummary.md)
+![Operation Rate Product Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/benchmark-summary.svg?)
