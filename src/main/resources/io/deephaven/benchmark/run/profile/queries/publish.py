@@ -15,22 +15,25 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
 # Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
 platform_details = bench_platforms.sort_descending(['run_id']).group_by(['run_id']).first_by().ungroup()
 
-# Ensure that deleted benchmarks are not included in the scores
-latest_benchmark_names = bench_results.view([
-    'epoch_day=(int)(timestamp/1000/60/60/24)','benchmark_name'
-]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
+# Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
+# Candidate for pulling up into deephaven_tables.py
+def latest_comparable_benchmarks(results_tbl):
+    latest_benchmark_names = results_tbl.view([
+        'epoch_day=(int)(Duration.ofMillis(timestamp).toDays() / 2)','benchmark_name'
+    ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
 
-# Ensure the newest benchmarks, which have no past data, are not included in scores
-new_benchmark_names = bench_results.where_in(
-    latest_benchmark_names,['benchmark_name=benchmark_name']
-).group_by(['benchmark_name']).where(['len(op_rate) < 2']).ungroup()
+    new_benchmark_names = results_tbl.where_in(
+        latest_benchmark_names,['benchmark_name=benchmark_name']
+    ).group_by(['benchmark_name']).where(['len(op_rate) < 2']).ungroup()
 
-# Get benchmarks that have enough data to compare multiple days
-bench_results = bench_results.where_in(
-    latest_benchmark_names,['benchmark_name']
-).where_not_in(
-    new_benchmark_names,['benchmark_name']
-)
+    results_tbl = results_tbl.where_in(
+        latest_benchmark_names,['benchmark_name']  # Exclude obsolete benchmarks
+    ).where_not_in(
+        new_benchmark_names,['benchmark_name']  # Exclude single-version benchmarks
+    )
+    return results_tbl
+    
+bench_results = latest_comparable_benchmarks(bench_results)
 
 # Get static benchmarks and compare to last 5 days and previous release
 nightly_score = bench_results.where([
