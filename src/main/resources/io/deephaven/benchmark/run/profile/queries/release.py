@@ -14,11 +14,11 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 5  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
-# Return a table containing only non-obsolete benchmarks that have at least two versions
+# Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
 # Candidate for pulling up into deephaven_tables.py
 def latest_comparable_benchmarks(results_tbl):
     latest_benchmark_names = results_tbl.view([
-        'epoch_day=(int)(timestamp/1000/60/60/24)','benchmark_name'
+        'epoch_day=(int)(Duration.ofMillis(timestamp).toDays() / 2)','benchmark_name'
     ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
 
     new_benchmark_names = results_tbl.where_in(
@@ -29,10 +29,10 @@ def latest_comparable_benchmarks(results_tbl):
         latest_benchmark_names,['benchmark_name']  # Exclude obsolete benchmarks
     ).where_not_in(
         new_benchmark_names,['benchmark_name']  # Exclude single-version benchmarks
-    ).sort_descending(['timestamp']).first_by(['benchmark_name'])
+    )
     return results_tbl
 
-newest_benchmarks = latest_comparable_benchmarks(bench_results_change)
+newest_benchmarks = latest_comparable_benchmarks(bench_results_change).sort_descending(['timestamp']).first_by(['benchmark_name'])
 
 from deephaven import numpy as dhnp
 
