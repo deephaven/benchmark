@@ -25,11 +25,11 @@ import io.deephaven.client.impl.TableHandle;
 import io.deephaven.client.impl.TableHandleManager;
 import io.deephaven.client.impl.script.Changes;
 import io.deephaven.engine.context.ExecutionContext;
+import io.deephaven.engine.table.Table;
 import io.deephaven.engine.table.TableUpdate;
 import io.deephaven.engine.table.impl.InstrumentedTableUpdateListener;
 import io.deephaven.engine.updategraph.impl.PeriodicUpdateGraph;
 import io.deephaven.extensions.barrage.BarrageSubscriptionOptions;
-import io.deephaven.extensions.barrage.table.BarrageTable;
 import io.deephaven.qst.TableCreationLogic;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -120,7 +120,7 @@ public class BarrageConnector implements AutoCloseable {
                 TableHandle handle = snapshotManager.executeLogic(logic);
                 BarrageSubscription subscription = session.subscribe(handle, options);
 
-                BarrageTable snapTable = subscription.snapshotEntireTable();
+                Table snapTable = subscription.snapshotEntireTable().get();
                 tableHandler.accept(CachedResultTable.create(snapTable));
                 return new Subscription(handle, subscription);
             } catch (Exception ex) {
@@ -153,7 +153,7 @@ public class BarrageConnector implements AutoCloseable {
                 TableHandle handle = subscriptionManager.executeLogic(logic);
                 BarrageSubscription subscription = session.subscribe(handle, options);
 
-                BarrageTable subscriptionTable = subscription.entireTable();
+                Table subscriptionTable = subscription.entireTable().get();
                 subscriptionTable.addUpdateListener(
                         new TableListener(table, subscriptionTable, tableHandler, future, metrics));
                 return new Subscription(handle, subscription);
@@ -175,7 +175,6 @@ public class BarrageConnector implements AutoCloseable {
             isClosed.set(true);
             subscriptions.values().forEach(s -> {
                 s.handle.close();
-                s.subscription.close();
             });
             subscriptions.clear();
             variableNames.clear();
@@ -244,13 +243,13 @@ public class BarrageConnector implements AutoCloseable {
         static final long serialVersionUID = 2589173746389448005L;
         final Function<ResultTable, Boolean> refreshHandler;
         final String tableName;
-        final BarrageTable table;
+        final Table table;
         final MetricsFuture future;
         final Metrics metrics;
         final AtomicLong ticks = new AtomicLong(0);
         final long beginTime = System.currentTimeMillis();
 
-        public TableListener(String tableName, BarrageTable table, Function<ResultTable, Boolean> refreshHandler,
+        public TableListener(String tableName, Table table, Function<ResultTable, Boolean> refreshHandler,
                 MetricsFuture future, Metrics metrics) {
             super("Table '" + tableName + "' Listener");
             this.refreshHandler = refreshHandler;

@@ -179,23 +179,23 @@
 		</extensions>
 	</build>
 	<dependencies>
-		<!-- Added because of conflict with 4.1.68 -->
+		<!-- Added because of conflicts -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.79.Final</version>
+			<version>4.1.96.Final</version>
 		</dependency>
-		<!-- Added because of conflict with 1.49.1 -->
+		<!-- Added because of conflicts -->
 		<dependency>
 			<groupId>io.grpc</groupId>
 			<artifactId>grpc-all</artifactId>
-			<version>1.50.0</version>
+			<version>1.58.0</version>
 		</dependency>
 		<!-- Added because of conflict with 3.17.3 -->
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.21.7</version>
+			<version>3.24.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
@@ -205,12 +205,12 @@
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.29.0</version>
+			<version>0.31.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
-			<version>0.29.0</version>
+			<version>0.31.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
