@@ -136,13 +136,13 @@ public class StandardTestRunner {
      * @param loadColumns columns to load from the generated parquet file
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
-        var read = getReadOperation(staticFactor);
+        var read = getReadOperation(staticFactor, loadColumns);
         var result = runStaticTest(name, operation, read, loadColumns);
         var rcount = result.resultRowCount();
         var ecount = getExpectedRowCount(expectedRowCount, staticFactor);
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
 
-        read = getReadOperation(incFactor);
+        read = getReadOperation(incFactor, loadColumns);
         result = runIncTest(name, operation, read, loadColumns);
         rcount = result.resultRowCount();
         ecount = getExpectedRowCount(expectedRowCount, incFactor);
@@ -153,8 +153,9 @@ public class StandardTestRunner {
         return (expectedRowCount < 1) ? Long.MAX_VALUE : expectedRowCount;
     }
 
-    String getReadOperation(int scaleFactor) {
+    String getReadOperation(int scaleFactor, String... loadColumns) {
         var read = "read('/data/${mainTable}.parquet').select(formulas=[${loadColumns}])";
+        read = (loadColumns.length == 0) ? ("empty_table(" + scaleRowCount + ")") : read;
 
         if (scaleFactor > 1) {
             read = "merge([${readTable}] * ${scaleFactor})".replace("${readTable}", read);
@@ -281,7 +282,7 @@ public class StandardTestRunner {
     Bench initialize(Object testInst) {
         var query = """
         import time
-        from deephaven import new_table, garbage_collect, merge
+        from deephaven import new_table, empty_table, garbage_collect, merge 
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read
         """;

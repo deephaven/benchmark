@@ -13,44 +13,43 @@ public class DateTimeFormulaTest {
 
     @Test
     public void now() {
-        setup(6, 35, 15);
+        setup(50, 4, 2);
         var q = "source.update(formulas=['New1 = now()'])";
-        runner.test("Now- now()", q, "int250");
+        runner.test("Now- now()", q);
     }
 
     @Test
     public void parseInstant() {
         setup(1, 1, 1);
         var q = "source.update(formulas=['New1 = parseInstant(`2023-05-31T04:52:14.001 ET`)'])";
-        runner.test("ParseInstant- DateTime String with Timezone", q, "int250");
+        runner.test("ParseInstant- DateTime String with Timezone", q);
     }
 
     @Test
     public void parseDuration() {
-        setup(2, 9, 1);
+        setup(3, 6, 1);
         var q = "source.update(formulas=['New1 = parseDuration(`PT4H52M14S`)'])";
-        runner.test("ParseDuration- PT Duration String", q, "int250");
+        runner.test("ParseDuration- PT Duration String", q);
     }
 
     @Test
     public void parseLocalTime() {
-        setup(2, 7, 1);
+        setup(3, 5, 1);
         var q = "source.update(formulas=['New1 = parseLocalTime(`04:52:14.001`)'])";
-        runner.test("ParseLocalTime- Time String)", q, "int250");
+        runner.test("ParseLocalTime- Time String", q);
     }
 
     @Test
     public void epochNanosToZonedDateTime() {
-        setup(2, 11, 10);
+        setup(24, 1, 1);
         var q = """
         source.update(formulas=['New1=epochNanosToZonedDateTime(1697240421926014741L,java.time.ZoneOffset.UTC)'])
         """;
-        runner.test("EpochNanosToZonedDateTime- Nanos Long and ZoneId", q, "int250");
+        runner.test("EpochNanosToZonedDateTime- Nanos Long and ZoneId", q);
     }
 
     private void setup(int rowFactor, int staticFactor, int incFactor) {
         runner.setRowFactor(rowFactor);
-        runner.tables("source");
         runner.setScaleFactors(staticFactor, incFactor);
     }
 
