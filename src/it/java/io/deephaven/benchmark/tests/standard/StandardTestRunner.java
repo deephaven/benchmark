@@ -136,13 +136,13 @@ public class StandardTestRunner {
      * @param loadColumns columns to load from the generated parquet file
      */
     public void test(String name, long expectedRowCount, String operation, String... loadColumns) {
-        var read = getReadOperation(staticFactor);
+        var read = getReadOperation(staticFactor, loadColumns);
         var result = runStaticTest(name, operation, read, loadColumns);
         var rcount = result.resultRowCount();
         var ecount = getExpectedRowCount(expectedRowCount, staticFactor);
         assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
 
-        read = getReadOperation(incFactor);
+        read = getReadOperation(incFactor, loadColumns);
         result = runIncTest(name, operation, read, loadColumns);
         rcount = result.resultRowCount();
         ecount = getExpectedRowCount(expectedRowCount, incFactor);
