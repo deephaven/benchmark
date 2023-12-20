@@ -16,16 +16,16 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
 
 # Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
 # Candidate for pulling up into deephaven_tables.py
-def latest_comparable_benchmarks(results_tbl):
-    latest_benchmark_names = results_tbl.view([
-        'epoch_day=(int)(Duration.ofMillis(timestamp).toDays() / 2)','benchmark_name'
-    ]).group_by(['epoch_day']).sort_descending(['epoch_day']).first_by().ungroup()
+def latest_comparable_benchmarks(filter_table):
+    latest_benchmark_names = bench_results.view([
+        'run_id','benchmark_name'
+    ]).group_by(['run_id']).sort_descending(['run_id']).first_by().ungroup()
 
-    new_benchmark_names = results_tbl.where_in(
+    new_benchmark_names = bench_results.where_in(
         latest_benchmark_names,['benchmark_name=benchmark_name']
     ).group_by(['benchmark_name']).where(['len(op_rate) < 2']).ungroup()
 
-    results_tbl = results_tbl.where_in(
+    results_tbl = filter_table.where_in(
         latest_benchmark_names,['benchmark_name']  # Exclude obsolete benchmarks
     ).where_not_in(
         new_benchmark_names,['benchmark_name']  # Exclude single-version benchmarks
@@ -75,3 +75,6 @@ summary_bechmark_names = [
 summary_benchmarks = past_static_rates.where_one_of([
     ("Static_Benchmark='" + name + "'") for name in summary_bechmark_names
 ])
+
+parquet_benchmarks = past_static_rates.where(["Static_Benchmark.startsWith(`Parquet`)"]).sort(['Change'])
+
