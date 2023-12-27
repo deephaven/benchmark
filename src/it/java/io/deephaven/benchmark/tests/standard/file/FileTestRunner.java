@@ -5,8 +5,9 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.controller.Controller;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -15,7 +16,8 @@ import io.deephaven.benchmark.util.Timer;
 class FileTestRunner {
     final String parquetCfg = "max_dictionary_keys=1048576, max_dictionary_size=1048576, target_page_size=65536";
     final Object testInst;
-    final Bench api;
+    private Bench api;
+    private Controller controller;
     private double rowCountFactor = 1;
     private int scaleFactor = 1;
     private long scaleRowCount;
@@ -23,8 +25,7 @@ class FileTestRunner {
 
     FileTestRunner(Object testInst) {
         this.testInst = testInst;
-        this.api = initialize(testInst);
-        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        initialize(testInst);
     }
 
     /**
@@ -248,8 +249,11 @@ class FileTestRunner {
         from deephaven import dtypes as dht
         """;
 
-        Bench api = Bench.create(testInst);
-        restartDocker(api);
+        this.api = Bench.create(testInst);
+        this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""));
+        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        restartDocker();
         api.query(query).execute();
         return api;
     }
@@ -259,9 +263,9 @@ class FileTestRunner {
      * 
      * @param api the Bench API for this test runner.
      */
-    private void restartDocker(Bench api) {
+    private void restartDocker() {
         var timer = api.timer();
-        if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
+        if (!controller.restartService())
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");

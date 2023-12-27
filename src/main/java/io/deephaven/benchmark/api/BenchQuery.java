@@ -86,7 +86,6 @@ final public class BenchQuery implements Closeable {
 
         if (!session.getUsedVariableNames().isEmpty()) {
             String logic = String.join("=None; ", session.getUsedVariableNames()) + "=None\n";
-            logic += "from deephaven import garbage_collect; garbage_collect()\n";
             executeBarrageQuery(logic);
         }
 

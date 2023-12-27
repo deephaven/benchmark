@@ -3,8 +3,8 @@ package io.deephaven.benchmark.tests.experimental.mergescale;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.Duration;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -82,7 +82,8 @@ class ScaleTestRunner {
 
     void restartDocker(Bench api) {
         var timer = api.timer();
-        if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
+        var controller = new DeephavenDockerController(api.property("docker.compose.file", ""), api.property("deephaven.addr", ""));
+        if (!controller.restartService())
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");

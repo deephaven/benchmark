@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.api.Bench;
-import io.deephaven.benchmark.util.Exec;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.util.Filer;
 
 /**
@@ -33,15 +33,6 @@ public class CompareTestRunner {
 
     public CompareTestRunner(Object testInst) {
         this.testInst = testInst;
-    }
-
-    /**
-     * Get the Bench API instance for this runner
-     * 
-     * @return the Bench API instance
-     */
-    public Bench api() {
-        return api;
     }
 
     /**
@@ -365,7 +356,9 @@ public class CompareTestRunner {
         var api = Bench.create("# Docker Restart");
         try {
             api.setName("# Docker Restart");
-            if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
+            var controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                    api.property("deephaven.addr", ""));
+            if (!controller.restartService())
                 return;
         } finally {
             api.close();
@@ -381,7 +374,8 @@ public class CompareTestRunner {
             if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
                 return;
             dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
-            Exec.restartDocker(dockerComposeFile, deephavenHostPort);
+            var controller = new DeephavenDockerController(dockerComposeFile, deephavenHostPort);
+            controller.restartService();
         } finally {
             api.close();
         }

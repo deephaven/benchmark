@@ -7,8 +7,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.controller.Controller;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -19,12 +20,13 @@ import io.deephaven.benchmark.util.Timer;
  * compact and readable, not to cover every possible case. Standard query API code can be used in conjunction as long as
  * conventions are followed (ex. main file is "source")
  */
-public class StandardTestRunner {
+final public class StandardTestRunner {
     final Object testInst;
     final List<String> setupQueries = new ArrayList<>();
     final List<String> supportTables = new ArrayList<>();
     private String mainTable = "source";
     private Bench api;
+    private Controller controller;
     private long scaleRowCount;
     private int staticFactor = 1;
     private int incFactor = 1;
@@ -32,8 +34,7 @@ public class StandardTestRunner {
 
     public StandardTestRunner(Object testInst) {
         this.testInst = testInst;
-        this.api = initialize(testInst);
-        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        initialize(testInst);
     }
 
     /**
@@ -228,7 +229,7 @@ public class StandardTestRunner {
 
     Result runTest(String name, String query, String operation, String read, String... loadColumns) {
         if (api.isClosed())
-            api = initialize(testInst);
+            initialize(testInst);
         api.setName(name);
         var logBeginMarker = getLogSnippet("Begin", name);
         var logEndMarker = getLogSnippet("End", name);
@@ -275,11 +276,11 @@ public class StandardTestRunner {
     }
 
     String getLogSnippet(String beginEnd, String name) {
-        beginEnd = "BENCH_" + beginEnd.toUpperCase() + "_TEST";
-        return String.join(",", ">>>>> " + beginEnd, name, beginEnd + " <<<<<");
+        beginEnd = "BENCH_OPERATION_" + beginEnd.toUpperCase();
+        return String.join(",", "<<<<< " + beginEnd, name, beginEnd + " >>>>>");
     }
 
-    Bench initialize(Object testInst) {
+    void initialize(Object testInst) {
         var query = """
         import time
         from deephaven import new_table, empty_table, garbage_collect, merge 
@@ -287,26 +288,28 @@ public class StandardTestRunner {
         from deephaven.parquet import read
         """;
 
-        Bench api = Bench.create(testInst);
-        restartDocker(api);
+        this.api = Bench.create(testInst);
+        this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""));
+        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        restartDocker();
         api.query(query).execute();
-        return api;
     }
 
     void addDockerLog(Bench api, String beginMarker, String endMarker) {
         var timer = api.timer();
-        var logText = Exec.getDockerLog(api.property("docker.compose.file", ""));
-        if (logText == null)
+        var logText = controller.getLog();
+        if (logText.isBlank())
             return;
+        api.log().add("deephaven-engine", logText);
         var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
         metrics.set("log", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
-        api.log().add("deephaven-engine", logText);
     }
 
-    void restartDocker(Bench api) {
+    void restartDocker() {
         var timer = api.timer();
-        if (!Exec.restartDocker(api.property("docker.compose.file", ""), api.property("deephaven.addr", "")))
+        if (!controller.restartService())
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");

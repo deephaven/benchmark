@@ -6,7 +6,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import io.deephaven.benchmark.api.Bench;
-import io.deephaven.benchmark.util.Exec;
+import io.deephaven.benchmark.controller.Controller;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 
 /**
  * A wrapper for the Bench api that allows the running of small (single-operation) tests without requiring the
@@ -21,14 +22,14 @@ public class ExperimentalTestRunner {
     final Object testInst;
     private long scaleRowCount;
     private Bench api;
+    private Controller controller;
     private String sourceTable = "source";
     private Map<String, String[]> supportTables = new LinkedHashMap<>();
     private List<String> supportQueries = new ArrayList<>();
 
     public ExperimentalTestRunner(Object testInst) {
         this.testInst = testInst;
-        this.api = initialize(testInst);
-        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        initialize(testInst);
     }
 
     /**
@@ -219,20 +220,17 @@ public class ExperimentalTestRunner {
         from deephaven.parquet import read
         """;
 
-        Bench api = Bench.create(testInst);
-        restartDocker(api);
+        this.api = Bench.create(testInst);
+        this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""));
+        this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
+        controller.restartService();
         api.query(query).execute();
         return api;
     }
 
     String listStr(String... values) {
         return String.join(", ", Arrays.stream(values).map(c -> "'" + c + "'").toList());
-    }
-
-    void restartDocker(Bench api) {
-        var dockerComposeFile = api.property("docker.compose.file", "");
-        var deephavenHostPort = api.property("deephaven.addr", "");
-        Exec.restartDocker(dockerComposeFile, deephavenHostPort);
     }
 
     void generateQuotesTable(long rowCount) {

@@ -5,7 +5,6 @@ import static java.nio.file.StandardOpenOption.*;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 
 /**
  * Contains log data from the target where the benchmarks are run (e.g. Deephaven Engine). There is one log per test
@@ -49,8 +48,7 @@ final public class BenchLog {
             throw new RuntimeException("Set a test name before logging a test run");
         if (isClosed)
             throw new RuntimeException("Attempted to log to closed log");
-        write("\n<<<<< BENCH_TEST," + origin + "," + name + ",BENCH_TEST >>>>>\n", 1);
-        write(info.trim(), 1);
+        write("\n<<<<< BENCH_TEST," + origin + "," + name + ",BENCH_TEST >>>>>\n\n" + info.trim() + '\n');
     }
 
     /**
@@ -62,18 +60,12 @@ final public class BenchLog {
         this.name = name;
     }
 
-    private void write(String text, int newLineCount) {
+    private void write(String text) {
         try (BufferedWriter out = Files.newBufferedWriter(logFile, CREATE, APPEND)) {
             out.write(text);
-            for (int i = 0; i < newLineCount; i++)
-                out.newLine();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to write to the run log: " + logFile, ex);
         }
-    }
-
-    private String now() {
-        return Instant.now().toString();
     }
 
     static Path getLogFile(Path parent, Class<?> testClass) {

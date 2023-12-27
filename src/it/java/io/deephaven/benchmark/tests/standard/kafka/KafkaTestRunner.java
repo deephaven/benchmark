@@ -6,8 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import io.deephaven.benchmark.api.Bench;
+import io.deephaven.benchmark.controller.Controller;
+import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Exec;
 import io.deephaven.benchmark.util.Filer;
 import io.deephaven.benchmark.util.Timer;
 
@@ -19,6 +20,7 @@ import io.deephaven.benchmark.util.Timer;
 class KafkaTestRunner {
     final Object testInst;
     final Bench api;
+    final Controller controller;
     private long rowCount;
     private int colCount;
     private String colType;
@@ -32,6 +34,8 @@ class KafkaTestRunner {
     KafkaTestRunner(Object testInst) {
         this.testInst = testInst;
         this.api = Bench.create(testInst);
+        this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""));
     }
 
     /**
@@ -41,7 +45,7 @@ class KafkaTestRunner {
      * @param deephavenHeapGigs the number of gigabytes to use for Deephave max heap
      */
     void restartWithHeap(int deephavenHeapGigs) {
-        restartDocker(api, deephavenHeapGigs);
+        restartDocker(deephavenHeapGigs);
     }
 
     /**
@@ -179,14 +183,14 @@ class KafkaTestRunner {
         return "result.size";
     }
 
-    private void restartDocker(Bench api, int heapGigs) {
+    private void restartDocker(int heapGigs) {
         String dockerComposeFile = api.property("docker.compose.file", "");
         String deephavenHostPort = api.property("deephaven.addr", "");
         if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
             return;
         dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
         var timer = api.timer();
-        Exec.restartDocker(dockerComposeFile, deephavenHostPort);
+        controller.restartService();
         var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
