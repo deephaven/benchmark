@@ -146,12 +146,6 @@ class FileTestRunner {
         runTest(testName, q);
     }
 
-    /**
-     * Run the test through barrage java client, collect the results, and report them.
-     * 
-     * @param testName the benchmark name to record with the results
-     * @param query the test query to run
-     */
     private void runTest(String testName, String query) {
         try {
             api.setName(testName);
@@ -169,6 +163,7 @@ class FileTestRunner {
                 api.metrics().add(metrics);
             }).execute();
         } finally {
+            addDockerLog(api);
             api.close();
         }
     }
@@ -232,13 +227,6 @@ class FileTestRunner {
         };
     }
 
-    /**
-     * Initialize the test client and its properties. Restart Docker if it is local to the test client and the
-     * {@code docker.compose.file} set.
-     * 
-     * @param testInst the test instance this runner is associated with.
-     * @return a new Bench API instance.
-     */
     private Bench initialize(Object testInst) {
         var query = """
         import time
@@ -257,12 +245,18 @@ class FileTestRunner {
         api.query(query).execute();
         return api;
     }
+    
+    private void addDockerLog(Bench api) {
+        var timer = api.timer();
+        var logText = controller.getLog();
+        if (logText.isBlank())
+            return;
+        api.log().add("deephaven-engine", logText);
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
+        metrics.set("log", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
+    }
 
-    /**
-     * Restart Docker if it is local to this test runner and the {@code docker.compose.file} set.
-     * 
-     * @param api the Bench API for this test runner.
-     */
     private void restartDocker() {
         var timer = api.timer();
         if (!controller.restartService())

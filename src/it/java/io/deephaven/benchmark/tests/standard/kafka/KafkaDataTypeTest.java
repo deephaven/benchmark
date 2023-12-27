@@ -13,7 +13,7 @@ public class KafkaDataTypeTest {
     final int colCount = 20;
 
     @Test
-    public void NoOp20LongColsFromKafkaAvroAppend() {
+    void NoOp20LongColsFromKafkaAvroAppend() {
         runner.api.setName("NoOp- 20 Long Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "long", "avro");
@@ -21,7 +21,7 @@ public class KafkaDataTypeTest {
     }
 
     @Test
-    public void NoOp20LongColsFromKafkaJsonAppend() {
+    void NoOp20LongColsFromKafkaJsonAppend() {
         runner.api.setName("NoOp- 20 Long Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "long", "json");
@@ -29,7 +29,7 @@ public class KafkaDataTypeTest {
     }
     
     @Test
-    public void NoOp20DoubleColsFromKafkaAvroAppend() {
+    void NoOp20DoubleColsFromKafkaAvroAppend() {
         runner.api.setName("NoOp- 20 Double Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "double", "avro");
@@ -37,7 +37,7 @@ public class KafkaDataTypeTest {
     }
 
     @Test
-    public void NoOpDoubleColsFromKafkaJsonAppend() {
+    void NoOpDoubleColsFromKafkaJsonAppend() {
         runner.api.setName("NoOp- 20 Double Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 4, colCount, "double", "json");
@@ -45,7 +45,7 @@ public class KafkaDataTypeTest {
     }
     
     @Test
-    public void NoOp20DateTimeColsFromKafkaAvroAppend() {
+    void NoOp20DateTimeColsFromKafkaAvroAppend() {
         runner.api.setName("NoOp- 20 DateTime Cols Avro Append");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "timestamp-millis", "avro");
@@ -53,7 +53,7 @@ public class KafkaDataTypeTest {
     }
 
     @Test
-    public void NoOp20DateTimeColsFromKafkaJsonAppend() {
+    void NoOp20DateTimeColsFromKafkaJsonAppend() {
         runner.api.setName("NoOp- 20 DateTime Cols JSON Append");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "timestamp-millis", "json");
@@ -61,7 +61,7 @@ public class KafkaDataTypeTest {
     }
 
     @AfterEach
-    public void teardown() {
+    void teardown() {
         runner.api.close();
     }
 

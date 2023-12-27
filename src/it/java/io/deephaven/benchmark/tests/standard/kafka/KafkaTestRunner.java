@@ -45,7 +45,16 @@ class KafkaTestRunner {
      * @param deephavenHeapGigs the number of gigabytes to use for Deephave max heap
      */
     void restartWithHeap(int deephavenHeapGigs) {
-        restartDocker(deephavenHeapGigs);
+        String dockerComposeFile = api.property("docker.compose.file", "");
+        String deephavenHostPort = api.property("deephaven.addr", "");
+        if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
+            return;
+        dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, deephavenHeapGigs);
+        var timer = api.timer();
+        controller.restartService();
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
+        metrics.set("restart", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
     }
 
     /**
@@ -129,7 +138,6 @@ class KafkaTestRunner {
         query = query.replace("${kafkaConsumerSpec}", getKafkaConsumerSpec(colCount, getDHType(colType)));
         query = query.replace("${schemaRegistryURL}", getSchemaRegistry());
 
-
         api.query(query).fetchAfter("stats", table -> {
             long elapsedNanos = table.getSum("elapsed_nanos").longValue();
             long procRowCount = table.getSum("processed_row_count").longValue();
@@ -140,6 +148,7 @@ class KafkaTestRunner {
         }).fetchAfter("standard_metrics", table -> {
             api.metrics().add(table);
         }).execute();
+        addDockerLog(api);
     }
 
     private String getSchemaRegistry() {
@@ -182,17 +191,15 @@ class KafkaTestRunner {
         }
         return "result.size";
     }
-
-    private void restartDocker(int heapGigs) {
-        String dockerComposeFile = api.property("docker.compose.file", "");
-        String deephavenHostPort = api.property("deephaven.addr", "");
-        if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
-            return;
-        dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
+    
+    private void addDockerLog(Bench api) {
         var timer = api.timer();
-        controller.restartService();
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
-        metrics.set("restart", timer.duration().toMillis(), "standard");
+        var logText = controller.getLog();
+        if (logText.isBlank())
+            return;
+        api.log().add("deephaven-engine", logText);
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
+        metrics.set("log", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
 

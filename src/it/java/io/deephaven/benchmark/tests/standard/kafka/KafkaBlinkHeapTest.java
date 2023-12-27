@@ -14,7 +14,7 @@ public class KafkaBlinkHeapTest {
     final int colCount = 20;
 
     @Test
-    public void CountBy1gHeapFromKafkaAvroBlink() {
+    void CountBy1gHeapFromKafkaAvroBlink() {
         runner.api.setName("CountBy- 20 Cols 1g Heap Avro Blink");
         runner.restartWithHeap(1);
         runner.table(rowCount / 2, colCount, "long", "avro");
@@ -22,7 +22,7 @@ public class KafkaBlinkHeapTest {
     }
 
     @Test
-    public void CountBy1gHeapFromKafkaJsonBlink() {
+    void CountBy1gHeapFromKafkaJsonBlink() {
         runner.api.setName("CountBy- 20 Cols 1g Heap JSON Blink");
         runner.restartWithHeap(1);
         runner.table(rowCount / 4, colCount, "long", "json");
@@ -30,7 +30,7 @@ public class KafkaBlinkHeapTest {
     }
 
     @Test
-    public void CountBy10gHeapFromKafkaAvroBlink() {
+    void CountBy10gHeapFromKafkaAvroBlink() {
         runner.api.setName("CountBy- 20 Cols 10g Heap Avro Blink");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "long", "avro");
@@ -38,7 +38,7 @@ public class KafkaBlinkHeapTest {
     }
 
     @Test
-    public void CountBy10gHeapFromKafkaJsonBlink() {
+    void CountBy10gHeapFromKafkaJsonBlink() {
         runner.api.setName("CountBy- 20 Cols 10g Heap JSON Blink");
         runner.restartWithHeap(10);
         runner.table(rowCount / 4, colCount, "long", "json");
@@ -46,7 +46,7 @@ public class KafkaBlinkHeapTest {
     }
 
     @AfterEach
-    public void teardown() {
+    void teardown() {
         runner.api.close();
     }
 

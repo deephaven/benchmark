@@ -231,16 +231,14 @@ final public class StandardTestRunner {
         if (api.isClosed())
             initialize(testInst);
         api.setName(name);
-        var logBeginMarker = getLogSnippet("Begin", name);
-        var logEndMarker = getLogSnippet("End", name);
         query = query.replace("${readTable}", read);
         query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
         query = query.replace("${setupQueries}", String.join("\n", setupQueries));
         query = query.replace("${operation}", operation);
-        query = query.replace("${logOperationBegin}", logBeginMarker);
-        query = query.replace("${logOperationEnd}", logEndMarker);
+        query = query.replace("${logOperationBegin}", getLogSnippet("Begin", name));
+        query = query.replace("${logOperationEnd}", getLogSnippet("End", name));
 
         try {
             var result = new AtomicReference<Result>();
@@ -261,7 +259,7 @@ final public class StandardTestRunner {
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
         } finally {
-            addDockerLog(api, logBeginMarker, logEndMarker);
+            addDockerLog(api);
             api.close();
         }
     }
@@ -296,7 +294,7 @@ final public class StandardTestRunner {
         api.query(query).execute();
     }
 
-    void addDockerLog(Bench api, String beginMarker, String endMarker) {
+    void addDockerLog(Bench api) {
         var timer = api.timer();
         var logText = controller.getLog();
         if (logText.isBlank())
