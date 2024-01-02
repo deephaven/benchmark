@@ -76,12 +76,11 @@ class KafkaTestRunner {
         for (int i = 1; i < colCount; i++) {
             table.add("col" + (i + 1), colType, "[1-1000]");
         }
-        if (generatorType.equals("json")) {
-            table.withRowCount(rowCount).generateJson();
-        } else if (generatorType.equals("avro")) {
-            table.withRowCount(rowCount).generateAvro();
-        } else {
-            throw new RuntimeException("Bad generator type: " + generatorType);
+        switch (generatorType) {
+            case "json" -> table.withRowCount(rowCount).generateJson();
+            case "avro" -> table.withRowCount(rowCount).generateAvro();
+            case "protobuf" -> table.withRowCount(rowCount).generateProtobuf();
+            default -> throw new RuntimeException("Bad generator type: " + generatorType);
         }
         api.awaitCompletion();
     }
