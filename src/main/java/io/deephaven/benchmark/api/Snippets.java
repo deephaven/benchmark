@@ -15,7 +15,7 @@ class Snippets {
      * @return a table that is populated with the rows from the topic
      */
     static String bench_api_kafka_consume = """
-        from deephaven import kafka_consumer as kc
+        from deephaven.stream.kafka import consumer as kc
         from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
 
         def bench_api_kafka_consume(topic: str, table_type: str):

@@ -28,6 +28,14 @@ public class KafkaBlinkWidthTest {
     }
     
     @Test
+    void CountBy10ColsFromKafkaProtobufBlink() {
+        runner.api.setName("CountBy- 10 Cols Wide Protobuf Blink");
+        runner.restartWithHeap(10);
+        runner.table(rowCount, 10, "long", "protobuf");
+        runner.runTest("consumer_tbl.count_by('count')", "blink");
+    }
+    
+    @Test
     void CountBy100ColsFromKafkaAvroBlink() {
         runner.api.setName("CountBy- 100 Cols Wide Avro Blink");
         runner.restartWithHeap(10);
@@ -44,6 +52,14 @@ public class KafkaBlinkWidthTest {
     }
     
     @Test
+    void CountBy100ColsFromKafkaProtobufBlink() {
+        runner.api.setName("CountBy- 100 Cols Wide Protobuf Blink");
+        runner.restartWithHeap(10);
+        runner.table(rowCount / 10, 100, "long", "protobuf");
+        runner.runTest("consumer_tbl.count_by('count')", "blink");
+    }
+    
+    @Test
     void CountBy1000ColsFromKafkaAvroBlink() {
         runner.api.setName("CountBy- 1000 Cols Wide Avro Blink");
         runner.restartWithHeap(10);
@@ -56,6 +72,14 @@ public class KafkaBlinkWidthTest {
         runner.api.setName("CountBy- 1000 Cols Wide JSON Blink");
         runner.restartWithHeap(10);
         runner.table(rowCount / 100, 1000, "long", "json");
+        runner.runTest("consumer_tbl.count_by('count')", "blink");
+    }
+    
+    @Test
+    void CountBy1000ColsgFromKafkaProtobufBlink() {
+        runner.api.setName("CountBy- 1000 Cols Wide Protobuf Blink");
+        runner.restartWithHeap(10);
+        runner.table(rowCount / 100, 1000, "long", "protobuf");
         runner.runTest("consumer_tbl.count_by('count')", "blink");
     }
 

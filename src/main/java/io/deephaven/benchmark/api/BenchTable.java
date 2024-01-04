@@ -137,7 +137,6 @@ final public class BenchTable implements Closeable {
     
     /**
      * Generate the table asynchronously through Kafka using Avro serialization
-     * @return 
      */
     public void generateProtobuf() {
         var future = generateWithProtobuf();

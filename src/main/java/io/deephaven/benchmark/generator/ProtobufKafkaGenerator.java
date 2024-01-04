@@ -2,6 +2,7 @@
 package io.deephaven.benchmark.generator;
 
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
+import static com.google.protobuf.util.Timestamps.fromMillis;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
@@ -9,13 +10,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-import io.confluent.kafka.schemaregistry.avro.AvroSchema;
+import com.google.protobuf.DynamicMessage;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchema;
 import io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer;
@@ -24,12 +23,13 @@ import io.deephaven.benchmark.util.Log;
 import io.deephaven.benchmark.util.Threads;
 
 /**
- * Generator that produces rows to a Kafka topic according to the provided column definitions. The generator uses Avro
- * formatting and automatically generates and publishes the correct schema for use by the producer and consumer.
+ * Generator that produces rows to a Kafka topic according to the provided column definitions. The generator uses
+ * Protobuf formatting and automatically generates and publishes the correct schema for use by the producer and
+ * consumer.
  */
 public class ProtobufKafkaGenerator implements Generator {
     final private ExecutorService queue = Threads.single("ProtobufKafkaGenerator");
-    final private Producer<String, GenericRecord> producer;
+    final private Producer<String, DynamicMessage> producer;
     final private ColumnDefs columnDefs;
     final private ProtobufSchema schema;
     final private String topic;
@@ -78,11 +78,15 @@ public class ProtobufKafkaGenerator implements Generator {
                             isDone = true;
                             continue;
                         }
-                        GenericRecord rec = new GenericData.Record(schema.rawSchema());
+                        var msgBuilder = schema.newMessageBuilder(topic);
+                        var fields = msgBuilder.getDescriptorForType().getFields();
                         for (int i = 0, n = columnDefs.getCount(); i < n; i++) {
-                            rec.put(i, columnDefs.nextValue(i, recCount, maxRecordCount));
+                            var v = columnDefs.nextValue(i, recCount, maxRecordCount);
+                            var field = fields.get(i);
+                            v = field.toProto().getTypeName().contains("Timestamp") ? fromMillis((Long) v) : v;
+                            msgBuilder.setField(field, v);
                         }
-                        producer.send(new ProducerRecord<>(topic, rec));
+                        producer.send(new ProducerRecord<>(topic, msgBuilder.build()));
                         if (perRecordPauseMillis <= 0)
                             Thread.yield();
                         else
@@ -123,7 +127,7 @@ public class ProtobufKafkaGenerator implements Generator {
             throw new RuntimeException("Generator is closed");
     }
 
-    private Producer<String, GenericRecord> createProducer(String bootstrapServer, String schemaRegistryUrl,
+    private Producer<String, DynamicMessage> createProducer(String bootstrapServer, String schemaRegistryUrl,
             String compression) {
         Properties props = new Properties();
         props.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
@@ -156,9 +160,9 @@ public class ProtobufKafkaGenerator implements Generator {
             throw new RuntimeException("Failed to delete topic: " + topic + "=" + messageCount + " msgs");
     }
 
-    private ProtobufSchema publishSchema(String topic, String schemaRegistryUrl, String schemaJson) {
+    private ProtobufSchema publishSchema(String topic, String schemaRegistryUrl, String schemaProto) {
         try {
-            ProtobufSchema schema = new ProtobufSchema(schemaJson);
+            ProtobufSchema schema = new ProtobufSchema(schemaProto);
             CachedSchemaRegistryClient client = new CachedSchemaRegistryClient(schemaRegistryUrl, 20);
             String subject = topic + "_record";
             String subject2 = topic + "-value";
@@ -183,12 +187,11 @@ public class ProtobufKafkaGenerator implements Generator {
     private String getSchemaMessage(String topic, ColumnDefs fieldDefs) {
         var schema = """
         syntax = "proto3";
+        
+        import "google/protobuf/timestamp.proto";
 
-        Message MyRecord {
+        message ${topic} {
             ${fields}
-            string id = 1;
-            float amount = 2;
-            string customer_id = 3;
         }
         """;
         var fields = "";
@@ -196,10 +199,22 @@ public class ProtobufKafkaGenerator implements Generator {
         for (Map.Entry<String, String> e : fieldDefs.toTypeMap().entrySet()) {
             var name = e.getKey();
             var type = e.getValue();
-            fields += type + ' ' + name + " = " + ++count + ";\n";
+            fields += getFieldType(type) + ' ' + name + " = " + ++count + ";\n";
         }
-
+        schema = schema.replace("${topic}", topic);
         return schema.replace("${fields}", fields);
+    }
+
+    private String getFieldType(String type) {
+        return switch (type) {
+            case "long" -> "int64";
+            case "int" -> "int32";
+            case "double" -> "double";
+            case "float" -> "float";
+            case "string" -> "string";
+            case "timestamp-millis" -> "google.protobuf.Timestamp";
+            default -> throw new RuntimeException("Unsupported generator data type: " + type);
+        };
     }
 
 }

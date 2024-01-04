@@ -14,8 +14,8 @@ import io.deephaven.benchmark.util.Timer;
 
 /**
  * Used exclusively as a Bench API wrapper to run the Kafka tests. Provides generation of test data through Kafka,
- * running tests for Kafka consumer according to column data types, JSON/Avro, wide/narrow tables, and append/blink
- * table types. Results are checked to ensure the correct number of rows has been processed.
+ * running tests for Kafka consumer according to column data types, JSON/Avro/Protobuf, wide/narrow tables, and
+ * append/blink table types. Results are checked to ensure the correct number of rows has been processed.
  */
 class KafkaTestRunner {
     final Object testInst;
@@ -63,7 +63,7 @@ class KafkaTestRunner {
      * @param rowCount the number of rows to generate
      * @param colCount the number of columns to generate for each row
      * @param colType the type of column to generate and consume
-     * @param generatorType the format in which to generate the rows (e.g. avro | json)
+     * @param generatorType the format in which to generate the rows (e.g. avro | json | protobuf)
      */
     void table(long rowCount, int colCount, String colType, String generatorType) {
         this.rowCount = rowCount;
@@ -151,15 +151,17 @@ class KafkaTestRunner {
     }
 
     private String getSchemaRegistry() {
-        if (!generatorType.equals("avro")) {
-            return "";
-        }
-        return ", 'schema.registry.url' : 'http://${schema.registry.addr}'";
+        if (generatorType.equals("avro") || generatorType.equals("protobuf"))
+            return ", 'schema.registry.url' : 'http://${schema.registry.addr}'";
+        return "";
     }
 
     private String getKafkaConsumerSpec(int colCount, String colType) {
         if (generatorType.equals("avro")) {
             return "kc.avro_spec('consumer_tbl_record', schema_version='1')";
+        }
+        if (generatorType.equals("protobuf")) {
+            return "kc.protobuf_spec('consumer_tbl_record', schema_version=1)";
         }
         var spec = """
         [('count', dht.long)]
