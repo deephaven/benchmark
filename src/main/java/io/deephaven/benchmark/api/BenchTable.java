@@ -134,7 +134,7 @@ final public class BenchTable implements Closeable {
         var future = generateWithJson();
         bench.addFuture(future);
     }
-    
+
     /**
      * Generate the table asynchronously through Kafka using Avro serialization
      */
@@ -196,7 +196,7 @@ final public class BenchTable implements Closeable {
         generator = new JsonKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
         return generator.produce(getRowPause(), getRowCount(), getRunDuration());
     }
-    
+
     private Future<Metrics> generateWithProtobuf() {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
