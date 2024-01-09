@@ -137,17 +137,20 @@ class KafkaTestRunner {
         query = query.replace("${kafkaConsumerSpec}", getKafkaConsumerSpec(colCount, getDHType(colType)));
         query = query.replace("${schemaRegistryURL}", getSchemaRegistry());
 
-        api.query(query).fetchAfter("stats", table -> {
-            long elapsedNanos = table.getSum("elapsed_nanos").longValue();
-            long procRowCount = table.getSum("processed_row_count").longValue();
-            long resultRowCount = table.getSum("result_row_count").longValue();
-            assertEquals(rowCount, procRowCount, "Wrong processed row count");
-            assertEquals(1, resultRowCount, "Wrong counter table row count");
-            api.result().test("deephaven-engine", Duration.ofNanos(elapsedNanos), rowCount);
-        }).fetchAfter("standard_metrics", table -> {
-            api.metrics().add(table);
-        }).execute();
-        addDockerLog(api);
+        try {
+            api.query(query).fetchAfter("stats", table -> {
+                long elapsedNanos = table.getSum("elapsed_nanos").longValue();
+                long procRowCount = table.getSum("processed_row_count").longValue();
+                long resultRowCount = table.getSum("result_row_count").longValue();
+                assertEquals(rowCount, procRowCount, "Wrong processed row count");
+                assertEquals(1, resultRowCount, "Wrong counter table row count");
+                api.result().test("deephaven-engine", Duration.ofNanos(elapsedNanos), rowCount);
+            }).fetchAfter("standard_metrics", table -> {
+                api.metrics().add(table);
+            }).execute();
+        } finally {
+            addDockerLog(api);
+        }
     }
 
     private String getSchemaRegistry() {

@@ -130,9 +130,9 @@ public class AvroKafkaGenerator implements Generator {
         props.put("schema.registry.url", schemaRegistryUrl);
         props.put(ACKS_CONFIG, "0");
         props.put(COMPRESSION_TYPE_CONFIG, getCompression(compression));
-        props.put(BATCH_SIZE_CONFIG, 16384 * 4);
-        props.put(BUFFER_MEMORY_CONFIG, 32 * 1024 * 1024L * 4);
-        props.put(LINGER_MS_CONFIG, 200);
+        props.put(BATCH_SIZE_CONFIG, 16384);
+        props.put(BUFFER_MEMORY_CONFIG, 16384 * 4);
+        props.put(LINGER_MS_CONFIG, 50);
         return new KafkaProducer<>(props);
     }
 
