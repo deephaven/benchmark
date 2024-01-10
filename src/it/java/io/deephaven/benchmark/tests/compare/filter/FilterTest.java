@@ -66,9 +66,26 @@ public class FilterTest {
         var rsize = "len(result)";
         runner.test("Pandas Filter", setup, op, msize, rsize);
     }
-
+    
     @Test
     @Order(4)
+    public void duckdbFilter() {
+        runner.initPython("duckdb");
+        var setup = "import duckdb as db";
+        var op = """
+        db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
+        db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
+        db.sql("INSERT INTO results SELECT * FROM source WHERE str250 = '250' AND int640 > 100 AND int640 < 540")
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        """;
+        var msize = "sourceLen";
+        var rsize = "resultLen";
+        runner.test("DuckDb Filter", setup, op, msize, rsize);
+    }
+
+    @Test
+    @Order(5)
     @Disabled
     public void flinkFilter() {
         runner.initPython("apache-flink", "jdk-11");

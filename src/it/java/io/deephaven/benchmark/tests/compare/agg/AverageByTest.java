@@ -69,9 +69,26 @@ public class AverageByTest {
         var rsize = "len(result)";
         runner.test("Pandas Average By", setup, op, msize, rsize);
     }
-
+    
     @Test
     @Order(4)
+    public void duckdbAverageBy() {
+        runner.initPython("duckdb");
+        var setup = "import duckdb as db";
+        var op = """
+        db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
+        db.sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT)")
+        db.sql("INSERT INTO results SELECT str250,int640,AVG(int250) AS Avg1,AVG(int640) AS Avg2 FROM source GROUP BY str250, int640")
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        """;
+        var msize = "sourceLen";
+        var rsize = "resultLen";
+        runner.test("DuckDb Average By", setup, op, msize, rsize);
+    }
+
+    @Test
+    @Order(5)
     @Disabled
     public void flinkAverageBy() {
         runner.initPython("apache-flink", "jdk-11");

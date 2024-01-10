@@ -61,9 +61,26 @@ public class DistinctTest {
         var rsize = "len(result)";
         runner.test("Pandas Distinct", setup, op, msize, rsize);
     }
-
+    
     @Test
     @Order(4)
+    public void duckdbDistinct() {
+        runner.initPython("duckdb");
+        var setup = "import duckdb as db";
+        var op = """
+        db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
+        db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
+        db.sql("INSERT INTO results SELECT DISTINCT str250,int640 FROM source")
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        """;
+        var msize = "sourceLen";
+        var rsize = "resultLen";
+        runner.test("DuckDb Distinct", setup, op, msize, rsize);
+    }
+
+    @Test
+    @Order(5)
     @Disabled
     public void flinkDistinct() {
         runner.initPython("apache-flink", "jdk-11");

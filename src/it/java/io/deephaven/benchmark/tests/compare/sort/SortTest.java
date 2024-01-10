@@ -60,9 +60,26 @@ public class SortTest {
         var rsize = "len(result)";
         runner.test("Pandas Sort", setup, op, msize, rsize);
     }
-
+    
     @Test
     @Order(4)
+    public void duckdbSort() {
+        runner.initPython("duckdb");
+        var setup = "import duckdb as db";
+        var op = """
+        db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
+        db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
+        db.sql("INSERT INTO results SELECT str250,int640 FROM source ORDER BY str250, int640")
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        """;
+        var msize = "sourceLen";
+        var rsize = "resultLen";
+        runner.test("DuckDb Sort", setup, op, msize, rsize);
+    }
+
+    @Test
+    @Order(5)
     @Disabled
     public void flinkSort() {
         runner.initPython("apache-flink", "jdk-11");

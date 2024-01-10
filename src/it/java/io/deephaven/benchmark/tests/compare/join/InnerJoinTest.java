@@ -64,9 +64,27 @@ public class InnerJoinTest {
         var rsize = "len(result)";
         runner.test("Pandas Inner Join", setup, op, msize, rsize);
     }
-
+    
     @Test
     @Order(4)
+    public void duckdbFilter() {
+        runner.initPython("duckdb");
+        var setup = "import duckdb as db";
+        var op = """
+        db.sql("CREATE TABLE s AS SELECT * FROM '/data/source.parquet'")
+        db.sql("CREATE TABLE r AS SELECT * FROM '/data/right.parquet'")
+        db.sql("CREATE TABLE results(int1M INT,str250 STRING,r_int1M INT,r_str1M STRING)")
+        db.sql("INSERT INTO results SELECT * FROM s JOIN r ON s.str250 = r.r_str250 AND s.int1M = r.r_int1M")
+        sourceLen = db.sql("SELECT count(*) FROM s").fetchone()[0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        """;
+        var msize = "sourceLen";
+        var rsize = "resultLen";
+        runner.test("DuckDb Inner Join", setup, op, msize, rsize);
+    }
+
+    @Test
+    @Order(5)
     @Disabled
     public void flinkInnerJoin() {
         runner.initPython("apache-flink", "jdk-11");
