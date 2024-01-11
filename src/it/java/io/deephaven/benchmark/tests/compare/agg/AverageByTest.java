@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.compare.agg;
 
 import org.junit.jupiter.api.*;
