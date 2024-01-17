@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ public class RollingMinTickTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
 
         var setup = """
@@ -41,7 +41,7 @@ public class RollingMinTickTest {
 
     @Test
     public void rollingMinTick2Groups3OpsInt() {
-        runner.setScaleFactors(3, 1);
+        runner.setScaleFactors(1, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
         runner.test("RollingMinTick- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5");
@@ -49,7 +49,7 @@ public class RollingMinTickTest {
 
     @Test
     public void rollingMinTick2Groups3OpsFloat() {
-        runner.setScaleFactors(3, 1);
+        runner.setScaleFactors(1, 1);
         var setup = """
         contains_row = rolling_min_tick(cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
         before_row = rolling_min_tick(cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)

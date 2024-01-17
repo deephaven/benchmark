@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ public class RollingCountTimeTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(3);
         runner.tables("timed");
 
         var setup = """
@@ -28,6 +28,7 @@ public class RollingCountTimeTest {
 
     @Test
     public void rollingCountTime0Group3Ops() {
+        runner.setScaleFactors(3, 2);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingCountTime- 3 Ops No Groups", q, "int5", "timestamp");
     }

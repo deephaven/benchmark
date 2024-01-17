@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -155,6 +155,17 @@ final public class StandardTestRunner {
     }
 
     String getReadOperation(int scaleFactor, String... loadColumns) {
+        if (scaleFactor > 1 && mainTable.equals("timed") && Arrays.asList(loadColumns).contains("timestamp")) {
+            var read = """
+            merge([
+                read('/data/timed.parquet').view(formulas=[${loadColumns}])
+            ] * ${scaleFactor}).update_view([
+                'timestamp=timestamp.plusMillis((long)(ii / ${rows}) * ${rows})'
+            ]).select()
+            """;
+            return read.replace("${scaleFactor}", "" + scaleFactor).replace("${rows}", "" + scaleRowCount);
+        }
+
         var read = "read('/data/${mainTable}.parquet').select(formulas=[${loadColumns}])";
         read = (loadColumns.length == 0) ? ("empty_table(" + scaleRowCount + ")") : read;
 
@@ -356,6 +367,8 @@ final public class StandardTestRunner {
 
     void generateTimedTable(String distribution) {
         long baseTime = 1676557157537L;
+        if (distribution == null)
+            distribution = "random";
         api.table("timed").fixed()
                 .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]")
                 .add("int5", "int", "[1-5]", distribution)

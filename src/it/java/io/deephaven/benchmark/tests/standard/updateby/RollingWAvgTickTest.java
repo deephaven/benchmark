@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ public class RollingWAvgTickTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
 
         var setup = """
@@ -27,6 +27,8 @@ public class RollingWAvgTickTest {
 
     @Test
     public void rollingWAvgTick0Group3Ops() {
+        runner.setRowFactor(3);
+        runner.tables("timed");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingWAvgTick- 3 Ops No Groups", q, "int5", "int10");
     }
@@ -40,7 +42,7 @@ public class RollingWAvgTickTest {
 
     @Test
     public void rollingWAvgTime2Groups3OpsInt() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(1, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
         runner.test("RollingWAvgTick- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
                 "int5", "int10");
@@ -48,7 +50,7 @@ public class RollingWAvgTickTest {
 
     @Test
     public void rollingWAvgTick2Groups3OpsFloat() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(1, 1);
         var setup = """
         contains_row = rolling_wavg_tick('int10', cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
         before_row = rolling_wavg_tick('int10', cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)

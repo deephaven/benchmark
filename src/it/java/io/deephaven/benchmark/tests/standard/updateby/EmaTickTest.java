@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -20,21 +20,21 @@ public class EmaTickTest {
 
     @Test
     public void emaTick0Group1Col() {
-        runner.setScaleFactors(30, 15);
+        runner.setScaleFactors(25, 15);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']))";
         runner.test("EmaTick- No Groups 1 Col", q, "int5");
     }
 
     @Test
     public void emaTick0Group2Cols() {
-        runner.setScaleFactors(15, 8);
+        runner.setScaleFactors(12, 8);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5','Y=int10']))";
         runner.test("EmaTick- No Groups 2 Cols", q, "int5", "int10");
     }
 
     @Test
     public void emaTick1Group1Col() {
-        runner.setScaleFactors(9, 1);
+        runner.setScaleFactors(6, 1);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100'])";
         runner.test("EmaTick- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5");
     }
@@ -48,7 +48,7 @@ public class EmaTickTest {
 
     @Test
     public void emaTick2GroupsInt() {
-        runner.setScaleFactors(5, 1);
+        runner.setScaleFactors(1, 1);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100','str150'])";
         runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150",
                 "int5");
@@ -56,7 +56,7 @@ public class EmaTickTest {
 
     @Test
     public void emaTick2GroupsFloat() {
-        runner.setScaleFactors(5, 1);
+        runner.setScaleFactors(1, 1);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=float5']), by=['str100','str150'])";
         runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150",
                 "float5");

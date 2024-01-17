@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ public class CumComboTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(5);
         runner.tables("timed");
         
         setupStr = """
@@ -30,7 +30,8 @@ public class CumComboTest {
     }
 
     @Test
-    public void cumComboNoGroups6Ops() {
+    public void cumComboNoGroups6Op0s() {
+        runner.setScaleFactors(6, 3);
         runner.addSetupQuery(operations("int5"));
         var q = "timed.update_by(ops=[ema_tick_op, ema_time_op, max_op, min_op, sum_op, prod_op])";
         runner.test("CumCombo- 6 Ops No Groups", q, "int5", "timestamp");

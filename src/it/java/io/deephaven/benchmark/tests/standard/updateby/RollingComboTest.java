@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -13,7 +13,7 @@ public class RollingComboTest {
 
     @BeforeEach
     public void setup() {
-        runner.setRowFactor(4);
+        runner.setRowFactor(3);
         runner.tables("timed");
         setupStr = """
         from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
