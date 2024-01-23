@@ -7,6 +7,9 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Calculates a time-based exponential moving minimum for specified
  * columns and places the result into a new column for each row.
+ * <p/>
+ * Note: When there are no Group Keys, EmMinTime has a much slower rate than EmMaxTime. This is likely because of branch
+ * prediction on x86 systems. This disparity does not happen on Mac M1.
  */
 public class EmMinTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
