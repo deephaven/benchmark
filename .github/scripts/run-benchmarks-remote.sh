@@ -14,7 +14,7 @@ fi
 
 RUN_TYPE=$1
 TEST_PACKAGE=$2
-TEST_PATTERN=$3
+TEST_PATTERN="$3"
 ROW_COUNT=$4
 HOST=`hostname`
 RUN_DIR=/root/run
