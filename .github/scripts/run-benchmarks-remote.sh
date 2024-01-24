@@ -13,29 +13,12 @@ if [[ $# != 4 ]]; then
 fi
 
 RUN_TYPE=$1
-TEST_PKG=$2
-TEST_RGX=$3
+TEST_PACKAGE=$2
+TEST_PATTERN=$3
 ROW_COUNT=$4
 HOST=`hostname`
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
-
-# Match run type (nightly, release, compare, adhoc) to benchmark test package
-# Note: Default TEST_PATTERN taken from default -n option in Junit Platform Console Standalone
-case ${RUN_TYPE} in
-  adhoc)
-    TEST_PACKAGE=${TEST_PKG}
-    TEST_PATTERN=${TEST_RGX}
-    ;;
-  compare)
-    TEST_PACKAGE=io.deephaven.benchmark.tests.compare
-    TEST_PATTERN="^(Test.*|.+[.$]Test.*|.*Tests?)$"
-    ;;
-  *)
-    TEST_PACKAGE=io.deephaven.benchmark.tests.standard
-    TEST_PATTERN="^(Test.*|.+[.$]Test.*|.*Tests?)$"
-    ;;
-esac
 
 if [ ! -d "${RUN_DIR}" ]; then
   echo "$0: Missing the Benchmark run directory"

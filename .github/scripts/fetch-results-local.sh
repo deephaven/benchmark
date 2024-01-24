@@ -15,7 +15,7 @@ RUN_LABEL=${5:-}
 RUN_DIR=/root/run
 
 if [[ $# != 3 ]] && [[ $# != 5 ]]; then
-    echo "$0: Missing host, user, or run type arguments"
+    echo "$0: Missing host, user, run type, actor, or run label arguments"
     exit 1
 fi
 

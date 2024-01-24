@@ -7,11 +7,21 @@ name: Compare Benchmark Test on Docker Deephaven
 
 on:
   workflow_dispatch:
-    branches: [ "**" ]
+    inputs:
+     docker_image:
+       description: 'Docker Image Name'
+       required: true
+       default: '0.32.0'
+       type: string
 
 jobs:
   process-release-benchmarks:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: compare
+      docker_image: ${{ inputs.docker_image }}
+      run_label: ""
+      test_package: "io.deephaven.benchmark.tests.standard"
+      test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
+      scale_row_count: 70000000
     secrets: inherit
