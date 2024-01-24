@@ -13,4 +13,9 @@ jobs:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: nightly
+      docker_image: ${{ inputs.docker_image }}
+      run_label: ""
+      test_package: "io.deephaven.benchmark.tests.standard"
+      test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
+      scale_row_count: 10000000
     secrets: inherit
