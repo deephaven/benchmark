@@ -12,5 +12,5 @@ jobs:
   process-release-benchmarks:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
-      run-type: release
+      run_type: release
     secrets: inherit

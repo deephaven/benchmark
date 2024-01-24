@@ -12,5 +12,5 @@ jobs:
     if: ${{github.repository_owner == 'deephaven'}}
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
-      run-type: nightly
+      run_type: nightly
     secrets: inherit
