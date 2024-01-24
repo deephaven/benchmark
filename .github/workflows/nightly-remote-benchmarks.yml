@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: nightly
-      docker_image: ${{ inputs.docker_image }}
+      docker_image: "edge"
       run_label: ""
       test_package: "io.deephaven.benchmark.tests.standard"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
