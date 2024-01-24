@@ -56,7 +56,7 @@ jobs:
 
     - name: Docker Pull Deephaven and Redpanda
       run: |
-      	cp .github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
+        cp .github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
         docker compose pull
 
     - name: Docker Up Deephaven and Redpanda
