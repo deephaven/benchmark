@@ -21,7 +21,7 @@ jobs:
       run_type: compare
       docker_image: ${{ inputs.docker_image }}
       run_label: ""
-      test_package: "io.deephaven.benchmark.tests.standard"
+      test_package: "io.deephaven.benchmark.tests.compare"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
       scale_row_count: 70000000
     secrets: inherit

@@ -75,7 +75,7 @@ jobs:
 
     - name: Run Remote Test Server Setup
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE} ${DOCKER_IMG}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE} "${DOCKER_IMG}"
 
     - name: Run Remote Benchmark Artifact Build
       run: |
@@ -83,11 +83,11 @@ jobs:
 
     - name: Run Remote Benchmarks
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} ${TEST_PKG} ${TEST_RGX} ${ROW_CNT}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT}
         
     - name: Fetch Benchmark Results and Prepare for Upload
       run: |
-        ${SD}/fetch-results-local.sh ${HOST} ${USER} ${RUN_TYPE} ${ACTOR} ${RUN_LABEL}
+        ${SD}/fetch-results-local.sh ${HOST} ${USER} ${RUN_TYPE} "${ACTOR}" "${RUN_LABEL}"
 
     - name: Authorize GCloud Credentials
       uses: google-github-actions/auth@v1
