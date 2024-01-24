@@ -9,7 +9,31 @@ name: Adhoc Benchmark Test on Docker Deephaven
 
 on:
   workflow_dispatch:
-    branches: [ "**" ]
+   inputs:
+     docker_image:
+       description: 'Docker Image Name'
+       required: true
+       default: 'edge'
+       type: string
+     run_label:
+       description: 'Run Label'
+       required: true
+       type: string
+     test_package:
+       description: 'Benchmark Test Package'
+       required: true
+       default: 'io.deephaven.benchmark.tests'
+       type: string
+     test_class_regex:
+       description: 'Benchmark Test Class Pattern'
+       required: true
+       default: '^.*[.]MixedCombo.*Test.*$'
+       type: string
+     scale_row_count:
+       description: 'Benchmark Scale Row Count'
+       required: true
+       default: '1000000'
+       type: string
 
 jobs:
   process-release-benchmarks:
@@ -17,4 +41,9 @@ jobs:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run-type: adhoc
+      docker_image: ${{ inputs.docker_image }}
+      run_label: ${{ inputs.run_label }}
+      test_package: ${{ inputs.test_package }}
+      test_class_regex: ${{ inputs.test_class_regex }}
+      scale_row_count: ${{ inputs.scale_row_count }} 
     secrets: inherit

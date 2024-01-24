@@ -11,8 +11,8 @@ if [ ! -d "/root" ]; then
   exit 1
 fi
 
-if [[ $# != 3 ]]; then
-  echo "$0: Missing repo, branch, or run type arguments"
+if [[ $# != 4 ]]; then
+  echo "$0: Missing repo, branch, run type, or docker image argument"
   exit 1
 fi
 
@@ -21,6 +21,7 @@ GIT_DIR=/root/git
 GIT_REPO=$1
 GIT_BRANCH=$2
 RUN_TYPE=$3                     # ex. nightly | release | compare
+DOCKER_IMG=$4			# ex. edge | 0.32.0 (assumes location ghcr.io/deephaven/server)
 DEEPHAVEN_DIR=/root/deephaven
 
 title () { echo; echo $1; }
@@ -78,8 +79,12 @@ title "-- Installing Deephaven and Redpanda --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
+echo "DOCKER_IMG=${DOCKER_IMG}" > .env
 docker compose pull
 
 title "-- Starting Deephaven and Redpanda --"
 docker compose up -d
+
+
+
 
