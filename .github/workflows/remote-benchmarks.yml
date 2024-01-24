@@ -41,7 +41,7 @@ jobs:
       DOCKER_IMG: ${{inputs.docker_image}}
       RUN_LABEL: ${{inputs.run_label}}
       TEST_PKG: ${{inputs.test_package}}
-      TEST_RGX: "${{inputs.test_class_regex}}"
+      TEST_RGX: "\u0027${{inputs.test_class_regex}}\u0027"
       ROW_CNT: ${{inputs.scale_row_count}}
       ACTOR: ${{github.actor}}
 
