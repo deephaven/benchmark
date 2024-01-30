@@ -22,7 +22,7 @@ on:
      test_package:
        description: 'Benchmark Test Package'
        required: true
-       default: 'io.deephaven.benchmark.tests'
+       default: 'io.deephaven.benchmark.tests.standard'
        type: string
      test_class_regex:
        description: 'Benchmark Test Class Pattern'
@@ -47,3 +47,4 @@ jobs:
       test_class_regex: ${{ inputs.test_class_regex }}
       scale_row_count: ${{ inputs.scale_row_count }} 
     secrets: inherit
+
