@@ -31,8 +31,8 @@ title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 title "-- Adding OS Applications --"
 apt update
 
-title "-- Installing JDK 17 --"
-apt install openjdk-17-jre-headless
+title "-- Installing JDK 21 --"
+apt install openjdk-21-jre-headless
 
 title "-- Installing Maven --"
 apt install maven

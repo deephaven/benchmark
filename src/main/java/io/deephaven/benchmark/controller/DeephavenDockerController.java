@@ -1,8 +1,8 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.controller;
 
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,12 +75,15 @@ public class DeephavenDockerController implements Controller {
     }
 
     /**
-     * Get the docker compose log since starting the Deephaven service.
+     * Get the docker compose log since starting the Deephaven service. If no docker compose is specified, do nothing,
+     * since the logs will get progressively bigger without a restart.
      * 
      * @return the text collected from docker compose log
      */
     @Override
     public String getLog() {
+        if (composePropPath.isBlank() || httpHostPort.isBlank())
+            return "";
         var composePath = getRunningComposePath();
         if (composePath != null)
             return exec("sudo docker compose -f " + composePath + " logs");
@@ -114,8 +117,8 @@ public class DeephavenDockerController implements Controller {
 
     URL createUrl(String uri) {
         try {
-            return new URL(uri);
-        } catch (MalformedURLException e) {
+            return new URI(uri).toURL();
+        } catch (Exception e) {
             throw new RuntimeException("Bad URL: " + uri);
         }
     }
