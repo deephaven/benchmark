@@ -295,6 +295,9 @@ final public class StandardTestRunner {
         from deephaven import new_table, empty_table, garbage_collect, merge 
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read
+        from numpy import typing as npt
+        import numpy as np
+        import numba as nb
         """;
 
         this.api = Bench.create(testInst);
