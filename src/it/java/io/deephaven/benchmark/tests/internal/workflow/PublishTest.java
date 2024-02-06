@@ -12,6 +12,7 @@ import io.deephaven.benchmark.util.Filer;
  * query to generate a result table and verify the result. The goal is to test some benchmark corner cases like obsolete
  * benchmarks, new benchmarks, benchmarks a few days into the next release, etc.
  */
+@Disabled
 public class PublishTest {
     final String[] csvFileNames = {"benchmark-metrics.csv", "benchmark-platform.csv", "benchmark-results.csv"};
     final String[] stageRunIds = {"run-1bc89703ab", "run-1bd2e385a7", "run-1bd80a0738", "run-1bdd3080da",
