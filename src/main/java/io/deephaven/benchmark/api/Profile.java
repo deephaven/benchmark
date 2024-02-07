@@ -1,7 +1,8 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -177,7 +178,7 @@ class Profile {
 
     private URL findProfileAsHttp(String uri) {
         try {
-            return (uri.matches("^[A-Za-z][:][/].*")) ? new URL(uri) : null;
+            return (uri.matches("^[A-Za-z][:][/].*")) ? new URI(uri).toURL() : null;
         } catch (Exception ex) {
             throw new RuntimeException("Failed to find remote profile: " + uri);
         }

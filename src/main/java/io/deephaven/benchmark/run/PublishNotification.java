@@ -1,8 +1,9 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.run;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -91,7 +92,7 @@ public class PublishNotification {
         payload = payload.replace("${msg}", message);
         try {
             System.out.println("-- Pushing notification to Slack --");
-            URL url = new URL("https://slack.com/api/chat.postMessage");
+            URL url = new URI("https://slack.com/api/chat.postMessage").toURL();
             var c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("POST");
             c.setDoOutput(true);

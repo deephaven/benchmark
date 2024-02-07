@@ -1,7 +1,8 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.workflow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.net.URI;
 import java.net.URL;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
@@ -99,7 +100,7 @@ public class PublishTest {
     }
 
     private void stageFile(String srcUri, String dstPath) throws Exception {
-        var fileContents = getURLText(new URL(srcUri));
+        var fileContents = getURLText(new URI(srcUri).toURL());
         var q = """
         contents = '''${fileContents}'''
         import os, sys
