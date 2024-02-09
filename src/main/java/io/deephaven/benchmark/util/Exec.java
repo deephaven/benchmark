@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
 import java.io.*;
@@ -17,7 +17,7 @@ public class Exec {
      * @param command the shell command to run
      * @return the standard output of the process
      */
-    static public String exec(Path workingDir, String command) {
+    static public String exec(Path workingDir, String... command) {
         try {
             Process process = Runtime.getRuntime().exec(command, null, workingDir.toFile());
             var out = getStdout(process);

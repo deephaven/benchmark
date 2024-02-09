@@ -44,8 +44,8 @@ public class DeephavenDockerController implements Controller {
             return false;
         var composeRunPath = getRunningComposePath();
         if (composeRunPath != null)
-            exec("sudo docker compose -f " + composeRunPath + " down");
-        exec("sudo docker compose -f " + composePropPath + " up -d");
+            exec("sudo", "docker", "compose", "-f", composeRunPath, "down");
+        exec("sudo", "docker", "compose", "-f", composePropPath, "up", "-d");
         waitForEngineReady();
         return true;
     }
@@ -59,7 +59,7 @@ public class DeephavenDockerController implements Controller {
     public boolean stopService() {
         if (composePropPath.isBlank())
             return false;
-        exec("sudo docker compose -f " + composePropPath + " down --timeout 0");
+        exec("sudo", "docker", "compose", "-f", composePropPath, "down", "--timeout", "0");
         return true;
     }
 
@@ -86,7 +86,7 @@ public class DeephavenDockerController implements Controller {
             return "";
         var composePath = getRunningComposePath();
         if (composePath != null)
-            return exec("sudo docker compose -f " + composePath + " logs");
+            return exec("sudo", "docker", "compose", "-f", composePath, "logs");
         return "";
     }
 
@@ -132,12 +132,12 @@ public class DeephavenDockerController implements Controller {
     }
 
     List<String> getRunningContainerIds() {
-        var out = exec("sudo docker ps");
+        var out = exec("sudo", "docker", "ps");
         return parseContainerIds(out);
     }
 
     ContainerInfo getContainerInfo(String containerId) {
-        var out = exec("sudo docker container inspect " + containerId);
+        var out = exec("sudo", "docker", "container", "inspect", containerId);
         return parseContainerInfo(out);
     }
 
@@ -161,7 +161,7 @@ public class DeephavenDockerController implements Controller {
         return matches.get(0).replaceAll("\"[,]?", "").split("[:]\s*")[1].trim();
     }
 
-    String exec(String command) {
+    String exec(String... command) {
         return Exec.exec(workDir, command);
     }
 
