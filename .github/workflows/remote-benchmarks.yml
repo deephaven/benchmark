@@ -112,7 +112,8 @@ jobs:
         
     - name: Sync GCloud with Demo NFS
       run: |
-        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="gsutil -m rsync -d -r gs://deephaven-benchmark /nfs/deephaven-benchmark"
+        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="sudo gsutil -m rsync -d -r gs://deephaven-benchmark /nfs/deephaven-benchmark"
+        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="sudo find /nfs/deephaven-benchmark -mindepth 1 -type d -empty -delete"
         
     - name: Publish Slack Notification Tables
       run: |
