@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.compare;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -439,7 +439,7 @@ public class CompareTestRunner {
     }
 
     void generateRightTable(Bench api, String... columnNames) {
-        var table = api.table("right").fixed();
+        var table = api.table("right").withDefaultDistribution("ascending");
         for (String columnName : columnNames) {
             switch (columnName) {
                 case "r_str250":

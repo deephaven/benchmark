@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +14,7 @@ public class ColumnDefsTest {
                 .add("symbol", "string", "ABC[1-11]")
                 .add("price", "float", "[100-105]")
                 .add("priceAgain", "int", "[100-105]");
-        columnDefs.setDefaultDistribution("incremental");
+        columnDefs.setDefaultDistribution("ascending");
 
         assertEquals(3, columnDefs.columns.size(), "Wrong def count");
 
@@ -81,35 +81,35 @@ public class ColumnDefsTest {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-10]")
                 .add("price", "float", "[100-105]")
-                .add("priceAgain", "int", "[100-105]", "linearConv");
+                .add("priceAgain", "int", "[100-105]", "runLength");
 
         assertEquals("""
                 name,type,values,distribution
                 symbol,string,ABC[1-10],random
                 price,float,[100-105],random
-                priceAgain,int,[100-105],linearconv
+                priceAgain,int,[100-105],runlength
                 """,
                 columnDefs.describe(), "Wrong toString");
 
         columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-10]")
                 .add("price", "float", "[100-105]")
-                .add("priceAgain", "int", "[100-105]", "linearConv");
-        columnDefs.setDefaultDistribution("incremental");
+                .add("priceAgain", "int", "[100-105]", "runLength");
+        columnDefs.setDefaultDistribution("ascending");
 
         assertEquals("""
                 name,type,values,distribution
-                symbol,string,ABC[1-10],incremental
-                price,float,[100-105],incremental
-                priceAgain,int,[100-105],linearconv
+                symbol,string,ABC[1-10],ascending
+                price,float,[100-105],ascending
+                priceAgain,int,[100-105],runlength
                 """,
                 columnDefs.describe(), "Wrong toString");
     }
 
     @Test
-    public void nextValue_Incremental() {
+    public void nextValue_Ascending() {
         ColumnDefs columnDefs = new ColumnDefs(5).add("v", "string", "s[1-7]");
-        columnDefs.setDefaultDistribution("incremental");
+        columnDefs.setDefaultDistribution("ascending");
 
         var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs.nextValue(0, i, 10)).toList();
         assertEquals("[s1, s2, s3, s4, s5, s6, s7, s1, s2, s3]", vals.toString(), "Wrong generated sequence");
@@ -152,13 +152,13 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_LinearConv() {
-        var columnDefs1 = new ColumnDefs(5).add("v", "string", "s[2-8]", "linearConv");
+    public void nextValue_RunLength() {
+        var columnDefs1 = new ColumnDefs(5).add("v", "string", "s[2-8]", "runLength");
 
         var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs1.nextValue(0, i, 10)).toList();
         assertEquals("[s2, s2, s3, s4, s4, s5, s6, s6, s7, s8]", vals.toString(), "Wrong generated sequence");
 
-        var columnDefs2 = new ColumnDefs(5).add("v", "string", "s[1-7]", "linearConv");
+        var columnDefs2 = new ColumnDefs(5).add("v", "string", "s[1-7]", "runLength");
 
         Map<String, Set<Integer>> unique = new LinkedHashMap<>();
 

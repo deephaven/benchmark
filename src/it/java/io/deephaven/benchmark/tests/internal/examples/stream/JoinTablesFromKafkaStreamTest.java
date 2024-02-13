@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.examples.stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,10 +16,12 @@ public class JoinTablesFromKafkaStreamTest {
 
     @BeforeEach
     public void setup() {
-        api.table("stock_info").fixed()
+        api.table("stock_info")
                 .add("symbol", "string", "SYM[1-10000]")
                 .add("description", "string", "ABC[1-10000] CORP")
                 .add("exchange", "string", "EXCHANGE[1-10]")
+                .withDefaultDistribution("ascending")
+                .withFixedRowCount(true)
                 .generateAvro();
 
         api.awaitCompletion();

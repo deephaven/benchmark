@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
 import java.util.Random;
@@ -16,18 +16,18 @@ abstract class DFunction {
     /**
      * A factory method do get the distribution function and assign it an id
      * 
-     * @param distribution a distribution {@code linearconv | incremental | random}
+     * @param distribution a distribution {@code runlength | ascending | random}
      * @param id an id for the function to differentiate it from others of the same type
      * @return a function matching the give distribution
      */
     static DFunction get(String distribution, String id) {
         DFunction df;
         switch (distribution.toLowerCase()) {
-            case "linearconv":
-                df = new LinearConvDFunction();
+            case "runlength":
+                df = new RunLengthDFunction();
                 break;
-            case "incremental":
-                df = new IncrementalDFunction();
+            case "ascending":
+                df = new AscendingDFunction();
                 break;
             case "random":
                 df = new RandomDFunction();
@@ -88,7 +88,7 @@ abstract class DFunction {
      * 1-100, and the destination range was 1-50, the result of iterating {@code srcVal} from 1-100 would be
      * 1,1,2,2,3,3... and so on.
      */
-    static class LinearConvDFunction extends DFunction {
+    static class RunLengthDFunction extends DFunction {
         @Override
         long apply(long srcMin, long srcMax, long srcVal, long dstMin, long dstMax) {
             check(srcMin, srcMax, dstMin, dstMax);
@@ -106,7 +106,7 @@ abstract class DFunction {
      * destination range is 1-4, the result of iterating
      * {@code srvVal) from 1-100 would be 1,2,3,4,1,2,3,4... and so on.
      */
-    static class IncrementalDFunction extends DFunction {
+    static class AscendingDFunction extends DFunction {
         @Override
         long apply(long srcMin, long srcMax, long srcVal, long dstMin, long dstMax) {
             check(srcMin, srcMax, dstMin, dstMax);

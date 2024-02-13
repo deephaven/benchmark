@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.kafka;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,7 +71,7 @@ class KafkaTestRunner {
         this.colType = colType;
         this.generatorType = generatorType;
 
-        var table = api.table("consumer_tbl").fixed();
+        var table = api.table("consumer_tbl");
         table.add("count", "long", "[1-" + rowCount + "]");
         for (int i = 1; i < colCount; i++) {
             table.add("col" + (i + 1), colType, "[1-1000]");

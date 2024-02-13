@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.join;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,21 +12,26 @@ public class NaturalJoinAndJoin3TablesTest {
 
     @BeforeEach
     public void setup() {
-        api.table("animals").fixed()
+        api.table("animals")
                 .add("animal_id", "int", "[1-250]")
-                .add("animal_name", "string", "animal[1-250]") // Are actual animal names really necessary? Would
-                                                               // generated words be better?
+                .add("animal_name", "string", "animal[1-250]")
+                .withDefaultDistribution("ascending")
+                .withFixedRowCount(true)                                               
                 .generateParquet();
 
-        api.table("adjectives").fixed()
+        api.table("adjectives")
                 .add("adjective_id", "int", "[1-644]")
                 .add("adjective_name", "string", "[1-644]")
+                .withDefaultDistribution("ascending")
+                .withFixedRowCount(true)
                 .generateParquet();
 
-        api.table("relation").fixed()
+        api.table("relation")
                 .add("Values", "int", "[1-" + scaleRowCount + "]") // Values in bencher has 1 unique value per record
                 .add("adjective_id", "int", "[1-644]") // Bencher allows random or incremental defined per column
                 .add("animal_id", "int", "[1-250]") // Relation in bencher allows 5% nulls
+                .withDefaultDistribution("ascending")
+                .withFixedRowCount(true)
                 .generateParquet();
     }
 

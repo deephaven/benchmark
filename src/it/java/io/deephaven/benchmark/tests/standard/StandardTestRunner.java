@@ -359,26 +359,27 @@ final public class StandardTestRunner {
 
     void generateRightTable(String distribution) {
         supportTables.add("right");
-        api.table("right").fixed()
+        api.table("right")
                 .add("r_str250", "string", "[1-250]", distribution)
                 .add("r_str640", "string", "[1-640]", distribution)
                 .add("r_int1M", "int", "[1-1000000]", distribution)
                 .add("r_str1M", "string", "[1-1000000]", distribution)
                 .add("r_str10K", "string", "[1-100000]", distribution)
+                .withFixedRowCount(true)
+                .withDefaultDistribution("ascending")
                 .generateParquet();
     }
 
     void generateTimedTable(String distribution) {
         long baseTime = 1676557157537L;
-        if (distribution == null)
-            distribution = "random";
-        api.table("timed").fixed()
-                .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]")
+        api.table("timed")
+                .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]", "ascending")
                 .add("int5", "int", "[1-5]", distribution)
                 .add("int10", "int", "[1-10]", distribution)
                 .add("float5", "float", "[1-5]", distribution)
                 .add("str100", "string", "[1-100]", distribution)
                 .add("str150", "string", "[1-150]", distribution)
+                .withFixedRowCount(true)
                 .generateParquet();
     }
 

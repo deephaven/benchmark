@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,8 +7,8 @@ import org.junit.jupiter.api.*;
 public class DFunctionTest {
 
     @Test
-    public void linearConvApply() {
-        var f = DFunction.get("linearConv", "col1");
+    public void runLengthApply() {
+        var f = DFunction.get("runLength", "col1");
         assertEquals(0, (int) f.apply(0, 500, 0, 0, 100), "Wrong min result");
         assertEquals(50, (int) f.apply(0, 500, 250, 0, 100), "Wrong middle result");
         assertEquals(100, (int) f.apply(0, 500, 500, 0, 100), "Wrong max result");
@@ -27,8 +27,8 @@ public class DFunctionTest {
     }
 
     @Test
-    public void incrementalApply() {
-        var f = DFunction.get("incremental", "col1");
+    public void ascendingApply() {
+        var f = DFunction.get("ascending", "col1");
         assertEquals(1, (int) f.apply(0, 100, 1, 0, 100), "Wrong low result");
         assertEquals(1, (int) f.apply(0, 200, 101, 0, 100), "Wrong rollover result");
         assertEquals(1, (int) f.apply(0, 300, 201, 0, 100), "Wrong rollover result");

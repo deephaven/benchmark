@@ -1,3 +1,4 @@
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.generator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,7 +8,7 @@ import io.deephaven.benchmark.api.BenchTable;
 class GeneratorTestHelper {
 
     static BenchTable makeTestTable(Bench api, String tableName) {
-        return api.table(tableName).fixed()
+        return api.table(tableName).withDefaultDistribution("ascending")
         .add("col_timestamp_millis", "timestamp-millis", "[1676557157537-1676557157537]")
         .add("col_long", "long", "1")
         .add("col_int", "int", "2")

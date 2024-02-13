@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
@@ -24,6 +24,7 @@ final public class BenchTable implements Closeable {
     private String compression = null;
     private Generator generator = null;
     private boolean isFixed = false;
+    private String defaultDistro = null;
 
     BenchTable(Bench bench, String tableName) {
         this.tableName = tableName;
@@ -105,17 +106,27 @@ final public class BenchTable implements Closeable {
     }
 
     /**
-     * Direct the table generator to produce column values according to an incremental distribution and rows up the
-     * maximum defined by all column ranges. For example, if col1 has range [1-10] and col2 has range [1-20] the total
-     * number of rows generated will be 20, unless {@code withRowCount()} is used to override it.
+     * Configure this table to use a row count based on the column data ranges rather than the
+     * <code>scale.row.count</code> property.
      * <p/>
-     * Calling this method will override the default of fixed = false and distribution = random.
+     * Note: This property will be ignored if <code>withRowCount()</code> is used or if no columns are defined with a
+     * <code>descending</code> or <code>ascending</code> distribution
+     * 
+     * @param isFixed true to fix the row count, otherwise false (default)
+     * @return
+     */
+    public BenchTable withFixedRowCount(boolean isFixed) {
+        this.isFixed = isFixed;
+        return this;
+    }
+
+    /**
+     * Set a default column data distribution to use for columns that have no distribution set.
      * 
      * @return this instance
      */
-    public BenchTable fixed() {
-        isFixed = true;
-        columns.setDefaultDistribution("incremental");
+    public BenchTable withDefaultDistribution(String distro) {
+        defaultDistro = distro;
         return this;
     }
 
@@ -123,6 +134,7 @@ final public class BenchTable implements Closeable {
      * Generate the table asynchronously through Kafka using Avro serialization
      */
     public void generateAvro() {
+        columns.setDefaultDistribution(getDefaultDistro());
         var future = generateWithAvro();
         bench.addFuture(future);
     }
@@ -131,6 +143,7 @@ final public class BenchTable implements Closeable {
      * Generate the table asynchronously through Kafka using JSON serialization
      */
     public void generateJson() {
+        columns.setDefaultDistribution(getDefaultDistro());
         var future = generateWithJson();
         bench.addFuture(future);
     }
@@ -139,6 +152,7 @@ final public class BenchTable implements Closeable {
      * Generate the table asynchronously through Kafka using Avro serialization
      */
     public void generateProtobuf() {
+        columns.setDefaultDistribution(getDefaultDistro());
         var future = generateWithProtobuf();
         bench.addFuture(future);
     }
@@ -148,6 +162,7 @@ final public class BenchTable implements Closeable {
      * exists in the Deephaven data directory that matches this table definition, use it and skip generation.
      */
     public void generateParquet() {
+        columns.setDefaultDistribution(getDefaultDistro());
         String q = replaceTableAndGeneratorFields(useExistingParquetQuery);
 
         AtomicBoolean usedExistingParquet = new AtomicBoolean(false);
@@ -208,6 +223,12 @@ final public class BenchTable implements Closeable {
         if (rowPauseMillis >= 0)
             return rowPauseMillis;
         return (int) bench.propertyAsDuration("generator.pause.per.row", "1 millis").toMillis();
+    }
+
+    private String getDefaultDistro() {
+        if (defaultDistro != null)
+            return defaultDistro;
+        return (String) bench.property("default.data.distribution", "random");
     }
 
     private long getRowCount() {
