@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +39,28 @@ public class NumbersTest {
         assertEquals("1,235", Numbers.formatNumber(1234.5679, "#,##0"), "Should have 0 decimal places w/ commas");
         assertEquals("12.3%", Numbers.formatNumber(0.123, "0.0%"), "Should be converted to percent");
         assertEquals("123,000.0%", Numbers.formatNumber(1230, "#,##0.0%"), "Should be converted to percent");
+    }
+
+    @Test
+    public void negate() {
+        assertNull(Numbers.negate(null), "Should be null");
+        assertEquals(Integer.valueOf(-10), Numbers.negate(Integer.valueOf(10)), "Wrong negated Integer value");
+        assertEquals(Long.valueOf(-11), Numbers.negate(Long.valueOf(11)), "Wrong negated Long value");
+        assertEquals(Short.valueOf((short) -12), Numbers.negate(Short.valueOf((short) 12)),
+                "Wrong negated Short value");
+        assertEquals(Byte.valueOf((byte) -13), Numbers.negate(Byte.valueOf((byte) 13)), "Wrong negated Byte value");
+        assertEquals(Float.valueOf(-1.1f), Numbers.negate(Float.valueOf(1.1f)), "Wrong negated Float value");
+        assertEquals(Double.valueOf(-1.2), Numbers.negate(Double.valueOf(1.2)), "Wrong negated Double value");
+    }
+
+    @Test
+    public void isEven() {
+        assertFalse(Numbers.isEven(null), "Should be null");
+        assertTrue(Numbers.isEven(2), "Integer should be even");
+        assertTrue(Numbers.isEven(0), "Integer should be even");
+        assertFalse(Numbers.isEven(3), "Integer should be odd");
+        assertTrue(Numbers.isEven(2.13), "Decimal should be even");
+        assertFalse(Numbers.isEven(3.12), "Decimal should be even");
     }
 
 }

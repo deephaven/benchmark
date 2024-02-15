@@ -10,6 +10,9 @@ import io.deephaven.benchmark.util.Ids;
  * For example, a function returning a random value need only ensure that the value is found within the given
  * destination range. On the other hand, a scaling function would used source range and destination range to translate a
  * source value to a value within the destination range.
+ * <p/>
+ * Note: In a practical sense, and from the perspective of usage in the <code>columnDefs</code> class, the distribution
+ * functions do not return data values but indexes to data values. Put another way, the function return data positions.
  */
 abstract class DFunction {
 
@@ -21,20 +24,12 @@ abstract class DFunction {
      * @return a function matching the give distribution
      */
     static DFunction get(String distribution, String id) {
-        DFunction df;
-        switch (distribution.toLowerCase()) {
-            case "runlength":
-                df = new RunLengthDFunction();
-                break;
-            case "ascending":
-                df = new AscendingDFunction();
-                break;
-            case "random":
-                df = new RandomDFunction();
-                break;
-            default:
-                throw new RuntimeException("Undefined distribution function name: " + distribution);
-        }
+        var df = switch (distribution.toLowerCase()) {
+            case "runlength" -> new RunLengthDFunction();
+            case "ascending" -> new AscendingDFunction();
+            case "random" -> new RandomDFunction();
+            default -> throw new RuntimeException("Undefined distribution function name: " + distribution);
+        };
         df.name = distribution;
         df.id = id;
         df.init(id);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
 import java.text.DecimalFormat;
@@ -76,6 +76,41 @@ public class Numbers {
             return null;
         long bytes = parseNumber(val).longValue();
         return "" + (bytes / 1024 / 1024 / 1024) + "g";
+    }
+
+    /**
+     * Return the negative of the given number instance
+     * 
+     * @param val a number
+     * @return the negated number or null if <code>val</code> was null
+     */
+    static public Number negate(Object val) {
+        return switch (val) {
+            case Integer v -> -v.intValue();
+            case Float v -> -v.floatValue();
+            case Long v -> -v.longValue();
+            case Double v -> -v.doubleValue();
+            case Short v -> (short) (-v.shortValue());
+            case Byte v -> (byte) (-v.byteValue());
+            case null -> null;
+            default -> throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
+        };
+    }
+
+    /**
+     * Determine whether the given number is even or odd.
+     * <p/>
+     * Note: While this method accepts any Number, even or odd for a decimal will be determined by the integral portion.
+     * 
+     * @param val a number
+     * @return true if an even number, otherwise false
+     */
+    static public boolean isEven(Object val) {
+        return switch (val) {
+            case Number v -> v.longValue() % 2 == 0;
+            case null -> false;
+            default -> throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
+        };
     }
 
 }

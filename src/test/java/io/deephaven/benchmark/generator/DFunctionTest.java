@@ -29,11 +29,11 @@ public class DFunctionTest {
     @Test
     public void ascendingApply() {
         var f = DFunction.get("ascending", "col1");
-        assertEquals(1, (int) f.apply(0, 100, 1, 0, 100), "Wrong low result");
-        assertEquals(1, (int) f.apply(0, 200, 101, 0, 100), "Wrong rollover result");
-        assertEquals(1, (int) f.apply(0, 300, 201, 0, 100), "Wrong rollover result");
-        assertEquals(50, (int) f.apply(0, 300, 50, 0, 100), "Wrong middle result");
-        assertEquals(99, (int) f.apply(0, 300, 99, 0, 100), "Wrong high result");
+        assertEquals(1, (int) f.apply(0, 1, 1, 0, 100), "Wrong low result");
+        assertEquals(1, (int) f.apply(0, 1, 101, 0, 100), "Wrong rollover result");
+        assertEquals(1, (int) f.apply(0, 1, 201, 0, 100), "Wrong rollover result");
+        assertEquals(50, (int) f.apply(0, 1, 50, 0, 100), "Wrong middle result");
+        assertEquals(99, (int) f.apply(0, 1, 99, 0, 100), "Wrong high result");
     }
 
     @Test

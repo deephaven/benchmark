@@ -7,6 +7,7 @@ import java.util.stream.*;
 import org.junit.jupiter.api.*;
 
 public class ColumnDefsTest {
+    final int cacheSize = 5;
 
     @Test
     public void add() {
@@ -20,20 +21,11 @@ public class ColumnDefsTest {
 
         assertEquals("string", columnDefs.columns.get(0).type(), "Wrong field count");
         assertEquals("symbol", columnDefs.columns.get(0).name(), "Wrong field name");
-        assertEquals("StringMaker", columnDefs.columns.get(0).maker().getClass().getSimpleName(), "Wrong field maker");
-        assertEquals("ABC2", columnDefs.nextValue(0, 1, 105), "Wrong field next");
+        assertEquals("StringMaker", columnDefs.columns.get(0).maker().getClass().getSimpleName(), "Wrong maker");
 
         assertEquals("float", columnDefs.columns.get(1).type(), "Wrong field count");
         assertEquals("price", columnDefs.columns.get(1).name(), "Wrong field name");
-        assertEquals("FloatMaker", columnDefs.columns.get(1).maker().getClass().getSimpleName(), "Wrong field maker");
-        assertEquals("[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]", columnDefs.columns.get(1).maker().cache.toString(),
-                "Wrong field maker");
-        assertEquals(101.0f, columnDefs.nextValue(1, 1, 105), "Wrong field next");
-
-        assertEquals("[100, 101, 102, 103, 104, 105]", columnDefs.columns.get(2).maker().cache.toString(),
-                "Wrong field maker");
-        assertEquals(105, columnDefs.nextValue(2, 5, 105), "Wrong field next");
-        assertEquals(100, columnDefs.nextValue(2, 0, 105), "Wrong field next");
+        assertEquals("FloatMaker", columnDefs.columns.get(1).maker().getClass().getSimpleName(), "Wrong maker");
     }
 
     @Test
@@ -108,69 +100,74 @@ public class ColumnDefsTest {
 
     @Test
     public void nextValue_Ascending() {
-        ColumnDefs columnDefs = new ColumnDefs(5).add("v", "string", "s[1-7]");
+        ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs.setDefaultDistribution("ascending");
 
-        var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs.nextValue(0, i, 10)).toList();
-        assertEquals("[s1, s2, s3, s4, s5, s6, s7, s1, s2, s3]", vals.toString(), "Wrong generated sequence");
+        assertValuesEqual(columnDefs, 901, 902, 903, 904, 905, 906, 907, 901, 902, 903);
+        assertCacheOccurences(columnDefs, "901:1", "902:1", "903:1", "904:1", "905:1", "906:3", "907:3");
+    }
 
-        Map<String, Set<Integer>> unique = new LinkedHashMap<>();
+    @Test
+    public void nextValue_Descending() {
+        ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
+        columnDefs.setDefaultDistribution("descending");
 
-        IntStream.range(0, 21).mapToObj(i -> columnDefs.nextValue(0, i, 21)).forEach(v -> {
-            unique.computeIfAbsent("" + v, ids -> new HashSet<>());
-            unique.get("" + v).add(System.identityHashCode(v));
-        });
-        Set<String> occurrences = new LinkedHashSet<>();
-        unique.forEach((k, v) -> occurrences.add(k + ':' + v.size()));
-
-        assertEquals("[s1:1, s2:1, s3:1, s4:1, s5:1, s6:3, s7:3]", occurrences.toString(),
-                "Cache objects (1-5) should not be repeated");
+        assertValuesEqual(columnDefs, -901, -902, -903, -904, -905, -906, -907, -901, -902, -903);
+        assertCacheOccurences(columnDefs, "-901:1", "-902:1", "-903:1", "-904:1", "-905:1", "-906:3", "-907:3");
     }
 
     @Test
     public void nextValue_Random() {
-        var columnDefs1 = new ColumnDefs(5).add("v", "string", "s[1-7]");
+        var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs1.setDefaultDistribution("random");
 
-        var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs1.nextValue(0, i, 10)).toList();
-        assertEquals("[s6, s6, s1, s2, s1, s5, s7, s1, s6, s5]", vals.toString(), "Wrong generated sequence");
+        assertValuesEqual(columnDefs1, 901, 903, 903, -906, -902, 907, -906, 907, -902, 907);
+        assertCacheOccurences(columnDefs1, "901:1", "-902:1", "903:1", "-904:1", "905:1", "-906:6", "907:2");
 
-        var columnDefs2 = new ColumnDefs(5).add("v", "string", "s[1-7]");
-        columnDefs1.setDefaultDistribution("random");
+        var columnDefs2 = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
+        columnDefs2.setDefaultDistribution("random");
 
-        Map<String, Set<Integer>> unique = new LinkedHashMap<>();
-
-        IntStream.range(0, 30).mapToObj(i -> columnDefs2.nextValue(0, i, 30)).forEach(v -> {
-            unique.computeIfAbsent("" + v, ids -> new HashSet<>());
-            unique.get("" + v).add(System.identityHashCode(v));
-        });
-        Set<String> occurrences = new LinkedHashSet<>();
-        unique.forEach((k, v) -> occurrences.add(k + ':' + v.size()));
-
-        assertEquals("[s6:8, s1:1, s2:1, s5:1, s7:2, s3:1, s4:1]", occurrences.toString(),
-                "Cache objects (1-5) should not be repeated");
+        assertValuesEqual(columnDefs2, 901, 903, 903, -906, -902, 907, -906, 907, -902, 907);
+        assertCacheOccurences(columnDefs2, "901:1", "-902:1", "903:1", "-904:1", "905:1", "-906:6", "907:2");
     }
 
     @Test
     public void nextValue_RunLength() {
-        var columnDefs1 = new ColumnDefs(5).add("v", "string", "s[2-8]", "runLength");
+        var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-906]", "runLength");
 
-        var vals = IntStream.range(0, 10).mapToObj(i -> columnDefs1.nextValue(0, i, 10)).toList();
-        assertEquals("[s2, s2, s3, s4, s4, s5, s6, s6, s7, s8]", vals.toString(), "Wrong generated sequence");
+        assertValuesEqual(columnDefs1, 901, 901, -902, -902, 903, -904, -904, 905, 905, -906);
+        assertCacheOccurences(columnDefs1, "901:1", "-902:1", "903:1", "-904:1", "905:1", "-906:4");
 
-        var columnDefs2 = new ColumnDefs(5).add("v", "string", "s[1-7]", "runLength");
+        var columnDefs2 = new ColumnDefs(cacheSize).add("v", "int", "[900-904]", "runLength");
 
-        Map<String, Set<Integer>> unique = new LinkedHashMap<>();
+        assertValuesEqual(columnDefs2, -900, -900, 901, 901, -902, -902, 903, 903, -904, -904);
+        assertCacheOccurences(columnDefs2, "-900:1", "901:1", "-902:1", "903:1", "-904:1");
+    }
 
-        IntStream.range(0, 21).mapToObj(i -> columnDefs2.nextValue(0, i, 21)).forEach(v -> {
-            unique.computeIfAbsent("" + v, ids -> new HashSet<>());
-            unique.get("" + v).add(System.identityHashCode(v));
+    private void assertValuesEqual(ColumnDefs colDefs, Object... expectedVals) {
+        int maxValues = cacheSize + 5;
+        var vals = IntStream.range(0, maxValues).mapToObj(i -> colDefs.nextValue(0, i, maxValues)).toArray();
+        assertArrayEquals(expectedVals, vals, "Wrong generated values");
+    }
+
+    private void assertCacheOccurences(ColumnDefs colDefs, String... expectedOccurences) {
+        int maxValues = cacheSize * 5;
+        var unique = new TreeMap<Integer, Set<Integer>>(new AbsComparable());
+        IntStream.range(0, maxValues).mapToObj(i -> colDefs.nextValue(0, i, maxValues)).forEach(v -> {
+            unique.computeIfAbsent((Integer) v, ids -> new HashSet<>());
+            unique.get(v).add(System.identityHashCode(v));
         });
-        Set<String> occurrences = new LinkedHashSet<>();
-        unique.forEach((k, v) -> occurrences.add(k + ':' + v.size()));
+        var occurrences = new ArrayList<String>();
+        unique.forEach((k, v) -> occurrences.add("" + k + ':' + v.size()));
 
-        assertEquals("[s1:1, s2:1, s3:1, s4:1, s5:1, s6:3, s7:3]", occurrences.toString(),
-                "Cache objects (1-5) should not be repeated");
+        assertArrayEquals(expectedOccurences, occurrences.toArray(), "Wrong object cache occurences");
+    }
+
+    static class AbsComparable implements Comparator<Integer> {
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            return Integer.compare(Math.abs(o1), Math.abs(o2));
+        }
     }
 
 }
