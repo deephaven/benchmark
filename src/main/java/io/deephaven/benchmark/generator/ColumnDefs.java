@@ -167,8 +167,11 @@ public class ColumnDefs {
         return switch (distribution) {
             case "ascending" -> value; // All positives
             case "descending" -> Numbers.negate(value); // All negatives
-            case "random" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate even numbers
-            case "runlength" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate even numbers
+            // case "random-even-neg" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate evens
+            case "random" -> !Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate odds
+            // case "random-shift" -> (int) ((Number) value).intValue() - (int) (def.size() / 2);
+            // case "random" -> value;
+            case "runlength" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate evens
             default -> throw new RuntimeException("Undefined distribution function name: " + distribution);
         };
     }

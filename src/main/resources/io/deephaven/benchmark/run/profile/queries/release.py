@@ -14,6 +14,11 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_max_runs_arg = 5  # Latest X runs to include   
     exec(r.read().decode(), globals(), locals())
 
+# Replace any characters that are illegal in DH column names
+def column_name(name):
+    name = name.replace('/','__')
+    return re.sub('[^A-Za-z0-9_$]', '_', name)
+
 # Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
 # Candidate for pulling up into deephaven_tables.py
 def latest_comparable_benchmarks(filter_table):
@@ -41,7 +46,7 @@ version_vectors = dhnp.to_numpy(newest_benchmarks.view(["op_group_versions"]))
 for vector in version_vectors:
     for vers in vector:
         for v in vers.toArray():
-            versions['V_' + v.replace('.','_')] = 0
+            versions['V_' + column_name(v)] = 0
 vers = list(versions.keys())
 vers.reverse()
 versLen = len(vers)

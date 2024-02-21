@@ -79,12 +79,14 @@ public class Numbers {
     }
 
     /**
-     * Return the negative of the given number instance
+     * Return the negative of the given number instance. If <code>val</code> is null or zero, return.
      * 
      * @param val a number
      * @return the negated number or null if <code>val</code> was null
      */
     static public Number negate(Object val) {
+        if (val instanceof Number && ((Number) val).doubleValue() == 0.0)
+            return (Number) val;
         return switch (val) {
             case Integer v -> -v.intValue();
             case Float v -> -v.floatValue();

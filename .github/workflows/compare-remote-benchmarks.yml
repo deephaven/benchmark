@@ -24,4 +24,5 @@ jobs:
       test_package: "io.deephaven.benchmark.tests.compare"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
       scale_row_count: 70000000
+      distribution: random
     secrets: inherit

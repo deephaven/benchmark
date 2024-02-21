@@ -12,28 +12,38 @@ on:
    inputs:
      docker_image:
        description: 'Docker Image Name'
+       type: string
        required: true
        default: 'edge'
-       type: string
      run_label:
        description: 'Run Label'
-       required: true
        type: string
+       required: true
      test_package:
        description: 'Benchmark Test Package'
+       type: string
        required: true
        default: 'io.deephaven.benchmark.tests.standard'
-       type: string
      test_class_regex:
        description: 'Benchmark Test Class Pattern'
+       type: string
        required: true
        default: '^.*[.]MixedCombo.*Test.*$'
-       type: string
      scale_row_count:
        description: 'Benchmark Scale Row Count'
+       type: string
        required: true
        default: '1000000'
-       type: string
+     distribution:
+        type: choice
+        description: 'Benchmark Data Distribution'
+        required: true
+       	default: 'random'
+        options: 
+        - random
+        - ascending
+        - descending
+        - runlength
 
 jobs:
   process-release-benchmarks:
@@ -45,6 +55,8 @@ jobs:
       run_label: ${{ inputs.run_label }}
       test_package: ${{ inputs.test_package }}
       test_class_regex: ${{ inputs.test_class_regex }}
-      scale_row_count: ${{ inputs.scale_row_count }} 
+      scale_row_count: ${{ inputs.scale_row_count }}
+      distribution: ${{ inputs.distribution }}
     secrets: inherit
+
 

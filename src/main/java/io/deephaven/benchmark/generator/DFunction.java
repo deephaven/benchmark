@@ -28,6 +28,9 @@ abstract class DFunction {
             case "runlength" -> new RunLengthDFunction();
             case "ascending" -> new AscendingDFunction();
             case "random" -> new RandomDFunction();
+            // case "random-even-neg" -> new RandomDFunction();
+            // case "random-odd-neg" -> new RandomDFunction();
+            // case "random-shift" -> new RandomDFunction();
             default -> throw new RuntimeException("Undefined distribution function name: " + distribution);
         };
         df.name = distribution;

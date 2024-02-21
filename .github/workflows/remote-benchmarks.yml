@@ -26,6 +26,9 @@ on:
       scale_row_count:
         required: true
         type: string
+      distribution:
+      	required: true
+        type: string
 
 jobs:
   process-benchmarks:
@@ -43,6 +46,7 @@ jobs:
       TEST_PKG: ${{inputs.test_package}}
       TEST_RGX: ${{inputs.test_class_regex}}
       ROW_CNT: ${{inputs.scale_row_count}}
+      DISTRIB: ${{inputs.distribution}}
       ACTOR: ${{github.actor}}
 
     steps:
@@ -83,7 +87,7 @@ jobs:
 
     - name: Run Remote Benchmarks
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT} ${DISTRIB}
         
     - name: Fetch Benchmark Results and Prepare for Upload
       run: |

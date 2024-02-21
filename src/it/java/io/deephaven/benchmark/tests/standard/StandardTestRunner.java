@@ -346,13 +346,13 @@ final public class StandardTestRunner {
 
     void generateSourceTable(String distribution) {
         api.table("source")
-                .add("int250", "int", "[1-250]", distribution)
-                .add("int640", "int", "[1-640]", distribution)
-                .add("int1M", "int", "[1-1000000]", distribution)
-                .add("float5", "float", "[1-6]", distribution)
-                .add("str250", "string", "[1-250]", distribution)
-                .add("str640", "string", "[1-640]", distribution)
-                .add("str1M", "string", "[1-1000000]", distribution)
+                .add("int250", "int", "[0-249]", distribution)
+                .add("int640", "int", "[0-639]", distribution)
+                .add("int1M", "int", "[0-999999]", distribution)
+                .add("float5", "float", "[0-4]", distribution)
+                .add("str250", "string", "[0-249]", distribution)
+                .add("str640", "string", "[0-639]", distribution)
+                .add("str1M", "string", "[0-999999]", distribution)
                 .withRowCount(scaleRowCount)
                 .generateParquet();
     }
@@ -360,11 +360,11 @@ final public class StandardTestRunner {
     void generateRightTable(String distribution) {
         supportTables.add("right");
         api.table("right")
-                .add("r_str250", "string", "[1-250]", distribution)
-                .add("r_str640", "string", "[1-640]", distribution)
-                .add("r_int1M", "int", "[1-1000000]", distribution)
-                .add("r_str1M", "string", "[1-1000000]", distribution)
-                .add("r_str10K", "string", "[1-100000]", distribution)
+                .add("r_str250", "string", "[0-249]", distribution)
+                .add("r_str640", "string", "[0-639]", distribution)
+                .add("r_int1M", "int", "[0-999999]", distribution)
+                .add("r_str1M", "string", "[0-999999]", distribution)
+                .add("r_str10K", "string", "[0-99999]", distribution)
                 .withFixedRowCount(true)
                 .withDefaultDistribution("ascending")
                 .generateParquet();
@@ -374,11 +374,11 @@ final public class StandardTestRunner {
         long baseTime = 1676557157537L;
         api.table("timed")
                 .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]", "ascending")
-                .add("int5", "int", "[1-6]", distribution)
-                .add("int10", "int", "[1-10]", distribution)
-                .add("float5", "float", "[1-6]", distribution)
-                .add("str100", "string", "[1-100]", distribution)
-                .add("str150", "string", "[1-150]", distribution)
+                .add("int5", "int", "[0-4]", distribution)
+                .add("int10", "int", "[0-9]", distribution)
+                .add("float5", "float", "[0-4]", distribution)
+                .add("str100", "string", "[0-999]", distribution)
+                .add("str150", "string", "[0-149]", distribution)
                 .withFixedRowCount(true)
                 .generateParquet();
     }
