@@ -40,10 +40,10 @@ on:
        default: 'random'
        type: choice
        options: 
-        - random
-        - ascending
-        - descending
-        - runlength
+       - random
+       - ascending
+       - descending
+       - runlength
 
 jobs:
   process-release-benchmarks:
