@@ -34,16 +34,12 @@ on:
        required: true
        default: '1000000'
        type: string
-     distribution:
-       description: 'Benchmark Data Distribution'
+     scale_row_count2:
+       description: 'Benchmark Scale Row Count2'
        required: true
-       default: 'random'
-       type: choice
-       options: 
-       - random
-       - ascending
-       - descending
-       - runlength
+       default: '1000000'
+       type: string
+
 
 jobs:
   process-release-benchmarks:
