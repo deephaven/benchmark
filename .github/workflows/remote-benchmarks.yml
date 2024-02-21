@@ -27,7 +27,7 @@ on:
         required: true
         type: string
       distribution:
-      	required: true
+        required: true
         type: string
 
 jobs:
