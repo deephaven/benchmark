@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.BufferedWriter;
@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.connect.ResultTable;
@@ -24,6 +25,7 @@ public class BenchPlatform {
     static final Map<String, Property> properties = new LinkedHashMap<>();
     static boolean hasBeenCommitted = false;
     final Path platformFile;
+    final Properties profileProps;
 
 
     /**
@@ -32,7 +34,7 @@ public class BenchPlatform {
      * @param parent the parent directory of the platform file
      */
     BenchPlatform(Path parent) {
-        this(parent, Bench.platformFileName);
+        this(parent, Bench.platformFileName, Bench.profile.getProperties());
     }
 
     /**
@@ -41,8 +43,9 @@ public class BenchPlatform {
      * @param parent the parent directory of the platform file
      * @param platformFileName the name the file to store platform properties
      */
-    BenchPlatform(Path parent, String platformFileName) {
+    BenchPlatform(Path parent, String platformFileName, Properties profileProps) {
         this.platformFile = parent.resolve(platformFileName);
+        this.profileProps = profileProps;
     }
 
     public BenchPlatform add(String origin, String name, Object value) {
@@ -58,7 +61,8 @@ public class BenchPlatform {
             hasBeenCommitted = true;
             Filer.delete(platformFile);
             writeLine(new Property("origin", "name", "value", new AtomicBoolean(true)), platformFile);
-            addTestProps(properties);
+            addTestRunnerProps(properties);
+            addRunnerProfileProps(properties);
             addEngineProps(properties);
         }
         for (Property prop : properties.values()) {
@@ -109,7 +113,14 @@ public class BenchPlatform {
         return v.matches("[0-9]+\\.[0-9]+\\.[0-9]+") ? v : "Unknown";
     }
 
-    private void addTestProps(Map<String, Property> benchApiProps) {
+    private void addRunnerProfileProps(Map<String, Property> benchApiProps) {
+        var origin = "test-runner";
+        profileProps.forEach((k, v) -> {
+            benchApiAddProperty(benchApiProps, origin, k.toString(), v.toString());
+        });
+    }
+
+    private void addTestRunnerProps(Map<String, Property> benchApiProps) {
         var dhInst = new ArgumentException();
         var benchApiOrigin = "test-runner";
         var deephavenVersion = getDeephavenVersion(dhInst, "/META-INF/maven/io.deephaven/deephaven-benchmark/pom.xml");

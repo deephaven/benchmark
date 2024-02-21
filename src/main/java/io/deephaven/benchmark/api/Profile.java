@@ -155,6 +155,15 @@ class Profile {
         return str;
     }
 
+    /**
+     * Return a copy of the properties loaded into the profile
+     * 
+     * @return a copy of the profile properties
+     */
+    Properties getProperties() {
+        return (Properties) props.clone();
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }

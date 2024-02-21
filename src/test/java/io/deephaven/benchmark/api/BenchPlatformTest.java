@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.connect.CachedResultTable;
 import io.deephaven.benchmark.connect.ResultTable;
@@ -18,21 +19,22 @@ public class BenchPlatformTest {
         platform.commit();
 
         var lines = Files.readAllLines(outParent.resolve("platform-test.out"));
-        assertEquals(16, lines.size(), "Wrong row count");
+        assertEquals(18, lines.size(), "Wrong row count");
         assertEquals("origin,name,value", lines.get(0), "Wrong header");
         assertTrue(lines.get(1).matches("test-runner,java.version,[0-9.]+"), "Wrong values: " + lines.get(1));
         assertTrue(lines.get(3).matches("test-runner,java.class.version,[0-9.]+"), "Wrong values: " + lines.get(3));
         assertTrue(lines.get(7).matches("test-runner,java.max.memory,[0-9]+g"), "Wrong values: " + lines.get(7));
-        assertEquals("deephaven-engine,java.version,17.0.5", lines.get(9), "Wrong values");
-        assertEquals("deephaven-engine,java.class.version,61.0", lines.get(11), "Wrong values");
-        assertEquals("deephaven-engine,java.max.memory,24g", lines.get(15), "Wrong values");
+        assertEquals("test-runner,profile.prop2,prop2", lines.get(9), "Wrong values");
+        assertEquals("deephaven-engine,java.version,17.0.5", lines.get(11), "Wrong values");
+        assertEquals("deephaven-engine,java.class.version,61.0", lines.get(13), "Wrong values");
+        assertEquals("deephaven-engine,java.max.memory,24g", lines.get(17), "Wrong values");
 
         platform.add("deephaven-engine", "no.repeat.no.overwrite", "100");
         platform.add("deephaven-engine", "no.repeat.no.overwrite", "200");
         platform.commit();
 
         lines = Files.readAllLines(outParent.resolve("platform-test.out"));
-        assertEquals("deephaven-engine,no.repeat.no.overwrite,100", lines.get(16), "Wrong values");
+        assertEquals("deephaven-engine,no.repeat.no.overwrite,100", lines.get(18), "Wrong values");
     }
 
     @Test
@@ -46,7 +48,14 @@ public class BenchPlatformTest {
 
     static class LocalPlatform extends BenchPlatform {
         LocalPlatform(Path dir, String fileName) {
-            super(dir, fileName);
+            super(dir, fileName, getProfileProps());
+        }
+
+        static Properties getProfileProps() {
+            var props = new Properties();
+            props.setProperty("profile.prop1", "prop1");
+            props.setProperty("profile.prop2", "prop2");
+            return props;
         }
 
         @Override
