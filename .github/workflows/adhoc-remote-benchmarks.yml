@@ -36,8 +36,9 @@ on:
        default: '1000000'
      distribution:
         description: 'Benchmark Data Distribution'
+        required: true
+        default: 'random'
         type: choice
-       	default: 'random'
         options: 
         - random
         - ascending
