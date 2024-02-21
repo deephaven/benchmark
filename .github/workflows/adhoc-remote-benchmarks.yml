@@ -12,34 +12,34 @@ on:
    inputs:
      docker_image:
        description: 'Docker Image Name'
-       type: string
        required: true
        default: 'edge'
+       type: string
      run_label:
        description: 'Run Label'
-       type: string
        required: true
+       type: string
      test_package:
        description: 'Benchmark Test Package'
-       type: string
        required: true
        default: 'io.deephaven.benchmark.tests.standard'
+       type: string
      test_class_regex:
        description: 'Benchmark Test Class Pattern'
-       type: string
        required: true
        default: '^.*[.]MixedCombo.*Test.*$'
+       type: string
      scale_row_count:
        description: 'Benchmark Scale Row Count'
-       type: string
        required: true
        default: '1000000'
+       type: string
      distribution:
-        description: 'Benchmark Data Distribution'
-        required: true
-        default: 'random'
-        type: choice
-        options: 
+       description: 'Benchmark Data Distribution'
+       required: true
+       default: 'random'
+       type: choice
+       options: 
         - random
         - ascending
         - descending
