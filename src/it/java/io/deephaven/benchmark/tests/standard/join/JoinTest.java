@@ -29,13 +29,13 @@ public class JoinTest {
     @Test
     public void joinOn2ColsAnyMatch() {
         var q = "source.join(right, on=['str1M=r_str1M', 'str250=r_str250'])";
-        runner.test("Join- Join On 2 Cols 1 Match", 1000000, q, "str250", "str1M", "int1M", "int250");
+        runner.test("Join- Join On 2 Cols 1 Match", q, "str250", "str1M", "int1M", "int250");
     }
 
     @Test
     public void joinOn3ColsAnyMatch() {
         var q = "source.join(right, on=['str640=r_str640', 'str250=r_str250', 'int1M=r_int1M'])";
-        runner.test("Join- Join On 3 Cols Any Match", 1000, q, "str250", "str640", "int250", "int1M");
+        runner.test("Join- Join On 3 Cols Any Match", q, "str250", "str640", "int250", "int1M");
     }
 
 }

@@ -22,18 +22,18 @@ public class WhereTest {
         var q = """
         source.where(filters=["str250 = '250'"]);
         """;
-        runner.test("Where- 1 Filter",  q, "str250", "int250");
+        runner.test("Where- 1 Filter", q, "str250", "int250");
     }
-    
+
     @Test
     public void where2Filters() {
         runner.setScaleFactors(210, 170);
         var q = """
-        source.where(filters=["str250 = '250'", "str640 = '640'"]);
+        source.where(filters=["str250 = '70'", "str640 = '320'"]);
         """;
-        runner.test("Where- 2 Filters",  q, "str250", "str640", "int250");
+        runner.test("Where- 2 Filters", q, "str250", "str640", "int250");
     }
-    
+
     @Test
     public void whereFilterInList() {
         runner.setScaleFactors(190, 160);
@@ -42,7 +42,7 @@ public class WhereTest {
         """;
         runner.test("Where- 1 Filter-In", q, "str250", "str640", "int250");
     }
-    
+
     @Test
     public void whereOneOf2Filters() {
         runner.setScaleFactors(80, 75);

@@ -115,4 +115,21 @@ public class Numbers {
         };
     }
 
+    /**
+     * Subtract the number in the given string from the given max offset and replace it in the string.
+     * 
+     * @param value the string containing a number
+     * @param maxOffset the uppermost possible number the string may contain
+     * @return a string with the number replaced by a number offset from the maximum
+     */
+    static public Object offsetInString(Object value, long offset, long size) {
+        var str = value.toString().replaceAll("([^0-9]*)([0-9]+)([^0-9]*)", "$1,,,$2,,,$3");
+        var split = str.split(",,,", -1);
+        if (split.length != 3)
+            return value;
+        var num = parseNumber(split[1]).longValue();
+        num = offset + size - num + offset;
+        return split[0] + num + split[2];
+    }
+
 }

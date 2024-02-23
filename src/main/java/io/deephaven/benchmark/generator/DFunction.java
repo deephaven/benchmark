@@ -26,6 +26,7 @@ abstract class DFunction {
     static DFunction get(String distribution, String id) {
         var df = switch (distribution.toLowerCase()) {
             case "runlength" -> new RunLengthDFunction();
+            case "linearconv" -> new LinearConvDFunction();
             case "ascending" -> new AscendingDFunction();
             case "random" -> new RandomDFunction();
             // case "random-even-neg" -> new RandomDFunction();
@@ -86,7 +87,7 @@ abstract class DFunction {
      * 1-100, and the destination range was 1-50, the result of iterating {@code srcVal} from 1-100 would be
      * 1,1,2,2,3,3... and so on.
      */
-    static class RunLengthDFunction extends DFunction {
+    static class LinearConvDFunction extends DFunction {
         @Override
         long apply(long srcMin, long srcMax, long srcVal, long dstMin, long dstMax) {
             check(srcMin, srcMax, dstMin, dstMax);
@@ -96,6 +97,21 @@ abstract class DFunction {
             double srcRange = srcMax - srcMin;
             double dstRange = dstMax - dstMin;
             return (long) (srcOffset / srcRange * dstRange + dstMin);
+        }
+    }
+
+    /**
+     * Produce repeating values according to the size of the given range. For example, if the destination range is 1-10,
+     * the result of iterating {@code srcVal} from 1-100 would be 1,1,2,2,3,3... and so on.
+     */
+    static class RunLengthDFunction extends DFunction {
+        final AscendingDFunction func = new AscendingDFunction();
+
+        @Override
+        long apply(long srcMin, long srcMax, long srcVal, long dstMin, long dstMax) {
+            long dstSize = dstMax - dstMin;
+            long v = func.apply(srcMin, srcMax, srcVal, dstMin, dstSize * dstSize);
+            return v / dstSize;
         }
     }
 

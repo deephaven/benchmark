@@ -47,9 +47,13 @@ final public class StandardTestRunner {
     }
 
     /**
-     * Identify a pre-defined table for use by this runner
+     * Generate the given pre-defined tables according to the default data distribution defined by the
+     * <code>default.data.distribution</code> property. The first table name provided will be the main
+     * <code>source</code> table.
+     * <p/>
+     * This method should only be called once per test.
      * 
-     * @param type
+     * @param names the table names
      */
     public void tables(String... names) {
         if (names.length > 0)
@@ -61,10 +65,13 @@ final public class StandardTestRunner {
     }
 
     /**
-     * name
+     * Generate a pre-defined table and set an explicit distribution for that table's data. This will override the
+     * <code>default.data.distribution</code> property.
+     * <p/>
+     * This method should only be called once per test.
      * 
-     * @param name
-     * @param distribution
+     * @param name the table name to generate
+     * @param distribution the name of the distribution
      */
     public void table(String name, String distribution) {
         mainTable = name;
@@ -346,39 +353,44 @@ final public class StandardTestRunner {
 
     void generateSourceTable(String distribution) {
         api.table("source")
-                .add("int250", "int", "[0-249]", distribution)
-                .add("int640", "int", "[0-639]", distribution)
-                .add("int1M", "int", "[0-999999]", distribution)
+                .add("int250", "int", "[1-250]", distribution)
+                .add("int640", "int", "[1-640]", distribution)
+                .add("int1M", "int", "[1-1000000]", distribution)
                 .add("float5", "float", "[0-4]", distribution)
-                .add("str250", "string", "[0-249]", distribution)
-                .add("str640", "string", "[0-639]", distribution)
-                .add("str1M", "string", "[0-999999]", distribution)
+                .add("str250", "string", "[1-100]", distribution)
+                .add("str640", "string", "[1-101]", distribution)
+                .add("str1M", "string", "[1-1000000]", distribution)
                 .withRowCount(scaleRowCount)
                 .generateParquet();
     }
 
     void generateRightTable(String distribution) {
+        if(distribution == null && api().property("default.data.distribution", "").equals("descending")) {
+            distribution = "descending";
+        } else {
+            distribution = "ascending";
+        }
         supportTables.add("right");
         api.table("right")
-                .add("r_str250", "string", "[0-249]", distribution)
-                .add("r_str640", "string", "[0-639]", distribution)
-                .add("r_int1M", "int", "[0-999999]", distribution)
-                .add("r_str1M", "string", "[0-999999]", distribution)
-                .add("r_str10K", "string", "[0-99999]", distribution)
+                .add("r_str250", "string", "[1-250]", distribution)
+                .add("r_str640", "string", "[1-640]", distribution)
+                .add("r_int1M", "int", "[1-1000000]", distribution)
+                .add("r_str1M", "string", "[1-1000000]", distribution)
+                .add("r_str10K", "string", "[1-10000]", distribution)
                 .withFixedRowCount(true)
-                .withDefaultDistribution("ascending")
                 .generateParquet();
     }
 
     void generateTimedTable(String distribution) {
-        long baseTime = 1676557157537L;
+        long minTime = 1676557157537L;
+        long maxTime = minTime + scaleRowCount - 1;
         api.table("timed")
-                .add("timestamp", "timestamp-millis", "[" + baseTime + "-" + (baseTime + scaleRowCount - 1) + "]", "ascending")
+                .add("timestamp", "timestamp-millis", "[" + minTime + "-" + maxTime + "]", "ascending")
                 .add("int5", "int", "[0-4]", distribution)
-                .add("int10", "int", "[0-9]", distribution)
+                .add("int10", "int", "[1-10]", distribution)
                 .add("float5", "float", "[0-4]", distribution)
-                .add("str100", "string", "[0-999]", distribution)
-                .add("str150", "string", "[0-149]", distribution)
+                .add("str100", "string", "[1-100]", distribution)
+                .add("str150", "string", "[1-150]", distribution)
                 .withFixedRowCount(true)
                 .generateParquet();
     }

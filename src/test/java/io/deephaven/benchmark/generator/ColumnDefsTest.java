@@ -10,7 +10,7 @@ public class ColumnDefsTest {
     final int cacheSize = 5;
 
     @Test
-    public void add() {
+    void add() {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-11]")
                 .add("price", "float", "[100-105]")
@@ -29,7 +29,7 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void add_Literals() {
+    void add_Literals() {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("col1", "string", "11")
                 .add("col2", "long", "12")
@@ -49,7 +49,7 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void getQuotedColumns() {
+    void getQuotedColumns() {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-11]")
                 .add("price", "float", "[100-105]")
@@ -59,7 +59,7 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void getMaxValueCount() {
+    void getMaxValueCount() {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-10]")
                 .add("price", "float", "[100-105]")
@@ -69,7 +69,7 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void describe() {
+    void describe() {
         ColumnDefs columnDefs = new ColumnDefs()
                 .add("symbol", "string", "ABC[1-10]")
                 .add("price", "float", "[100-105]")
@@ -99,7 +99,7 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_Ascending() {
+    void nextValue_Ascending() {
         ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs.setDefaultDistribution("ascending");
 
@@ -108,7 +108,16 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_Descending() {
+    void nextValue_StringAscending() {
+        ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "string", "s[901-907]");
+        columnDefs.setDefaultDistribution("ascending");
+
+        assertValuesEqual(columnDefs, "s901", "s902", "s903", "s904", "s905", "s906", "s907", "s901", "s902", "s903");
+        assertCacheOccurences(columnDefs, "s901:1", "s902:1", "s903:1", "s904:1", "s905:1", "s906:3", "s907:3");
+    }
+
+    @Test
+    void nextValue_Descending() {
         ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs.setDefaultDistribution("descending");
 
@@ -117,7 +126,16 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_Random() {
+    void nextValue_StringDescending() {
+        ColumnDefs columnDefs = new ColumnDefs(cacheSize).add("v", "string", "[901-907]s");
+        columnDefs.setDefaultDistribution("descending");
+
+        assertValuesEqual(columnDefs, "907s", "906s", "905s", "904s", "903s", "902s", "901s", "907s", "906s", "905s");
+        assertCacheOccurences(columnDefs, "901s:3", "902s:3", "903s:1", "904s:1", "905s:1", "906s:1", "907s:1");
+    }
+
+    @Test
+    void nextValue_Random() {
         var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs1.setDefaultDistribution("random");
 
@@ -132,16 +150,16 @@ public class ColumnDefsTest {
     }
 
     @Test
-    public void nextValue_RunLength() {
-        var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-906]", "runLength");
+    void nextValue_RunLength() {
+        var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-903]", "runLength");
 
-        assertValuesEqual(columnDefs1, 901, 901, -902, -902, 903, -904, -904, 905, 905, -906);
-        assertCacheOccurences(columnDefs1, "901:1", "-902:1", "903:1", "-904:1", "905:1", "-906:4");
+        assertValuesEqual(columnDefs1, 901, 901, 901, -902, -902, -902, 903, 903, 903, 901);
+        assertCacheOccurences(columnDefs1, "901:1", "-902:1", "903:1");
 
-        var columnDefs2 = new ColumnDefs(cacheSize).add("v", "int", "[900-904]", "runLength");
+        var columnDefs2 = new ColumnDefs(cacheSize).add("v", "int", "[900-902]", "runLength");
 
-        assertValuesEqual(columnDefs2, -900, -900, 901, 901, -902, -902, 903, 903, -904, -904);
-        assertCacheOccurences(columnDefs2, "-900:1", "901:1", "-902:1", "903:1", "-904:1");
+        assertValuesEqual(columnDefs2, -900, -900, -900, 901, 901, 901, -902, -902, -902, -900);
+        assertCacheOccurences(columnDefs2, "-900:1", "901:1", "-902:1");
     }
 
     private void assertValuesEqual(ColumnDefs colDefs, Object... expectedVals) {
@@ -152,9 +170,9 @@ public class ColumnDefsTest {
 
     private void assertCacheOccurences(ColumnDefs colDefs, String... expectedOccurences) {
         int maxValues = cacheSize * 5;
-        var unique = new TreeMap<Integer, Set<Integer>>(new AbsComparable());
+        var unique = new TreeMap<Object, Set<Integer>>(new AbsComparable());
         IntStream.range(0, maxValues).mapToObj(i -> colDefs.nextValue(0, i, maxValues)).forEach(v -> {
-            unique.computeIfAbsent((Integer) v, ids -> new HashSet<>());
+            unique.computeIfAbsent(v, ids -> new HashSet<>());
             unique.get(v).add(System.identityHashCode(v));
         });
         var occurrences = new ArrayList<String>();
@@ -163,10 +181,12 @@ public class ColumnDefsTest {
         assertArrayEquals(expectedOccurences, occurrences.toArray(), "Wrong object cache occurences");
     }
 
-    static class AbsComparable implements Comparator<Integer> {
+    static class AbsComparable implements Comparator<Object> {
         @Override
-        public int compare(Integer o1, Integer o2) {
-            return Integer.compare(Math.abs(o1), Math.abs(o2));
+        public int compare(Object o1, Object o2) {
+            if (o1 instanceof String)
+                return ((String) o1).compareTo((String) o2);
+            return Integer.compare(Math.abs((Integer) o1), Math.abs((Integer) o2));
         }
     }
 

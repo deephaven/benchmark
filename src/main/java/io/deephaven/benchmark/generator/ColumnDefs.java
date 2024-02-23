@@ -160,11 +160,15 @@ public class ColumnDefs {
         return new ValueDef(rangeStart, rangeEnd - rangeStart, brackets, valueDef, false);
     }
 
-    private Object adjustValueSymmetry(Object value, String distribution, ValueDef def) {
-        if (value instanceof String || def.isLiteral)
+    private Object adjustValueSymmetry(Object value, String distrib, ValueDef def) {
+        if (def.isLiteral)
             return value;
 
-        return switch (distribution) {
+        if (value instanceof String) {
+            long defSize = def.size() - 1; // Adjust for the fact that range bounds are inclusive
+            return distrib.equals("descending") ? Numbers.offsetInString(value, def.rangeStart, defSize) : value;
+        }
+        return switch (distrib) {
             case "ascending" -> value; // All positives
             case "descending" -> Numbers.negate(value); // All negatives
             // case "random-even-neg" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate evens
@@ -172,7 +176,8 @@ public class ColumnDefs {
             // case "random-shift" -> (int) ((Number) value).intValue() - (int) (def.size() / 2);
             // case "random" -> value;
             case "runlength" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate evens
-            default -> throw new RuntimeException("Undefined distribution function name: " + distribution);
+            case "linearconv" -> Numbers.isEven(value) ? Numbers.negate(value) : value; // Negate evens;
+            default -> throw new RuntimeException("Undefined distribution function name: " + distrib);
         };
     }
 

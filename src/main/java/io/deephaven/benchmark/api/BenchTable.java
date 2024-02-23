@@ -50,7 +50,7 @@ final public class BenchTable implements Closeable {
      * @param name the name of the column
      * @param type the type of the column ( <code>string | long | int | double | float</code> )
      * @param valuesDef range or combination of range and string
-     * @param distribution the name of the distribution ( <code>linearConv</code> )
+     * @param distribution the name of the distribution ( <code>random | ascending | descending | runlength </code> )
      * @return this instance
      */
     public BenchTable add(String name, String type, String valuesDef, String distribution) {

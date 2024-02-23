@@ -13,7 +13,7 @@ public class VectorTest {
     @Test
     public void vectorAggDenseData() {
         runner.setRowFactor(4);
-        runner.table("source", "runlength");
+        runner.table("source", "linearConv");
         runner.setScaleFactors(12, 12);
         runner.addSetupQuery("source = source.group_by(['str1M'])");
         var q = "source.update(['Calc=avg(int1M)+max(int1M)-min(int1M)+std(int1M)-median(int1M)'])";
