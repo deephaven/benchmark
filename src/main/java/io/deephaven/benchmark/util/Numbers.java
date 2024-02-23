@@ -2,6 +2,7 @@
 package io.deephaven.benchmark.util;
 
 import java.text.DecimalFormat;
+import java.util.regex.Pattern;
 
 /**
  * Provide help with commonly used number parsing
@@ -9,6 +10,7 @@ import java.text.DecimalFormat;
 public class Numbers {
     static final DecimalFormat decimalFormat = new DecimalFormat("#,##0.000");
     static final DecimalFormat integralFormat = new DecimalFormat("#,##0");
+    static final Pattern numberPattern = Pattern.compile("([^0-9]*)([0-9]+)([^0-9]*)");
 
     /**
      * Get a <code>Number</code> for the given value. If it is already a number, return it, otherwise attempt to parse
@@ -123,8 +125,8 @@ public class Numbers {
      * @return a string with the number replaced by a number offset from the maximum
      */
     static public Object offsetInString(Object value, long offset, long size) {
-        var str = value.toString().replaceAll("([^0-9]*)([0-9]+)([^0-9]*)", "$1,,,$2,,,$3");
-        var split = str.split(",,,", -1);
+        var str = numberPattern.matcher(value.toString()).replaceAll("$1'$2'$3");
+        var split = str.split("\\'", -1);
         if (split.length != 3)
             return value;
         var num = parseNumber(split[1]).longValue();
