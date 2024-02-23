@@ -357,8 +357,8 @@ final public class StandardTestRunner {
                 .add("int640", "int", "[1-640]", distribution)
                 .add("int1M", "int", "[1-1000000]", distribution)
                 .add("float5", "float", "[0-4]", distribution)
-                .add("str250", "string", "[1-100]", distribution)
-                .add("str640", "string", "[1-101]", distribution)
+                .add("str250", "string", "[1-250]", distribution)
+                .add("str640", "string", "[1-640]", distribution)
                 .add("str1M", "string", "[1-1000000]", distribution)
                 .withRowCount(scaleRowCount)
                 .generateParquet();
