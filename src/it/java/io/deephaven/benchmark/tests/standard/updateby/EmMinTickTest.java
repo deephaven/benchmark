@@ -6,10 +6,9 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for the updateBy table operation. Calculates a tick-based exponential moving minimum for specified
- * columns and places the result into a new column for each row.
+ * columns and places the result into a new column for each row. *
  * <p/>
- * Note: When there are no Group Keys, EmMinTick has a much slower rate than EmMaxTick. This is likely because of branch
- * prediction on x86 systems. This disparity does not happen on Mac M1.
+ * Note: This test must contain benchmarks and <code>decay_time</code> that are comparable to <code>EmMinTickTest</code>
  */
 public class EmMinTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -22,45 +21,31 @@ public class EmMinTickTest {
     }
 
     @Test
-    public void emMinTick0Group1Col() {
+    void emMinTick0Group1Col() {
         setup(6, 15, 12);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=int5']))";
-        runner.test("EmMinTick- No Groups 1 Col", q, "int5");
+        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']))";
+        runner.test("EmMinTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
-    public void emMinTick0Group2Cols() {
-        setup(6, 9, 6);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=int5','Y=int10']))";
-        runner.test("EmMinTick- No Groups 2 Cols", q, "int5", "int10");
-    }
-
-    @Test
-    public void emMinTick1Group1Col() {
+    void emMinTick1Group1Col() {
         setup(6, 3, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=int5']), by=['str100'])";
-        runner.test("EmMinTick- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5");
+        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        runner.test("EmMinTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    public void emMinTick1Group2Cols() {
+    void emMinTick2Group1Col() {
         setup(6, 3, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
-        runner.test("EmMinTick- 1 Group 100 Unique Vals 2 Cols", q, "str100", "int5", "int10");
+        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        runner.test("EmMinTick- 2 Group 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void emMinTick2GroupsInt() {
+    void emMinTick2Groups1Col() {
         setup(3, 1, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmMinTick- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150", "int5");
-    }
-
-    @Test
-    public void emMinTick2GroupsFloat() {
-        setup(3, 1, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=100,cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmMinTick- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150", "float5");
+        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+        runner.test("EmMinTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }

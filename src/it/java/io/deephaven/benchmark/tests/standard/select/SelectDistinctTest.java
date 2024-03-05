@@ -1,11 +1,11 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.select;
 
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the select_distinct table operation. Creates a new table containing all of the unique values for a set of key columns
+ * Standard tests for the selectDistinct table operation. Creates a new table containing all of the unique values for a set of key columns
  */
 public class SelectDistinctTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -19,15 +19,22 @@ public class SelectDistinctTest {
     @Test
     public void selectDistict1Group() {
         runner.setScaleFactors(20, 20);
-        var q = "source.select_distinct(formulas=['str250'])";
-        runner.test("SelectDistinct- 1 Group 250 Unique Vals", 250, q, "str250", "str640", "int640");
+        var q = "source.select_distinct(formulas=['key1'])";
+        runner.test("SelectDistinct- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void selectDistict2Group() {
+    public void selectDistict2Groups() {
         runner.setScaleFactors(4, 4);
-        var q = "source.select_distinct(formulas=['str250', 'str640'])";
-        runner.test("SelectDistinct- 1 Group 160K Unique Vals", 160000, q, "str250", "str640", "int640");
+        var q = "source.select_distinct(formulas=['key1', 'key2'])";
+        runner.test("SelectDistinct- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
+    }
+    
+    @Test
+    public void selectDistict3Groups() {
+        runner.setScaleFactors(4, 4);
+        var q = "source.select_distinct(formulas=['key1', 'key2', 'key3'])";
+        runner.test("SelectDistinct- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }
 
 }

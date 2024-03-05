@@ -18,8 +18,8 @@ public class PartitionByTest {
 
     @Test
     public void partitionBy1Group2Cols() {
-        var q = "source.partition_by(['str250']).get_constituent(['string1val'])";
-        runner.test("PartitionBy- 1 Group 250 Unique Vals", 62500, q, "str250", "int250");
+        var q = "source.partition_by(['key1']).get_constituent(['string1val'])";
+        runner.test("PartitionBy- 1 Group 100 Unique Vals", 1, q, "key1", "num1");
     }
 
     // @Test

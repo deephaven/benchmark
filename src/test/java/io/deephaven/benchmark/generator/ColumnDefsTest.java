@@ -139,14 +139,14 @@ public class ColumnDefsTest {
         var columnDefs1 = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
         columnDefs1.setDefaultDistribution("random");
 
-        assertValuesEqual(columnDefs1, -901, -903, -903, 906, 902, -907, 906, -907, 902, -907);
-        assertCacheOccurences(columnDefs1, "-901:1", "902:1", "-903:1", "904:1", "-905:1", "906:6", "-907:2");
+        assertValuesEqual(columnDefs1, 904, 904, -901, 902, 902, 906, 906, 904, 904, -903);
+        assertCacheOccurences(columnDefs1, "-901:1", "902:1", "-903:1", "904:1", "-905:1", "906:1", "-907:8");
 
-        var columnDefs2 = new ColumnDefs(cacheSize).add("v", "int", "[901-907]");
+        var columnDefs2 = new ColumnDefs(cacheSize).add("r", "int", "[901-907]");
         columnDefs2.setDefaultDistribution("random");
 
-        assertValuesEqual(columnDefs2, -901, -903, -903, 906, 902, -907, 906, -907, 902, -907);
-        assertCacheOccurences(columnDefs2, "-901:1", "902:1", "-903:1", "904:1", "-905:1", "906:6", "-907:2");
+        assertValuesEqual(columnDefs2, 904, 904, -901, 902, 902, 906, 906, 904, 904, -903);
+        assertCacheOccurences(columnDefs2, "-901:1", "902:1", "-903:1", "904:1", "-905:1", "906:1", "-907:8");
     }
 
     @Test

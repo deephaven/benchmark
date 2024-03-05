@@ -6,57 +6,52 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for the updateBy table operation. Defines a time-based rolling group. The result table contains
- * additional columns with windowed rolling groups for each specified column in the source table.
+ * additional columns with windowed rolling groups for each specified column in the source table. *
+ * <p/>
+ * Note: This test must contain benchmarks and <code>rev_time/fwd_time</code> that are comparable to
+ * <code>RollingGroupTickTest</code>
  */
 public class RollingGroupTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(3);
         runner.tables("timed");
 
         var setup = """
         from deephaven.updateby import rolling_group_time
-        contains_row = rolling_group_time(ts_col="timestamp", cols=["X=int5"], rev_time="PT1S", fwd_time="PT1S")
-        before_row = rolling_group_time(ts_col="timestamp", cols=["Y=int5"], rev_time="PT3S", fwd_time=int(-1e9))
-        after_row = rolling_group_time(ts_col="timestamp", cols=["Z=int5"], rev_time="-PT1S", fwd_time=int(3e9))
+        contains_row = rolling_group_time(ts_col="timestamp",cols=["X=num1"],rev_time="PT4S",fwd_time="PT5S")
+        before_row = rolling_group_time(ts_col="timestamp",cols=["Y=num1"],rev_time="PT3S",fwd_time=int(-1e9))
+        after_row = rolling_group_time(ts_col="timestamp",cols=["Z=num1"],rev_time="-PT1S",fwd_time=int(3e9))
         
         """;
         runner.addSetupQuery(setup);
     }
 
     @Test
-    public void rollingGroupTime0Group3Ops() {
+    void rollingGroupTime0Group3Ops() {
         runner.setScaleFactors(3, 2);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingGroupTime- 3 Ops No Groups", q, "int5", "timestamp");
+        runner.test("RollingGroupTime- 3 Ops No Groups", q, "num1", "timestamp");
     }
 
     @Test
-    public void rollingGroupTime1Group3Ops() {
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingGroupTime- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5", "timestamp");
+    void rollingGroupTime1Group3Ops() {
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
+        runner.test("RollingGroupTime- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
-    public void rollingGroupTime2Groups3OpsInt() {
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150", "int5",
-                "timestamp");
+    void rollingGroupTime2Groups3Ops() {
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
+        runner.test("RollingGroupTime- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
-    public void rollingGroupTime2Groups3OpsFloat() {
-        var setup = """
-        contains_row = rolling_group_time(ts_col="timestamp", cols=["X=float5"], rev_time="PT1S", fwd_time="PT1S")
-        before_row = rolling_group_time(ts_col="timestamp", cols=["Y=float5"], rev_time="PT3S", fwd_time=int(-1e9))
-        after_row = rolling_group_time(ts_col="timestamp", cols=["Z=float5"], rev_time="-PT1S", fwd_time=int(3e9))
-        """;
-        runner.addSetupQuery(setup);
-
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingGroupTime- 3 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150", "float5",
+    void rollingGroupTime3Groups3Ops() {
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
+        runner.test("RollingGroupTime- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
                 "timestamp");
     }
 

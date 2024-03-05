@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -12,7 +12,7 @@ public class MixedComboTest {
     String setupStr = null;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(4);
         runner.tables("timed");
 
@@ -20,47 +20,59 @@ public class MixedComboTest {
         from deephaven.updateby import rolling_avg_time, rolling_max_tick, rolling_prod_time
         from deephaven.updateby import ema_tick, cum_min, cum_sum
          
-        avg_contains = rolling_avg_time(ts_col="timestamp", cols=["U=${calc.col}"], rev_time="PT1S", fwd_time="PT1S")
-        max_before = rolling_max_tick(cols=["V = ${calc.col}"], rev_ticks=3, fwd_ticks=-1)
-        prod_after = rolling_prod_time(ts_col="timestamp", cols=["W=${calc.col}"], rev_time="-PT1S", fwd_time=int(3e9))
+        avg_contains = rolling_avg_time(ts_col='timestamp',cols=['A=num1','B=num2'],rev_time='PT5S',fwd_time='PT5S')
+        max_before = rolling_max_tick(cols=['C=num1','D=num2'], rev_ticks=3000,fwd_ticks=-1000)
+        prod_after = rolling_prod_time(ts_col='timestamp',cols=['E=num1','F=num2'],rev_time='-PT1S',fwd_time='PT4S')
         
-        ema_tick_op = ema_tick(decay_ticks=100,cols=['X=${calc.col}'])
-        min_op = cum_min(cols=['Y=${calc.col}'])
-        sum_op = cum_sum(cols=['Z=${calc.col}'])
+        ema_tick_op = ema_tick(decay_ticks=10000,cols=['G=num1','H=num2'])
+        min_op = cum_min(cols=['I=num1','J=num2'])
+        sum_op = cum_sum(cols=['K=num1','L=num2'])
         """;
+        runner.addSetupQuery(setupStr);
     }
 
     @Test
-    public void mixedComboNoGroups6Ops() {
-        runner.addSetupQuery(operations("int5"));
+    void mixedComboNoGroups6Ops() {
         var q = "timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op])";
-        runner.test("MixedCombo- 6 Ops No Groups", q, "int5", "timestamp");
+        runner.test("MixedCombo- 6 Ops No Groups", q, "num1", "num2", "timestamp");
     }
 
     @Test
-    public void rollingCombo2Groups6OpsInt() {
-        runner.addSetupQuery(operations("int5"));
+    void mixedCombo1Group6Ops() {
         var q = """
-        timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op], 
-            by=['str100','str150'])
+        timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1'])
         """;
-        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Int", q, "str100", "str150",
-                "int5", "timestamp");
+        runner.test("MixedCombo- 6 Ops 1 Groups 100 Unique Vals", q, "key1", "num1", "num2", "timestamp");
     }
 
     @Test
-    public void rollingCombo2Groups6OpsFloat() {
-        runner.addSetupQuery(operations("float5"));
+    void rollingCombo2Groups6Ops() {
         var q = """
-        timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op], 
-            by=['str100','str150'])
+        timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1','key2'])
         """;
-        runner.test("MixedCombo- 6 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150",
-                "float5", "timestamp");
+        runner.test("MixedCombo- 6 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
+                "timestamp");
     }
 
-    private String operations(String type) {
-        return setupStr.replace("${calc.col}", type);
+    @Test
+    void rollingCombo3Groups6Ops() {
+        var q = """
+        timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
+            by=['key1','key2','key3'])
+        """;
+        runner.test("MixedCombo- 6 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "num2",
+                "timestamp");
+    }
+
+    @Test
+    @Disabled
+    void rollingCombo3Groups6OpsLarge() {
+        var q = """
+        timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
+            by=['key1','key2','int103'])
+        """;
+        runner.test("MixedCombo- 6 Ops 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
+                "timestamp");
     }
 
 }

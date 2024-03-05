@@ -401,14 +401,9 @@ public class CompareTestRunner {
         try {
             api.setName("# Generate Table");
             switch (tableName) {
-                case "source":
-                    generateSourceTable(api, rowCountFactor, columnNames);
-                    break;
-                case "right":
-                    generateRightTable(api, columnNames);
-                    break;
-                default:
-                    throw new RuntimeException("Undefined table name: " + tableName);
+                case "source" -> generateSourceTable(api, rowCountFactor, columnNames);
+                case "right" -> generateRightTable(api, columnNames);
+                default -> throw new RuntimeException("Undefined table name: " + tableName);
             }
         } finally {
             api.close();
@@ -419,18 +414,10 @@ public class CompareTestRunner {
         var table = api.table("source");
         for (String columnName : columnNames) {
             switch (columnName) {
-                case "int250":
-                    table.add("int250", "int", "[1-250]");
-                    break;
-                case "int640":
-                    table.add("int640", "int", "[1-640]");
-                    break;
-                case "int1M":
-                    table.add("int1M", "int", "[1-1000000]");
-                    break;
-                case "str250":
-                    table.add("str250", "string", "[1-250]");
-                    break;
+                case "int250" -> table.add("int250", "int", "[1-250]");
+                case "int640" -> table.add("int640", "int", "[1-640]");
+                case "int1M" -> table.add("int1M", "int", "[1-1000000]");
+                case "str250" -> table.add("str250", "string", "[1-250]");
             }
         }
         table.withCompression("snappy");
@@ -442,12 +429,8 @@ public class CompareTestRunner {
         var table = api.table("right").withDefaultDistribution("ascending");
         for (String columnName : columnNames) {
             switch (columnName) {
-                case "r_str250":
-                    table.add("r_str250", "string", "[1-250]");
-                    break;
-                case "r_int1M":
-                    table.add("r_int1M", "int", "[1-1000000]");
-                    break;
+                case "r_str250" -> table.add("r_str250", "string", "[1-250]");
+                case "r_int1M" -> table.add("r_int1M", "int", "[1-1000000]");
             }
         }
         table.withCompression("snappy");

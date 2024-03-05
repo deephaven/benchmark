@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.join;
 
 import org.junit.jupiter.api.*;
@@ -19,21 +19,21 @@ public class ReverseAsOfJoinTest {
     }
 
     @Test
-    public void reverseAsOfJoinOn1Col1Match() {
-        var q = "source.raj(right, on=['str1M <= r_str1M'])";
-        runner.test("ReverseAsOfJoin- Join On 1 Col 1 Match", q, "str1M", "int250");
+    public void reverseAsOfJoinOn1Col() {
+        var q = "source.raj(right, on=['key5 <= r_key5'])";
+        runner.test("ReverseAsOfJoin- Join On 1 Col", q, "key5", "num1");
     }
 
     @Test
-    public void reverseAsOfJoinOn2Cols1Match() {
-        var q = "source.raj(right, on=['str1M = r_str1M', 'int1M <= r_int1M'])";
-        runner.test("ReverseAsOfJoin- Join On 2 Cols 1 Match", q, "str1M", "int1M", "int250");
+    public void reverseAsOfJoinOn2Cols() {
+        var q = "source.raj(right, on=['key1 = r_wild', 'key2 <= r_key2'])";
+        runner.test("ReverseAsOfJoin- Join On 2 Cols", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void reverseAsOfJoinOn2ColsManyMatch() {
-        var q = "source.raj(right, on=['str640 = r_str640', 'str250 <= r_str250'])";
-        runner.test("ReverseAsOfJoin- Join On 2 Cols Many Match", q, "str250", "str640", "int250");
+    public void reverseAsOfJoinOn3Cols() {
+        var q = "source.raj(right, on=['key1 = r_wild', 'key2 = r_key2', 'key1 <= r_key1'])";
+        runner.test("ReverseAsOfJoin- Join On 3 Cols", q, "key1", "key2", "num1");
     }
 
 }

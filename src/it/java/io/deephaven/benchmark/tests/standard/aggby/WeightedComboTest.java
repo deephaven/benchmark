@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.aggby;
 
 import org.junit.jupiter.api.*;
@@ -14,53 +14,49 @@ public class WeightedComboTest {
     public void setup() {
         runner.setRowFactor(5);
         runner.tables("source");
-        runner.addSetupQuery("from deephaven import agg");
+
+        var setupStr = """
+        from deephaven import agg
+        aggs = [
+           agg.weighted_sum('key4', ['WeightedSum1=num1']), agg.weighted_avg('key3', ['WeightedAvg1=num2']),
+           agg.weighted_sum('key4', ['WeightedSum2=num1']), agg.weighted_avg('key3', ['WeightedAvg2=num2'])
+        ]
+        """;
+        runner.addSetupQuery(setupStr);
     }
 
     @Test
-    public void aggBy4Calcs2Groups() {
-        var aggs = """
-        aggs = [
-           agg.weighted_sum('int250', ['WeightedSum1=int640']), agg.weighted_avg('int250', ['WeightedAvg1=int640']),
-           agg.weighted_sum('int250', ['WeightedSum2=int1M']), agg.weighted_avg('int640', ['WeightedAvg2=int1M'])
-        ]
-        """;
-        runner.addSetupQuery(aggs);
-
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("Assorted-AggBy- 4 Weighted Ops 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",
-                "int640", "int1M");
+    public void weightedAggBy4Ops0Groups() {
+        var q = "source.agg_by(aggs)";
+        runner.test("WeightedCombo-AggBy- 4 Ops No Groups", 1, q, "key3", "key4", "num1", "num2");
     }
-    
-    @Test
-    public void aggBy3WeightedSums2Groups() {
-        var aggs = """
-        aggs = [
-           agg.weighted_sum('int250', ['WeightedSum1=int640']), agg.weighted_sum('int250', ['WeightedSum2=int1M']),
-           agg.weighted_sum('int640', ['WeightedSum3=int1M'])
-        ]
-        """;
-        runner.addSetupQuery(aggs);
-        runner.setScaleFactors(2, 2);
 
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("WeightedSum-AggBy- 3 Sums 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",
-                "int640", "int1M");
+    @Test
+    public void weightedAggBy4Ops1Group() {
+        var q = "source.agg_by(aggs, by=['key1'])";
+        runner.test("WeightedCombo-AggBy- 4 Ops 1 Group 100 Unique Vals", 100, q, "key1", "key3", "key4", "num1",
+                "num2");
     }
-    
-    @Test
-    public void aggBy3WeightedAvgs2Groups() {
-        var aggs = """
-        aggs = [
-           agg.weighted_avg('int250', ['WeightedAvg1=int640']), agg.weighted_avg('int250', ['WeightedAvg2=int1M']),
-           agg.weighted_avg('int640', ['WeightedAvg3=int1M'])
-        ]
-        """;
-        runner.addSetupQuery(aggs);
 
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("WeightedAvg-AggBy- 3 Sums 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",
-                "int640", "int1M");
+    @Test
+    public void weightedAggBy4Ops2Groups() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2'])";
+        runner.test("WeightedCombo-AggBy- 4 Ops 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "key3", "key4",
+                "num1", "num2");
+    }
+
+    @Test
+    public void weightedAggBy4Ops3Groups() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
+        runner.test("WeightedCombo-AggBy- 4 Ops 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "key4",
+                "num1", "num2");
+    }
+
+    @Test
+    public void weightedAggBy4Ops3GroupsLarge() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
+        runner.test("WeightedCombo-AggBy- 4 Ops 3 Groups 1M Unique Combos", 999900, q, "key1", "key2", "key3", "key4",
+                "num1", "num2");
     }
 
 }

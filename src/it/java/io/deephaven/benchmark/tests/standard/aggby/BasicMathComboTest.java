@@ -1,11 +1,11 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.aggby;
 
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the agg_by table operation. Applies basic math aggregations to table data
+ * Standard tests for the aggBy table operation. Applies basic math aggregations to table data
  */
 public class BasicMathComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -14,50 +14,48 @@ public class BasicMathComboTest {
     public void setup() {
         runner.setRowFactor(5);
         runner.tables("source");
-        runner.addSetupQuery("from deephaven import agg");
+
+        var setupStr = """
+        from deephaven import agg
+        
+        aggs = [
+           agg.sum_('Sum=num1'), agg.std('Std=num2'), agg.min_('Min=num1'), agg.max_('Max=num2'),
+           agg.avg('Avg=num1'), agg.var('Var=num2'), agg.count_('num1')
+        ]
+        """;
+        runner.addSetupQuery(setupStr);
     }
 
     @Test
-    public void aggBy7Calcs2Groups() {
-        var aggs = """
-        aggs = [
-           agg.sum_('Sum=int250'), agg.std('Std=int250'), agg.min_('Min=int250'), agg.max_('Max=int250'),
-           agg.avg('Avg=int250'), agg.var('Var=int250'), agg.count_('int250')
-        ]
-        """;
-        runner.addSetupQuery(aggs);
-
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("Assorted-AggBy- 7 Calcs 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250");
+    public void mathComboAggBy7Ops0Groups() {
+        var q = "source.agg_by(aggs)";
+        runner.test("MathCombo-AggBy- 7 Ops No Groups", 1, q, "num1", "num2");
     }
 
     @Test
-    public void aggBy3Sums2Groups() {
-        var aggs = """
-        aggs = [
-           agg.sum_('Sum1=int250'), agg.sum_('Sum2=int640'), agg.sum_('Sum3=int1M')
-        ]
-        """;
-        runner.addSetupQuery(aggs);
-        runner.setScaleFactors(2, 2);
-
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("Sum-AggBy- 3 Sums 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",
-                "int640", "int1M");
+    public void mathComboAggBy7Ops1Group() {
+        var q = "source.agg_by(aggs, by=['key1'])";
+        runner.test("MathCombo-AggBy- 7 Ops 1 Group 100 Unique Vals ", 100, q, "key1", "num1", "num2");
     }
 
     @Test
-    public void aggBy3Vars2Groups() {
-        var aggs = """
-        aggs = [
-           agg.var('Variance1=int250'), agg.var('Variance2=int640'), agg.var('Variance3=int1M')
-        ]
-        """;
-        runner.addSetupQuery(aggs);
+    public void mathComboAggBy7Ops2Groups() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2'])";
+        runner.test("MathCombo-AggBy- 7 Ops 2 Groups 10K Unique Combos ", 10100, q, "key1", "key2", "num1", "num2");
+    }
 
-        var q = "source.agg_by(aggs, by=['str250', 'str640'])";
-        runner.test("Variance-AggBy- 3 Vars 2 Groups 160K Unique Vals", 160000, q, "str640", "str250", "int250",
-                "int640", "int1M");
+    @Test
+    public void mathComboAggBy7Ops3Groups() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
+        runner.test("MathCombo-AggBy- 7 Ops 3 Groups 100K Unique Combos ", 90900, q, "key1", "key2", "key3", "num1",
+                "num2");
+    }
+
+    @Test
+    public void mathComboAggBy7Ops3GroupsLarge() {
+        var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
+        runner.test("MathCombo-AggBy- 7 Ops 3 Groups 1M Unique Combos ", 999900, q, "key1", "key2", "key4", "num1",
+                "num2");
     }
 
 }

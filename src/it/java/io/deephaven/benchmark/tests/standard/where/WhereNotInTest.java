@@ -1,12 +1,13 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.where;
 
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the where_in table operation. Filters rows of data from the source table where the rows do not
-s * match column values in the filter table.
+ * Standard tests for the whereNotIn table operation. Filters rows of data from the source table where the rows match
+ * column values in the filter table.
+ * Note: These benchmarks do the converse of the ones in WhereInTest
  */
 public class WhereNotInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -16,10 +17,11 @@ public class WhereNotInTest {
         runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
-        from deephaven.column import string_col
+        from deephaven.column import string_col, int_col
         where_filter = new_table([
-        	string_col("sPrefix", ['250', '1', '249', '2', '248']),
-        	string_col("sSuffix", ['250', '1', '249', '2', '248'])
+            string_col("set1", ['1', '2', '3', '4', '5', '6', '7', '8']),
+            string_col("set2", ['10', '20', '30', '40', '50', '60', '70', '80']),
+            int_col("set3", [-1, -2, -3, -4, 5, 6, 7, 8])
         ])
         
         """;
@@ -28,16 +30,23 @@ public class WhereNotInTest {
 
     @Test
     public void whereNotIn1Filter() {
-        runner.setScaleFactors(90, 55);
-        var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix'])";
-        runner.test("WhereNotIn- 1 Filter Col", q, "str250", "int250");
+        runner.setScaleFactors(210, 150);
+        var q = "source.where_not_in(where_filter, cols=['key1 = set1'])";
+        runner.test("WhereNotIn- 1 Filter Col", q, "key1", "num1");
     }
 
     @Test
     public void whereNotIn2Filter() {
-        runner.setScaleFactors(70, 60);
-        var q = "source.where_not_in(where_filter, cols=['str250 = sPrefix', 'str640 = sSuffix'])";
-        runner.test("WhereNotIn- 2 Filter Cols", q, "str250", "str640", "int250");
+        runner.setScaleFactors(85, 60);
+        var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
+        runner.test("WhereNotIn- 2 Filter Cols", q, "key1", "key2", "num1");
+    }
+    
+    @Test
+    public void whereNotIn3Filter() {
+        runner.setScaleFactors(85, 60);
+        var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
+        runner.test("WhereNotIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }
 
 }

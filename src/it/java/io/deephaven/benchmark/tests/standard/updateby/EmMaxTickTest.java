@@ -8,8 +8,8 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the updateBy table operation. Calculates a tick-based exponential moving maximum for specified
  * columns and places the result into a new column for each row.
  * <p/>
- * Note: When there are no Group Keys, EmMaxTick has a much faster rate than EmMinTick. This is likely because of branch
- * prediction on x86 systems. This disparity does not happen on Mac M1.
+ * Note: This test must contain benchmarks and <code>decay_ticks</code> that are comparable to
+ * <code>EmMaxTimeTest</code>
  */
 public class EmMaxTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -20,48 +20,33 @@ public class EmMaxTickTest {
         runner.addSetupQuery("from deephaven.updateby import emmax_tick");
         runner.setScaleFactors(staticFactor, incFactor);
     }
-   
+
     @Test
     void emMaxTick0Group1Col() {
         setup(6, 15, 12);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=int5']))";
-        runner.test("EmMaxTick- No Groups 1 Col", q, "int5");
-    }
-
-    @Test
-    void emMaxTick0Group2Cols() {
-        setup(6, 9, 6);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=int5','Y=int10']))";
-        runner.test("EmMaxTick- No Groups 2 Cols", q, "int5", "int10");
+        var q = "timed.update_by(ops=emmax_tick(decay_ticks=5000,cols=['X=num1']))";
+        runner.test("EmMaxTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emMaxTick1Group1Col() {
         setup(6, 3, 1);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=int5']), by=['str100'])";
-        runner.test("EmMaxTick- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5");
+        var q = "timed.update_by(ops=emmax_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        runner.test("EmMaxTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    void emMaxTick1Group2Cols() {
+    void emMaxTick2Groups1Col() {
         setup(6, 3, 1);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
-        runner.test("EmMaxTick- 1 Group 100 Unique Vals 2 Cols", q, "str100", "int5", "int10");
+        var q = "timed.update_by(ops=emmax_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        runner.test("EmMaxTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    void emMaxTick2GroupsInt() {
+    void emMaxTick3Groups1Col() {
         setup(3, 1, 1);
-        runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmMaxTick- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150", "int5");
-    }
-
-    @Test
-    void emMaxTick2GroupsFloat() {
-        setup(3, 1, 1);
-        var q = "timed.update_by(ops=emmax_tick(decay_ticks=100,cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmMaxTick- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150", "float5");
+        var q = "timed.update_by(ops=emmax_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+        runner.test("EmMaxTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }

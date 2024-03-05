@@ -17,22 +17,22 @@ public class TailByTest {
     }
 
     @Test
-    public void tailBy1Group2Cols() {
+    public void tailBy1Group() {
         runner.setScaleFactors(8, 2);
-        var q = "source.tail_by(2, by=['str250'])";
-        runner.test("TailBy- 1 Group 250 Unique Vals 2 Rows Per", 250 * 2, q, "str250", "int250");
+        var q = "source.tail_by(2, by=['key1'])";
+        runner.test("TailBy- 1 Group 100 Unique Vals", 100 * 2, q, "key1", "num1");
     }
 
     @Test
-    public void tailBy1Group2ColsLarge() {
-        var q = "source.tail_by(2, by=['str1M'])";
-        runner.test("TailBy- 1 Group 1M Unique Vals 2 Rows Per", 1000000 * 2, q, "str1M", "int1M");
+    public void tailBy2Groups() {
+        var q = "source.tail_by(2, by=['key1', 'key2'])";
+        runner.test("TailBy- 2 Groups 10K Unique Combos", 10100 * 2, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void tailBy2Groups3Cols() {
-        var q = "source.tail_by(2, by=['str250', 'str640'])";
-        runner.test("TailBy- 2 Groups 160K Unique Combos 2 Rows Per", 160000 * 2, q, "str250", "str640", "int250");
+    public void tailBy3Groups() {
+        var q = "source.tail_by(2, by=['key1', 'key2', 'key3'])";
+        runner.test("TailBy- 3 Groups 100K Unique Combos", 90900 * 2, q, "key1", "key2", "key3", "num1");
     }
 
 }

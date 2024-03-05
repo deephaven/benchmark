@@ -6,60 +6,54 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for the updateBy table operation. Defines a tick-based rolling maximum. The result table contains
- * additional columns with windowed rolling maximum for each specified column in the source table.
+ * additional columns with windowed rolling maximum for each specified column in the source table. *
+ * <p/>
+ * Note: This test must contain benchmarks and <code>rev_ticks/fwd_ticks</code> that are comparable to
+ * <code>RollingMaxTimeTest</code>
  */
 public class RollingMaxTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(4);
         runner.tables("timed");
 
         var setup = """
         from deephaven.updateby import rolling_max_tick
-        contains_row = rolling_max_tick(cols=["Contains = int5"], rev_ticks=1, fwd_ticks=1)
-        before_row = rolling_max_tick(cols=["Before = int5"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_max_tick(cols=["After = int5"], rev_ticks=-1, fwd_ticks=3)
+        contains_row = rolling_max_tick(cols=["Contains=num1"],rev_ticks=4000,fwd_ticks=5000)
+        before_row = rolling_max_tick(cols=["Before=num1"],rev_ticks=3000,fwd_ticks=-1000)
+        after_row = rolling_max_tick(cols=["After=num1"],rev_ticks=-1000,fwd_ticks=3000)
         """;
         runner.addSetupQuery(setup);
     }
 
     @Test
-    public void rollingMaxTick0Group3Ops() {
+    void rollingMaxTick0Group3Ops() {
         runner.setScaleFactors(2, 1);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingMaxTick- 3 Ops No Groups", q, "int5");
+        runner.test("RollingMaxTick- 3 Ops No Groups", q, "num1");
     }
 
     @Test
-    public void rollingMaxTick1Group3Ops() {
+    void rollingMaxTick1Group3Ops() {
         runner.setScaleFactors(3, 1);
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100'])";
-        runner.test("RollingMaxTick- 3 Ops 1 Group 100 Unique Vals", q, "str100", "int5");
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
+        runner.test("RollingMaxTick- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    public void rollingMaxTick2Groups3OpsInt() {
+    void rollingMaxTick2Groups3Ops() {
         runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingMaxTick- 3 Ops 2 Groups 15K Unique Combos Int",  q, "str100", "str150",
-                "int5");
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
+        runner.test("RollingMaxTick- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void rollingMaxTick2Groups3OpsFloat() {
+    void rollingMaxTick3Groups3Ops() {
         runner.setScaleFactors(1, 1);
-        var setup = """
-        contains_row = rolling_max_tick(cols=["Contains = float5"], rev_ticks=1, fwd_ticks=1)
-        before_row = rolling_max_tick(cols=["Before = float5"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_max_tick(cols=["After = float5"], rev_ticks=-1, fwd_ticks=3)
-        """;
-        runner.addSetupQuery(setup);
-        
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['str100','str150'])";
-        runner.test("RollingMaxTick- 3 Ops 2 Groups 15K Unique Combos Float", q, "str100", "str150",
-                "float5");
+        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
+        runner.test("RollingMaxTick- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }

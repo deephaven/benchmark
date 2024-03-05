@@ -6,7 +6,9 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for the updateBy table operation. Calculates a time-based exponential moving standard deviation for
- * specified columns and places the result into a new column for each row.
+ * specified columns and places the result into a new column for each row. *
+ * <p/>
+ * Note: This test must contain benchmarks and <code>decay_time</code> that are comparable to <code>EmStdTickTest</code>
  */
 public class EmStdTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -21,31 +23,34 @@ public class EmStdTimeTest {
     @Test
     public void emStdTime0Group1Col() {
         runner.setScaleFactors(11, 6);
-        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp', decay_time='PT2S', cols=['X=int5']))";
-        runner.test("EmStdTime- No Groups 1 Col", q, "int5", "timestamp");
+        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S', cols=['X=num1']))";
+        runner.test("EmStdTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
     public void emStdTime1Group1Col() {
         runner.setScaleFactors(5, 1);
-        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp', decay_time='PT2S', cols=['X=int5']), by=['str100'])";
-        runner.test("EmStdTime- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5", "timestamp");
+        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),by=['key1'])";
+        runner.test("EmStdTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
-    public void emStdTime2GroupsInt() {
+    public void emStdTime2Groups1Col() {
         runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp', decay_time='PT2S', cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmStdTime- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150",
-                "int5", "timestamp");
+        var q = """
+        timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),by=['key1','key2'])
+        """;
+        runner.test("EmStdTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
-    public void emStdTime2GroupsFloat() {
+    public void emStdTime3Groups1Col() {
         runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=emstd_time(ts_col='timestamp', decay_time='PT2S', cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmStdTime- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150",
-                "float5", "timestamp");
+        var q = """
+        timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),
+            by=['key1','key2','key3'])
+        """;
+        runner.test("EmStdTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");
     }
 
 }

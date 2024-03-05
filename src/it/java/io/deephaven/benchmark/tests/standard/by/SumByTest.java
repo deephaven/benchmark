@@ -17,30 +17,31 @@ public class SumByTest {
     }
 
     @Test
-    public void sumBy1Group2Cols() {
-        runner.setScaleFactors(15, 15);
-        var q = "source.sum_by(by=['str250'])";
-        runner.test("SumBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
+    public void sumBy0Group() {
+        runner.setScaleFactors(10, 10);
+        var q = "source.sum_by()";
+        runner.test("SumBy- No Groups", 1, q, "key3", "num1", "num2");
     }
 
     @Test
-    public void sumBy1Group2ColsLarge() {
-        var q = "source.sum_by(by=['str1M'])";
-        runner.test("SumBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
+    public void sumBy1Group() {
+        runner.setScaleFactors(10, 10);
+        var q = "source.sum_by(by=['key1'])";
+        runner.test("SumBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void sumBy2GroupsInt() {
-        runner.setScaleFactors(4, 4);
-        var q = "source.sum_by(by=['str250', 'str640'])";
-        runner.test("SumBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
+    public void sumBy2Groups() {
+        runner.setScaleFactors(3, 2);
+        var q = "source.sum_by(by=['key1', 'key2'])";
+        runner.test("SumBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void sumBy2GroupsFloat() {
-        runner.setScaleFactors(4, 4);
-        var q = "source.sum_by(by=['str250', 'str640'])";
-        runner.test("SumBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
+    public void sumBy3Groups() {
+        runner.setScaleFactors(3, 2);
+        var q = "source.sum_by(by=['key1', 'key2', 'key3'])";
+        runner.test("SumBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }
 
 }

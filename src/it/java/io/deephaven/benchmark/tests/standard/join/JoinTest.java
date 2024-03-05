@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.join;
 
 import org.junit.jupiter.api.*;
@@ -15,27 +15,27 @@ public class JoinTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("source", "right");
     }
 
     @Test
-    public void joinOn1Col1Match() {
-        var q = "source.join(right, on=['str1M=r_str1M'])";
-        runner.test("Join- Join On 1 Col 1 Match", q, "str1M", "int250");
+    void joinOn1Col() {
+        var q = "source.join(right, on=['key5 = r_key5'])";
+        runner.test("Join- Join On 1 Col", q, "key5", "num1");
     }
 
     @Test
-    public void joinOn2ColsAnyMatch() {
-        var q = "source.join(right, on=['str1M=r_str1M', 'str250=r_str250'])";
-        runner.test("Join- Join On 2 Cols 1 Match", q, "str250", "str1M", "int1M", "int250");
+    void joinOn2Cols() {
+        var q = "source.join(right, on=['key1 = r_wild', 'key2 = r_key2'])";
+        runner.test("Join- Join On 2 Cols", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void joinOn3ColsAnyMatch() {
-        var q = "source.join(right, on=['str640=r_str640', 'str250=r_str250', 'int1M=r_int1M'])";
-        runner.test("Join- Join On 3 Cols Any Match", q, "str250", "str640", "int250", "int1M");
+    void joinOn3Cols() {
+        var q = "source.join(right, on=['key1 = r_wild', 'key2 = r_key2', 'key1 = r_key1'])";
+        runner.test("Join- Join On 3 Cols", q, "key1", "key2", "num1");
     }
 
 }

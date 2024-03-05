@@ -86,7 +86,7 @@ public class ColumnDefs {
      */
     public ColumnDefs add(String name, String type, String valueDef, String distribution) {
         var maker = getMaker(type, valueDef);
-        maker.setDistribution(distribution, name + ':' + type + ':' + valueDef);
+        maker.setDistribution(distribution, type + ':' + valueDef); // Same type and def get same random seed
         columns.add(new ColumnDef(name, type, valueDef, maker));
         return this;
     }

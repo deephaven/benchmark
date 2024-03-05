@@ -7,59 +7,45 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Calculates a tick-based exponential moving average for specified
  * columns and places the result into a new column for each row.
+ * <p/>
+ * Note: This test must contain benchmarks and <code>decay_ticks</code> that are comparable to <code>EmaTimeTest</code>
  */
 public class EmaTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import ema_tick");
     }
 
     @Test
-    public void emaTick0Group1Col() {
+    void emaTick0Group1Col() {
         runner.setScaleFactors(25, 15);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']))";
-        runner.test("EmaTick- No Groups 1 Col", q, "int5");
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']))";
+        runner.test("EmaTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
-    public void emaTick0Group2Cols() {
-        runner.setScaleFactors(12, 8);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5','Y=int10']))";
-        runner.test("EmaTick- No Groups 2 Cols", q, "int5", "int10");
-    }
-
-    @Test
-    public void emaTick1Group1Col() {
+    void emaTick1Group1Col() {
         runner.setScaleFactors(6, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100'])";
-        runner.test("EmaTick- 1 Group 100 Unique Vals 1 Col", q, "str100", "int5");
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        runner.test("EmaTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    public void emaTick1Group2Cols() {
+    void emaTick2Group1Col() {
         runner.setScaleFactors(5, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5','Y=int10']), by=['str100'])";
-        runner.test("EmaTick- 1 Group 100 Unique Vals 2 Cols", q, "str100", "int5", "int10");
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        runner.test("EmaTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void emaTick2GroupsInt() {
+    void emaTick3Groups1Col() {
         runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=int5']), by=['str100','str150'])";
-        runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Int", q, "str100", "str150",
-                "int5");
-    }
-
-    @Test
-    public void emaTick2GroupsFloat() {
-        runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=100,cols=['X=float5']), by=['str100','str150'])";
-        runner.test("EmaTick- 2 Groups 15K Unique Combos 1 Col Float", q, "str100", "str150",
-                "float5");
+        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+        runner.test("EmaTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }

@@ -17,30 +17,30 @@ public class VarByTest {
     }
 
     @Test
-    public void varBy1Group2Cols() {
+    public void varBy0Group() {
+        runner.setScaleFactors(10, 10);
+        var q = "source.var_by()";
+        runner.test("VarBy- No Groups", 1, q, "key3", "num1", "num2");
+    }
+
+    @Test
+    public void varBy1Group() {
         runner.setScaleFactors(15, 15);
-        var q = "source.var_by(by=['str250'])";
-        runner.test("VarBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
+        var q = "source.var_by(by=['key1'])";
+        runner.test("VarBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void varBy1Group2ColsLarge() {
-        var q = "source.var_by(by=['str1M'])";
-        runner.test("VarBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
+    public void varBy2Groups() {
+        var q = "source.var_by(by=['key1', 'key2'])";
+        runner.test("VarBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void varBy2GroupsInt() {
+    public void varBy3Groups() {
         runner.setScaleFactors(3, 2);
-        var q = "source.var_by(by=['str250', 'str640'])";
-        runner.test("VarBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
-    }
-    
-    @Test
-    public void varBy2GroupsFloat() {
-        runner.setScaleFactors(3, 2);
-        var q = "source.var_by(by=['str250', 'str640'])";
-        runner.test("VarBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
+        var q = "source.var_by(by=['key1', 'key2', 'key3'])";
+        runner.test("VarBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }
 
 }

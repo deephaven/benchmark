@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.by;
 
 import org.junit.jupiter.api.*;
@@ -17,37 +17,30 @@ public class MedianByTest {
     }
 
     @Test
-    public void medianBy0Groups3Cols() {
+    public void medianBy0Groups() {
         runner.setScaleFactors(2, 2);
         var q = "source.median_by()";
-        runner.test("MedianBy- No Groups 3 Cols", 1, q, "str250", "str640", "int250");
+        runner.test("MedianBy- No Groups", 100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void medianBy1Group2Cols() {
+    public void medianBy1Group() {
         runner.setScaleFactors(10, 8);
-        var q = "source.median_by(by=['str250'])";
-        runner.test("MedianBy- 1 Group 250 Unique Vals", 250, q, "str250", "int250");
+        var q = "source.median_by(by=['key1'])";
+        runner.test("MedianBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void medianBy1Group2ColsLarge() {
-        var q = "source.median_by(by=['str1M'])";
-        runner.test("MedianBy- 1 Group 1M Unique Vals", 1000000, q, "str1M", "int1M");
+    public void medianBy2Groups() {
+        var q = "source.median_by(by=['key1', 'key2'])";
+        runner.test("MedianBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void medianBy2GroupInt() {
+    public void medianBy3Groups() {
         runner.setScaleFactors(2, 2);
-        var q = "source.median_by(by=['str250', 'str640'])";
-        runner.test("MedianBy- 2 Group 160K Unique Combos Int", 160000, q, "str250", "str640", "int250");
-    }
-    
-    @Test
-    public void medianBy2GroupFloat() {
-        runner.setScaleFactors(2, 2);
-        var q = "source.median_by(by=['str250', 'str640'])";
-        runner.test("MedianBy- 2 Group 160K Unique Combos Float", 160000, q, "str250", "str640", "float5");
+        var q = "source.median_by(by=['key1', 'key2', 'key3'])";
+        runner.test("MedianBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }
 
 }

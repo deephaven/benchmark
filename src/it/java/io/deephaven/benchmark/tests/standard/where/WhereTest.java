@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.where;
 
 import org.junit.jupiter.api.*;
@@ -20,36 +20,27 @@ public class WhereTest {
     public void where1Filter() {
         runner.setScaleFactors(260, 170);
         var q = """
-        source.where(filters=["str250 = '250'"]);
+        source.where(filters=["key1 = '50'"])
         """;
-        runner.test("Where- 1 Filter", q, "str250", "int250");
+        runner.test("Where- 1 Filter", q, "key1", "num1");
     }
 
     @Test
     public void where2Filters() {
         runner.setScaleFactors(210, 170);
         var q = """
-        source.where(filters=["str250 = '70'", "str640 = '320'"]);
+        source.where(filters=["key1 = '50'", "key2 = '51'"])
         """;
-        runner.test("Where- 2 Filters", q, "str250", "str640", "int250");
+        runner.test("Where- 2 Filters", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void whereFilterInList() {
-        runner.setScaleFactors(190, 160);
+    public void where3Filters() {
+        runner.setScaleFactors(210, 170);
         var q = """
-        source.where(filters=["str250 in '250', '1', '249', '2', '248'"]);
+        source.where(filters=["key1 = '50'", "key2 = '51'", "key3 in -2, -1, 0, 1, 2"])
         """;
-        runner.test("Where- 1 Filter-In", q, "str250", "str640", "int250");
-    }
-
-    @Test
-    public void whereOneOf2Filters() {
-        runner.setScaleFactors(80, 75);
-        var q = """
-        source.where_one_of(filters=["str250 = '250'", "str640 = '640'"]);
-        """;
-        runner.test("WhereOneOf- 2 Filters", q, "str250", "str640", "int250");
+        runner.test("Where- 3 Filters", q, "key1", "key2", "key3", "num1");
     }
 
 }
