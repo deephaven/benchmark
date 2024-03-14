@@ -11,8 +11,8 @@ public class BasicMathComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(5);
+    void setup() {
+        runner.setRowFactor(3);
         runner.tables("source");
 
         var setupStr = """
@@ -27,32 +27,35 @@ public class BasicMathComboTest {
     }
 
     @Test
-    public void mathComboAggBy7Ops0Groups() {
+    void mathComboAggBy7Ops0Groups() {
+        runner.setScaleFactors(20, 9);
         var q = "source.agg_by(aggs)";
         runner.test("MathCombo-AggBy- 7 Ops No Groups", 1, q, "num1", "num2");
     }
 
     @Test
-    public void mathComboAggBy7Ops1Group() {
+    void mathComboAggBy7Ops1Group() {
+        runner.setScaleFactors(9, 4);
         var q = "source.agg_by(aggs, by=['key1'])";
         runner.test("MathCombo-AggBy- 7 Ops 1 Group 100 Unique Vals ", 100, q, "key1", "num1", "num2");
     }
 
     @Test
-    public void mathComboAggBy7Ops2Groups() {
+    void mathComboAggBy7Ops2Groups() {
+        runner.setScaleFactors(2, 1);
         var q = "source.agg_by(aggs, by=['key1', 'key2'])";
         runner.test("MathCombo-AggBy- 7 Ops 2 Groups 10K Unique Combos ", 10100, q, "key1", "key2", "num1", "num2");
     }
 
     @Test
-    public void mathComboAggBy7Ops3Groups() {
+    void mathComboAggBy7Ops3Groups() {
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
         runner.test("MathCombo-AggBy- 7 Ops 3 Groups 100K Unique Combos ", 90900, q, "key1", "key2", "key3", "num1",
                 "num2");
     }
 
     @Test
-    public void mathComboAggBy7Ops3GroupsLarge() {
+    void mathComboAggBy7Ops3GroupsLarge() {
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
         runner.test("MathCombo-AggBy- 7 Ops 3 Groups 1M Unique Combos ", 999900, q, "key1", "key2", "key4", "num1",
                 "num2");

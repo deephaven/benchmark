@@ -11,27 +11,27 @@ public class FirstByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(6);
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("source");
     }
 
     @Test
-    public void firstBy1Group() {
-        runner.setScaleFactors(15, 10);
+    void firstBy1Group() {
+        runner.setScaleFactors(20, 12);
         var q = "source.first_by(by=['key1'])";
         runner.test("FirstBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void firstBy2Group() {
-        runner.setScaleFactors(2, 1);
+    void firstBy2Group() {
+        runner.setScaleFactors(6, 1);
         var q = "source.first_by(by=['key1','key2'])";
         runner.test("FirstBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void firstBy3Groups() {
+    void firstBy3Groups() {
         runner.setScaleFactors(3, 1);
         var q = "source.first_by(by=['key1', 'key2', 'key3'])";
         runner.test("FirstBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");

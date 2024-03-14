@@ -14,35 +14,35 @@ public class EmsTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(6);
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import ems_tick");
     }
 
     @Test
-    public void emsTick0Group1Col() {
-        runner.setScaleFactors(25, 15);
+    void emsTick0Group1Col() {
+        runner.setScaleFactors(35, 25);
         var q = "timed.update_by(ops=ems_tick(decay_ticks=5000,cols=['X=num1']))";
         runner.test("EmsTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
-    public void emsTick1Group1Col() {
-        runner.setScaleFactors(7, 1);
+    void emsTick1Group1Col() {
+        runner.setScaleFactors(8, 2);
         var q = "timed.update_by(ops=ems_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
         runner.test("EmsTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    public void emsTick2Group1Col() {
-        runner.setScaleFactors(5, 1);
+    void emsTick2Group1Col() {
+        runner.setScaleFactors(2, 1);
         var q = "timed.update_by(ops=ems_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
         runner.test("EmsTick- 2 Groups 10K Unique Vals", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void emsTick3Groups1Col() {
+    void emsTick3Groups1Col() {
         runner.setScaleFactors(1, 1);
         var q = "timed.update_by(ops=ems_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
         runner.test("EmsTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");

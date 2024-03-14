@@ -11,26 +11,28 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class ExactJoinTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    @BeforeEach
-    public void setup() {
-        runner.setRowFactor(2);
+    void setup(int rowFactor) {
+        runner.setRowFactor(rowFactor);
         runner.tables("source", "right");
     }
 
     @Test
-    public void ExactJoinOn1Col() {
+    void ExactJoinOn1Col() {
+        setup(2);
         var q = "source.exact_join(right, on=['key5 = r_key5'])";
         runner.test("ExactJoin- Join On 1 Col", q, "key5", "num1");
     }
 
     @Test
-    public void ExactJoinOn2Cols() {
+    void ExactJoinOn2Cols() {
+        setup(6);
         var q = "source.exact_join(right, on=['key1 = r_wild', 'key2 = r_key2'])";
         runner.test("ExactJoin- Join On 2 Cols", q, "key1", "key2", "num1");
     }
     
     @Test
-    public void ExactJoinOn3Cols() {
+    void ExactJoinOn3Cols() {
+        setup(6);
         var q = "source.exact_join(right, on=['key1 = r_wild', 'key2 = r_key2', 'key1 = r_key1'])";
         runner.test("ExactJoin- Join On 3 Cols", q, "key1", "key2", "num1");
     }

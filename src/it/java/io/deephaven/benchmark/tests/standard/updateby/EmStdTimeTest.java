@@ -14,29 +14,29 @@ public class EmStdTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(6);
+    void setup() {
+        runner.setRowFactor(3);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import emstd_time");
     }
 
     @Test
-    public void emStdTime0Group1Col() {
-        runner.setScaleFactors(11, 6);
+    void emStdTime0Group1Col() {
+        runner.setScaleFactors(20, 15);
         var q = "timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S', cols=['X=num1']))";
         runner.test("EmStdTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
-    public void emStdTime1Group1Col() {
-        runner.setScaleFactors(5, 1);
+    void emStdTime1Group1Col() {
+        runner.setScaleFactors(9, 2);
         var q = "timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),by=['key1'])";
         runner.test("EmStdTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
-    public void emStdTime2Groups1Col() {
-        runner.setScaleFactors(1, 1);
+    void emStdTime2Groups1Col() {
+        runner.setScaleFactors(2, 1);
         var q = """
         timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),by=['key1','key2'])
         """;
@@ -44,11 +44,10 @@ public class EmStdTimeTest {
     }
 
     @Test
-    public void emStdTime3Groups1Col() {
+    void emStdTime3Groups1Col() {
         runner.setScaleFactors(1, 1);
         var q = """
-        timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),
-            by=['key1','key2','key3'])
+        timed.update_by(ops=emstd_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']),by=['key1','key2','key3'])
         """;
         runner.test("EmStdTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");
     }

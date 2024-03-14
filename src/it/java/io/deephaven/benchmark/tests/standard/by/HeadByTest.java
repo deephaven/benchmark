@@ -11,26 +11,27 @@ public class HeadByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(5);
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("source");
     }
 
     @Test
-    public void headBy1Group() {
-        runner.setScaleFactors(8, 2);
+    void headBy1Group() {
+        runner.setScaleFactors(10, 2);
         var q = "source.head_by(2, by=['key1'])";
         runner.test("HeadBy- 1 Group 100 Unique Vals", 100 * 2, q, "key1", "num1");
     }
 
     @Test
-    public void headBy2Groups() {
+    void headBy2Groups() {
+        runner.setScaleFactors(2, 2);
         var q = "source.head_by(2, by=['key1', 'key2'])";
         runner.test("HeadBy- 2 Groups 10K Unique Combos", 10100 * 2, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void headBy3Groups() {
+    void headBy3Groups() {
         var q = "source.head_by(2, by=['key1', 'key2', 'key3'])";
         runner.test("HeadBy- 3 Groups 100K Unique Combos", 90900 * 2, q, "key1", "key2", "key3", "num1");
     }

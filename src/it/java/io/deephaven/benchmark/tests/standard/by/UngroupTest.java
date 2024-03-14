@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.by;
 
 import org.junit.jupiter.api.*;
@@ -14,33 +14,28 @@ public class UngroupTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("source");
     }
     
     @Test
-    public void ungroup0Groups() {
-        runner.setScaleFactors(15, 3);
-        var q = "source.group_by().ungroup()";
-        runner.test("Ungroup- No Groups", q, "key1", "key2", "num1", "num2");
-    }
-
-    @Test
-    public void ungroup1Group() {
-        runner.setScaleFactors(15, 3);
+    void ungroup1Group() {
+        runner.setScaleFactors(12, 2);
         var q = "source.group_by(by=['key1']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    public void ungroup2Groups() {
+    void ungroup2Groups() {
+        runner.setScaleFactors(2, 2);
         var q = "source.group_by(by=['key1','key2']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    public void ungroup3Groups() {
-        runner.setScaleFactors(2, 1);
+    void ungroup3Groups() {
+        runner.setScaleFactors(1, 1);
         var q = "source.group_by(by=['key1', 'key2', 'key3']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }

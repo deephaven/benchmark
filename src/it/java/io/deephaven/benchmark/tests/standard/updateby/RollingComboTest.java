@@ -13,7 +13,7 @@ public class RollingComboTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(3);
+        runner.setRowFactor(1);
         runner.tables("timed");
         setupStr = """
         from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
@@ -65,11 +65,10 @@ public class RollingComboTest {
     }
 
     @Test
-    @Disabled
     void rollingCombo3Groups6OpsLarge() {
         var q = """
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], 
-            by=['key1','key2','int103']);
+            by=['key1','key2','key4']);
         """;
         runner.test("RollingCombo- 6 Ops 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
                 "timestamp");

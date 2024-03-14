@@ -11,8 +11,8 @@ public class PositionalComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(5);
+    void setup() {
+        runner.setRowFactor(3);
         runner.tables("source");
 
         var aggs = """
@@ -26,30 +26,23 @@ public class PositionalComboTest {
     }
 
     @Test
-    public void posComboAggBy4Ops0Groups() {
-        runner.setScaleFactors(3, 1);
-        var q = "source.agg_by(aggs)";
-        runner.test("PositionCombo-AggBy- 4 Ops No Groups", 100, q, "key1", "key3", "key4", "num1", "num2");
-    }
-
-    @Test
-    public void posComboAggBy4Ops1Group() {
-        runner.setScaleFactors(3, 1);
+    void posComboAggBy4Ops1Group() {
+        runner.setScaleFactors(20, 15);
         var q = "source.agg_by(aggs, by=['key1'])";
         runner.test("PositionCombo-AggBy- 4 Ops 1 Group 100 Unique Vals", 100, q, "key1", "key3", "key4", "num1",
                 "num2");
     }
 
     @Test
-    public void posComboAggBy4Ops2Groups() {
-        runner.setScaleFactors(3, 1);
+    void posComboAggBy4Ops2Groups() {
+        runner.setScaleFactors(8, 2);
         var q = "source.agg_by(aggs, by=['key1', 'key2'])";
         runner.test("PositionCombo-AggBy- 4 Ops 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
     }
 
     @Test
-    public void posComboAggBy4Ops3Groups() {
+    void posComboAggBy4Ops3Groups() {
         runner.setScaleFactors(3, 1);
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
         runner.test("PositionCombo-AggBy- 4 Ops 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "key4",
@@ -57,8 +50,8 @@ public class PositionalComboTest {
     }
 
     @Test
-    public void posComboAggBy4Ops3GroupsLarge() {
-        runner.setScaleFactors(3, 1);
+    void posComboAggBy4Ops3GroupsLarge() {
+        runner.setScaleFactors(2, 1);
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
         runner.test("PositionCombo-AggBy- 4 Ops 3 Groups 1M Unique Combos", 999900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");

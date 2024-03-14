@@ -11,35 +11,35 @@ public class MaxByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(5);
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("source");
     }
 
     @Test
-    public void maxBy0Groups() {
-        runner.setScaleFactors(35, 1);
+    void maxBy0Groups() {
+        runner.setScaleFactors(20, 1);
         var q = "source.max_by()";
         runner.test("MaxBy- No Groups", 1, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void maxBy1Group() {
-        runner.setScaleFactors(15, 4);
+    void maxBy1Group() {
+        runner.setScaleFactors(18, 8);
         var q = "source.max_by(by=['key1'])";
         runner.test("MaxBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void maxBy2Groups() {
-        runner.setScaleFactors(2, 1);
+    void maxBy2Groups() {
+        runner.setScaleFactors(4, 2);
         var q = "source.max_by(by=['key1', 'key2'])";
         runner.test("MaxBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void maxBy3Groups() {
-        runner.setScaleFactors(4, 1);
+    void maxBy3Groups() {
+        runner.setScaleFactors(3, 1);
         var q = "source.max_by(by=['key1', 'key2', 'key3'])";
         runner.test("MaxBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

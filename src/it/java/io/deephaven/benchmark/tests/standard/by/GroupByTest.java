@@ -11,33 +11,27 @@ public class GroupByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
-        runner.setRowFactor(5);
+    void setup() {
+        runner.setRowFactor(4);
         runner.tables("source");
     }
 
     @Test
-    public void groupBy0Groups() {
-        runner.setScaleFactors(100, 20);
-        var q = "source.group_by()";
-        runner.test("GroupBy- No Groups", 10100, q, "key1", "key2", "num1", "num2");
-    }
-
-    @Test
-    public void groupBy1Group() {
+    void groupBy1Group() {
         runner.setScaleFactors(10, 2);
         var q = "source.group_by(by=['key1'])";
         runner.test("GroupBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void groupBy2Groups() {
+    void groupBy2Groups() {
+        runner.setScaleFactors(2, 2);
         var q = "source.group_by(by=['key1', 'key2'])";
         runner.test("GroupBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void groupBy3Groups() {
+    void groupBy3Groups() {
         var q = "source.group_by(by=['key1', 'key2', 'key3'])";
         runner.test("GroupBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

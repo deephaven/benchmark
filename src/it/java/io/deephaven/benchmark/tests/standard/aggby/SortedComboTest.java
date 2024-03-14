@@ -11,7 +11,7 @@ public class SortedComboTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.tables("source");
 
         var setupStr = """
@@ -26,33 +26,36 @@ public class SortedComboTest {
     }
 
     @Test
-    public void aggBySorted5Ops0Groups() {
+    void aggBySorted5Ops0Groups() {
+        runner.setScaleFactors(20, 3);
         var q = "source.agg_by(aggs)";
         runner.test("SortedCombo-AggBy- 5 Ops No Groups", 100, q, "key3", "key4", "num1", "num2");
     }
 
     @Test
-    public void aggBySorted5Ops1Group() {
+    void aggBySorted5Ops1Group() {
+        runner.setScaleFactors(8, 1);
         var q = "source.agg_by(aggs, by=['key1'])";
         runner.test("SortedCombo-AggBy- 5 Ops 1 Group 100 Unique Vals", 100, q, "key1", "key3", "key4", "num1", "num2");
     }
 
     @Test
-    public void aggBySorted5Ops2Groups() {
+    void aggBySorted5Ops2Groups() {
+        runner.setScaleFactors(2, 1);
         var q = "source.agg_by(aggs, by=['key1', 'key2'])";
         runner.test("SortedCombo-AggBy- 5 Ops 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
     }
 
     @Test
-    public void aggBySorted5Ops3Groups() {
+    void aggBySorted5Ops3Groups() {
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
         runner.test("SortedCombo-AggBy- 5 Ops 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
     }
 
     @Test
-    public void aggBySorted5Ops3GroupsLarge() {
+    void aggBySorted5Ops3GroupsLarge() {
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
         runner.test("SortedCombo-AggBy- 5 Ops 3 Groups 1M Unique Combos", 999900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");

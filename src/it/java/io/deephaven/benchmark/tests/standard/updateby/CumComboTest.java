@@ -13,14 +13,14 @@ public class CumComboTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(5);
+        runner.setRowFactor(1);
         runner.tables("timed");
 
         setupStr = """
         from deephaven.updateby import ema_tick, ema_time
         from deephaven.updateby import cum_max, cum_min, cum_sum, cum_prod
         
-        ema_tick_op = ema_tick(decay_ticks=100,cols=['A=num1','B=num2'])
+        ema_tick_op = ema_tick(decay_ticks=10000,cols=['A=num1','B=num2'])
         ema_time_op = ema_time(ts_col='timestamp', decay_time='PT10S', cols=['C=num1','D=num2'])
         max_op = cum_max(cols=['E=num1','F=num2'])
         min_op = cum_min(cols=['G=num1','H=num2'])
@@ -32,13 +32,14 @@ public class CumComboTest {
 
     @Test
     void cumComboNoGroups6Ops() {
-        runner.setScaleFactors(6, 3);
+        runner.setScaleFactors(10, 7);
         var q = "timed.update_by(ops=[ema_tick_op, ema_time_op, max_op, min_op, sum_op, prod_op])";
         runner.test("CumCombo- 6 Ops No Groups", q, "num1", "num2", "timestamp");
     }
 
     @Test
     void cumCombo1Groups6Ops() {
+        runner.setScaleFactors(8, 4);
         var q = """
         timed.update_by(ops=[ema_tick_op, ema_time_op, max_op, min_op, sum_op, prod_op], by=['key1'])
         """;
@@ -47,6 +48,7 @@ public class CumComboTest {
 
     @Test
     void cumCombo2Groups6Ops() {
+        runner.setScaleFactors(3, 2);
         var q = """
         timed.update_by(ops=[ema_tick_op, ema_time_op, max_op, min_op, sum_op, prod_op], by=['key1','key2'])
         """;
@@ -55,6 +57,7 @@ public class CumComboTest {
 
     @Test
     void cumCombo3Groups6Ops() {
+        runner.setScaleFactors(3, 1);
         var q = """
         timed.update_by(ops=[ema_tick_op,ema_time_op,max_op,min_op,sum_op,prod_op], by=['key1','key2','key3'])
         """;
@@ -63,7 +66,6 @@ public class CumComboTest {
     }
 
     @Test
-    @Disabled
     void cumCombo3Groups6OpsLarge() {
         var q = """
         timed.update_by(ops=[ema_tick_op,ema_time_op,max_op,min_op,sum_op,prod_op], by=['key1','key2','key4'])

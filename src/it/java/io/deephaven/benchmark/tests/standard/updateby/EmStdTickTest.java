@@ -16,28 +16,28 @@ public class EmStdTickTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import emstd_tick");
     }
 
     @Test
     void emStdTick0Group1Col() {
-        runner.setScaleFactors(15, 8);
+        runner.setScaleFactors(30, 20);
         var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']))";
         runner.test("EmStdTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emStdTick1Group1Col() {
-        runner.setScaleFactors(6, 1);
+        runner.setScaleFactors(9, 2);
         var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
         runner.test("EmStdTick- 1 Group 100 Unique Vals 1 Col", q, "key1", "num1");
     }
 
     @Test
     void emStdTick2Groups1Col() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(2, 1);
         var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
         runner.test("EmStdTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }

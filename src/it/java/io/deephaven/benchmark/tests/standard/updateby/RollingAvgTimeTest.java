@@ -30,8 +30,6 @@ public class RollingAvgTimeTest {
 
     @Test
     void rollingAvgTime0Group3Ops() {
-        runner.setScaleFactors(3, 2);
-        runner.tables("timed");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingAvgTime- 3 Ops No Groups", q, "num1", "timestamp");
     }

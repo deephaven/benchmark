@@ -13,7 +13,7 @@ public class WhereNotInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
@@ -29,22 +29,22 @@ public class WhereNotInTest {
     }
 
     @Test
-    public void whereNotIn1Filter() {
-        runner.setScaleFactors(210, 150);
+    void whereNotIn1Filter() {
+        runner.setScaleFactors(110, 90);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "key1", "num1");
     }
 
     @Test
-    public void whereNotIn2Filter() {
-        runner.setScaleFactors(85, 60);
+    void whereNotIn2Filter() {
+        runner.setScaleFactors(75, 65);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
         runner.test("WhereNotIn- 2 Filter Cols", q, "key1", "key2", "num1");
     }
     
     @Test
-    public void whereNotIn3Filter() {
-        runner.setScaleFactors(85, 60);
+    void whereNotIn3Filter() {
+        runner.setScaleFactors(60, 55);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
         runner.test("WhereNotIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }

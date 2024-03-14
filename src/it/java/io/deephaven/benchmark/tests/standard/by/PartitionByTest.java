@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.by;
 
 import org.junit.jupiter.api.*;
@@ -12,18 +12,18 @@ public class PartitionByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.tables("source");
     }
 
     @Test
-    public void partitionBy1Group2Cols() {
+    void partitionBy1Group2Cols() {
         var q = "source.partition_by(['key1']).get_constituent(['string1val'])";
         runner.test("PartitionBy- 1 Group 100 Unique Vals", 1, q, "key1", "num1");
     }
 
     // @Test
-    // public void partitionBy1Group2ColsLarge() {
+    // void partitionBy1Group2ColsLarge() {
     // var q = "source.partition_by(['str3']).get_constituent(['val1string'])";
     // runner.test("PartitionBy- 1 Group 1M Unique Vals", 1000000, q, "str3", "int1M");
     // }

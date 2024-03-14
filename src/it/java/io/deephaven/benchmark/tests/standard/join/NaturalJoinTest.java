@@ -11,25 +11,28 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class NaturalJoinTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    @BeforeEach
-    public void setup() {
+    void setup(int rowFactor) {
+        runner.setRowFactor(rowFactor);
         runner.tables("source", "right");
     }
 
     @Test
-    public void NaturalJoinOn1Col() {
+    void NaturalJoinOn1Col() {
+        setup(2);
         var q = "source.natural_join(right, on=['key5 = r_key5'])";
         runner.test("NaturalJoin- Join On 1 Col", q, "key5", "num1");
     }
 
     @Test
-    public void NaturalJoinOn2Cols() {
+    void NaturalJoinOn2Cols() {
+        setup(6);
         var q = "source.natural_join(right, on=['key1 = r_wild', 'key2 = r_key2'])";
         runner.test("NaturalJoin- Join On 2 Cols", q, "key1", "key2", "num1");
     }
     
     @Test
-    public void NaturalJoinOn3Cols() {
+    void NaturalJoinOn3Cols() {
+        setup(6);
         var q = "source.natural_join(right, on=['key1 = r_wild', 'key2 = r_key2', 'key1 = r_key1'])";
         runner.test("NaturalJoin- Join On 3 Cols", q, "key1", "key2", "num1");
     }

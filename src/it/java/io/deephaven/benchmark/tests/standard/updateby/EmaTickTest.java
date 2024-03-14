@@ -15,28 +15,28 @@ public class EmaTickTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import ema_tick");
     }
 
     @Test
     void emaTick0Group1Col() {
-        runner.setScaleFactors(25, 15);
+        runner.setScaleFactors(35, 25);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']))";
         runner.test("EmaTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emaTick1Group1Col() {
-        runner.setScaleFactors(6, 1);
+        runner.setScaleFactors(8, 2);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
         runner.test("EmaTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void emaTick2Group1Col() {
-        runner.setScaleFactors(5, 1);
+        runner.setScaleFactors(2, 1);
         var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
         runner.test("EmaTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }

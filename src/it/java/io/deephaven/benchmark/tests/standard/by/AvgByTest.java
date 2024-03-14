@@ -11,35 +11,35 @@ public class AvgByTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("source");
     }
     
     @Test
-    public void avgBy0Group() {
-        runner.setScaleFactors(10, 10);
+    void avgBy0Group() {
+        runner.setScaleFactors(40, 40);
         var q = "source.avg_by()";
         runner.test("AvgBy- No Groups", 1, q, "key3", "num1", "num2");
     }
 
     @Test
-    public void avgBy1Group() {
-        runner.setScaleFactors(10, 10);
+    void avgBy1Group() {
+        runner.setScaleFactors(11, 10);
         var q = "source.avg_by(by=['key1'])";
         runner.test("AvgBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
-    public void avgBy2Groups() {
+    void avgBy2Groups() {
         runner.setScaleFactors(3, 2);
         var q = "source.avg_by(by=['key1', 'key2'])";
         runner.test("AvgBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
-    public void avgBy3Groups() {
-        runner.setScaleFactors(3, 2);
+    void avgBy3Groups() {
+        runner.setScaleFactors(2, 1);
         var q = "source.avg_by(by=['key1', 'key2', 'key3'])";
         runner.test("AvgBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

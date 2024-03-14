@@ -30,6 +30,7 @@ public class RollingProdTimeTest {
 
     @Test
     void rollingProdTime0Group3Ops() {
+        runner.setScaleFactors(3, 2);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingProdTime- 3 Ops No Groups", q, "num1", "timestamp");
     }

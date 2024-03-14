@@ -24,7 +24,6 @@ public class RollingCountTimeTest {
         contains_row = rolling_count_time(ts_col="timestamp",cols=["X=num1"],rev_time="PT4S",fwd_time="PT5S")
         before_row = rolling_count_time(ts_col="timestamp",cols=["Y=num1"],rev_time="PT3S",fwd_time=int(-1e9))
         after_row = rolling_count_time(ts_col="timestamp",cols=["Z=num1"],rev_time="-PT1S",fwd_time=int(3e9))
-        
         """;
         runner.addSetupQuery(setup);
     }

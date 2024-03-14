@@ -15,28 +15,28 @@ public class EmaTimeTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(3);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import ema_time");
     }
 
     @Test
     void emaTime0Group1Col() {
-        runner.setScaleFactors(11, 9);
+        runner.setScaleFactors(20,15);
         var q = "timed.update_by(ops=ema_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']))";
         runner.test("EmaTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
     void emaTime1Group1Col() {
-        runner.setScaleFactors(5, 1);
+        runner.setScaleFactors(9, 2);
         var q = "timed.update_by(ops=ema_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']), by=['key1'])";
         runner.test("EmaTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
     void emaTime2Groups1Col() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(2, 1);
         var q = """
         timed.update_by(ops=ema_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']), by=['key1','key2'])
         """;

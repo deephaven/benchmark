@@ -13,28 +13,28 @@ public class CumProdTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
+        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import cum_prod");
     }
 
     @Test
     void cumProd0Group1Col() {
-        runner.setScaleFactors(30, 15);
+        runner.setScaleFactors(35, 25);
         var q = "timed.update_by(ops=cum_prod(cols=['X1=num1']))";
         runner.test("CumProd- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void cumProd1Group1Col() {
-        runner.setScaleFactors(9, 1);
+        runner.setScaleFactors(7, 2);
         var q = "timed.update_by(ops=cum_prod(cols=['X=num1']), by=['key1'])";
         runner.test("CumProd- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void cumProd2Groups1Col() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(2, 1);
         var q = "timed.update_by(ops=cum_prod(cols=['X=num1']), by=['key1','key2'])";
         runner.test("CumProd- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }

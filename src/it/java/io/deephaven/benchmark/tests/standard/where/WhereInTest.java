@@ -12,7 +12,7 @@ public class WhereInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
@@ -28,22 +28,22 @@ public class WhereInTest {
     }
 
     @Test
-    public void whereIn1Filter() {
-        runner.setScaleFactors(210, 150);
+    void whereIn1Filter() {
+        runner.setScaleFactors(180, 150);
         var q = "source.where_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereIn- 1 Filter Col", q, "key1", "num1");
     }
 
     @Test
-    public void whereIn2Filter() {
-        runner.setScaleFactors(85, 60);
+    void whereIn2Filter() {
+        runner.setScaleFactors(67, 65);
         var q = "source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
         runner.test("WhereIn- 2 Filter Cols", q, "key1", "key2", "num1");
     }
     
     @Test
-    public void whereIn3Filter() {
-        runner.setScaleFactors(85, 60);
+    void whereIn3Filter() {
+        runner.setScaleFactors(52, 50);
         var q = "source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
         runner.test("WhereIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }

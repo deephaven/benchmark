@@ -31,7 +31,7 @@ public class RollingMaxTimeTest {
 
     @Test
     void rollingMaxTime0Group3Ops() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(2, 2);
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingMaxTime- 3 Ops No Groups", q, "num1", "timestamp");
     }

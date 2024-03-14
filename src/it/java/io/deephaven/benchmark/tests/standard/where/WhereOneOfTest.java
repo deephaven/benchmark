@@ -12,14 +12,14 @@ public class WhereOneOfTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         runner.setRowFactor(6);
         runner.tables("source");
     }
 
     @Test
-    public void whereOneOf1Filter() {
-        runner.setScaleFactors(260, 170);
+    void whereOneOf1Filter() {
+        runner.setScaleFactors(365, 300);
         var q = """
         source.where_one_of(filters=["key1 = '50'"]);
         """;
@@ -27,8 +27,8 @@ public class WhereOneOfTest {
     }
 
     @Test
-    public void whereOneOf2Filters() {
-        runner.setScaleFactors(210, 170);
+    void whereOneOf2Filters() {
+        runner.setScaleFactors(90, 80);
         var q = """
         source.where_one_of(filters=["key1 = '50'", "key2 = '51'"]);
         """;
@@ -36,8 +36,8 @@ public class WhereOneOfTest {
     }
 
     @Test
-    public void whereOneOf3Filters() {
-        runner.setScaleFactors(210, 170);
+    void whereOneOf3Filters() {
+        runner.setScaleFactors(40, 40);
         var q = """
         source.where_one_of(filters=["key1 = '50'", "key2 = '51'", "key3 in -2, -1, 0, 1, 2"]);
         """;
