@@ -75,16 +75,10 @@ docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi
 docker system prune --volumes --force
 rm -rf ${DEEPHAVEN_DIR}
 
-title "-- Installing Deephaven and Redpanda --"
+title "-- Staging Docker Resources --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
-echo "DOCKER_IMG=${DOCKER_IMG}" > .env
-docker compose pull
-
-title "-- Starting Deephaven and Redpanda --"
-docker compose up -d
-
 
 
 
