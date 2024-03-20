@@ -65,7 +65,7 @@ jobs:
 
     - name: Run Remote Docker Image Build
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-dokcer-image-remote ${DOCKER_IMG}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote ${DOCKER_IMG}
 
     - name: Run Remote Benchmark Artifact Build
       run: |
