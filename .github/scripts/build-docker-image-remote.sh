@@ -28,6 +28,7 @@ title () { echo; echo $1; }
 title "- Setting up Remote Docker Image on ${HOST} -"
 
 if [[ ${DOCKER_IMG} != *"${BRANCH_DELIM}"* ]]; then
+  cd ${DEEPHAVEN_DIR}
   echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" > .env
   docker compose pull
   title "-- Starting Deephaven and Redpanda --"
@@ -76,6 +77,7 @@ echo "DEEPHAVEN_CORE_WHEEL: ${DEEPHAVEN_CORE_WHEEL}"
 docker buildx bake -f server.hcl
 
 title "-- Starting Deephaven and Redpanda --"
+cd ${DEEPHAVEN_DIR}
 echo "DOCKER_IMG=deephaven/server:benchmark-local" > .env
 docker compose up -d
 
