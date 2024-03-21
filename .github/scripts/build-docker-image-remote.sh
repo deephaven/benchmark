@@ -11,6 +11,7 @@ GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
 DOCKER_IMG=$1
 BRANCH_DELIM="::"
+BUILD_JAVA=temurin-11-jdk-amd64
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
@@ -56,7 +57,7 @@ git checkout main
 title "-- Assembling Python Deephaven Core Server --"
 cd ${GIT_DIR}/deephaven-core
 OLD_JAVA_HOME="${JAVA_HOME}"
-export JAVA_HOME=/usr/lib/jvm/${JAVA}
+export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
 export DEEPHAVEN_VERSION=$(cat build/version)
 export JAVA_HOME="${OLD_JAVA_HOME}"
