@@ -29,7 +29,13 @@ title () { echo; echo $1; }
 title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 title "-- Adding OS Applications --"
-apt update
+UPDATED=$(update-alternatives --list java | grep -i temurin; echo $?)
+if [[ %{UPDATED} != 0 ]]; then
+  apt install -y wget apt-transport-https gpg
+  wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
+  echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+  apt update
+fi
 
 title "-- Installing JVMs --"
 apt install temurin-11-jdk
