@@ -50,7 +50,7 @@ git checkout ${BRANCH_NAME}
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
 rm -rf deephaven-server-docker
-git clone https://github.com/${OWNER}/deephaven-server-docker.git
+git clone https://github.com/deephaven/deephaven-server-docker.git
 cd deephaven-server-docker
 git checkout main
 
