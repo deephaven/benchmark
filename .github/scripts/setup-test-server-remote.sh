@@ -31,8 +31,11 @@ title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 title "-- Adding OS Applications --"
 apt update
 
-title "-- Installing JDK 21 --"
-apt install openjdk-21-jre-headless
+title "-- Installing JVMs --"
+apt install temurin-11-jdk
+apt install temurin-21-jdk
+# Look at installed packages:  dpkg --list | grep jdk
+# Configure default java:  update-alternatives --config java
 
 title "-- Installing Maven --"
 apt install maven
