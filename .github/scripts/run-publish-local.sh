@@ -27,6 +27,8 @@ rm -f ${RUN_DIR}/deephaven-benchmark*-tests.jar
 cat ${BENCH_PROPS_PATH} | sed 's|${slackToken}|'"${SLACK_TOKEN}|g" | sed 's|${slackChannel}'"|${SLACK_CHANNEL}|g" > ${RUN_DIR}/${BENCH_PROPS_NAME}
 
 cd ${DEEPHAVEN_DIR}
+cp ${GIT_DIR}/.github/resources/integration-docker-compose.yml docker-compose.yml
+docker compose pull
 sudo docker compose down
 sudo docker compose up -d
 sleep 10
