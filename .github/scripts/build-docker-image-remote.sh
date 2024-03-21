@@ -2,7 +2,6 @@
 
 set -o errexit
 set -o pipefail
-set -o nounset
 
 # Build a local docker image on the remote side if needed
 # Ensure the docker image is running in the Deephaven directory
@@ -56,7 +55,7 @@ git checkout main
 
 title "-- Assembling Python Deephaven Core Server --"
 cd ${GIT_DIR}/deephaven-core
-OLD_JAVA_HOME="${JAVA_HOME:-}"
+OLD_JAVA_HOME="${JAVA_HOME}"
 export JAVA_HOME=/usr/lib/jvm/${JAVA}
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
 export DEEPHAVEN_VERSION=$(cat build/version)
