@@ -30,7 +30,8 @@ title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 title "-- Adding OS Applications --"
 UPDATED=$(update-alternatives --list java | grep -i temurin; echo $?)
-if [[ %{UPDATED} != 0 ]]; then
+if [[ ${UPDATED} != 0 ]]; then
+  title "-- Adding Adoptium to APT registry --"
   apt install -y wget apt-transport-https gpg
   wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
   echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
@@ -38,13 +39,13 @@ if [[ %{UPDATED} != 0 ]]; then
 fi
 
 title "-- Installing JVMs --"
-apt install temurin-11-jdk
-apt install temurin-21-jdk
+apt -y install temurin-11-jdk
+apt -y install temurin-21-jdk
 # Look at installed packages:  dpkg --list | grep jdk
 # Configure default java:  update-alternatives --config java
 
 title "-- Installing Maven --"
-apt install maven
+apt -y install maven
 
 title "-- Installing Docker --"
 command_exists() {
