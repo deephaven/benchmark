@@ -43,14 +43,14 @@ BRANCH_NAME=${splitarr[1]}
 title "-- Cloning deephaven-core --"
 cd ${GIT_DIR}
 rm -rf deephaven-core 
-git clone git@github.com:${OWNER}/deephaven-core.git
+git clone https://github.com/${OWNER}/deephaven-core.git
 cd deephaven-core
 git checkout ${BRANCH_NAME}
 
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
 rm -rf deephaven-server-docker
-git clone git@github.com:deephaven/deephaven-server-docker.git
+git clone https://github.com/${OWNER}/deephaven-server-docker.git
 cd deephaven-server-docker
 git checkout main
 
