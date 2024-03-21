@@ -22,7 +22,7 @@ BENCH_PROPS_NAME=${RUN_TYPE}-scale-benchmark.properties
 BENCH_PROPS_PATH=${GIT_DIR}/.github/resources/${BENCH_PROPS_NAME}
 
 mkdir -p ${RUN_DIR}
-cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
+cp ./deephaven-benchmark-*.jar ${RUN_DIR}/
 rm -f ${RUN_DIR}/deephaven-benchmark*-tests.jar
 cat ${BENCH_PROPS_PATH} | sed 's|${slackToken}|'"${SLACK_TOKEN}|g" | sed 's|${slackChannel}'"|${SLACK_CHANNEL}|g" > ${RUN_DIR}/${BENCH_PROPS_NAME}
 
