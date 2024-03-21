@@ -80,8 +80,8 @@ git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
 docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm
-docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
+docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
 docker system prune --volumes --force
 rm -rf ${DEEPHAVEN_DIR}
 
