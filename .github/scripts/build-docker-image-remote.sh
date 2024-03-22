@@ -59,8 +59,11 @@ cd ${GIT_DIR}/deephaven-core
 OLD_JAVA_HOME="${JAVA_HOME}"
 export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
+title "-- Finished Assembly Build --"
 export DEEPHAVEN_VERSION=$(cat build/version)
+title "-- Deephaven Version ${DEEPHAVEN_VERSION}--"
 export JAVA_HOME="${OLD_JAVA_HOME}"
+title "-- Restored Java Home --"
 
 title "-- Building Deephaven Docker Image --"
 cd ${GIT_DIR}/deephaven-server-docker
