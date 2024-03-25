@@ -9,8 +9,8 @@ set -o pipefail
 
 HOST=`hostname`
 DEEPHAVEN_DIR=/root/deephaven
-DOCKER_IMG=$1
-DIRECTIVE=$2
+DIRECTIVE=$1
+DOCKER_IMG=$2
 BRANCH_DELIM="::"
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
