@@ -3,23 +3,21 @@
 set -o errexit
 set -o pipefail
 
-# Build a local docker image on the remote side if needed
+# Build a local docker image on the remote side
 # Ensure the docker image is running in the Deephaven directory
 
 HOST=`hostname`
 GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
-DOCKER_IMG=$1
-BRANCH_DELIM="::"
-BUILD_JAVA=temurin-11-jdk-amd64
+DEEPHAVEN_VERSION=build/version
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
   exit 1
 fi
 
-if [[ $# != 1 ]]; then
-  echo "$0: Missing docker image/branch argument"
+if [ ! -f "${DEEPHAVEN_VERSION}" ]; then
+  echo "$0: Missing Deephaven version file. Was the project built first?"
   exit 1
 fi
 
@@ -36,36 +34,9 @@ if [[ ${DOCKER_IMG} != *"${BRANCH_DELIM}"* ]]; then
   exit 0
 fi
 
-readarray -d "${BRANCH_DELIM}" -t splitarr <<< "${DOCKER_IMG}"
-OWNER=${splitarr[0]}
-BRANCH_NAME=${splitarr[1]}
-
-title "-- Cloning deephaven-core --"
-cd ${GIT_DIR}
-rm -rf deephaven-core 
-git clone https://github.com/${OWNER}/deephaven-core.git
-cd deephaven-core
-git checkout ${BRANCH_NAME}
-
-title "-- Cloning deephaven-server-docker --"
-cd ${GIT_DIR}
-rm -rf deephaven-server-docker
-git clone https://github.com/deephaven/deephaven-server-docker.git
-cd deephaven-server-docker
-git checkout main
-
-title "-- Assembling Python Deephaven Core Server --"
-cd ${GIT_DIR}/deephaven-core
-OLD_JAVA_HOME="${JAVA_HOME}"
-export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
-
-echo "org.gradle.daemon=false" >> gradle.properties
-./gradlew outputVersion server-jetty-app:assemble py-server:assemble
-
-export DEEPHAVEN_VERSION=$(cat build/version)
-export JAVA_HOME="${OLD_JAVA_HOME}"
 
 title "-- Building Deephaven Docker Image --"
+export DEEPHAVEN_VERSION=$(cat ${DEEPHAVEN_VERSION})
 cd ${GIT_DIR}/deephaven-server-docker
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server/
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server-slim/

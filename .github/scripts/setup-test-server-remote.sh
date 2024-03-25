@@ -78,10 +78,16 @@ cd benchmark
 title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
-title "-- Stopping and Removing Docker Installations --"
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker kill
+title "-- Stopping Docker Containers --"
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop --force
+
+title "-- Removing Docker Containers --"
 docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
+
+title "-- Removing Docker Images --"
 docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
+
+title "-- Pruning Docker Volumes --"
 docker system prune --volumes --force
 rm -rf ${DEEPHAVEN_DIR}
 
