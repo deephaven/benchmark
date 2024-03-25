@@ -79,7 +79,7 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping Docker Containers --"
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop --force
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker kill
 
 title "-- Removing Docker Containers --"
 docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
