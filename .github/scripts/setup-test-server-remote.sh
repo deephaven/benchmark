@@ -68,9 +68,9 @@ fi
 
 title "-- Removing Git Benchmark Repositories --"
 rm -rf ${GIT_DIR}
+mkdir -p ${GIT_DIR}
 
 title "-- Clone Git Benchmark Repository ${GIT_REPO} --"
-mkdir -p ${GIT_DIR}
 cd ${GIT_DIR}
 git clone https://github.com/${GIT_REPO}.git
 cd benchmark
@@ -79,7 +79,7 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping and Removing Docker Installations --"
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker kill
 docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
 docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
 docker system prune --volumes --force

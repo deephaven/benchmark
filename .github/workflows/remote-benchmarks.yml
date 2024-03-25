@@ -54,7 +54,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
         
-    - name: Setup Local and Remote Scripts
+    - name: Setup Local Scripts
       run: |
         sudo chmod +x ${SD}/*
         ${SD}/setup-ssh-local.sh ${HOST} "${{secrets.BENCHMARK_KEY}}"
