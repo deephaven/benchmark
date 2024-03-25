@@ -9,7 +9,7 @@ set -o pipefail
 HOST=`hostname`
 GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
-DEEPHAVEN_VERSION=build/version
+DEEPHAVEN_VERSION=${GIT_DIR}/deephaven-server-docker/build/version
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
