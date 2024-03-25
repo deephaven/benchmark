@@ -44,7 +44,7 @@ jobs:
       TEST_RGX: ${{inputs.test_class_regex}}
       ROW_CNT: ${{inputs.scale_row_count}}
       ACTOR: ${{github.actor}}
-      IS_IMAGE_BUILD: contains(${DOCKER_IMG}, "::")
+      IS_IMAGE_BUILD: ${{ contains(env.DOCKER_IMG, "::") }}
 
     steps:
     - uses: actions/checkout@v3
