@@ -9,14 +9,14 @@ set -o pipefail
 HOST=`hostname`
 GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
-DEEPHAVEN_VERSION=${GIT_DIR}/deephaven-server-docker/build/version
+DEEPHAVEN_VERSION_FILE=${GIT_DIR}/deephaven-core/build/version
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
   exit 1
 fi
 
-if [ ! -f "${DEEPHAVEN_VERSION}" ]; then
+if [ ! -f "${DEEPHAVEN_VERSION_FILE}" ]; then
   echo "$0: Missing Deephaven version file. Was the project built first?"
   exit 1
 fi
@@ -36,7 +36,7 @@ fi
 
 
 title "-- Building Deephaven Docker Image --"
-export DEEPHAVEN_VERSION=$(cat ${DEEPHAVEN_VERSION})
+export DEEPHAVEN_VERSION=$(cat ${DEEPHAVEN_VERSION_FILE})
 cd ${GIT_DIR}/deephaven-server-docker
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server/
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server-slim/
