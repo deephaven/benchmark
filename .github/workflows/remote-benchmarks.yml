@@ -73,6 +73,10 @@ jobs:
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote
 
+    - name: Start Remote Remote Deephaven Server
+      run: | 
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} manage-deephaven-remote start "${DOCKER_IMG}"
+
     - name: Run Remote Benchmark Artifact Build
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-benchmark-artifact-remote

@@ -26,17 +26,6 @@ fi
 
 title () { echo; echo $1; }
 
-title "- Setting up Remote Docker Image on ${HOST} -"
-
-if [[ ${DOCKER_IMG} != *"${BRANCH_DELIM}"* ]]; then
-  cd ${DEEPHAVEN_DIR}
-  echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" > .env
-  docker compose pull
-  title "-- Starting Deephaven and Redpanda --"
-  docker compose up -d
-  exit 0
-fi
-
 readarray -d "${BRANCH_DELIM}" -t splitarr <<< "${DOCKER_IMG}"
 OWNER=${splitarr[0]}
 BRANCH_NAME=${splitarr[1]}

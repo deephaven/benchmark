@@ -25,16 +25,6 @@ title () { echo; echo $1; }
 
 title "- Setting up Remote Docker Image on ${HOST} -"
 
-if [[ ${DOCKER_IMG} != *"${BRANCH_DELIM}"* ]]; then
-  cd ${DEEPHAVEN_DIR}
-  echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" > .env
-  docker compose pull
-  title "-- Starting Deephaven and Redpanda --"
-  docker compose up -d
-  exit 0
-fi
-
-
 title "-- Building Deephaven Docker Image --"
 export DEEPHAVEN_VERSION=$(cat ${DEEPHAVEN_VERSION_FILE})
 cd ${GIT_DIR}/deephaven-server-docker
@@ -49,11 +39,4 @@ export TAG=benchmark-local
 echo "DEEPHAVEN_VERSION: ${DEEPHAVEN_VERSION}"
 echo "DEEPHAVEN_CORE_WHEEL: ${DEEPHAVEN_CORE_WHEEL}"
 docker buildx bake -f server.hcl
-
-title "-- Starting Deephaven and Redpanda --"
-cd ${DEEPHAVEN_DIR}
-echo "DOCKER_IMG=deephaven/server:benchmark-local" > .env
-docker compose up -d
-
-
 
