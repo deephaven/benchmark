@@ -44,7 +44,6 @@ jobs:
       TEST_RGX: ${{inputs.test_class_regex}}
       ROW_CNT: ${{inputs.scale_row_count}}
       ACTOR: ${{github.actor}}
-      IS_IMAGE_BUILD: ${{ contains(inputs.docker_image, '::') }}
 
     steps:
     - uses: actions/checkout@v3
@@ -65,12 +64,12 @@ jobs:
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE} "${DOCKER_IMG}"
 
     - name: Run Remote Server Distribution Build
-      if: ${{env.IS_IMAGE_BUILD}}
+      if: ${{ contains(env.DOCKER_IMG, '::') }}
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-server-distribution-remote "${DOCKER_IMG}"
         
     - name: Run Remote Docker Image Build
-      if: ${{env.IS_IMAGE_BUILD}}
+      if: ${{ contains(env.DOCKER_IMG, '::') }}
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote
 
