@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
    inputs:
      docker_image:
-       description: 'Docker Image Name'
+       description: 'Docker Image Name or DH Core Branch'
        required: true
        default: 'edge'
        type: string

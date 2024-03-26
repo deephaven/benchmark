@@ -57,22 +57,8 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-
-    - name: Docker Pull Deephaven and Redpanda
-      run: |
-        cp .github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
-        echo "DOCKER_IMG=${DOCKER_IMG}" > .env
-        docker compose pull
-
-    - name: Docker Up Deephaven and Redpanda
-      run: docker compose up -d
-
-    - name: Build with Maven
-      run: |
-        mvn -B verify --file pom.xml
-        rm -rf results
-    
-    - name: Setup Local and Remote Scripts
+        
+    - name: Setup Local Scripts
       run: |
         sudo chmod +x ${SD}/*
         ${SD}/setup-ssh-local.sh ${HOST} "${{secrets.BENCHMARK_KEY}}"
@@ -80,6 +66,20 @@ jobs:
     - name: Run Remote Test Server Setup
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE} "${DOCKER_IMG}"
+
+    - name: Run Remote Server Distribution Build
+      if: ${{ contains(env.DOCKER_IMG, '::') }}
+      run: |
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-server-distribution-remote "${DOCKER_IMG}"
+        
+    - name: Run Remote Docker Image Build
+      if: ${{ contains(env.DOCKER_IMG, '::') }}
+      run: |
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote
+
+    - name: Start Remote Remote Deephaven Server
+      run: | 
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} manage-deephaven-remote start "${DOCKER_IMG}"
 
     - name: Run Remote Benchmark Artifact Build
       run: |

@@ -22,6 +22,7 @@ fi
 # Pull results from the benchmark server
 scp -r ${USER}@${HOST}:${RUN_DIR}/results .
 scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
+scp -r ${USER}@${HOST}:${RUN_DIR}/*.jar .
 
 # If the RUN_TYPE is adhoc, userfy the destination directory
 DEST_DIR=${RUN_TYPE}

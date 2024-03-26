@@ -29,13 +29,23 @@ title () { echo; echo $1; }
 title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 title "-- Adding OS Applications --"
-apt update
+UPDATED=$(update-alternatives --list java | grep -i temurin; echo $?)
+if [[ ${UPDATED} != 0 ]]; then
+  title "-- Adding Adoptium to APT registry --"
+  apt install -y wget apt-transport-https gpg
+  wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
+  echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+  apt update
+fi
 
-title "-- Installing JDK 21 --"
-apt install openjdk-21-jre-headless
+title "-- Installing JVMs --"
+apt -y install temurin-11-jdk
+apt -y install temurin-21-jdk
+# Look at installed packages:  dpkg --list | grep jdk
+# Configure default java:  update-alternatives --config java
 
 title "-- Installing Maven --"
-apt install maven
+apt -y install maven
 
 title "-- Installing Docker --"
 command_exists() {
@@ -58,9 +68,9 @@ fi
 
 title "-- Removing Git Benchmark Repositories --"
 rm -rf ${GIT_DIR}
+mkdir -p ${GIT_DIR}
 
 title "-- Clone Git Benchmark Repository ${GIT_REPO} --"
-mkdir -p ${GIT_DIR}
 cd ${GIT_DIR}
 git clone https://github.com/${GIT_REPO}.git
 cd benchmark
@@ -68,23 +78,23 @@ cd benchmark
 title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
-title "-- Stopping and Removing Docker Installations --"
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker stop
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm
-docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi
+title "-- Stopping Docker Containers --"
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker kill
+
+title "-- Removing Docker Containers --"
+docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
+
+title "-- Removing Docker Images --"
+docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
+
+title "-- Pruning Docker Volumes --"
 docker system prune --volumes --force
 rm -rf ${DEEPHAVEN_DIR}
 
-title "-- Installing Deephaven and Redpanda --"
+title "-- Staging Docker Resources --"
 mkdir -p ${DEEPHAVEN_DIR}
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
-echo "DOCKER_IMG=${DOCKER_IMG}" > .env
-docker compose pull
-
-title "-- Starting Deephaven and Redpanda --"
-docker compose up -d
-
 
 
 
