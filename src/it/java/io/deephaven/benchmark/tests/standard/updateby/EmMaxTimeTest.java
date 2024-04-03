@@ -12,44 +12,37 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class EmMaxTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(3);
-        runner.tables("timed");
-        runner.addSetupQuery("from deephaven.updateby import emmax_time");
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void emMaxTime0Group1Col() {
-        runner.setScaleFactors(20, 15);
-        var q = "timed.update_by(ops=emmax_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']))";
+        setup.factors(5, 10, 8);
+        setup.emTime0Groups("emmax_time");
+        var q = "timed.update_by(ops=[dk])";
         runner.test("EmMaxTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
     void emMaxTime1Group1Col() {
-        runner.setScaleFactors(9, 2);
-        var q = "timed.update_by(ops=emmax_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']), by=['key1'])";
+        setup.factors(5, 5, 1);
+        setup.emTime1Group("emmax_time");
+        var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmMaxTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
     void emMaxTime2Groups1Col() {
-        runner.setScaleFactors(2, 1);
-        var q = """
-        timed.update_by(ops=emmax_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']), by=['key1','key2'])
-        """;
+        setup.factors(2, 3, 1);
+        setup.emTime2Groups("emmax_time");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmMaxTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
     void emMaxTime3Groups1Col() {
-        runner.setScaleFactors(1, 1);
-        var q = """
-        timed.update_by(ops=emmax_time(ts_col='timestamp',decay_time='PT5S',cols=['X=num1']), 
-            by=['key1','key2','key3'])
-        """;
+        setup.factors(1, 3, 1);
+        setup.emTime3Groups("emmax_time");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmMaxTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");
     }
 

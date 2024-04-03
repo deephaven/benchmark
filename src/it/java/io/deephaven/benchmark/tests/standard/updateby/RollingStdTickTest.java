@@ -13,46 +13,36 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class RollingStdTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(4);
-        runner.tables("timed");
-
-        var setup = """
-        from deephaven.updateby import rolling_std_tick
-        contains_row = rolling_std_tick(cols=["Contains=num1"], rev_ticks=4000, fwd_ticks=5000)
-        before_row = rolling_std_tick(cols=["Before=num1"], rev_ticks=3, fwd_ticks=-1)
-        after_row = rolling_std_tick(cols=["After=num1"], rev_ticks=-1, fwd_ticks=3)
-        """;
-        runner.addSetupQuery(setup);
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void rollingStdTick0Group3Ops() {
-        runner.setRowFactor(2);
-        runner.tables("timed");
+        setup.factors(1, 1, 1);
+        setup.rollTick0Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingStdTick- 3 Ops No Groups", q, "num1");
     }
 
     @Test
     void rollingStdTick1Group3Ops() {
-        runner.setScaleFactors(2, 1);
+        setup.factors(4, 2, 1);
+        setup.rollTick1Group("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
         runner.test("RollingStdTick- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void rollingStdTime2Groups3Ops() {
-        runner.setScaleFactors(1, 1);
+        setup.factors(2, 2, 1);
+        setup.rollTick2Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
         runner.test("RollingStdTick- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
     void rollingStdTime3Groups3Ops() {
-        runner.setScaleFactors(1, 1);
+        setup.factors(1, 2, 1);
+        setup.rollTick3Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
         runner.test("RollingStdTick- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }

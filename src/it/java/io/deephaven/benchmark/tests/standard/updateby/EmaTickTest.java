@@ -12,39 +12,37 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class EmaTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(4);
-        runner.tables("timed");
-        runner.addSetupQuery("from deephaven.updateby import ema_tick");
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void emaTick0Group1Col() {
-        runner.setScaleFactors(35, 25);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']))";
+        setup.factors(6, 18, 14);
+        setup.emTick0Groups("ema_tick");
+        var q = "timed.update_by(ops=[dk])";
         runner.test("EmaTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emaTick1Group1Col() {
-        runner.setScaleFactors(8, 2);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        setup.factors(5, 5, 1);
+        setup.emTick1Group("ema_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmaTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void emaTick2Group1Col() {
-        runner.setScaleFactors(2, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        setup.factors(2, 3, 1);
+        setup.emTick2Groups("ema_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmaTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
     void emaTick3Groups1Col() {
-        runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=ema_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+        setup.factors(1, 3, 1);
+        setup.emTick3Groups("ema_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmaTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 

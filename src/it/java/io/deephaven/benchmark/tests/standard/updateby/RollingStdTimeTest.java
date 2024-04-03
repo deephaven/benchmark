@@ -13,43 +13,36 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class RollingStdTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(3);
-        runner.tables("timed");
-
-        var setup = """
-        from deephaven.updateby import rolling_std_time
-        contains_row = rolling_std_time(ts_col="timestamp",cols=["X=num1"],rev_time="PT4S",fwd_time="PT5S")
-        before_row = rolling_std_time(ts_col="timestamp",cols=["Y=num1"],rev_time="PT3S",fwd_time=int(-1e9))
-        after_row = rolling_std_time(ts_col="timestamp",cols=["Z=num1"],rev_time="-PT1S",fwd_time=int(3e9))
-        """;
-        runner.addSetupQuery(setup);
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void rollingStdTime0Group3Ops() {
-        runner.setRowFactor(1);
-        runner.tables("timed");
+        setup.factors(1, 1, 1);
+        setup.rollTime0Groups("rolling_std_time");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
         runner.test("RollingStdTime- 3 Ops No Groups", q, "num1", "timestamp");
     }
 
     @Test
     void rollingStdTime1Group3Ops() {
+        setup.factors(2, 2, 1);
+        setup.rollTime1Group("rolling_std_time");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
         runner.test("RollingStdTime- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
     void rollingStdTime2Groups3Ops() {
+        setup.factors(1, 2, 1);
+        setup.rollTime2Groups("rolling_std_time");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
         runner.test("RollingStdTime- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
     void rollingStdTime3Groups3Ops() {
+        setup.factors(1, 2, 1);
+        setup.rollTime3Groups("rolling_std_time");
         var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
         runner.test("RollingStdTime- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
                 "timestamp");

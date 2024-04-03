@@ -12,39 +12,37 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class EmMinTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(3);
-        runner.tables("timed");
-        runner.addSetupQuery("from deephaven.updateby import emmin_tick");
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void emMinTick0Group1Col() {
-        runner.setScaleFactors(30, 25);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']))";
+        setup.factors(6, 14, 11);
+        setup.emTick0Groups("emmin_tick");
+        var q = "timed.update_by(ops=[dk])";
         runner.test("EmMinTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emMinTick1Group1Col() {
-        runner.setScaleFactors(9, 2);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        setup.factors(5, 5, 1);
+        setup.emTick1Group("emmin_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmMinTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void emMinTick2Group1Col() {
-        runner.setScaleFactors(2, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        setup.factors(2, 3, 1);
+        setup.emTick2Groups("emmin_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmMinTick- 2 Group 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
-    void emMinTick2Groups1Col() {
-        runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=emmin_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+    void emMinTick3Groups1Col() {
+        setup.factors(1, 3, 1);
+        setup.emTick3Groups("emmin_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmMinTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 

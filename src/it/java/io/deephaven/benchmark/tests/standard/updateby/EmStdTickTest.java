@@ -13,39 +13,37 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  */
 public class EmStdTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
-
-    @BeforeEach
-    void setup() {
-        runner.setRowFactor(4);
-        runner.tables("timed");
-        runner.addSetupQuery("from deephaven.updateby import emstd_tick");
-    }
+    final Setup setup = new Setup(runner);
 
     @Test
     void emStdTick0Group1Col() {
-        runner.setScaleFactors(30, 20);
-        var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']))";
+        setup.factors(6, 18, 10);
+        setup.emTick0Groups("emstd_tick");
+        var q = "timed.update_by(ops=[dk])";
         runner.test("EmStdTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void emStdTick1Group1Col() {
-        runner.setScaleFactors(9, 2);
-        var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']), by=['key1'])";
+        setup.factors(5, 5, 1);
+        setup.emTick1Group("emstd_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmStdTick- 1 Group 100 Unique Vals 1 Col", q, "key1", "num1");
     }
 
     @Test
     void emStdTick2Groups1Col() {
-        runner.setScaleFactors(2, 1);
-        var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2'])";
+        setup.factors(2, 3, 1);
+        setup.emTick2Groups("emstd_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmStdTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
     void emStdTick3Groups1Col() {
-        runner.setScaleFactors(1, 1);
-        var q = "timed.update_by(ops=emstd_tick(decay_ticks=5000,cols=['X=num1']), by=['key1','key2','key3'])";
+        setup.factors(1, 3, 1);
+        setup.emTick3Groups("emstd_tick");
+        var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmStdTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
