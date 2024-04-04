@@ -26,27 +26,23 @@ fi
 
 title () { echo; echo $1; }
 
-readarray -d "${BRANCH_DELIM}" -t splitarr <<< "${DOCKER_IMG}"
-OWNER=${splitarr[0]}
-BRANCH_NAME=${splitarr[1]}
+OWNER=$(sed 's/'"${BRANCH_DELIM}"'.*//g' <<< "${DOCKER_IMG}")
+BRANCH_NAME=$(sed 's/.*'"${BRANCH_DELIM}"'//g' <<< "${DOCKER_IMG}")
+echo "OWNER: ${OWNER}"
+echo "BRANCH: ${BRANCH_NAME}"
 
 title "-- Cloning deephaven-core --"
 cd ${GIT_DIR}
-rm -rf deephaven-core 
-git clone https://github.com/${OWNER}/deephaven-core.git
-cd deephaven-core
-git checkout ${BRANCH_NAME}
+rm -rf deephaven-core
+git clone -b ${BRANCH_NAME} --single-branch https://github.com/${OWNER}/deephaven-core.git
 
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
 rm -rf deephaven-server-docker
-git clone https://github.com/deephaven/deephaven-server-docker.git
-cd deephaven-server-docker
-git checkout main
+git clone -b main --single-branch https://github.com/${OWNER}/deephaven-server-docker.git
 
 title "-- Assembling Python Deephaven Core Server --"
 cd ${GIT_DIR}/deephaven-core
-OLD_JAVA_HOME="${JAVA_HOME}"
 export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 
 echo "org.gradle.daemon=false" >> gradle.properties
