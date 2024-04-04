@@ -39,7 +39,7 @@ git clone -b ${BRANCH_NAME} --single-branch https://github.com/${OWNER}/deephave
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
 rm -rf deephaven-server-docker
-git clone -b main --single-branch https://github.com/${OWNER}/deephaven-server-docker.git
+git clone -b main --single-branch https://github.com/deephaven/deephaven-server-docker.git
 
 title "-- Assembling Python Deephaven Core Server --"
 cd ${GIT_DIR}/deephaven-core
@@ -47,5 +47,6 @@ export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 
 echo "org.gradle.daemon=false" >> gradle.properties
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
+
 
 
