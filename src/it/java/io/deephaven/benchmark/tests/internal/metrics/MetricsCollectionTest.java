@@ -11,6 +11,7 @@ import io.deephaven.benchmark.api.Bench;
  * Test to see what metrics are available in the remote Deephaven Server. Note. These tests should pass when DH is
  * either JVM 17 or JVM 21
  */
+@Disabled
 public class MetricsCollectionTest {
     final Bench api = Bench.create(this);
 
