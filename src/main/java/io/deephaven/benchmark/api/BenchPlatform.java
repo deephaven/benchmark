@@ -116,8 +116,18 @@ public class BenchPlatform {
     private void addRunnerProfileProps(Map<String, Property> benchApiProps) {
         var origin = "test-runner";
         profileProps.forEach((k, v) -> {
-            benchApiAddProperty(benchApiProps, origin, k.toString(), v.toString());
+            var name = k.toString();
+            var value = maskSecrets(name, v.toString());
+            benchApiAddProperty(benchApiProps, origin, name, value);
         });
+    }
+
+    private String maskSecrets(String name, String value) {
+        name = name.toLowerCase();
+        if (name.contains("token") || name.contains("channel")) {
+            value = value.substring(0, Math.min(value.length(), 5)).replaceAll(".", "*");
+        }
+        return value;
     }
 
     private void addTestRunnerProps(Map<String, Property> benchApiProps) {

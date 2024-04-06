@@ -4,9 +4,9 @@ package io.deephaven.benchmark.tests.standard.updateby;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Setup for Rolling Tick and Time operations. The Window sizes for different cardinalities are designed
- * to be similar whether using tick or time, so that some level of comparison can be done. All operations
- * are defined with the same windows definitions.
+ * Setup for Rolling Tick and Time operations. The Window sizes for different cardinalities are designed to be similar
+ * whether using tick or time, so that some level of comparison can be done. All operations are defined with the same
+ * windows definitions.
  */
 class Setup {
     final StandardTestRunner runner;
@@ -76,7 +76,7 @@ class Setup {
     void rollTick3Groups(String op) {
         rollTick1Group(op);
     }
-    
+
     void emTime0Groups(String op) {
         addSetupQuery(op, "dk=${op}(ts_col='timestamp',decay_time='PT5S',cols=['X=num1'])");
     }
