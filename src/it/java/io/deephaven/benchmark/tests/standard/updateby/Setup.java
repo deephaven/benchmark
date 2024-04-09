@@ -54,8 +54,6 @@ class Setup {
     void rollTick1Group(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(cols=["Contains=num1"], rev_ticks=20, fwd_ticks=30)
-        before_row = ${op}(cols=["Before=num1"], rev_ticks=20, fwd_ticks=-10)
-        after_row = ${op}(cols=["After=num1"], rev_ticks=-10, fwd_ticks=20)
         """);
     }
 
