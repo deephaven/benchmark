@@ -17,34 +17,34 @@ public class RollingMinTimeTest {
 
     @Test
     void rollingMinTime0Group3Ops() {
-        setup.factors(2, 2, 2);
+        setup.factors(5, 3, 2);
         setup.rollTime0Groups("rolling_min_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingMinTime- 3 Ops No Groups", q, "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row])";
+        runner.test("RollingMinTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
     void rollingMinTime1Group3Ops() {
-        setup.factors(2, 2, 1);
+        setup.factors(4, 3, 1);
         setup.rollTime1Group("rolling_min_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
-        runner.test("RollingMinTime- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row], by=['key1'])";
+        runner.test("RollingMinTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
     void rollingMinTime2Groups3Ops() {
-        setup.factors(1, 2, 1);
+        setup.factors(2, 2, 1);
         setup.rollTime2Groups("rolling_min_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
-        runner.test("RollingMinTime- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
+        runner.test("RollingMinTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
     void rollingMinTime3Groups3Ops() {
-        setup.factors(1, 2, 1);
+        setup.factors(1, 3, 1);
         setup.rollTime3Groups("rolling_min_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
-        runner.test("RollingMinTime- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
+        var q = "timed.update_by(ops=[contains_row], by=['key1','key2','key3'])";
+        runner.test("RollingMinTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
                 "timestamp");
     }
 

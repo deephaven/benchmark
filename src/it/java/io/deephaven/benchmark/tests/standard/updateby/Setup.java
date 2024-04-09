@@ -24,40 +24,30 @@ class Setup {
     void rollTime0Groups(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(ts_col="timestamp",cols=["Contains=num1"],rev_time="PT2S",fwd_time="PT3S")
-        before_row = ${op}(ts_col="timestamp",cols=["Before=num1"],rev_time="PT2S",fwd_time="-PT1S")
-        after_row = ${op}(ts_col="timestamp",cols=["After=num1"],rev_time="-PT1S",fwd_time="PT2S")
         """);
     }
 
     void rollTime1Group(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(ts_col="timestamp",cols=["Contains=num1"],rev_time="PT2S",fwd_time="PT3S")
-        before_row = ${op}(ts_col="timestamp",cols=["Before=num1"],rev_time="PT2S",fwd_time="-PT1S")
-        after_row = ${op}(ts_col="timestamp",cols=["After=num1"],rev_time="-PT1S",fwd_time="PT2S")   
         """);
     }
 
     void rollTime2Groups(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(ts_col="timestamp",cols=["Contains=num1"],rev_time="PT4M",fwd_time="PT5M")
-        before_row = ${op}(ts_col="timestamp",cols=["Before=num1"],rev_time="PT3M",fwd_time="-PT1M")
-        after_row = ${op}(ts_col="timestamp",cols=["After=num1"],rev_time="-PT1M",fwd_time="PT3M")
         """);
     }
 
     void rollTime3Groups(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(ts_col="timestamp",cols=["Contains=num1"],rev_time="PT40M",fwd_time="PT50M")
-        before_row = ${op}(ts_col="timestamp",cols=["Before=num1"],rev_time="PT30M",fwd_time="-PT10M")
-        after_row = ${op}(ts_col="timestamp",cols=["After=num1"],rev_time="-PT10M",fwd_time="PT30M")
         """);
     }
 
     void rollTick0Groups(String op) {
         addSetupQuery(op, """
         contains_row = ${op}(cols=["Contains=num1"], rev_ticks=2000, fwd_ticks=3000)
-        before_row = ${op}(cols=["Before=num1"], rev_ticks=2000, fwd_ticks=-1000)
-        after_row = ${op}(cols=["After=num1"], rev_ticks=-1000, fwd_ticks=2000)
         """);
     }
 

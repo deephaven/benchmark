@@ -17,34 +17,34 @@ public class RollingGroupTimeTest {
 
     @Test
     void rollingGroupTime0Group3Ops() {
-        setup.factors(5, 2, 1);
+        setup.factors(5, 5, 3);
         setup.rollTime0Groups("rolling_group_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row])";
-        runner.test("RollingGroupTime- 3 Ops No Groups", q, "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row])";
+        runner.test("RollingGroupTime- No Groups 1 Col", q, "num1", "timestamp");
     }
 
     @Test
     void rollingGroupTime1Group3Ops() {
-        setup.factors(2, 2, 1);
+        setup.factors(4, 2, 1);
         setup.rollTime1Group("rolling_group_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1'])";
-        runner.test("RollingGroupTime- 3 Ops 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row], by=['key1'])";
+        runner.test("RollingGroupTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
     }
 
     @Test
     void rollingGroupTime2Groups3Ops() {
-        setup.factors(1, 2, 1);
+        setup.factors(2, 2, 1);
         setup.rollTime2Groups("rolling_group_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2'])";
-        runner.test("RollingGroupTime- 3 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
+        var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
+        runner.test("RollingGroupTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
     void rollingGroupTime3Groups3Ops() {
         setup.factors(1, 2, 1);
         setup.rollTime3Groups("rolling_group_time");
-        var q = "timed.update_by(ops=[contains_row, before_row, after_row], by=['key1','key2','key3'])";
-        runner.test("RollingGroupTime- 3 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
+        var q = "timed.update_by(ops=[contains_row], by=['key1','key2','key3'])";
+        runner.test("RollingGroupTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
                 "timestamp");
     }
 
