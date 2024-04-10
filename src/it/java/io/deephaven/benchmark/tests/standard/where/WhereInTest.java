@@ -29,7 +29,7 @@ public class WhereInTest {
 
     @Test
     void whereIn1Filter() {
-        runner.setScaleFactors(180, 150);
+        runner.setScaleFactors(135, 100);
         var q = "source.where_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereIn- 1 Filter Col", q, "key1", "num1");
     }

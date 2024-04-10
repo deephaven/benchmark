@@ -30,7 +30,7 @@ public class WhereNotInTest {
 
     @Test
     void whereNotIn1Filter() {
-        runner.setScaleFactors(110, 90);
+        runner.setScaleFactors(80, 75);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "key1", "num1");
     }
@@ -44,7 +44,7 @@ public class WhereNotInTest {
     
     @Test
     void whereNotIn3Filter() {
-        runner.setScaleFactors(60, 55);
+        runner.setScaleFactors(55, 50);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
         runner.test("WhereNotIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }

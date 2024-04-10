@@ -58,7 +58,7 @@ public class RollingComboTest {
         setup.factors(1, 1, 1);
         runner.addSetupQuery(noGroups);
         var q = "timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after])";
-        runner.test("RollingCombo- 6 Ops No Groups", q, "num1", "num2", "timestamp");
+        runner.test("RollingCombo- No Groups 12 Cols", q, "num1", "num2", "timestamp");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class RollingComboTest {
         var q = """
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], by=['key1']);
         """;
-        runner.test("RollingCombo- 6 Ops 1 Groups 100 Unique Vals", q, "key1", "num1", "num2", "timestamp");
+        runner.test("RollingCombo- 1 Groups 100 Unique Vals", q, "key1", "num1", "num2", "timestamp");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class RollingComboTest {
         timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
             by=['key1','key2']);
         """;
-        runner.test("RollingCombo- 6 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
+        runner.test("RollingCombo- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
                 "timestamp");
     }
 
@@ -91,7 +91,7 @@ public class RollingComboTest {
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], 
             by=['key1','key2','key3']);
         """;
-        runner.test("RollingCombo- 6 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "num2",
+        runner.test("RollingCombo- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "num2",
                 "timestamp");
     }
 
@@ -104,7 +104,7 @@ public class RollingComboTest {
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], 
             by=['key1','key2','key4']);
         """;
-        runner.test("RollingCombo- 6 Ops 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
+        runner.test("RollingCombo- 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
                 "timestamp");
     }
 

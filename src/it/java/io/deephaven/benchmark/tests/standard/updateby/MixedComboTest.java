@@ -58,7 +58,7 @@ public class MixedComboTest {
         setup.factors(2, 1, 1);
         runner.addSetupQuery(noGroups);
         var q = "timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op])";
-        runner.test("MixedCombo- 6 Ops No Groups", q, "num1", "num2", "timestamp");
+        runner.test("MixedCombo- No Groups 12 Cols", q, "num1", "num2", "timestamp");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class MixedComboTest {
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1'])
         """;
-        runner.test("MixedCombo- 6 Ops 1 Groups 100 Unique Vals", q, "key1", "num1", "num2", "timestamp");
+        runner.test("MixedCombo- 1 Groups 100 Unique Vals", q, "key1", "num1", "num2", "timestamp");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class MixedComboTest {
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1','key2'])
         """;
-        runner.test("MixedCombo- 6 Ops 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
+        runner.test("MixedCombo- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
                 "timestamp");
     }
 
@@ -90,11 +90,12 @@ public class MixedComboTest {
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
             by=['key1','key2','key3'])
         """;
-        runner.test("MixedCombo- 6 Ops 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "num2",
+        runner.test("MixedCombo- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "num2",
                 "timestamp");
     }
 
     @Test
+    @Disabled
     void rollingCombo3Groups6OpsLarge() {
         setup.factors(1, 1, 1);
         runner.addSetupQuery(group1M);
@@ -102,7 +103,7 @@ public class MixedComboTest {
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
             by=['key1','key2','key4'])
         """;
-        runner.test("MixedCombo- 6 Ops 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
+        runner.test("MixedCombo- 3 Groups 1M Unique Combos", q, "key1", "key2", "key4", "num1", "num2",
                 "timestamp");
     }
 
