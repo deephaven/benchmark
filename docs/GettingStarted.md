@@ -24,8 +24,6 @@ and setup tips.
 
 For Benchmark setup, the following docker-compose.yml file is useful.
 ````
-version: "3.4"
-
 services:
   deephaven:
     image: ghcr.io/deephaven/server:edge
