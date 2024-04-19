@@ -95,7 +95,7 @@ public class UserFormulaTest {
 
 
     @Test
-    void udfDoubleArrasyToDoubleNumpyHints() {
+    void udfDoubleArrayToDoubleNumpyHints() {
         var setup = """
         def f(arr: npt.NDArray[np.float64]) -> np.float64:
             return arr[0]
