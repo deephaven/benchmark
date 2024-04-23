@@ -14,7 +14,7 @@ class ParquetMultiColTest {
 
     @BeforeEach
     void setup() {
-        runner.setScaleFactors(3, 3);
+        runner.setScaleFactors(3, 2);
     }
 
     @Test
