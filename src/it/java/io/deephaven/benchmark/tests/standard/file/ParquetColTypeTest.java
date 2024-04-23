@@ -13,28 +13,28 @@ class ParquetColTypeTest {
     @Test
     @Order(1)
     void writeThreeIntegralCols() {
-        runner.setScaleFactors(5, 5);
+        runner.setScaleFactors(5, 15);
         runner.runParquetWriteTest("ParquetWrite- 3 Long Cols -Static", "NONE", "short10K", "int10K", "long10K");
     }
 
     @Test
     @Order(2)
     void readThreeIntegralCols() {
-        runner.setScaleFactors(5, 5);
+        runner.setScaleFactors(5, 15);
         runner.runParquetReadTest("ParquetRead- 3 Long Cols -Static");
     }
 
     @Test
     @Order(3)
     void writeOneStringCol() {
-        runner.setScaleFactors(5, 10);
+        runner.setScaleFactors(5, 25);
         runner.runParquetWriteTest("ParquetWrite- 1 String Col -Static", "NONE", "str10K");
     }
 
     @Test
     @Order(4)
     void readOneStringCol() {
-        runner.setScaleFactors(5, 10);
+        runner.setScaleFactors(5, 25);
         runner.runParquetReadTest("ParquetRead- 1 String Col -Static");
     }
 
@@ -83,28 +83,28 @@ class ParquetColTypeTest {
     @Test
     @Order(11)
     void writeOneInt5ArrayCol() {
-        runner.setScaleFactors(2, 10);
+        runner.setScaleFactors(2, 20);
         runner.runParquetWriteTest("ParquetWrite- 1 Array Col of 5 Ints -Static", "NONE", "intArr5");
     }
 
     @Test
     @Order(12)
     void readOneInt5ArrayCol() {
-        runner.setScaleFactors(2, 10);
+        runner.setScaleFactors(2, 20);
         runner.runParquetReadTest("ParquetRead- 1 Array Col of 5 Ints -Static");
     }
 
     @Test
     @Order(13)
     void writeOneInt5VectorCol() {
-        runner.setScaleFactors(2, 10);
+        runner.setScaleFactors(2, 16);
         runner.runParquetWriteTest("ParquetWrite- 1 Vector Col of 5 Ints -Static", "NONE", "intVec5");
     }
 
     @Test
     @Order(14)
     void readOneInt5VectorCol() {
-        runner.setScaleFactors(2, 10);
+        runner.setScaleFactors(2, 16);
         runner.runParquetReadTest("ParquetRead- 1 Vector Col of 5 Ints -Static");
     }
 
