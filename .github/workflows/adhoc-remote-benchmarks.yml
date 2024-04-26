@@ -51,7 +51,7 @@ on:
        - runlength
 
 jobs:
-  process-release-benchmarks:
+  process-adhoc-benchmarks:
     if: ${{github.repository_owner != 'deephaven'}}
     uses: ./.github/workflows/remote-benchmarks.yml
     with:

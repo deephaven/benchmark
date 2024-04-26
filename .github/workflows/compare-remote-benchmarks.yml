@@ -15,7 +15,7 @@ on:
        type: string
 
 jobs:
-  process-release-benchmarks:
+  process-compare-benchmarks:
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: compare
