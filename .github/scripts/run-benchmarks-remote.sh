@@ -7,8 +7,8 @@ set -o nounset
 # Run benchmarks on the remote side
 # Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
-if [[ $# != 5 ]]; then
-  echo "$0: Missing run type, test package, test regex, row count, or distribution argument"
+if [[ $# != 6 ]]; then
+  echo "$0: Missing run type, test package, test regex, row count, distribution, or iterations argument"
   exit 1
 fi
 
@@ -17,6 +17,7 @@ TEST_PACKAGE=$2
 TEST_PATTERN="$3"
 ROW_COUNT=$4
 DISTRIB=$5
+ITERATIONS=$6
 HOST=`hostname`
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
@@ -41,7 +42,11 @@ sleep 10
 title "-- Running Benchmarks --"
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
-java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+
+for i in `seq 1 ${ITERATIONS}`
+do
+  java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+done
 
 title "-- Getting Docker Logs --"
 mkdir -p ${RUN_DIR}/logs

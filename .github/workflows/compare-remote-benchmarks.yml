@@ -23,6 +23,7 @@ jobs:
       run_label: ""
       test_package: "io.deephaven.benchmark.tests.compare"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
+      test_iterations: 1
       scale_row_count: 70000000
       distribution: random
     secrets: inherit

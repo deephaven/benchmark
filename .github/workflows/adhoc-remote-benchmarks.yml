@@ -29,6 +29,11 @@ on:
        required: true
        default: '^.*[.]MixedCombo.*Test.*$'
        type: string
+     test_iterations:
+       description: 'Benchmark Iterations'
+       required: true
+       default: '1'
+       type: string
      scale_row_count:
        description: 'Benchmark Scale Row Count'
        required: true
@@ -55,6 +60,7 @@ jobs:
       run_label: ${{ inputs.run_label }}
       test_package: ${{ inputs.test_package }}
       test_class_regex: ${{ inputs.test_class_regex }}
+      test_iterations: ${{ inputs.test_iterations }}
       scale_row_count: ${{ inputs.scale_row_count }}
       distribution: ${{ inputs.distribution }}
     secrets: inherit
