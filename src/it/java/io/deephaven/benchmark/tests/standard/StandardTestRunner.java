@@ -144,17 +144,21 @@ final public class StandardTestRunner {
      * @param loadColumns columns to load from the generated parquet file
      */
     public void test(String name, long maxExpectedRowCount, String operation, String... loadColumns) {
-        var read = getReadOperation(staticFactor, loadColumns);
-        var result = runStaticTest(name, operation, read, loadColumns);
-        var rcount = result.resultRowCount();
-        var ecount = getMaxExpectedRowCount(maxExpectedRowCount, staticFactor);
-        assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
+        if (staticFactor > 0) {
+            var read = getReadOperation(staticFactor, loadColumns);
+            var result = runStaticTest(name, operation, read, loadColumns);
+            var rcount = result.resultRowCount();
+            var ecount = getMaxExpectedRowCount(maxExpectedRowCount, staticFactor);
+            assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Static row count: " + rcount);
+        }
 
-        read = getReadOperation(incFactor, loadColumns);
-        result = runIncTest(name, operation, read, loadColumns);
-        rcount = result.resultRowCount();
-        ecount = getMaxExpectedRowCount(maxExpectedRowCount, incFactor);
-        assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Inc row count: " + rcount);
+        if (incFactor > 0) {
+            var read = getReadOperation(incFactor, loadColumns);
+            var result = runIncTest(name, operation, read, loadColumns);
+            var rcount = result.resultRowCount();
+            var ecount = getMaxExpectedRowCount(maxExpectedRowCount, incFactor);
+            assertTrue(rcount > 0 && rcount <= ecount, "Wrong result Inc row count: " + rcount);
+        }
     }
 
     long getMaxExpectedRowCount(long expectedRowCount, long scaleFactor) {
