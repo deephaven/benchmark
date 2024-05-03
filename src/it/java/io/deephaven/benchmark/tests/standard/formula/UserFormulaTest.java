@@ -21,7 +21,7 @@ public class UserFormulaTest {
     void setup() {
         runner.setRowFactor(1);
         runner.tables("source");
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(1, 0);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoublePythonHints() {
-        runner.setScaleFactors(3, 3);
+        runner.setScaleFactors(3, 0);
         var setup = """
         def f(num1: float, num2: float) -> float:
             return num1 + num2
@@ -83,7 +83,6 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoublePythonHintsNoVectorize() {
-        runner.setScaleFactors(1, 1);
         var setup = """
         def f(num1: float, num2: float) -> float:
             return num1 + num2
