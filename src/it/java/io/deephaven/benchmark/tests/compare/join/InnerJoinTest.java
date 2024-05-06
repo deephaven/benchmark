@@ -23,7 +23,7 @@ public class InnerJoinTest {
     @Test
     @Order(1)
     public void deephavenInnerJoin() {
-        runner.initDeephaven(2, "source", "right", "int1M", "str250", "r_int1M", "r_str250");
+        runner.initDeephaven(4, "source", "right", "int1M", "str250", "r_int1M", "r_str250");
         var setup = "from deephaven.parquet import read";
         var op = """
         source = read('/data/source.parquet').select()
