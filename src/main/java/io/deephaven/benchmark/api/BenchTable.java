@@ -160,8 +160,10 @@ final public class BenchTable implements Closeable {
     /**
      * Generate the table synchronously to a parquet file in the engine's data directory. If a parquet file already
      * exists in the Deephaven data directory that matches this table definition, use it and skip generation.
+     * 
+     * @return true if file was generated, otherwise false
      */
-    public void generateParquet() {
+    public boolean generateParquet() {
         columns.setDefaultDistribution(getDefaultDistro());
         String q = replaceTableAndGeneratorFields(useExistingParquetQuery);
 
@@ -172,7 +174,7 @@ final public class BenchTable implements Closeable {
 
         if (usedExistingParquet.get()) {
             Log.info("Table '%s' with %s rows already exists. Skipping", tableName, getRowCount());
-            return;
+            return false;
         }
         Log.info("Generating table '%s' with %s rows", tableName, getRowCount());
         long beginTime = System.currentTimeMillis();
@@ -188,6 +190,7 @@ final public class BenchTable implements Closeable {
         bench.query(q).execute();
 
         Log.info("DH Write Table Duration: " + (System.currentTimeMillis() - beginTime));
+        return true;
     }
 
     /**

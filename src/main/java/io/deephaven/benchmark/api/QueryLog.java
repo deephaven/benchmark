@@ -46,7 +46,9 @@ class QueryLog implements Closeable {
         if (!Files.exists(logFile)) {
             write("# Test Class - " + testClass.getName(), 2);
         }
-        write("## Test - " + name, 2);
+        var label = name.startsWith("#") ? "Setup" : "Test";
+        name = name.replaceAll("^[#]", "").trim();
+        write("## " + label + " - " + name, 2);
         for (int i = 0, n = queries.size(); i < n; i++) {
             write("### Query " + (i + 1), 1);
             write("````", 1);
@@ -57,7 +59,10 @@ class QueryLog implements Closeable {
 
     /**
      * Set the name of the current test. The query log records queries for a test class and denotes queries according to
-     * user-supplied test names
+     * user-supplied test names.
+     * <p/>
+     * Note: The special character "#" is used to denote that this name is not a test name. This log uses it to denote
+     * test setup, while other file handlers, like <code>BenchResult</code>, treat it as "skip recording results"
      * 
      * @param name the name of the current section (ex. test name)
      */

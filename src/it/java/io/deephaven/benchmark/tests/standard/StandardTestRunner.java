@@ -340,23 +340,24 @@ final public class StandardTestRunner {
     }
 
     void generateTable(String name, String distribution) {
-        switch (name) {
-            case "source":
-                generateSourceTable(distribution);
-                break;
-            case "right":
-                generateRightTable(distribution);
-                break;
-            case "timed":
-                generateTimedTable(distribution);
-                break;
-            default:
-                throw new RuntimeException("Undefined table name: " + name);
+        var isNew = switch (name) {
+            case "source" -> generateSourceTable(distribution);
+            case "right" -> generateRightTable(distribution);
+            case "timed" -> generateTimedTable(distribution);
+            default -> throw new RuntimeException("Undefined table name: " + name);
+        };
+        if (isNew) {
+            if (!api.isClosed()) {
+                api.setName("# Data Table Generation " + name);
+                addDockerLog(api);
+                api.close();
+            }
+            initialize(testInst);
         }
     }
 
-    void generateSourceTable(String distribution) {
-        api.table("source")
+    boolean generateSourceTable(String distribution) {
+        return api.table("source")
                 .add("num1", "double", "[0-4]", distribution)
                 .add("num2", "double", "[1-10]", distribution)
                 .add("key1", "string", "[1-100]", distribution)
@@ -368,14 +369,14 @@ final public class StandardTestRunner {
                 .generateParquet();
     }
 
-    void generateRightTable(String distribution) {
+    boolean generateRightTable(String distribution) {
         if (distribution == null && api().property("default.data.distribution", "").equals("descending")) {
             distribution = "descending";
         } else {
             distribution = "ascending";
         }
         supportTables.add("right");
-        api.table("right")
+        return api.table("right")
                 .add("r_key1", "string", "[1-100]", distribution)
                 .add("r_key2", "string", "[1-101]", distribution)
                 .add("r_wild", "string", "[1-10000]", distribution)
@@ -384,10 +385,10 @@ final public class StandardTestRunner {
                 .generateParquet();
     }
 
-    void generateTimedTable(String distribution) {
+    boolean generateTimedTable(String distribution) {
         long minTime = 1676557157537L;
         long maxTime = minTime + scaleRowCount - 1;
-        api.table("timed")
+        return api.table("timed")
                 .add("timestamp", "timestamp-millis", "[" + minTime + "-" + maxTime + "]", "ascending")
                 .add("num1", "double", "[0-4]", distribution)
                 .add("num2", "double", "[1-10]", distribution)

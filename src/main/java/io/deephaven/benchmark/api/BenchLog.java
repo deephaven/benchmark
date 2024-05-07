@@ -53,11 +53,14 @@ final public class BenchLog {
 
     /**
      * Set the name of the current test. This will be used at the beginning and end of the test's log info.
+     * <p/>
+     * Note: The symbol "#" is used is some components like <code>QueryLog</code> to treat with special behavior. In
+     * this log it is removed and treated like any other test heading.
      * 
      * @param name the name of the current log section (i.e. test name)
      */
     void setName(String name) {
-        this.name = name;
+        this.name = name.replaceAll("^[#]", "").trim();
     }
 
     private void write(String text) {
