@@ -30,7 +30,7 @@ public class InlineFormulaTest {
 
     @Test
     void select1Calc2ColsFormula() {
-        setup(6, 15, 8);
+        setup(6, 14, 8);
         var q = "source.select(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
         runner.test("Select-Sum- 1 Calc Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -44,7 +44,7 @@ public class InlineFormulaTest {
 
     @Test
     void update1Calc1ColsFormula() {
-        setup(6, 30, 18);
+        setup(6, 32, 20);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("Update-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
@@ -65,7 +65,7 @@ public class InlineFormulaTest {
 
     @Test
     void view1Calc1ColFormula() {
-        setup(6, 27, 25);
+        setup(6, 32, 30);
         var q = "source.view(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("View-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
