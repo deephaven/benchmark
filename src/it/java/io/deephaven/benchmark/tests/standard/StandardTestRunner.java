@@ -340,12 +340,7 @@ final public class StandardTestRunner {
     }
 
     void generateTable(String name, String distribution) {
-        var isNew = switch (name) {
-            case "source" -> generateSourceTable(distribution);
-            case "right" -> generateRightTable(distribution);
-            case "timed" -> generateTimedTable(distribution);
-            default -> throw new RuntimeException("Undefined table name: " + name);
-        };
+        var isNew = generateNamedTable(name, distribution);
         if (isNew) {
             if (!api.isClosed()) {
                 api.setName("# Data Table Generation " + name);
@@ -353,7 +348,18 @@ final public class StandardTestRunner {
                 api.close();
             }
             initialize(testInst);
+            // This should not necessary. Why does DH need it?
+            generateNamedTable(name, distribution);
         }
+    }
+
+    boolean generateNamedTable(String name, String distribution) {
+        return switch (name) {
+            case "source" -> generateSourceTable(distribution);
+            case "right" -> generateRightTable(distribution);
+            case "timed" -> generateTimedTable(distribution);
+            default -> throw new RuntimeException("Undefined table name: " + name);
+        };
     }
 
     boolean generateSourceTable(String distribution) {
