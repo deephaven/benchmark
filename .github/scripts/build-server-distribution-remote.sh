@@ -34,7 +34,10 @@ echo "BRANCH: ${BRANCH_NAME}"
 title "-- Cloning deephaven-core --"
 cd ${GIT_DIR}
 rm -rf deephaven-core
-git clone -b ${BRANCH_NAME} --single-branch https://github.com/${OWNER}/deephaven-core.git
+# Do not use --single-branch here, because it does not allow checkout by commit hash 
+git clone https://github.com/${OWNER}/deephaven-core.git
+cd deephaven-core
+git checkout ${BRANCH_NAME}
 
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
