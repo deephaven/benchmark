@@ -173,7 +173,7 @@ final public class BenchTable implements Closeable {
         }).execute();
 
         if (usedExistingParquet.get()) {
-            Log.info("Table '%s' with %s rows already exists. Skipping", tableName, getRowCount());
+            Log.info("Using existing table '%s' with %s rows", tableName, getRowCount());
             return false;
         }
         Log.info("Generating table '%s' with %s rows", tableName, getRowCount());
