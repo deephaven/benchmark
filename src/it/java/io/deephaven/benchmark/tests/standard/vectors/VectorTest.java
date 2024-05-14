@@ -14,20 +14,20 @@ public class VectorTest {
     void vectorAggDenseData() {
         runner.setRowFactor(6);
         runner.table("source", "linearConv");
-        runner.setScaleFactors(10, 0);  // 8
+        runner.setScaleFactors(10, 8);
         runner.addSetupQuery("source = source.group_by(['key5'])");
         var q = "source.update(['Calc=avg(num2)+max(num2)-min(num2)+std(num2)-median(num2)'])";
         runner.test("Vector- 5 Calcs 1M Groups Dense Data", q, "key5", "num2");
     }
 
-//    @Test
-//    void vectorAggSparseData() {
-//        runner.setRowFactor(6);
-//        runner.table("source", "ascending");
-//        runner.setScaleFactors(3, 2);
-//        runner.addSetupQuery("source = source.group_by(['key5'])");
-//        var q = "source.update(['Calc=avg(num2)+max(num2)-min(num2)+std(num2)-median(num2)'])";
-//        runner.test("Vector- 5 Calcs 1M Groups Sparse Data", q, "key5", "num2");
-//    }
+    @Test
+    void vectorAggSparseData() {
+        runner.setRowFactor(6);
+        runner.table("source", "ascending");
+        runner.setScaleFactors(3, 2);
+        runner.addSetupQuery("source = source.group_by(['key5'])");
+        var q = "source.update(['Calc=avg(num2)+max(num2)-min(num2)+std(num2)-median(num2)'])";
+        runner.test("Vector- 5 Calcs 1M Groups Sparse Data", q, "key5", "num2");
+    }
 
 }
