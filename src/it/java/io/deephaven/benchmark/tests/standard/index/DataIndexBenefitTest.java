@@ -24,7 +24,7 @@ public class DataIndexBenefitTest {
         from deephaven.experimental.data_index import data_index
         QueryTable = jpy.get_type('io.deephaven.engine.table.impl.QueryTable')
         QueryTable.setMemoizeResults(False)
-        where_filter = empty_table(1000).update([
+        filter_table = empty_table(1000).update([
             'set1=``+(ii % 10)', 'set2=``+(ii % 11)', 'set3=(int)(ii % 8)',
         ])
         """;
@@ -37,7 +37,7 @@ public class DataIndexBenefitTest {
         setup(1, 250, 225);
 
         var op = """
-        source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
+        source.where_in(filter_table, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
         QueryTable.setMemoizeResults(True)
         """;
         runner.test("DataIndex-WhereIn No Index 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
@@ -51,13 +51,13 @@ public class DataIndexBenefitTest {
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
         source_idx.table
-        where_filter_idx = data_index(where_filter, ['set1','set2','set3'])
-        where_filter_idx.table
+        filter_table_idx = data_index(filter_table, ['set1','set2','set3'])
+        filter_table_idx.table
         """;
         runner.addPreOpQuery(preOp);
 
         var op = """
-        source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
+        source.where_in(filter_table, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
         QueryTable.setMemoizeResults(True)
         """;
         runner.test("DataIndex-WhereIn Indexed 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
@@ -71,13 +71,13 @@ public class DataIndexBenefitTest {
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
         source_idx.table
-        where_filter_idx = data_index(where_filter, ['set1','set2','set3'])
-        where_filter_idx.table
+        filter_table_idx = data_index(filter_table, ['set1','set2','set3'])
+        filter_table_idx.table
         """;
         runner.addPreOpQuery(preOp);
 
         var op = """
-        source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
+        source.where_in(filter_table, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
         QueryTable.setMemoizeResults(True)
         """;
         runner.test("DataIndex-WhereIn Indexed 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
