@@ -7,16 +7,17 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for using the <code>data_index</code> and assessing its performance benefit to operations where it
- * applies
+ * applies. Faster benchmarks like WhereIn will be meaningful only in their comparisons to the non-index version of the
+ * benchmark, since Benchmarks that run in a fraction of a second may not be meaningful for night-to-night comparison.
+ * The cost of loading the data index prevents scaling these faster benchmarks to meaningful operational run times.
  */
 @TestMethodOrder(OrderAnnotation.class)
 public class DataIndexBenefitTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int rowFactor, int staticFactor, int incFactor, String... groupCols) {
+    void setup(int rowFactor, int staticFactor, int incFactor) {
         runner.setRowFactor(rowFactor);
-        runner.tables("right");
-        runner.groupedTable("source", groupCols);
+        runner.tables("source", "right");
         runner.setScaleFactors(staticFactor, incFactor);
 
         var setup = """
@@ -45,11 +46,13 @@ public class DataIndexBenefitTest {
     @Test
     @Order(2)
     void dataIndexWhereInIndexedStatic() {
-        setup(1, 48, 0, "key1", "key2", "key4");
+        setup(1, 8, 0);
 
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
         source_idx.table
+        where_filter_idx = data_index(where_filter, ['set1','set2','set3'])
+        where_filter_idx.table
         """;
         runner.addPreOpQuery(preOp);
 
@@ -68,6 +71,8 @@ public class DataIndexBenefitTest {
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
         source_idx.table
+        where_filter_idx = data_index(where_filter, ['set1','set2','set3'])
+        where_filter_idx.table
         """;
         runner.addPreOpQuery(preOp);
 
@@ -93,7 +98,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(5)
     void dataIndexAvgByIndexed() {
-        setup(1, 40, 0, "key1", "key2", "key4");
+        setup(1, 8, 0);
 
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -124,7 +129,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(7)
     void dataIndexSortIndexed() {
-        setup(1, 45, 0, "key1", "key2", "key4");
+        setup(1, 8, 0);
 
         var setup = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -154,7 +159,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(9)
     void dataIndexAsOfJoinIndexed() {
-        setup(1, 20, 0, "key1", "key2", "key4");
+        setup(1, 4, 0);
 
         var setup = """
         source_idx = data_index(source, ['key1','key2','key4'])

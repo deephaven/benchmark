@@ -9,12 +9,12 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for using the <code>data_index</code> and assessing its performance cost
  */
 @TestMethodOrder(OrderAnnotation.class)
-public class DataIndexCostTest {
+public class DataIndexLoadTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int rowFactor, int staticFactor, int incFactor, String... groupCols) {
+    void setup(int rowFactor, int staticFactor, int incFactor) {
         runner.setRowFactor(rowFactor);
-        runner.groupedTable("source", groupCols);
+        runner.tables("source");
         runner.setScaleFactors(staticFactor, incFactor);
 
         var setup = """
@@ -27,7 +27,7 @@ public class DataIndexCostTest {
 
     @Test
     @Order(1)
-    void dataIndexCostStatic() {
+    void dataIndexLoadStatic() {
         setup(1, 3, 0);
 
         var op = """
@@ -35,12 +35,12 @@ public class DataIndexCostTest {
         result = source_idx.table
         QueryTable.setMemoizeResults(True)
         """;
-        runner.test("DataIndex- Index Cost Raw 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
+        runner.test("DataIndex- Index Load 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
     }
 
     @Test
     @Order(2)
-    void dataIndexCostInc() {
+    void dataIndexLoadInc() {
         setup(1, 0, 2);
 
         var setup = """
@@ -53,38 +53,7 @@ public class DataIndexCostTest {
         result = source     # Nothing to do to the source
         QueryTable.setMemoizeResults(True)
         """;
-        runner.test("DataIndex- Index Cost Raw 1M Unique Combos", op, "num1", "key1", "key2", "key4");
-    }
-
-    @Test
-    @Order(3)
-    void dataIndexGroupedCostStatic() {
-        setup(1, 17, 0, "key1", "key2", "key4");
-
-        var op = """
-        source_idx = data_index(source, ['key1','key2','key4'])
-        result = source_idx.table
-        QueryTable.setMemoizeResults(True)
-        """;
-        runner.test("DataIndex- Index Cost Grouped 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
-    }
-
-    @Test
-    @Order(4)
-    void dataIndexGroupedCostInc() {
-        setup(1, 0, 12, "key1", "key2", "key4");
-
-        var setup = """
-        source_idx = data_index(source, ['key1','key2','key4'])
-        source_idx.table
-        """;
-        runner.addPreOpQuery(setup);
-
-        var op = """
-        result = source     # Nothing to do to the source
-        QueryTable.setMemoizeResults(True)
-        """;
-        runner.test("DataIndex- Index Cost Grouped 1M Unique Combos", op, "num1", "key1", "key2", "key4");
+        runner.test("DataIndex- Index Load 1M Unique Combos", op, "num1", "key1", "key2", "key4");
     }
 
 }
