@@ -14,14 +14,14 @@ class ParquetColTypeTest {
     @Order(1)
     void writeThreeIntegralCols() {
         runner.setScaleFactors(5, 15);
-        runner.runParquetWriteTest("ParquetWrite- 3 Long Cols -Static", "NONE", "short10K", "int10K", "long10K");
+        runner.runParquetWriteTest("ParquetWrite- 3 Integral Cols -Static", "NONE", "short10K", "int10K", "long10K");
     }
 
     @Test
     @Order(2)
     void readThreeIntegralCols() {
         runner.setScaleFactors(5, 15);
-        runner.runParquetReadTest("ParquetRead- 3 Long Cols -Static");
+        runner.runParquetReadTest("ParquetRead- 3 Integral Cols -Static");
     }
 
     @Test
