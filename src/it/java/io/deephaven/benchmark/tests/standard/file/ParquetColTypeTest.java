@@ -12,16 +12,17 @@ class ParquetColTypeTest {
 
     @Test
     @Order(1)
-    void writeThreeIntegralCols() {
-        runner.setScaleFactors(5, 15);
-        runner.runParquetWriteTest("ParquetWrite- 3 Integral Cols -Static", "NONE", "short10K", "int10K", "long10K");
+    void writeFourIntegralCols() {
+        runner.setScaleFactors(5, 12);
+        runner.runParquetWriteTest("ParquetWrite- 4 Integral Cols -Static", "NONE", "byte100", "short10K", "int10K",
+                "long10K");
     }
 
     @Test
     @Order(2)
-    void readThreeIntegralCols() {
-        runner.setScaleFactors(5, 15);
-        runner.runParquetReadTest("ParquetRead- 3 Integral Cols -Static");
+    void readFourIntegralCols() {
+        runner.setScaleFactors(5, 12);
+        runner.runParquetReadTest("ParquetRead- 4 Integral Cols -Static");
     }
 
     @Test
