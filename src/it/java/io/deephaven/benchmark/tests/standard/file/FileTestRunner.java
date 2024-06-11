@@ -214,7 +214,7 @@ class FileTestRunner {
         return switch (columnName) {
             case "str10K" -> "dht.string";
             case "long10K" -> "dht.long";
-            case "int10K" -> "dht.int_";
+            case "int10K" -> "dht.int64";
             case "short10K" -> "dht.short";
             case "bigDec10K" -> "dht.BigDecimal";
             case "intArr5" -> "dht.int_array";
