@@ -194,6 +194,7 @@ class FileTestRunner {
             case "long10K" -> "(ii % 10000)";
             case "int10K" -> "((int)(ii % 10000))";
             case "short10K" -> "((short)(ii % 10000))";
+            case "byte100" -> "((byte)(ii % 100))";
             case "bigDec10K" -> "java.math.BigDecimal.valueOf(ii % 10000)";
             case "intArr5" -> array5;
             case "intVec5" -> "vec(" + array5 + ")";
@@ -214,8 +215,9 @@ class FileTestRunner {
         return switch (columnName) {
             case "str10K" -> "dht.string";
             case "long10K" -> "dht.long";
-            case "int10K" -> "dht.long";
+            case "int10K" -> "dht.int32";
             case "short10K" -> "dht.short";
+            case "byte100" -> "dht.byte";
             case "bigDec10K" -> "dht.BigDecimal";
             case "intArr5" -> "dht.int_array";
             case "intVec5" -> "dht.int_array";

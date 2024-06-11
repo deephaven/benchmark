@@ -12,16 +12,16 @@ class CsvColTypeTest {
 
     @Test
     @Order(1)
-    void writeThreeIntegralCols() {
-        runner.setScaleFactors(5, 3);
-        runner.runCsvWriteTest("CsvWrite- 3 Integral Cols -Static", "short10K", "int10K", "long10K");
+    void writeFourIntegralCols() {
+        runner.setScaleFactors(5, 2);
+        runner.runCsvWriteTest("CsvWrite- 4 Integral Cols -Static", "byte100", "short10K", "int10K", "long10K");
     }
 
     @Test
     @Order(2)
-    void readThreeIntegralCols() {
-        runner.setScaleFactors(5, 3);
-        runner.runCsvReadTest("CsvRead- 3 Integral Cols -Static", "short10K", "int10K", "long10K");
+    void readFourIntegralCols() {
+        runner.setScaleFactors(5, 2);
+        runner.runCsvReadTest("CsvRead- 4 Integral Cols -Static", "byte100", "short10K", "int10K", "long10K");
     }
 
     @Test
