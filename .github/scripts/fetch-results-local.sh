@@ -25,10 +25,9 @@ scp -r ${USER}@${HOST}:${RUN_DIR}/results .
 scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
 scp -r ${USER}@${HOST}:${RUN_DIR}/*.jar .
 
-# If the RUN_TYPE is adhoc, userfy the destination directory
+# Move the results into the destination directory
 DEST_DIR=${RUN_TYPE}/${ACTOR}/${RUN_LABEL}
 mkdir -p ${DEST_DIR}
-
 rm -rf ${DEST_DIR}
 mv results/ ${DEST_DIR}/
 

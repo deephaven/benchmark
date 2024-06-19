@@ -14,5 +14,3 @@ for i in $(bc <<< "obase=62; ${DECNUM}"); do
   echo -n ${BASE62[$(( 10#$i ))]}
 done && echo
 
-SCRIPT_DIR=$(temp=$(realpath "$0") && dirname "$temp")
-echo $SCRIPT_DIR
