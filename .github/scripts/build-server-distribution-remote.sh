@@ -7,6 +7,11 @@ set -o pipefail
 # The supplied argument can be an image name or <owner>::<branch>
 # Ensure that the artifacts and Deephaven version are available in standard directories
 
+if [[ $# != 1 ]]; then
+  echo "$0: Missing docker image/branch argument"
+  exit 1
+fi
+
 HOST=`hostname`
 GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
@@ -16,11 +21,6 @@ BUILD_JAVA=temurin-11-jdk-amd64
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
-  exit 1
-fi
-
-if [[ $# != 1 ]]; then
-  echo "$0: Missing docker image/branch argument"
   exit 1
 fi
 

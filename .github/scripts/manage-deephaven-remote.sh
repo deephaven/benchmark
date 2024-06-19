@@ -7,6 +7,11 @@ set -o pipefail
 # The directives argument can be start or stop
 # The supplied image argument can be an image name or <owner>::<branch>
 
+if [[ $# != 2 ]]; then
+  echo "$0: Missing docker directive or image/branch argument"
+  exit 1
+fi
+
 HOST=`hostname`
 DEEPHAVEN_DIR=/root/deephaven
 DIRECTIVE=$1
@@ -15,11 +20,6 @@ BRANCH_DELIM="::"
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
-  exit 1
-fi
-
-if [[ $# != 2 ]]; then
-  echo "$0: Missing docker directive or image/branch argument"
   exit 1
 fi
 

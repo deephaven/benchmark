@@ -8,15 +8,15 @@ set -o nounset
 # local working directory. Also, this script wraps arguments provided for the
 # remote scripts in single-quotes to avoid syntax errors.
 
-HOST=$1
-USER=$2
-SCRIPT_DIR=$3
-SCRIPT_NAME=$4
-
 if [[ $# -lt 4 ]]; then
 	echo "$0: Missing host, user, script dir, or script name argument"
 	exit 1
 fi
+
+HOST=$1
+USER=$2
+SCRIPT_DIR=$3
+SCRIPT_NAME=$4
 
 args=()
 for i in ${@:5}; do

@@ -6,6 +6,7 @@ set -o nounset
 
 # Run queries that publish a secret slack channel. Queries operation exclusively
 # the deephaven-benchmark GCloud bucket
+
 if [[ $# != 3 ]]; then
   echo "$0: Missing run type or slack-channel or slack-uri arguments"
   exit 1

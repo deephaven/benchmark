@@ -6,8 +6,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for the whereNotIn table operation. Filters rows of data from the source table where the rows match
- * column values in the filter table.
- * Note: These benchmarks do the converse of the ones in WhereInTest
+ * column values in the filter table. Note: These benchmarks do the converse of the ones in WhereInTest
  */
 public class WhereNotInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
@@ -29,6 +28,7 @@ public class WhereNotInTest {
     }
 
     @Test
+    @Tag("Iterate")
     void whereNotIn1Filter() {
         runner.setScaleFactors(80, 75);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1'])";
@@ -36,12 +36,13 @@ public class WhereNotInTest {
     }
 
     @Test
+    @Tag("Iterate")
     void whereNotIn2Filter() {
         runner.setScaleFactors(75, 65);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
         runner.test("WhereNotIn- 2 Filter Cols", q, "key1", "key2", "num1");
     }
-    
+
     @Test
     void whereNotIn3Filter() {
         runner.setScaleFactors(55, 50);

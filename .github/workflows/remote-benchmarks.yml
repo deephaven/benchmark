@@ -95,7 +95,7 @@ jobs:
         
     - name: Fetch Benchmark Results and Prepare for Upload
       run: |
-        ${SD}/fetch-results-local.sh ${HOST} ${USER} ${RUN_TYPE} "${ACTOR}" "${RUN_LABEL}"
+        ${SD}/fetch-results-local.sh ${HOST} ${USER} ${SD} ${RUN_TYPE} "${ACTOR}" "${RUN_LABEL}"
 
     - name: Authorize GCloud Credentials
       uses: google-github-actions/auth@v1

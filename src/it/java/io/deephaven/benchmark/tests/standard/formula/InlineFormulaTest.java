@@ -57,6 +57,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void update2Calcs2ColsFormula() {
         setup(6, 16, 10);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc2cols2);

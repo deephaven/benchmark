@@ -18,6 +18,7 @@ public class WhereOneOfTest {
     }
 
     @Test
+    @Tag("Iterate")
     void whereOneOf1Filter() {
         runner.setScaleFactors(365, 300);
         var q = """
