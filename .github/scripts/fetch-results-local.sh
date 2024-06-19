@@ -17,7 +17,7 @@ USER=$2
 SCRIPT_DIR=$3
 RUN_TYPE=$4
 ACTOR=$5
-RUN_LABEL=${5:-$(${SCRIPT_DIR}/base62.sh $(date +%s%N))}
+RUN_LABEL=${6:-$(${SCRIPT_DIR}/base62.sh $(date +%s%N))}
 RUN_DIR=/root/run
 
 # Pull results from the benchmark server
