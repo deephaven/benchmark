@@ -48,7 +48,7 @@ for i in `seq 1 ${ITERATIONS}`; do
   java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
 done
 
-if [ "${RUN_TYPE}" = "nightly" ] || [ "${RUN_TYPE}" = "release" ]; then
+if [ "${RUN_TYPE}" = "nightly" ] || [ "${RUN_TYPE}" = "adhoc" ]; then
   for i in `seq 1 ${TAG_ITERS}`; do
     java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -t "Iterate"
   done
