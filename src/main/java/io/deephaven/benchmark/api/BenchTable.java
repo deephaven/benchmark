@@ -10,6 +10,7 @@ import io.deephaven.benchmark.generator.*;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Ids;
 import io.deephaven.benchmark.util.Log;
+import io.deephaven.benchmark.util.Numbers;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -281,8 +282,14 @@ final public class BenchTable implements Closeable {
                 + columns.describe();
     }
 
+    private String getTableDefinitionHash() {
+        var hashCode = getTableDefinition().hashCode();
+        return Numbers.toBase62(Math.abs(hashCode));
+    }
+
     private String getTableDefinitionId() {
-        return "benchmark." + Ids.uniqueName();
+        var defHash = getTableDefinitionHash();
+        return "benchmark." + Ids.uniqueName(defHash);
     }
 
     private String replaceTableAndGeneratorFields(String query) {
@@ -303,6 +310,7 @@ final public class BenchTable implements Closeable {
                 .replace("${table.duration}", Long.toString(getRunDuration()))
                 .replace("${table.definition}", getTableDefinition())
                 .replace("${table.definition.id}", getTableDefinitionId())
+                .replace("${table.definition.hash}", getTableDefinitionHash())
                 .replace("${column.grouping}", getColumnGrouping());
     }
 
@@ -312,6 +320,7 @@ final public class BenchTable implements Closeable {
         table_gen_parquet = '/data/${table.definition.id}.gen.parquet'
         table_gen_def_text = '''${table.definition}'''
         table_gen_def_file = '/data/${table.definition.id}.gen.def'
+        table_gen_glob = '/data/benchmark.${table.definition.hash}.*.*.gen.def'
         """;
 
     static final String useExistingParquetQuery = """
@@ -321,7 +330,7 @@ final public class BenchTable implements Closeable {
         from deephaven.column import string_col
 
         def findMatchingGenParquet(gen_def_text):
-            for path in glob.glob('/data/benchmark.*.*.*.gen.def'):
+            for path in glob.glob(table_gen_glob):
                 with open(path) as f:
                     if f.read() == gen_def_text:
                         return os.path.splitext(os.path.splitext(path)[0])[0]

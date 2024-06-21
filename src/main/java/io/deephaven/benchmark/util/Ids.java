@@ -1,18 +1,14 @@
 /* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
-import java.math.BigInteger;
-import java.util.Base64;
+import java.time.Instant;
 import java.util.Random;
 
 /**
  * Provide unique Ids for file naming
  */
 public class Ids {
-    static final long years50 = 1577847600000L;
     static final Random random = new Random();
-    static private long count = 0;
-    static private long lastTime = now50();
 
     /**
      * Replace any characters in the given name that may not be safe to use as a file name
@@ -30,7 +26,7 @@ public class Ids {
      * @return a time-based id
      */
     static public String runId() {
-        return "run-" + Long.toHexString(now50());
+        return "run-" + nowBase62();
     }
 
     /**
@@ -40,7 +36,7 @@ public class Ids {
      * @return true if it looks like a runId, otherwise false
      */
     static public boolean isRunId(Object id) {
-        return id.toString().matches("run-[a-z0-9]{10,16}");
+        return id.toString().matches("run-[0-9A-Za-z]+");
     }
 
     /**
@@ -48,17 +44,10 @@ public class Ids {
      * 
      * @return the unique name
      */
-    static public String uniqueName() {
-        long now = now50();
-        if (now > lastTime) {
-            lastTime = now;
-            count = 0;
-        }
-
-        String time = toBase64(now);
-        String cnt = Long.toHexString(++count);
-        String rand = toBase64(random.nextInt());
-        return time + '.' + cnt + '.' + rand;
+    static public String uniqueName(String prefix) {
+        String time = nowBase62();
+        String rand = Numbers.toBase62(Math.abs(random.nextInt()));
+        return String.join(".", prefix, time, rand);
     }
 
     /**
@@ -75,19 +64,9 @@ public class Ids {
         return h;
     }
 
-    /**
-     * Convert long to URL base64
-     * 
-     * @param num the number to convert
-     * @return a base64 string representing the given number
-     */
-    static String toBase64(long num) {
-        String s = Base64.getUrlEncoder().encodeToString(BigInteger.valueOf(num).toByteArray());
-        return s.replace("=", "");
-    }
-
-    static long now50() {
-        return System.currentTimeMillis() - years50;
+    static String nowBase62() {
+        var now = Instant.now();
+        return Numbers.toBase62(String.format("%d%03d", now.getEpochSecond(), now.getNano() / 1000000));
     }
 
 }

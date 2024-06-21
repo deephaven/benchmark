@@ -17,8 +17,9 @@ on:
        type: string
      run_label:
        description: 'Run Label'
-       required: true
+       required: false
        type: string
+       default: ''
      test_package:
        description: 'Benchmark Test Package'
        required: true

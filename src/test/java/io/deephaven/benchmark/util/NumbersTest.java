@@ -2,6 +2,7 @@
 package io.deephaven.benchmark.util;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.math.BigInteger;
 import org.junit.jupiter.api.*;
 
 public class NumbersTest {
@@ -70,6 +71,22 @@ public class NumbersTest {
         assertEquals("4s", Numbers.offsetInString("1s", 0, 5));
         assertEquals("1s", Numbers.offsetInString("4s", 0, 5));
         assertEquals("s170s", Numbers.offsetInString("s130s", 100, 100));
+    }
+
+    @Test
+    void toBase62() {
+        assertEquals("UGHMJMK", Numbers.toBase62("1718921708180"));
+        assertEquals("UGHOiO9", Numbers.toBase62("1718922281049"));
+        assertEquals("UGHOv6n", Numbers.toBase62("1718922329945"));
+        assertEquals("1", Numbers.toBase62("1"));
+        assertEquals("A", Numbers.toBase62("10"));
+        assertEquals("G8", Numbers.toBase62("1000"));
+        assertEquals("Q0u", Numbers.toBase62("100000"));
+        assertEquals("fxSK", Numbers.toBase62("10000000"));
+        assertEquals("15ftgG", Numbers.toBase62("1000000000"));
+        assertEquals("1l9Zo9o", Numbers.toBase62("100000000000"));
+        assertEquals("2q3Rktoe", Numbers.toBase62("10000000000000"));
+        assertEquals("4ZxYle1gW", Numbers.toBase62("1000000000000000"));
     }
 
 }

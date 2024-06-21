@@ -1,6 +1,7 @@
 /* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.regex.Pattern;
 
@@ -132,6 +133,38 @@ public class Numbers {
         var num = parseNumber(split[1]).longValue();
         num = offset + size - num + offset;
         return split[0] + num + split[2];
+    }
+
+    /**
+     * Convert a positive integral to Base 62
+     * 
+     * @param num the number to convert
+     * @return a base58 string representing of the given number
+     */
+    static public String toBase62(Number num) {
+        return toBase62(num.toString());
+    }
+
+    /**
+     * Convert a Base 10 string to Base 62. Accepted values are positive digits.
+     * <p/>
+     * Note: The results of this method should match the results of <code>./github/scripts/base58.sh exactly</code>
+     * 
+     * @param num the number to convert
+     * @return a base64 string representing the given number
+     */
+    static public String toBase62(String num) {
+        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        var num10 = new BigInteger(num, 10);
+        var big62 = BigInteger.valueOf(62);
+        var big0 = BigInteger.valueOf(0);
+        var str62 = new StringBuilder();
+        do {
+            var div = num10.divideAndRemainder(big62);
+            str62.insert(0, chars.charAt(div[1].intValue()));
+            num10 = div[0];
+        } while (num10.compareTo(big0) > 0);
+        return str62.toString();
     }
 
 }
