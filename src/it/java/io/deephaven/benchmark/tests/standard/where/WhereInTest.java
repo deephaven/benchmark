@@ -28,6 +28,7 @@ public class WhereInTest {
     }
 
     @Test
+    @Tag("Iterate")
     void whereIn1Filter() {
         runner.setScaleFactors(135, 100);
         var q = "source.where_in(where_filter, cols=['key1 = set1'])";
@@ -35,6 +36,7 @@ public class WhereInTest {
     }
 
     @Test
+    @Tag("Iterate")
     void whereIn2Filter() {
         runner.setScaleFactors(67, 65);
         var q = "source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
