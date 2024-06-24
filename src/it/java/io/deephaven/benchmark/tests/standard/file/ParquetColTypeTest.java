@@ -28,28 +28,28 @@ class ParquetColTypeTest {
     @Test
     @Order(3)
     void writeOneStringCol() {
-        runner.setScaleFactors(5, 25);
+        runner.setScaleFactors(5, 30);
         runner.runParquetWriteTest("ParquetWrite- 1 String Col -Static", "NONE", "str10K");
     }
 
     @Test
     @Order(4)
     void readOneStringCol() {
-        runner.setScaleFactors(5, 25);
+        runner.setScaleFactors(5, 30);
         runner.runParquetReadTest("ParquetRead- 1 String Col -Static");
     }
 
     @Test
     @Order(5)
     void writeOneBigDecimalCol() {
-        runner.setScaleFactors(5, 4);
+        runner.setScaleFactors(5, 5);
         runner.runParquetWriteTest("ParquetWrite- 1 Big Decimal Col -Static", "NONE", "bigDec10K");
     }
 
     @Test
     @Order(6)
     void readOneBigDecimalCol() {
-        runner.setScaleFactors(5, 4);
+        runner.setScaleFactors(5, 5);
         runner.runParquetReadTest("ParquetRead- 1 Big Decimal Col -Static");
     }
 
