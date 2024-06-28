@@ -54,7 +54,12 @@ class FileTestRunner {
      * @param testName name that will appear in the results as the benchmark name
      */
     void runCsvReadTest(String testName, String... columnNames) {
-        var q = "read_csv('/data/source.ptr.csv', ${types})";
+        var q = """ 
+        read_csv('/data/source.ptr.csv', ${types})
+        metric_file_size = os.path.getsize('/data/source.ptr.csv')
+        metric_row = ['1234', 'category', 'type', 'data.file.size', str(metric_file_size), 'parquet']
+        bench_api_metrics.append(metric_row)
+        """;
         q = q.replace("${types}", getTypes(columnNames));
         runReadTest(testName, q);
     }
@@ -65,7 +70,13 @@ class FileTestRunner {
      * @param testName name that will appear in the results as the benchmark name
      */
     void runParquetReadTest(String testName) {
-        runReadTest(testName, "read('/data/source.ptr.parquet').select()");
+        var q = """
+        read('/data/source.ptr.parquet').select()
+        metric_file_size = os.path.getsize('/data/source.ptr.parquet')
+        metric_row = ['1234', 'category', 'type', 'data.file.size', str(metric_file_size), 'parquet']
+        bench_api_metrics.append(metric_row)
+        """;
+        runReadTest(testName, q);
     }
 
     /**
@@ -80,6 +91,9 @@ class FileTestRunner {
         write(
             source, '/data/source.ptr.parquet', compression_codec_name='${codec}'${parquetSettings}
         )
+        metric_file_size = os.path.getsize('/data/source.ptr.parquet')
+        metric_row = ['1234', 'category', 'type', 'data.file.size', str(metric_file_size), 'parquet']
+        bench_api_metrics.append(metric_row)
         """;
         q = q.replace("${codec}", codec.equalsIgnoreCase("none") ? "UNCOMPRESSED" : codec);
         q = q.replace("${parquetSettings}", useParquetDefaultSettings ? "" : (",\n    " + parquetCfg));
@@ -93,7 +107,13 @@ class FileTestRunner {
      * @param columnNames the names of the pre-defined columns to generate
      */
     void runCsvWriteTest(String testName, String... columnNames) {
-        runWriteTest(testName, "write_csv(source, '/data/source.ptr.csv')", columnNames);
+        var q = """
+        write_csv(source, '/data/source.ptr.csv')
+        metric_file_size = os.path.getsize('/data/source.ptr.csv')
+        metric_row = ['0', 'category', 'type', 'data.file.size', str(metric_file_size), 'csv']
+        bench_api_metrics.append(metric_row)
+        """;
+        runWriteTest(testName, q, columnNames);
     }
 
     /**
@@ -231,7 +251,7 @@ class FileTestRunner {
 
     private Bench initialize(Object testInst) {
         var query = """
-        import time
+        import time, os
         from deephaven import empty_table, garbage_collect, new_table, merge
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read, write
