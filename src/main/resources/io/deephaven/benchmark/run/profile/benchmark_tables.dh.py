@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
 #
 # Deephaven query to run against historical benchmark data stored in GCloud bucket and produce
 # some useful correlated tables
@@ -13,31 +13,54 @@ from urllib.request import urlopen, urlretrieve
 s_results = {'benchmark_name':dht.string, 'origin':dht.string,'timestamp':dht.long,'test_duration':dht.double,
     'op_duration':dht.double,'op_rate':dht.long,'row_count':dht.long}
 
+# Convert the given name to a name suitable for a DH column name
+def normalize_name(name):
+    name = name.replace('/','__')
+    return re.sub('[^A-Za-z0-9_$]', '_', name)
+
 # Get the latest GCloud run_ids for the benchmark category up to max_runs
-def get_remote_run_ids(parent_uri, category, max_runs=10):
+def get_remote_children(parent_uri, category, max_runs=10):
     run_ids = []
     search_uri = parent_uri + '?delimiter=/&prefix=' + category + '/' + '&max-keys=100000'
     with urlopen(search_uri) as r:
         text = r.read().decode()
-        for run_id in re.findall('<Prefix>{}/run-([a-z0-9]+)/</Prefix>'.format(category), text, re.MULTILINE):
+        for run_id in re.findall('<Prefix>{}/([^/><]+)/</Prefix>'.format(category), text, re.MULTILINE):
             run_ids.append(run_id)
     run_ids.sort(reverse=True)
     return run_ids[:max_runs]
     
 # Get the latest file-based run_ids for the benchmark category up to max_runs
-def get_local_run_ids(parent_uri, category, max_runs=10):
+def get_local_children(parent_uri, category, max_runs=10):
     run_ids = []
-    text = os.linesep.join(glob.glob(parent_uri.replace('file://','') + '/' + category + '/run-*'))
-    for run_id in re.findall('.*/run-([a-z0-9]+)'.format(category), text, re.MULTILINE):
+    root_path = parent_uri.replace('file:///','/')
+    for run_id in os.listdir(os.path.normpath(os.path.join(root_path, category))):
         run_ids.append(run_id)
     run_ids.sort(reverse=True)
     return run_ids[:max_runs]
     
-def get_run_ids(storage_uri, category, max_runs):
+def get_children(storage_uri, category, max_runs):
     if storage_uri.startswith('http'):
-        return get_remote_run_ids(storage_uri, category, max_runs)
+        return get_remote_children(storage_uri, category, max_runs)
     else: 
-        return get_local_run_ids(storage_uri, category, max_runs)
+        return get_local_children(storage_uri, category, max_runs)
+        
+def get_run_paths(storage_uri, category, actor_filter, set_filter, max_set=10):
+    print('get_run_paths', storage_uri, category, actor_filter, set_filter, max_set)
+    set_matcher = re.compile(set_filter)
+    actor_matcher = re.compile(actor_filter)
+    benchmark_sets = []
+    for actor in get_children(storage_uri, category, 1000):
+        if actor_matcher.match(actor): 
+            for set_label in get_children(storage_uri, category + '/' + actor, 1000):
+                if set_matcher.match(set_label): 
+                    benchmark_sets.append(actor + '/' + set_label)
+    benchmark_sets.sort(reverse=True)
+    benchmark_sets = benchmark_sets[:max_sets]
+    benchmark_runs = []
+    for set_path in benchmark_sets:
+        for run_id in get_children(storage_uri, category + '/' + set_path, 1000):
+            benchmark_runs.append(set_path + '/' + run_id)
+    return benchmark_runs
 
 # Cache an HTTP url into a local directory and return the local path  
 def cache_remote_csv(uri):
@@ -79,61 +102,60 @@ def dh_read_csv(uri, schema=None):
 def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None):
     tables = []
     for run_id in run_ids:
-        table_uri = parent_uri + '/' + category + '/run-' + run_id + '/' + csv_file_name
+        table_uri = parent_uri + '/' + category + '/' + run_id + '/' + csv_file_name
         table_csv = dh_read_csv(table_uri, schema)
-        table_csv = table_csv.update_view(['run_id = "' + run_id + '"'])
+        set_id = os.path.dirname(run_id)
+        run_id = os.path.basename(run_id)
+        table_csv = table_csv.update_view(['set_id = "' + set_id + '"', 'run_id = "' + run_id + '"'])
         tables.append(table_csv)
     return merge(tables)
 
 # Load standard tables from GCloud or local storage according to category
 # If this script is run from exec(), accept the benchmark_category_arg
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
-default_category = 'ZTEST'
-default_max_runs = 5
+default_category = 'adhoc'
+default_max_sets = 5
 default_history_runs = 5
+default_actor_filter = '.*'
+default_set_filter = '.*'
+default_platform_props = []
+default_metric_props = []
 
 storage_uri = benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
 category = benchmark_category_arg if 'benchmark_category_arg' in globals() else default_category
-max_runs = benchmark_max_runs_arg if 'benchmark_max_runs_arg' in globals() else default_max_runs
+max_sets = benchmark_max_sets_arg if 'benchmark_max_sets_arg' in globals() else default_max_sets
 history_runs = benchmark_history_runs_arg if 'benchmark_history_runs_arg' in globals() else default_history_runs
-run_ids = get_run_ids(storage_uri, category, max_runs)
+actor_filter = benchmark_actor_filter_arg if 'benchmark_actor_filter_arg' in globals() else default_actor_filter
+set_filter = benchmark_set_filter_arg if 'benchmark_set_filter_arg' in globals() else default_set_filter
+platform_props = benchmark_platform_props_arg if 'benchmark_platform_props_arg' in globals() else default_platform_props
+metric_props = benchmark_metric_props_arg if 'benchmark_metric_props_arg' in globals() else default_metric_props
+run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
+
 bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', s_results)
 bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv')
 bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv')
 
-# Make diff between first and last metrics samples
-bench_metrics_diff = bench_metrics.agg_by(
-    aggs=[agg.first('first_value=value'), agg.last('last_value=value')], 
-    by=['run_id', 'benchmark_name', 'origin', 'category', 'type', 'name'])
-bench_metrics_diff = bench_metrics_diff.view(
-    ['run_id', 'benchmark_name', 'origin', 'category', 'type', 'name', 'value_diff=last_value-first_value']
-)
+def add_platform_values(table, pnames=[], cnames = []):
+    pnames = list(dict.fromkeys(pnames))
+    for pname in pnames:
+        new_pname = normalize_name(pname)
+        cnames.append(new_pname)
+        single_platforms = bench_platforms.where(['name=pname']).first_by(['set_id','run_id','origin'])
+        table = table.natural_join(
+            single_platforms, on=['set_id','run_id','origin'], joins=[new_pname+'=value']
+        )
+    return table
 
-# Create a table with useful diff metrics joined into the benchmark results
-bench_results_diff = bench_results
-def add_metric_value_diff(mcategory, mtype, mname, new_mname):
-    global bench_results_diff
-    single_metrics = bench_metrics_diff.where(['category=mcategory', 'type=mtype', 'name=mname'])
-    bench_results_diff = bench_results_diff.exact_join(
-        single_metrics, on=['run_id', 'benchmark_name', 'origin'], joins=[new_mname+'=value_diff']
-    )
-
-def add_platform_value(pname, new_pname):
-    global bench_results_diff
-    single_platforms = bench_platforms.where(['name=pname'])
-    bench_results_diff = bench_results_diff.exact_join(
-        single_platforms, on=['run_id', 'origin'], joins=[new_pname+'=value']
-    )
-
-add_platform_value('deephaven.version', 'deephaven_version')
-add_metric_value_diff('MemoryImpl', 'Memory', 'HeapMemoryUsage Used', "heap_used")
-add_metric_value_diff('MemoryImpl', 'Memory', 'NonHeapMemoryUsage Used', "non_heap_used")
-add_metric_value_diff('MemoryImpl', 'Memory', 'HeapMemoryUsage Committed', 'heap_committed')
-add_metric_value_diff('MemoryImpl', 'Memory', 'NonHeapMemoryUsage Committed', 'non_heap_committed')
-add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Young Generation', 'CollectionCount', 'g1_young_collect_count')
-add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Young Generation', 'CollectionTime', 'g1_young_collect_time')
-add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'CollectionCount', 'g1_old_collect_count')
-add_metric_value_diff('GarbageCollectorExtImpl', 'G1 Old Generation', 'CollectionTime', 'g1_old_collect_time')
+def add_metric_values(table, pnames=[], cnames=[]):
+    pnames = list(dict.fromkeys(pnames))
+    for pname in pnames:
+        new_pname = normalize_name(pname)
+        cnames.append(new_pname)
+        single_metrtics = bench_metrics.where(['name=pname']).first_by(['benchmark_name','set_id','run_id','origin'])
+        table = table.natural_join(
+            single_metrtics, on=['benchmark_name','set_id','run_id','origin'], joins=[new_pname+'=value']
+        )
+    return table
 
 import statistics
 def rstd(rates) -> float:
@@ -168,17 +190,33 @@ def truncate(text, size):
     if len(text) < size - 3: return text
     return text[:size-3] + '...'
 
+def mid_item(arr):
+    n = len(arr)
+    return arr[n // 2]
+
 # Create a table showing percentage variability and change in rates
 from deephaven.updateby import rolling_group_tick
 op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)
 op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=history_runs, fwd_ticks=0)
 
-bench_results_change = bench_results_diff.sort(['benchmark_name', 'origin', 'deephaven_version', 'timestamp'])
-bench_results_change = bench_results_change.update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin'])
-bench_results_change = bench_results_change.update_view(
-    ['op_rate_variability=(float)rstd(op_group_rates)', 'op_rate_change=(float)rchange(op_group_rates)']
-)
-bench_results_change = bench_results_change.view(
-    ['benchmark_name', 'origin', 'timestamp', 'deephaven_version', 'op_duration', 'op_rate', 
-    'op_rate_variability', 'op_rate_change', 'op_rate_change', 'op_group_rates', 'op_group_versions']
-)
+bench_results_change = bench_results.sort(['benchmark_name','origin','set_id','op_rate']) \
+    .group_by(['benchmark_name','origin','set_id']) \
+    .view([
+        'benchmark_name','origin','timestamp=(long)mid_item(timestamp)','test_duration=(double)mid_item(test_duration)',
+        'op_duration=(double)mid_item(op_duration)','op_rate=(long)mid_item(op_rate)','row_count=(long)mid_item(row_count)',
+        'set_id','run_id=(String)mid_item(run_id)'
+    ])
+
+local_platform_props = []
+local_metric_props = []
+bench_results_change = add_platform_values(bench_results_change, ['deephaven.version'] + platform_props, local_platform_props)
+bench_results_change = add_metric_values(bench_results_change, metric_props, local_metric_props)
+
+bench_results_change = bench_results_change.sort(['benchmark_name', 'origin', 'deephaven_version', 'set_id']) \
+    .update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin']) \
+    .update_view(['op_rate_variability=(float)rstd(op_group_rates)', 'op_rate_change=(float)rchange(op_group_rates)']) \
+    .view(['benchmark_name', 'origin', 'timestamp'] + local_platform_props + local_metric_props +
+        ['deephaven_version', 'op_duration', 'op_rate', 'op_rate_variability', 'op_rate_change', 'op_rate_change', 
+        'op_group_rates', 'op_group_versions'          
+    ])
+
