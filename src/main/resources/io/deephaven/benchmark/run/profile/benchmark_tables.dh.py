@@ -4,10 +4,11 @@
 # some useful correlated tables
 # Requirements: Deephaven 0.23.0 or greater
 
-import os, re, glob
+import os, re, glob, jpy
 import deephaven.dtypes as dht
 from deephaven import read_csv, merge, agg, empty_table
 from urllib.request import urlopen, urlretrieve
+from numpy import typing as npt
 
 # Schema for benchmstk-results.csv
 s_results = {'benchmark_name':dht.string, 'origin':dht.string,'timestamp':dht.long,'test_duration':dht.double,
@@ -45,7 +46,7 @@ def get_children(storage_uri, category, max_runs):
         return get_local_children(storage_uri, category, max_runs)
         
 def get_run_paths(storage_uri, category, actor_filter, set_filter, max_set=10):
-    print('get_run_paths', storage_uri, category, actor_filter, set_filter, max_set)
+    print('Get Run Paths', storage_uri, category, actor_filter, set_filter, max_set)
     set_matcher = re.compile(set_filter)
     actor_matcher = re.compile(actor_filter)
     benchmark_sets = []
@@ -114,14 +115,14 @@ def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None
 # If this script is run from exec(), accept the benchmark_category_arg
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
 default_category = 'adhoc'
-default_max_sets = 5
+default_max_sets = 10
 default_history_runs = 5
 default_actor_filter = '.*'
-default_set_filter = '.*'
+default_set_filter = 'v.*'
 default_platform_props = []
 default_metric_props = []
 
-storage_uri = benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
+storage_uri = 'file:///data/deephaven-benchmark'  #benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
 category = benchmark_category_arg if 'benchmark_category_arg' in globals() else default_category
 max_sets = benchmark_max_sets_arg if 'benchmark_max_sets_arg' in globals() else default_max_sets
 history_runs = benchmark_history_runs_arg if 'benchmark_history_runs_arg' in globals() else default_history_runs
@@ -194,29 +195,54 @@ def mid_item(arr):
     n = len(arr)
     return arr[n // 2]
 
-# Create a table showing percentage variability and change in rates
-from deephaven.updateby import rolling_group_tick
-op_group = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)
-op_version = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=history_runs, fwd_ticks=0)
+def last_item(arr):
+    return arr[-1]
 
-bench_results_change = bench_results.sort(['benchmark_name','origin','set_id','op_rate']) \
+def merge_arrays(type_str, arrs):
+    final_arr = []
+    for arr in arrs:
+        for i in arr.copyToArray():
+            final_arr.append(i)
+    return jpy.array(type_str, final_arr)
+
+# Create a table showing percentage variability and change in rates
+
+## Reduce the runs in each set to one row
+bench_results_sets = bench_results.sort(['benchmark_name','origin','set_id','op_rate']) \
     .group_by(['benchmark_name','origin','set_id']) \
     .view([
         'benchmark_name','origin','timestamp=(long)mid_item(timestamp)','test_duration=(double)mid_item(test_duration)',
-        'op_duration=(double)mid_item(op_duration)','op_rate=(long)mid_item(op_rate)','row_count=(long)mid_item(row_count)',
-        'set_id','run_id=(String)mid_item(run_id)'
+        'set_op_rates=op_rate','op_duration=(double)mid_item(op_duration)','op_rate=(long)mid_item(op_rate)','row_count=(long)mid_item(row_count)',
+        'variability=(float)rstd(set_op_rates)','set_id','run_id=(String)mid_item(run_id)','set_count=count(set_op_rates)'
     ])
 
 local_platform_props = []
 local_metric_props = []
-bench_results_change = add_platform_values(bench_results_change, ['deephaven.version'] + platform_props, local_platform_props)
-bench_results_change = add_metric_values(bench_results_change, metric_props, local_metric_props)
+bench_results_sets = add_platform_values(bench_results_sets, ['deephaven.version'] + platform_props, local_platform_props)
+bench_results_sets = add_metric_values(bench_results_sets, metric_props, local_metric_props)
 
-bench_results_change = bench_results_change.sort(['benchmark_name', 'origin', 'deephaven_version', 'set_id']) \
-    .update_by(ops=[op_group, op_version], by=['benchmark_name', 'origin']) \
-    .update_view(['op_rate_variability=(float)rstd(op_group_rates)', 'op_rate_change=(float)rchange(op_group_rates)']) \
-    .view(['benchmark_name', 'origin', 'timestamp'] + local_platform_props + local_metric_props +
-        ['deephaven_version', 'op_duration', 'op_rate', 'op_rate_variability', 'op_rate_change', 'op_rate_change', 
-        'op_group_rates', 'op_group_versions'          
+# from deephaven.updateby import rolling_group_tick
+# op_set_rates = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)
+# op_set_versions = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=history_runs, fwd_ticks=0)
+# op_set_versions = rolling_group_tick(cols=["set_variabilities = set_variability"], rev_ticks=history_runs, fwd_ticks=0)
+
+# bench_results_change = bench_results_change.sort(['benchmark_name', 'origin', 'set_id']) \
+#     .update_by(ops=[op_set_rates, op_set_versions], by=['benchmark_name', 'origin']) \
+#     .update_view(['op_rate_variability=(float)rstd(set_variabilities)', 'op_rate_change=(float)rchange(op_group_rates)']) \
+#     .view(['benchmark_name', 'origin', 'timestamp'] + local_platform_props + local_metric_props +
+#         ['deephaven_version', 'op_duration', 'op_rate', 'op_rate_variability', 'op_rate_change', 'op_rate_change', 
+#         'set_id','set_run_count=len(set_variabilities)'    
+#     ])
+
+local_platform_props = [p + '=last_item(' + p + ')' for p in local_platform_props]
+local_metric_props = [p + '=last_item(' + p + ')' for p in local_metric_props]
+bench_results_change = bench_results_sets.sort(['benchmark_name','origin','set_id']) \
+    .tail_by(10, ['benchmark_name','origin']) \
+    .group_by(['benchmark_name','origin']) \
+    .view(['benchmark_name','origin','timestamp=last_item(timestamp)'] + local_platform_props + local_metric_props +
+        ['test_duration=last_item(test_duration)','op_duration=last_item(op_duration)','op_rate=last_item(op_rate)',
+        'set_op_rates=(long[])merge_arrays("long",set_op_rates)','op_rate_variability=(float)rstd(set_op_rates)',
+        'op_rate_change=(float)rchange(set_op_rates)','set_id'
     ])
+
 

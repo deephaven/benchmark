@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 
-# Convert the given Base 10 number to Base 58 characters
+# Convert the given Base 10 number to Base 62 characters
 # ex. base62.sh 1718738365297350992 
 # ex. ./base62.sh $(date +%s%03N) 
 

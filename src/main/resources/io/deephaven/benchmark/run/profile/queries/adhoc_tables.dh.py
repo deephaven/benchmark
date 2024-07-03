@@ -1,5 +1,3 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
-#
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between two or more
 # adhoc benchmark set runs
 # - Make a table containing rates and diffs for the given benchmark sets
@@ -8,7 +6,9 @@
 #   - benchmark_set_runs_arg = 5  # Number of runs to load from each set (Can be greater than available)
 # Requirements: Deephaven 0.32.0 or greater
 
-benchmark_sets_arg = []
+from urllib.request import urlopen; import os, re
+
+benchmark_sets_arg = ['stanbrub/v0.34.0','stanbrub/v0.35.0']
 benchmark_max_sets_arg = 10
 
 # benchmark_sets_prefix =  os.path.commonprefix(benchmark_sets_arg)
@@ -20,7 +20,6 @@ for benchmark_set in benchmark_sets_arg:
     root = 'file:///data' if os.path.exists('/data/deephaven-benchmark') else 'https://storage.googleapis.com'
     with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
         benchmark_storage_uri_arg = root + '/deephaven-benchmark'
-        print("Storage:", benchmark_storage_uri_arg)
         benchmark_category_arg ='adhoc'
         benchmark_actor_filter_arg = os.path.dirname(benchmark_set)
         benchmark_set_filter_arg = os.path.basename(benchmark_set)
@@ -28,12 +27,11 @@ for benchmark_set in benchmark_sets_arg:
         exec(r.read().decode(), globals(), locals())
     
     set_name = normalize_name(benchmark_set.replace(benchmark_sets_prefix,''))
-    tbl = bench_results_change.group_by(['benchmark_name']).view([
-        'Benchmark=benchmark_name',
-        'Variability__' + set_name + '=(float)rstd(op_rate) / 100.0',
-        'Rate__' + set_name + '=(long)median(op_rate)',
-        'DataSize__' + set_name + '=(long)median(data_file_size)'
-    ])
+    tbl = bench_results_sets.group_by(['benchmark_name']) \
+        .view(['Benchmark=benchmark_name',
+            'Variability__' + set_name + '=(float)rstd(merge_arrays("long",set_op_rates)) / 100.0',
+            'Rate__' + set_name + '=(long)median(op_rate)',
+            'DataSize__' + set_name + '=(long)median(data_file_size)'])
     if result is None:
         result = tbl
         first_set = set_name
@@ -45,8 +43,8 @@ for benchmark_set in benchmark_sets_arg:
             'Change__' + set_name + '=(float)gain(' + first_rate + ',' + curr_rate + ') / 100.0'
         ])
 
-# bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
-# bench_results_diff = bench_results_change = tbl = None
+bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
+bench_results_diff = bench_results_change = tbl = None
 
 column_formats = []
 for col in result.columns:
@@ -58,5 +56,4 @@ for col in result.columns:
 
 adhoc_set_compare = result.format_columns(column_formats)
 result = None
-
 

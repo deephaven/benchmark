@@ -17,9 +17,9 @@ on:
        type: string
      run_label:
        description: 'Run Label'
-       required: false
+       required: true
        type: string
-       default: ''
+       default: v${{ inputs.docker_image }}
      test_package:
        description: 'Benchmark Test Package'
        required: true

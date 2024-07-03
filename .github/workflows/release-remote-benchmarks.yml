@@ -19,7 +19,7 @@ jobs:
     with:
       run_type: release
       docker_image: ${{ inputs.docker_image }}
-      run_label: ""
+      run_label: v${{ inputs.docker_image }}
       test_package: "io.deephaven.benchmark.tests.standard"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
       test_iterations: 1
