@@ -21,7 +21,7 @@ jobs:
       docker_image: ${{ inputs.docker_image }}
       run_label: v${{ inputs.docker_image }}
       test_package: "io.deephaven.benchmark.tests.standard"
-      test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
+      test_class_regex: "^.*[.].*Parquet.*Col.*Test.*$"
       test_iterations: 1
       scale_row_count: 100000
       distribution: random

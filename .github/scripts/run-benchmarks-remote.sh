@@ -19,7 +19,7 @@ ROW_COUNT=$4
 DISTRIB=$5
 ITERATIONS=$6
 TAG_ITERS=4
-HOST=`hostname`
+HOST=$(hostname)
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
 

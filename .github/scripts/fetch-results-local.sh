@@ -20,6 +20,11 @@ ACTOR=$5
 RUN_LABEL=${6:-$(echo -n "set-"; ${SCRIPT_DIR}/base62.sh $(date +%s%03N))}
 RUN_DIR=/root/run
 
+# Get the date for the Set Label, since Github Workflows don't have 'with: ${{github.date}}'
+if [ "${RUN_LABEL}" = "<date>" ]; then
+  RUN_LABEL=$(date '+%Y-%m-%d')
+fi
+
 # Pull results from the benchmark server
 scp -r ${USER}@${HOST}:${RUN_DIR}/results .
 scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
