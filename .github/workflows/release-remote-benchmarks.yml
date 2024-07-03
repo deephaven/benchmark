@@ -10,7 +10,7 @@ on:
      docker_image:
        description: 'Docker Image Name'
        required: true
-       default: '0.32.0'
+       default: '0.35.0'
        type: string
 
 jobs:
@@ -23,6 +23,6 @@ jobs:
       test_package: "io.deephaven.benchmark.tests.standard"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
       test_iterations: 1
-      scale_row_count: 10000000
+      scale_row_count: 100000
       distribution: random
     secrets: inherit
