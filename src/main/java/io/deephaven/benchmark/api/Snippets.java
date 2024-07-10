@@ -74,64 +74,49 @@ class Snippets {
         """;
 
     /**
-     * Take a snapshot of a selection of JVM statistics. Multiple snapshots can be made in one query with each producing
-     * a set of metrics that can be collected by <code>bench_api_metrics_collect</code>
+     * Initialize the container for storing benchmark metrics
+     * <p/>
+     * ex. bench_api_metrics_init()
      */
-    static String bench_api_metrics_snapshot = """
-        import jpy, time
-        bench_api_metrics = []
-        def bench_api_metrics_snapshot():
-            millis = int(time.time() * 1000)
-            MxMan = jpy.get_type("java.lang.management.ManagementFactory")
-            def add(bean, getters: [], notes = ''):
-                for getter in getters:
-                    nameFunc = getattr(bean, 'getName') if hasattr(bean, 'getName') else getattr(bean, 'getObjectName')
-                    valFunc = getattr(bean, 'get' + getter)
-                    row = [str(millis), bean.getClass().getSimpleName(), str(nameFunc()), getter, str(valFunc()), notes]
-                    bench_api_metrics.append(row)
-                    
-            add(MxMan.getClassLoadingMXBean(), ['TotalLoadedClassCount', 'UnloadedClassCount'])
-            add(MxMan.getMemoryMXBean(), ['ObjectPendingFinalizationCount', 'HeapMemoryUsage', 'NonHeapMemoryUsage'])
-            add(MxMan.getThreadMXBean(), ['ThreadCount', 'PeakThreadCount'])
-            add(MxMan.getCompilationMXBean(), ['TotalCompilationTime'])
-            add(MxMan.getOperatingSystemMXBean(), ['SystemLoadAverage'])
-            pools = MxMan.getMemoryPoolMXBeans()
-            for i in range(0, pools.size()):
-                add(pools.get(i), ['Usage'], str(pools.get(i).getType()))
-            gcs = MxMan.getGarbageCollectorMXBeans()
-            for i in range(0, gcs.size()):
-                add(gcs.get(i), ['CollectionCount', 'CollectionTime'])
+    static String bench_api_metrics_init = """
+        def bench_api_metrics_init():
+            global bench_api_metrics
+            bench_api_metrics = []
         """;
 
     /**
-     * Collect any snapshots of metrics and turn them into a Deephaven table that can be fetched from the bench api.
+     * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
+     * in the current query logic until that value is reached
      * <p/>
-     * ex. bench_api_metrics_table = bench_api_collect()
+     * ex. bench_api_metrics_add('docker', 'restart.secs', 5.1, 'restart duration in between tests')
+     * 
+     * @param category the metric category
+     * @param name the name of the metric
+     * @param value the number value for the metric
+     * @param note an optional short description for context
+     */
+    static String bench_api_metrics_add = """
+        import time
+        def bench_api_metrics_add(category, name, value, note=''):
+            now_millis = int(time.time() * 1000)
+            bench_api_metrics.append([now_millis, 'deephaven-engine', category, name, value, note])
+        """;
+
+    /**
+     * Collect any metrics and turn them into a Deephaven table that can be fetched from the bench api.
+     * <p/>
+     * ex. bench_api_metrics_table = bench_api_metrics_collect()
      */
     static String bench_api_metrics_collect = """
-        from deephaven import new_table
-        from deephaven.column import string_col
+        from deephaven import input_table, empty_table, dtypes as dht
         def bench_api_metrics_collect():
-            timestamps = []; origins = []; beans = []; types = []
-            names = []; values = []; notes = []
+            s = dht.string
+            t = input_table({'timestamp':s,'origin':s,'category':s,'name':s,'value':s,'note':s})
             for m in bench_api_metrics:
-                timestamps.append(m[0])
-                origins.append('deephaven-engine')
-                beans.append(m[1])
-                types.append(m[2])
-                names.append(m[3])
-                values.append(m[4])
-                notes.append(m[5])
-        
-            return new_table([
-                string_col('timestamp', timestamps),
-                string_col('origin', origins),
-                string_col('category', beans),
-                string_col('type', types),
-                string_col('name', names),
-                string_col('value', values),
-                string_col('note', notes)
-            ])
+                m1 = empty_table(1).update(['timestamp=``+m[0]','origin=``+m[1]','category=``+m[2]',
+                    'name=``+m[3]','value=``+m[4]','note=``+m[5]'])    
+                t.add(m1)
+            return t
         """;
 
     /**
@@ -144,7 +129,8 @@ class Snippets {
         String functionDefs = "";
         functionDefs += getFunction("bench_api_kafka_consume", bench_api_kafka_consume, query);
         functionDefs += getFunction("bench_api_await_table_size", bench_api_await_table_size, query);
-        functionDefs += getFunction("bench_api_metrics_snapshot", bench_api_metrics_snapshot, query);
+        functionDefs += getFunction("bench_api_metrics_init", bench_api_metrics_init, query);
+        functionDefs += getFunction("bench_api_metrics_add", bench_api_metrics_add, query);
         functionDefs += getFunction("bench_api_metrics_collect", bench_api_metrics_collect, query);
         functionDefs += getFunction("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query);
         return functionDefs;

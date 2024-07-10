@@ -93,7 +93,7 @@ public class JsonKafkaGenerator implements Generator {
                     }
                 }
                 producer.flush();
-                Metrics metrics = new Metrics("test-runner", topic, "generator").set("duration.secs", duration / 1000.0)
+                var metrics = new Metrics("test-runner", "generate." + topic).set("duration.secs", duration / 1000.0)
                         .set("record.count", recCount).set("send.rate", recCount / (duration / 1000.0))
                         .set("verified.record.count", admin.getMessageCount(topic));
                 return metrics;

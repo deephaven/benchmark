@@ -109,7 +109,7 @@ public class BarrageConnector implements AutoCloseable {
      */
     public Future<Metrics> fetchSnapshotData(String table, Consumer<ResultTable> tableHandler) {
         checkClosed();
-        Metrics metrics = new Metrics("test-runner", table, "session");
+        Metrics metrics = new Metrics("test-runner", "session." + table);
         MetricsFuture future = new MetricsFuture(metrics);
         snapshots.computeIfAbsent(table, s -> {
             try {
@@ -142,7 +142,7 @@ public class BarrageConnector implements AutoCloseable {
      */
     public Future<Metrics> fetchTickingData(String table, Function<ResultTable, Boolean> tableHandler) {
         checkClosed();
-        Metrics metrics = new Metrics("test-runner", table, "session");
+        Metrics metrics = new Metrics("test-runner", "session." + table);
         MetricsFuture future = new MetricsFuture(metrics);
         subscriptions.computeIfAbsent(table, s -> {
             try {

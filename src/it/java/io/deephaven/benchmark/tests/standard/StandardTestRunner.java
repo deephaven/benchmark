@@ -223,14 +223,12 @@ final public class StandardTestRunner {
         garbage_collect()
 
         ${preOpQueries}
-        bench_api_metrics_snapshot()
         print('${logOperationBegin}')
         
         begin_time = time.perf_counter_ns()
         result = ${operation}
         end_time = time.perf_counter_ns()
         print('${logOperationEnd}')
-        bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -255,7 +253,6 @@ final public class StandardTestRunner {
         garbage_collect()
         
         ${preOpQueries}
-        bench_api_metrics_snapshot()
         print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -266,7 +263,6 @@ final public class StandardTestRunner {
         source_filter.waitForCompletion()
         end_time = time.perf_counter_ns()
         print('${logOperationEnd}')
-        bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -302,7 +298,7 @@ final public class StandardTestRunner {
                 result.set(r);
             }).fetchAfter("standard_metrics", table -> {
                 api.metrics().add(table);
-                var metrics = new Metrics(Timer.now(), "test-runner", "setup", "test");
+                var metrics = new Metrics(Timer.now(), "test-runner", "setup.scale");
                 metrics.set("static_scale_factor", staticFactor);
                 metrics.set("inc_scale_factor", incFactor);
                 metrics.set("row_count_factor", rowCountFactor);
@@ -332,13 +328,15 @@ final public class StandardTestRunner {
 
     void initialize(Object testInst) {
         var query = """
-        import time
+        import time, jpy
         from deephaven import new_table, empty_table, garbage_collect, merge 
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read
         from numpy import typing as npt
         import numpy as np
         import numba as nb
+        
+        bench_api_metrics_init()
         """;
 
         this.api = Bench.create(testInst);
@@ -354,7 +352,7 @@ final public class StandardTestRunner {
         if (logText.isBlank())
             return;
         api.log().add("deephaven-engine", logText);
-        var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown.docker");
         metrics.set("log", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
@@ -363,7 +361,7 @@ final public class StandardTestRunner {
         var timer = api.timer();
         if (!controller.restartService())
             return;
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }

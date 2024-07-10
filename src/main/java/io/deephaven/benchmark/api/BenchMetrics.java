@@ -16,7 +16,7 @@ import io.deephaven.benchmark.util.Numbers;
  */
 final public class BenchMetrics {
     static final String[] header =
-            {"benchmark_name", "origin", "timestamp", "category", "type", "name", "value", "note"};
+            {"benchmark_name", "origin", "timestamp", "name", "value", "note"};
     final List<Metrics> metrics = new ArrayList<>();
     final Path file;
     private String name = null;
@@ -42,11 +42,10 @@ final public class BenchMetrics {
             var origin = table.getValue(r, "origin").toString();
             var timestamp = table.getNumber(r, "timestamp").longValue();
             var category = table.getValue(r, "category").toString();
-            var type = formatType(table.getValue(r, "type").toString());
             var mname = table.getValue(r, "name").toString();
             var note = table.getValue(r, "note").toString();
-            Metrics m = new Metrics(timestamp, origin, category, type);
-            addMetricValues(m, mname, table.getValue(r, "value").toString(), note);
+            Metrics m = new Metrics(timestamp, origin, category);
+            m.set(mname, Numbers.parseNumber(table.getValue(r, "value")), note);
             metrics.add(m);
         }
         return this;
@@ -85,26 +84,6 @@ final public class BenchMetrics {
 
     void setName(String name) {
         this.name = name;
-    }
-
-    private String formatType(String type) {
-        var v = type.replace("java.lang:type=", "");
-        return v;
-    }
-
-    // init = 2113929216(2064384K) used = 133162344(130041K) committed = 570425344(557056K) max = 257698
-    // init = 7667712(7488K) used = 80316184(78433K) committed = 82771968(80832K) max = -1(-1K)
-    private void addMetricValues(Metrics metrics, String mname, String mvalue, String note) {
-        var regex = "^init = ([-]?[0-9]+).* used = ([-]?[0-9]+).* committed = ([-]?[0-9]+).* max = ([-]?[0-9]+).*$";
-        String[] vals = mvalue.replaceAll(regex, "$1,$2,$3,$4").split(",");
-        if (vals.length == 4) {
-            metrics.set(mname + " Init", Long.parseLong(vals[0]), note);
-            metrics.set(mname + " Used", Long.parseLong(vals[1]), note);
-            metrics.set(mname + " Committed", Long.parseLong(vals[2]), note);
-            metrics.set(mname + " Max", Long.parseLong(vals[3]), note);
-        } else {
-            metrics.set(mname, Numbers.parseNumber(mvalue), note);
-        }
     }
 
     private void assertColumnNames(ResultTable table) {

@@ -13,7 +13,6 @@ public class Metrics {
     final long timestamp;
     final String origin;
     final String category;
-    final String type;
 
     /**
      * Initializes a newly created {@code Metrics} object representing a set of metrics that uses the current time for
@@ -23,8 +22,8 @@ public class Metrics {
      * @param category groups these metrics with other metrics
      * @param type identifies this set of metrics
      */
-    public Metrics(String origin, String category, String type) {
-        this(System.currentTimeMillis(), origin, category, type);
+    public Metrics(String origin, String category) {
+        this(System.currentTimeMillis(), origin, category);
     }
 
     /**
@@ -33,13 +32,11 @@ public class Metrics {
      * @param timestamp timestamp in millis since epoch the metric was taken
      * @param origin where the metrics came from (ex. myservice, myhost)
      * @param category groups these metrics with other metrics
-     * @param type identifies this set of metrics
      */
-    public Metrics(long timestamp, String origin, String category, String type) {
+    public Metrics(long timestamp, String origin, String category) {
         this.timestamp = timestamp;
         this.origin = origin;
         this.category = category;
-        this.type = type;
     }
 
     /**
@@ -82,8 +79,8 @@ public class Metrics {
         if (v == null || n == null)
             return null;
 
-        return Map.of("timestamp", timestamp, "origin", origin, "category", category, "type", type, "name", metricName,
-                "value", v, "note", n);
+        return Map.of("timestamp", timestamp, "origin", origin, "name", category + '.' + metricName, "value", v,
+                "note", n);
     }
 
     /**
@@ -113,7 +110,6 @@ public class Metrics {
         m.put("timestamp", timestamp);
         m.put("origin", origin);
         m.put("category", category);
-        m.put("type", type);
         m.putAll(metrics);
         return m.toString();
     }

@@ -36,7 +36,6 @@ public class WhereNotInTest {
     }
 
     @Test
-    @Tag("Iterate")
     void whereNotIn2Filter() {
         runner.setScaleFactors(75, 65);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";

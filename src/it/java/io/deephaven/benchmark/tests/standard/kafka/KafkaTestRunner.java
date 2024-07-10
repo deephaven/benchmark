@@ -52,7 +52,7 @@ class KafkaTestRunner {
         dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, deephavenHeapGigs);
         var timer = api.timer();
         controller.restartService();
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
@@ -103,9 +103,9 @@ class KafkaTestRunner {
         from deephaven.stream.kafka.consumer import TableType, KeyValueSpec
         import deephaven.dtypes as dht
         
+        bench_api_metrics_init()
         kc_spec = ${kafkaConsumerSpec}
         
-        bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         
         consumer_tbl = kc.consume({ 'bootstrap.servers' : '${kafka.consumer.addr}' ${schemaRegistryURL} },
@@ -119,7 +119,6 @@ class KafkaTestRunner {
         ${awaitTableLoad}
         
         end_time = time.perf_counter_ns()
-        bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -202,7 +201,7 @@ class KafkaTestRunner {
         if (logText.isBlank())
             return;
         api.log().add("deephaven-engine", logText);
-        var metrics = new Metrics(Timer.now(), "test-runner", "teardown", "docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown.docker");
         metrics.set("log", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }

@@ -96,7 +96,7 @@ public class AvroKafkaGenerator implements Generator {
                     }
                 }
                 Log.info("Produced %s records to topic: %s", recCount, topic);
-                Metrics metrics = new Metrics("test-runner", topic, "generator").set("duration.secs", duration / 1000.0)
+                var metrics = new Metrics("test-runner", "generate." + topic).set("duration.secs", duration / 1000.0)
                         .set("record.count", recCount).set("send.rate", recCount / (duration / 1000.0));
                 return metrics;
             }

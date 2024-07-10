@@ -36,6 +36,8 @@ class ScaleTestRunner {
         from deephaven import new_table, merge, garbage_collect, agg
         from deephaven.column import int_col, float_col
         from deephaven.parquet import read
+        
+        bench_api_metrics_init()
 
         ${table} = ${readTable}
         garbage_collect()
@@ -45,11 +47,9 @@ class ScaleTestRunner {
            agg.pct(0.90, ['Percentile3=int1M'])
         ]
         
-        bench_api_metrics_snapshot()
         begin_time = time.perf_counter_ns()
         result = ${table}.agg_by(aggs, by=['str250', 'str640'])
         end_time = time.perf_counter_ns()
-        bench_api_metrics_snapshot()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -85,7 +85,7 @@ class ScaleTestRunner {
         var controller = new DeephavenDockerController(api.property("docker.compose.file", ""), api.property("deephaven.addr", ""));
         if (!controller.restartService())
             return;
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup", "docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
