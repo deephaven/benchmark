@@ -7,8 +7,8 @@ set -o nounset
 # Fetches Benchmark results and logs from the remote test server and
 # compresses the runs before upload
 
-if [[ $# != 6 ]]; then
-  echo "$0: Missing host, user, run type, script dir, actor, or run label arguments"
+if [[ $# != 7 ]]; then
+  echo "$0: Missing host, user, run type, script dir, actor, docker img, or run label arguments"
   exit 1
 fi
 
@@ -18,11 +18,21 @@ SCRIPT_DIR=$3
 RUN_TYPE=$4
 ACTOR=$5
 RUN_LABEL=${6:-$(echo -n "set-"; ${SCRIPT_DIR}/base62.sh $(date +%s%03N))}
+DOCKER_IMG=$7
 RUN_DIR=/root/run
 
 # Get the date for the Set Label, since Github Workflows don't have 'with: ${{github.date}}'
 if [ "${RUN_LABEL}" = "<date>" ]; then
   RUN_LABEL=$(date '+%Y-%m-%d')
+fi
+
+# Get the version for the Set Label, since Github Workflows don't have 'with: ${{github.date}}'
+if [ "${RUN_LABEL}" = "<version>" ]; then
+  vers=${DOCKER_IMG}
+  major=$(printf '%02d\n' $(echo ${vers} | cut -d "." -f 1))
+  minor=$(printf '%03d\n' $(echo ${vers} | cut -d "." -f 2))
+  patch=$(printf '%02d\n' $(echo ${vers} | cut -d "." -f 3))
+  RUN_LABEL="${major}.${minor}.${patch}"
 fi
 
 # Pull results from the benchmark server

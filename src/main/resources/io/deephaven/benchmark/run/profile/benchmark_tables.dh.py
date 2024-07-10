@@ -30,7 +30,7 @@ def get_remote_children(parent_uri, category, max_runs=10):
     run_ids.sort(reverse=True)
     return run_ids[:max_runs]
     
-# Get the latest file-based run_ids for the benchmark category up to max_runs
+# Get the file-based children of the given parent/category directory
 def get_local_children(parent_uri, category, max_runs=10):
     run_ids = []
     root_path = parent_uri.replace('file:///','/')
@@ -39,6 +39,7 @@ def get_local_children(parent_uri, category, max_runs=10):
     run_ids.sort(reverse=True)
     return run_ids[:max_runs]
     
+# Get the children of the given storage/category uri
 def get_children(storage_uri, category, max_runs):
     if storage_uri.startswith('http'):
         return get_remote_children(storage_uri, category, max_runs)
@@ -112,13 +113,12 @@ def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None
     return merge(tables)
 
 # Load standard tables from GCloud or local storage according to category
-# If this script is run from exec(), accept the benchmark_category_arg
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
 default_category = 'adhoc'
-default_max_sets = 10
+default_max_sets = 100
 default_history_runs = 5
 default_actor_filter = '.*'
-default_set_filter = 'v.*'
+default_set_filter = '.*'
 default_platform_props = []
 default_metric_props = []
 
@@ -136,6 +136,7 @@ bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-resu
 bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv')
 bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv')
 
+# Add columns for the specified platform properties
 def add_platform_values(table, pnames=[], cnames = []):
     pnames = list(dict.fromkeys(pnames))
     for pname in pnames:
@@ -147,6 +148,7 @@ def add_platform_values(table, pnames=[], cnames = []):
         )
     return table
 
+# Add columns for the specified metric properties
 def add_metric_values(table, pnames=[], cnames=[]):
     pnames = list(dict.fromkeys(pnames))
     for pname in pnames:
@@ -216,24 +218,13 @@ bench_results_sets = bench_results.sort(['benchmark_name','origin','set_id','op_
         'variability=(float)rstd(set_op_rates)','set_id','run_id=(String)mid_item(run_id)','set_count=count(set_op_rates)'
     ])
 
+## Attach columns for specified metrics and platform properties
 local_platform_props = []
 local_metric_props = []
 bench_results_sets = add_platform_values(bench_results_sets, ['deephaven.version'] + platform_props, local_platform_props)
 bench_results_sets = add_metric_values(bench_results_sets, metric_props, local_metric_props)
 
-# from deephaven.updateby import rolling_group_tick
-# op_set_rates = rolling_group_tick(cols=["op_group_rates = op_rate"], rev_ticks=history_runs, fwd_ticks=0)
-# op_set_versions = rolling_group_tick(cols=["op_group_versions = deephaven_version"], rev_ticks=history_runs, fwd_ticks=0)
-# op_set_versions = rolling_group_tick(cols=["set_variabilities = set_variability"], rev_ticks=history_runs, fwd_ticks=0)
-
-# bench_results_change = bench_results_change.sort(['benchmark_name', 'origin', 'set_id']) \
-#     .update_by(ops=[op_set_rates, op_set_versions], by=['benchmark_name', 'origin']) \
-#     .update_view(['op_rate_variability=(float)rstd(set_variabilities)', 'op_rate_change=(float)rchange(op_group_rates)']) \
-#     .view(['benchmark_name', 'origin', 'timestamp'] + local_platform_props + local_metric_props +
-#         ['deephaven_version', 'op_duration', 'op_rate', 'op_rate_variability', 'op_rate_change', 'op_rate_change', 
-#         'set_id','set_run_count=len(set_variabilities)'    
-#     ])
-
+# Create a table showing rate changes between sets
 local_platform_props = [p + '=last_item(' + p + ')' for p in local_platform_props]
 local_metric_props = [p + '=last_item(' + p + ')' for p in local_metric_props]
 bench_results_change = bench_results_sets.sort(['benchmark_name','origin','set_id']) \
