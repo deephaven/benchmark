@@ -47,6 +47,9 @@ public class MetricsCollectionTest {
 
     @Test
     public void collectMetricsToFile() throws Exception {
+        Path metricsFile = Bench.outputDir.resolve(Bench.metricsFileName);
+        Filer.delete(metricsFile);
+        
         var query = """
         bench_api_metrics_init()
         bench_api_metrics_add('c1','n1',2.0,'test')
@@ -61,7 +64,6 @@ public class MetricsCollectionTest {
         }).execute();
         api.close();
 
-        Path metricsFile = Bench.outputDir.resolve(Bench.metricsFileName);
         assertTrue(Files.exists(metricsFile), "Missing metrics output file");
         var text = Filer.getFileText(metricsFile);
         assertEquals("""
