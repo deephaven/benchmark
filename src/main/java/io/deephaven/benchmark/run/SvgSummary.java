@@ -38,8 +38,8 @@ class SvgSummary {
      * @param svgFile the svg file path to produce
      */
     SvgSummary(URL platformCsv, URL benchmarkCsv, URL svgTemplate, Path svgFile) {
-        this.benchmarks = readSummaryCsv(benchmarkCsv, "benchmark_name");
-        this.platformProps = readSummaryCsv(platformCsv, "origin", "name");
+        this.benchmarks = readSummaryCsv(benchmarkCsv, "op_rate", true, "benchmark_name");
+        this.platformProps = readSummaryCsv(platformCsv, "value", false, "origin", "name");
         this.svgTemplate = Filer.getURLText(svgTemplate);
         this.outputDir = svgFile.getParent();
         this.svgFile = svgFile;
@@ -74,20 +74,28 @@ class SvgSummary {
         Filer.putFileText(svgFile, out);
     }
 
-    private Map<String, Row> readSummaryCsv(URL csv, String... nameColumns) {
+    private Map<String, Row> readSummaryCsv(URL csv, String sortColumn, boolean isNumber, String... keyColumns) {
         var header = new HashMap<String, Integer>();
-        var benchmarks = new HashMap<String, Row>();
+        var groups = new HashMap<String, List<Row>>();
         var csvLines = Filer.getURLText(csv).lines().toList();
         for (int i = 0, n = csvLines.size(); i < n; i++) {
             String[] values = csvLines.get(i).split(",");
             if (i == 0) {
                 IntStream.range(0, values.length).forEach(pos -> header.put(values[pos], pos));
             } else {
-                var next = new Row(header, values, nameColumns);
-                var existing = benchmarks.get(next.getName());
-                if (next.isNewerThan(existing))
-                    benchmarks.put(next.getName(), next);
+                var row = new Row(header, values, keyColumns);
+                var group = groups.get(row.getVarName());
+                if (group == null)
+                    groups.put(row.getVarName(), group = new ArrayList<Row>());
+                group.add(row);
             }
+        }
+        var benchmarks = new HashMap<String, Row>();
+        var comparator = new RowComparator(sortColumn, isNumber);
+        for (List<Row> group : groups.values()) {
+            Collections.sort(group, comparator);
+            var midRow = group.get(group.size() / 2);
+            benchmarks.put(midRow.getVarName(), midRow);
         }
         return benchmarks;
     }
@@ -99,16 +107,28 @@ class SvgSummary {
         return str.replace("${benchmark_count}", "" + benchmarks.size());
     }
 
-    record PlatformProp(Map<String, Integer> header, String[] values) {
-        String getValue(String colName) {
-            Integer index = header.get(colName);
-            if (index == null)
-                throw new RuntimeException("Undefined platform column name: " + colName);
-            return values[index].trim();
+    class RowComparator implements Comparator<Row> {
+        final String sortKey;
+        final boolean isNumber;
+
+        RowComparator(String sortKey, boolean isNumber) {
+            this.sortKey = sortKey;
+            this.isNumber = isNumber;
+        }
+
+        @Override
+        public int compare(Row r1, Row r2) {
+            var v1 = r1.getValue(sortKey);
+            var v2 = r2.getValue(sortKey);
+            if (!isNumber)
+                return v1.compareTo(v2);
+            var d1 = (Double) Numbers.parseNumber(v1).doubleValue();
+            var d2 = (Double) Numbers.parseNumber(v2).doubleValue();
+            return d1.compareTo(d2);
         }
     }
 
-    record Row(Map<String, Integer> header, String[] values, String... lookupColumns) {
+    record Row(Map<String, Integer> header, String[] values, String... varColumns) {
         String getValue(String colName) {
             Integer index = header.get(colName);
             if (index == null)
@@ -116,10 +136,10 @@ class SvgSummary {
             return values[index].trim();
         }
 
-        String getName() {
+        String getVarName() {
             var name = "";
-            for (int i = 0, n = lookupColumns.length; i < n; i++) {
-                var v = getValue(lookupColumns[i]);
+            for (int i = 0, n = varColumns.length; i < n; i++) {
+                var v = getValue(varColumns[i]);
                 name += (i == 0) ? v : (">>" + v);
             }
             return name;

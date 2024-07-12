@@ -1,6 +1,9 @@
 run_id,benchmark_name,origin,timestamp,test_duration,op_duration,op_rate,row_count
 1,AvgBy- 2 Groups 160K Unique Combos Int -Static,deephaven-engine,1688376932899,21.3360,12.0680,14915478,180000000
-2,AvgBy- 2 Groups 160K Unique Combos Int -Inc,deephaven-engine,1688376954235,21.2960,12.4870,9609994,120000000
-3,MedianBy- 2 Group 160K Unique Combos Float -Static,deephaven-engine,1688375192283,24.9090,16.6020,2409348,40000000
-4,MedianBy- 2 Group 160K Unique Combos Float -Inc,deephaven-engine,1688375217193,26.0260,17.9630,2226799,40000000
-5,NoOp- 20 Double Cols JSON Append,deephaven-engine,1688374272565,26.0520,11.8600,210792,2500000
+2,AvgBy- 2 Groups 160K Unique Combos Int -Static,deephaven-engine,1688376932899,21.8360,12.5680,13915478,180000000
+3,AvgBy- 2 Groups 160K Unique Combos Int -Inc,deephaven-engine,1688376954235,21.2960,12.4870,9609994,120000000
+4,MedianBy- 2 Group 160K Unique Combos Float -Static,deephaven-engine,1688375192283,24.6090,16.6020,2409348,40000000
+6,MedianBy- 2 Group 160K Unique Combos Float -Static,deephaven-engine,1688375192283,24.8090,16.8020,2209348,40000000
+5,MedianBy- 2 Group 160K Unique Combos Float -Static,deephaven-engine,1688375192283,24.7090,16.7020,2309348,40000000
+7,MedianBy- 2 Group 160K Unique Combos Float -Inc,deephaven-engine,1688375217193,26.0260,17.9630,2226799,40000000
+8,NoOp- 20 Double Cols JSON Append,deephaven-engine,1688374272565,26.0520,11.8600,210792,2500000
