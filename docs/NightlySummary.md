@@ -1,6 +1,6 @@
 # Nightly Benchmark Summary
 
-![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/benchmark-summary.svg?)
+![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/deephaven/benchmark-summary.svg?)
 
 ## Summary Table Organization
 

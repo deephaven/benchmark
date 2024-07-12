@@ -54,6 +54,7 @@ TMP_SVG_DIR=${DEST_DIR}/tmp-svg
 mkdir -p ${TMP_SVG_DIR}
 mv ${DEST_DIR}/*.svg ${TMP_SVG_DIR}
 mv ${TMP_SVG_DIR}/${RUN_TYPE}-benchmark-summary.svg ${DEST_DIR}/benchmark-summary.svg
+cp ${DEST_DIR}/benchmark-summary.svg ${DEST_DIR}/../
 rm -rf ${TMP_SVG_DIR}
 
 # Compress CSV and Test Logs

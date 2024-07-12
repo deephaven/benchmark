@@ -1,6 +1,6 @@
 # Comparison Benchmark Summary
 
-![Operation Rate Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/benchmark-summary.svg?)
+![Operation Rate Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/deephaven/benchmark-summary.svg?)
 
 ## Comparison Table Organization
 

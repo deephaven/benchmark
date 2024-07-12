@@ -1,7 +1,7 @@
 # Deephaven Benchmark
 
 [Summary of Latest Successful Nightly Benchmarks](docs/NightlySummary.md)
-![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/benchmark-summary.svg?)
+![Operation Rate Change Tracking By Release](https://storage.googleapis.com/deephaven-benchmark/nightly/deephaven/benchmark-summary.svg?)
 ([See Other Deephaven Summaries Below](#other-deephaven-summaries))
 
 The Benchmark framework provides support for gathering performance measurements and statistics for operations on tabular data.  It uses the JUnit
@@ -75,4 +75,4 @@ used for nightly Deephaven benchmarks. Either way the submission of the result t
 ## Other Deephaven Summaries
 
 [Summary of Comparison Benchmarks](docs/ComparisonSummary.md)
-![Operation Rate Product Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/benchmark-summary.svg?)
+![Operation Rate Product Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/deephaven/benchmark-summary.svg?)
