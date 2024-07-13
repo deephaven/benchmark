@@ -120,7 +120,7 @@ class SvgSummary {
         public int compare(Row r1, Row r2) {
             var v1 = r1.getValue(sortKey);
             var v2 = r2.getValue(sortKey);
-            if (!isNumber)
+            if (!isNumber || v1.isBlank() || v2.isBlank())
                 return v1.compareTo(v2);
             var d1 = (Double) Numbers.parseNumber(v1).doubleValue();
             var d2 = (Double) Numbers.parseNumber(v2).doubleValue();
@@ -133,7 +133,7 @@ class SvgSummary {
             Integer index = header.get(colName);
             if (index == null)
                 throw new RuntimeException("Undefined benchmark column name: " + colName);
-            return values[index].trim();
+            return (index < values.length) ? values[index].trim() : "";
         }
 
         String getVarName() {
@@ -143,10 +143,6 @@ class SvgSummary {
                 name += (i == 0) ? v : (">>" + v);
             }
             return name;
-        }
-
-        boolean isNewerThan(Row other) {
-            return (other == null) ? true : (getValue("run-id").compareTo(other.getValue("run-id")) > 0);
         }
     }
 

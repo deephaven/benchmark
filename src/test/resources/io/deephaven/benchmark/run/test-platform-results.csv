@@ -16,3 +16,6 @@ run_id,origin,name,value
 1,deephaven-engine,available.processors,16
 1,deephaven-engine,java.max.memory,24g
 1,deephaven-engine,deephaven.version,0.28.0
+1,deephaven-engine,deephaven.version,0.28.0
+1,duplicate,myname,
+1,duplicate,myname,myval
