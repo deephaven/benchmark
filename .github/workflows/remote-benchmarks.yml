@@ -51,7 +51,7 @@ jobs:
       ROW_CNT: ${{inputs.scale_row_count}}
       DISTRIB: ${{inputs.distribution}}
       TEST_ITERS: ${{inputs.test_iterations}}
-      ACTOR: ${{github.actor}}
+      ACTOR: "${{ ${{inputs.run_label}} == 'adhoc' && ${{github.actor}} || ${{ github.repository_owner }} }}"    
 
     steps:
     - uses: actions/checkout@v3

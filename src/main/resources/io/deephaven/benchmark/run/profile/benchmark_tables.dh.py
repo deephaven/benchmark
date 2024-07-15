@@ -2,17 +2,13 @@
 #
 # Deephaven query to run against historical benchmark data stored in GCloud bucket and produce
 # some useful correlated tables
-# Requirements: Deephaven 0.23.0 or greater
+# Requirements: Deephaven 0.32.0 or greater
 
 import os, re, glob, jpy
 import deephaven.dtypes as dht
 from deephaven import read_csv, merge, agg, empty_table
 from urllib.request import urlopen, urlretrieve
 from numpy import typing as npt
-
-# Schema for benchmstk-results.csv
-s_results = {'benchmark_name':dht.string, 'origin':dht.string,'timestamp':dht.long,'test_duration':dht.double,
-    'op_duration':dht.double,'op_rate':dht.long,'row_count':dht.long}
 
 # Convert the given name to a name suitable for a DH column name
 def normalize_name(name):
@@ -89,28 +85,41 @@ def cache_remote_csv(uri):
             return uri
 
 # Read csv into a table (Currently, pandas is used for gzipped csv)
-def dh_read_csv(uri, schema=None):
+def dh_read_csv(uri, convert_func):
     uri = uri.replace('file:///','/')
     uri = cache_remote_csv(uri) if uri.startswith('http') else uri
     try:
-        tbl = read_csv(uri + '.gz', schema) if schema else read_csv(uri + '.gz')
+        tbl = read_csv(uri + '.gz')
+        tbl = convert_func(tbl)
         print('Load ' + uri + '.gz')
     except Exception:
-        tbl = read_csv(uri, schema) if schema else read_csv(uri)
+        tbl = read_csv(uri)
+        tbl = convert_func(tbl)
         print('Load ' + uri)
     return tbl
 
 # Merge together benchmark runs from the GCloud bucket for the same csv (e.g. benchmark_results.csv)
-def merge_run_tables(parent_uri, run_ids, category, csv_file_name, schema = None):
+def merge_run_tables(parent_uri, run_ids, category, csv_file_name, convert_func):
     tables = []
     for run_id in run_ids:
         table_uri = parent_uri + '/' + category + '/' + run_id + '/' + csv_file_name
-        table_csv = dh_read_csv(table_uri, schema)
+        table_csv = dh_read_csv(table_uri, convert_func)
         set_id = os.path.dirname(run_id)
         run_id = os.path.basename(run_id)
         table_csv = table_csv.update_view(['set_id = "' + set_id + '"', 'run_id = "' + run_id + '"'])
         tables.append(table_csv)
     return merge(tables)
+
+def convert_result(table):
+    return table.view(['benchmark_name','origin','timestamp=(long)timestamp','test_duration=(double)test_duration',
+        'op_duration=(double)op_duration','op_rate=(long)op_rate','row_count=(long)row_count'])
+
+def convert_metric(table):
+    return table.view(['benchmark_name','origin','timestamp=(long)timestamp','name',
+        'value=(double)value','note'])
+
+def convert_platform(table):
+    return table.view(['origin','name','value'])
 
 # Load standard tables from GCloud or local storage according to category
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
@@ -122,7 +131,7 @@ default_set_filter = '.*'
 default_platform_props = []
 default_metric_props = []
 
-storage_uri = 'file:///data/deephaven-benchmark'  #benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
+storage_uri = benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in globals() else default_storage_uri
 category = benchmark_category_arg if 'benchmark_category_arg' in globals() else default_category
 max_sets = benchmark_max_sets_arg if 'benchmark_max_sets_arg' in globals() else default_max_sets
 history_runs = benchmark_history_runs_arg if 'benchmark_history_runs_arg' in globals() else default_history_runs
@@ -132,9 +141,9 @@ platform_props = benchmark_platform_props_arg if 'benchmark_platform_props_arg' 
 metric_props = benchmark_metric_props_arg if 'benchmark_metric_props_arg' in globals() else default_metric_props
 run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
 
-bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', s_results)
-bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv')
-bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv')
+bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', convert_result)
+bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv', convert_metric)
+bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv', convert_platform)
 
 # Add columns for the specified platform properties
 def add_platform_values(table, pnames=[], cnames = []):

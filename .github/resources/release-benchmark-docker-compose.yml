@@ -1,5 +1,3 @@
-version: "3.4"
-
 services:
   deephaven:
     image: ${DOCKER_IMG}

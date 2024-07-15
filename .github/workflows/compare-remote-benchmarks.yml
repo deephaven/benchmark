@@ -11,7 +11,7 @@ on:
      docker_image:
        description: 'Docker Image Name'
        required: true
-       default: '0.32.0'
+       default: '0.35.0'
        type: string
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       run_label: "<version>"
       test_package: "io.deephaven.benchmark.tests.compare"
       test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
-      test_iterations: 1
+      test_iterations: 3
       scale_row_count: 70000000
       distribution: random
     secrets: inherit

@@ -14,6 +14,9 @@ with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_set_filter_arg = '[0-9]{4}([-][0-9]{2}){2}'  # yyyy-mm-dd
     exec(r.read().decode(), globals(), locals())
 
+# Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
+platform_details = bench_platforms.sort_descending(['set_id']).group_by(['set_id']).first_by().ungroup()
+
 # Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
 # Candidate for pulling up into deephaven_tables.py
 def latest_comparable_benchmarks(filter_table):
