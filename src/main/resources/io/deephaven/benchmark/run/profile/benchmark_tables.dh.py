@@ -42,8 +42,7 @@ def get_children(storage_uri, category, max_runs):
     else: 
         return get_local_children(storage_uri, category, max_runs)
         
-def get_run_paths(storage_uri, category, actor_filter, set_filter, max_set=10):
-    print('Get Run Paths', storage_uri, category, actor_filter, set_filter, max_set)
+def get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets):
     set_matcher = re.compile(set_filter)
     actor_matcher = re.compile(actor_filter)
     benchmark_sets = []
@@ -110,24 +109,34 @@ def merge_run_tables(parent_uri, run_ids, category, csv_file_name, convert_func)
         tables.append(table_csv)
     return merge(tables)
 
+# Do any conversions of type or column name needed from benchmark-results.csv
 def convert_result(table):
     return table.view(['benchmark_name','origin','timestamp=(long)timestamp','test_duration=(double)test_duration',
         'op_duration=(double)op_duration','op_rate=(long)op_rate','row_count=(long)row_count'])
-
+        
+# Do any conversions of type or column name needed from benchmark-metrics.csv
 def convert_metric(table):
     return table.view(['benchmark_name','origin','timestamp=(long)timestamp','name',
         'value=(double)value','note'])
-
+        
+# Do any conversions of type or column name needed from benchmark-platform.csv
 def convert_platform(table):
     return table.view(['origin','name','value'])
+    
+def get_default_actor_filter(category):
+    if category in ['release','nightly','compare']: return 'deephaven'
+    return '.*'
+    
+def get_default_set_filter(category):
+    if category in ['release','compare']: return '[0-9]{2}[.][0-9]{3}[.][0-9]{2}'  # ##.###.##
+    if category in ['nightly']: return '[0-9]{4}([-][0-9]{2}){2}'  # yyyy-mm-dd
+    return '.+'
 
 # Load standard tables from GCloud or local storage according to category
 default_storage_uri = 'https://storage.googleapis.com/deephaven-benchmark'
 default_category = 'adhoc'
 default_max_sets = 100
 default_history_runs = 5
-default_actor_filter = '.*'
-default_set_filter = '.*'
 default_platform_props = []
 default_metric_props = []
 
@@ -135,12 +144,15 @@ storage_uri = benchmark_storage_uri_arg if 'benchmark_storage_uri_arg' in global
 category = benchmark_category_arg if 'benchmark_category_arg' in globals() else default_category
 max_sets = benchmark_max_sets_arg if 'benchmark_max_sets_arg' in globals() else default_max_sets
 history_runs = benchmark_history_runs_arg if 'benchmark_history_runs_arg' in globals() else default_history_runs
-actor_filter = benchmark_actor_filter_arg if 'benchmark_actor_filter_arg' in globals() else default_actor_filter
-set_filter = benchmark_set_filter_arg if 'benchmark_set_filter_arg' in globals() else default_set_filter
+actor_filter = benchmark_actor_filter_arg if 'benchmark_actor_filter_arg' in globals() else get_default_actor_filter(category)
+set_filter = benchmark_set_filter_arg if 'benchmark_set_filter_arg' in globals() else get_default_set_filter(category)
 platform_props = benchmark_platform_props_arg if 'benchmark_platform_props_arg' in globals() else default_platform_props
 metric_props = benchmark_metric_props_arg if 'benchmark_metric_props_arg' in globals() else default_metric_props
-run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
 
+print('Running:', {'storage_uri':storage_uri,'category':category,'max_sets':max_sets,'history_runs':history_runs,
+    'actor_filter':actor_filter,'set_filter':set_filter,'platform_props':platform_props,'metric_props':metric_props})
+
+run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
 bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', convert_result)
 bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv', convert_metric)
 bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv', convert_platform)
