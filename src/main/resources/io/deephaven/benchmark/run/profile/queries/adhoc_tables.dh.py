@@ -1,3 +1,5 @@
+# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+#
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between two or more
 # adhoc benchmark set runs
 # - Make a table containing rates and diffs for the given benchmark sets

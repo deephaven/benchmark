@@ -215,6 +215,7 @@ final public class StandardTestRunner {
 
     Result runStaticTest(String name, String operation, String read, String... loadColumns) {
         var staticQuery = """
+        source = right = timed = None
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
@@ -242,18 +243,17 @@ final public class StandardTestRunner {
 
     Result runIncTest(String name, String operation, String read, String... loadColumns) {
         var incQuery = """
+        source = right = timed = None
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
         
-        right_on = True
-        
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
         ${mainTable} = ${mainTable}.where(source_filter)
-        if right and right_on: 
-            right_filter = autotune(0, 100000, 1.0, True)
+        if right: 
+            right_filter = autotune(0, 1010000, 1.0, True)
             right = right.where(right_filter)
             print('Using Inc Right')
         
@@ -264,13 +264,13 @@ final public class StandardTestRunner {
         begin_time = time.perf_counter_ns()
         result = ${operation}
         
-        if right and right_on: right_filter.start()
+        if right: right_filter.start()
         source_filter.start()
         
         from deephaven.execution_context import get_exec_ctx
         get_exec_ctx().update_graph.j_update_graph.requestRefresh()
         
-        if right and right_on: right_filter.waitForCompletion()
+        if right: right_filter.waitForCompletion()
         source_filter.waitForCompletion()
         
         end_time = time.perf_counter_ns()
