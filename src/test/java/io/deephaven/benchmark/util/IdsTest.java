@@ -9,7 +9,7 @@ public class IdsTest {
     @Test
     void uniqueName() {
         var ids = new LinkedHashSet<String>();
-        int count = 100000;
+        int count = 1000000;
         for (int i = 0; i < count; i++) {
             ids.add(Ids.uniqueName("p"));
         }

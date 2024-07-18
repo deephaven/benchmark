@@ -3,12 +3,14 @@ package io.deephaven.benchmark.util;
 
 import java.time.Instant;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provide unique Ids for file naming
  */
 public class Ids {
     static final Random random = new Random();
+    static final AtomicInteger delta = new AtomicInteger(new Random().nextInt(100000, 999999));
 
     /**
      * Replace any characters in the given name that may not be safe to use as a file name
@@ -40,14 +42,17 @@ public class Ids {
     }
 
     /**
-     * Return a unique identifier (not a UUID) ex. Fd7YDsw.1.bjSAVA
+     * Make a unique time-based identifier (not a UUID). Successive calls guarantee a unique name returned within a
+     * single JVM.
+     * <p/>
+     * ex. PREFIX.UIuyguJ.2cOP
      * 
      * @return the unique name
      */
     static public String uniqueName(String prefix) {
         String time = nowBase62();
-        String rand = Numbers.toBase62(Math.abs(random.nextInt()));
-        return String.join(".", prefix, time, rand);
+        String d = Numbers.toBase62(Math.abs(delta.incrementAndGet()));
+        return String.join(".", prefix, time, d);
     }
 
     /**
