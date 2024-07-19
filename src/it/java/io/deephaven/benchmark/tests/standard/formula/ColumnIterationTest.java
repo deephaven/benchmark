@@ -19,7 +19,7 @@ public class ColumnIterationTest {
 
     @Test
     void iterDict2Cols() {
-        setup(2);
+        setup(1);
         var q = """
         new_table([
             double_col('total', [sum(row['num1'] + row['num2'] for row in source.iter_dict())])
@@ -30,7 +30,7 @@ public class ColumnIterationTest {
 
     @Test
     void iterTuple2Cols() {
-        setup(4);
+        setup(2);
         var q = """
         new_table([
             double_col('total', [sum(row.num1 + row.num2 for row in source.iter_tuple())])
