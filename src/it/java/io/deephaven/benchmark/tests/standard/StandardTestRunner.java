@@ -215,6 +215,7 @@ final public class StandardTestRunner {
 
     Result runStaticTest(String name, String operation, String read, String... loadColumns) {
         var staticQuery = """
+        source = right = timed = None
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
@@ -242,13 +243,19 @@ final public class StandardTestRunner {
 
     Result runIncTest(String name, String operation, String read, String... loadColumns) {
         var incQuery = """
+        source = right = timed = None
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
+        
         autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
         source_filter = autotune(0, 1000000, 1.0, True)
         ${mainTable} = ${mainTable}.where(source_filter)
+        if right: 
+            right_filter = autotune(0, 1010000, 1.0, True)
+            right = right.where(right_filter)
+            print('Using Inc Right')
         
         garbage_collect()
         
@@ -256,11 +263,16 @@ final public class StandardTestRunner {
         print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
         result = ${operation}
+        
+        if right: right_filter.start()
         source_filter.start()
         
         from deephaven.execution_context import get_exec_ctx
         get_exec_ctx().update_graph.j_update_graph.requestRefresh()
+        
+        if right: right_filter.waitForCompletion()
         source_filter.waitForCompletion()
+        
         end_time = time.perf_counter_ns()
         print('${logOperationEnd}')
         standard_metrics = bench_api_metrics_collect()
@@ -337,6 +349,7 @@ final public class StandardTestRunner {
         import numba as nb
         
         bench_api_metrics_init()
+        source = right = timed = None
         """;
 
         this.api = Bench.create(testInst);
