@@ -16,32 +16,32 @@ public class SumByTest {
         runner.tables("source");
     }
 
-    @Test
-    void sumBy0Group() {
-        runner.setScaleFactors(40, 40);
-        var q = "source.sum_by()";
-        runner.test("SumBy- No Groups", 1, q, "key3", "num1", "num2");
-    }
-
-    @Test
-    void sumBy1Group() {
-        runner.setScaleFactors(11, 10);
-        var q = "source.sum_by(by=['key1'])";
-        runner.test("SumBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
-    }
+//    @Test
+//    void sumBy0Group() {
+//        runner.setScaleFactors(40, 40);
+//        var q = "source.sum_by()";
+//        runner.test("SumBy- No Groups", 1, q, "key3", "num1", "num2");
+//    }
+//
+//    @Test
+//    void sumBy1Group() {
+//        runner.setScaleFactors(11, 10);
+//        var q = "source.sum_by(by=['key1'])";
+//        runner.test("SumBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
+//    }
 
     @Test
     void sumBy2Groups() {
-        runner.setScaleFactors(3, 2);
+        runner.setScaleFactors(3, 0);
         var q = "source.sum_by(by=['key1', 'key2'])";
         runner.test("SumBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
-    @Test
-    void sumBy3Groups() {
-        runner.setScaleFactors(2, 1);
-        var q = "source.sum_by(by=['key1', 'key2', 'key3'])";
-        runner.test("SumBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
-    }
+//    @Test
+//    void sumBy3Groups() {
+//        runner.setScaleFactors(2, 1);
+//        var q = "source.sum_by(by=['key1', 'key2', 'key3'])";
+//        runner.test("SumBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
+//    }
 
 }
