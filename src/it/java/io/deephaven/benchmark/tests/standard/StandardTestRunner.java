@@ -215,7 +215,6 @@ final public class StandardTestRunner {
 
     Result runStaticTest(String name, String operation, String read, String... loadColumns) {
         var staticQuery = """
-        source = right = timed = None
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
@@ -349,7 +348,6 @@ final public class StandardTestRunner {
         import numba as nb
         
         bench_api_metrics_init()
-        source = right = timed = None
         """;
 
         this.api = Bench.create(testInst);
