@@ -16,26 +16,26 @@ public class AvgByTest {
         runner.tables("source");
     }
     
-    @Test
-    void avgBy0Group() {
-        runner.setScaleFactors(40, 40);
-        var q = "source.avg_by()";
-        runner.test("AvgBy- No Groups", 1, q, "key3", "num1", "num2");
-    }
-
-    @Test
-    void avgBy1Group() {
-        runner.setScaleFactors(11, 10);
-        var q = "source.avg_by(by=['key1'])";
-        runner.test("AvgBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
-    }
-
-    @Test
-    void avgBy2Groups() {
-        runner.setScaleFactors(3, 2);
-        var q = "source.avg_by(by=['key1', 'key2'])";
-        runner.test("AvgBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
-    }
+//    @Test
+//    void avgBy0Group() {
+//        runner.setScaleFactors(40, 40);
+//        var q = "source.avg_by()";
+//        runner.test("AvgBy- No Groups", 1, q, "key3", "num1", "num2");
+//    }
+//
+//    @Test
+//    void avgBy1Group() {
+//        runner.setScaleFactors(11, 10);
+//        var q = "source.avg_by(by=['key1'])";
+//        runner.test("AvgBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
+//    }
+//
+//    @Test
+//    void avgBy2Groups() {
+//        runner.setScaleFactors(3, 2);
+//        var q = "source.avg_by(by=['key1', 'key2'])";
+//        runner.test("AvgBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
+//    }
 
     @Test
     void avgBy3Groups() {

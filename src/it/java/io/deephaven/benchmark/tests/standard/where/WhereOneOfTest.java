@@ -27,14 +27,14 @@ public class WhereOneOfTest {
         runner.test("WhereOneOf- 1 Filter", q, "key1", "num1");
     }
 
-//    @Test
-//    void whereOneOf2Filters() {
-//        runner.setScaleFactors(90, 80);
-//        var q = """
-//        source.where_one_of(filters=["key1 = '50'", "key2 = '51'"]);
-//        """;
-//        runner.test("WhereOneOf- 2 Filters", q, "key1", "key2", "num1");
-//    }
+    @Test
+    void whereOneOf2Filters() {
+        runner.setScaleFactors(90, 80);
+        var q = """
+        source.where_one_of(filters=["key1 = '50'", "key2 = '51'"]);
+        """;
+        runner.test("WhereOneOf- 2 Filters", q, "key1", "key2", "num1");
+    }
 //
 //    @Test
 //    void whereOneOf3Filters() {
