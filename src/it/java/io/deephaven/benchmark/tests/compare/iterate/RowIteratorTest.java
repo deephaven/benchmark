@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.iterate;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for iterating and summing table columns. Tests read the same parquet data. To avoid an
@@ -19,12 +18,12 @@ import io.deephaven.benchmark.tests.compare.Setup;
  * desired data has been generated.
  */
 @TestMethodOrder(OrderAnnotation.class)
-public class ColumnRowTest {
+public class RowIteratorTest {
     final CompareTestRunner runner = new CompareTestRunner(this);
 
     @Test
     @Order(1)
-    public void deephavenColumnIteration() {
+    public void deephavenRowIterator() {
         runner.initDeephaven(2, "source", null, "int250", "int640");
         var setup = "from deephaven.parquet import read";
         var op = """
@@ -40,7 +39,7 @@ public class ColumnRowTest {
 
     @Test
     @Order(2)
-    public void pyarrowFilter() {
+    public void pyarrowRowIterator() {
         runner.initPython("pyarrow");
         var setup = """
         import pyarrow as pa
@@ -65,7 +64,7 @@ public class ColumnRowTest {
 
     @Test
     @Order(3)
-    public void pandasColumnIteration() {
+    public void pandasRowIteratior() {
         runner.initPython("fastparquet", "pandas");
         var setup = "import pandas as pd";
         var op = """
@@ -82,20 +81,22 @@ public class ColumnRowTest {
 
     @Test
     @Order(4)
-    public void duckdbColumnIterator() {
+    public void duckdbRowIterator() {
         runner.initPython("duckdb");
         var setup = """
-        import duckdb as db"
-        
-        def iterdicts(table): 
-        
-        while batch := handle.fetchmany(batch_size):
-            print(batch)
+        import duckdb as db
+
+        def iterdicts(table):
+            while batch := table.fetchmany(1000):
+                for row in batch:
+                    r = {'int250':row[0],'int640':row[1]}
+                    yield r
         """;
         var op = """
-        handle = db.sql("SELECT * FROM '/data/source.parquet'")
-        db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
-        db.sql("INSERT INTO results SELECT * FROM source WHERE str250 = '250' AND int640 > 100 AND int640 < 540")
+        source = db.sql("SELECT * FROM '/data/source.parquet'")
+        
+        db.sql("CREATE TABLE results(total INT)")
+        db.sql("INSERT INTO results VALUES(" + str(sum(row['int250'] + row['int640'] for row in iterdicts(source))) + ")")
         sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
         resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
         """;
