@@ -348,7 +348,7 @@ final public class StandardTestRunner {
         import numba as nb
         
         bench_api_metrics_init()
-        source = right = timed = None
+        #source = right = timed = None
         """;
 
         this.api = Bench.create(testInst);
