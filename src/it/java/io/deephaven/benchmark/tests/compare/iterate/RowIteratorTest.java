@@ -46,16 +46,19 @@ public class RowIteratorTest {
         import pyarrow.dataset as ds
         import pyarrow.compute as pc
         
-        def iterdicts(table):
-            for i in range(0, table.num_rows):
-                row = table[i:i + 1].to_pydict()
-                yield row
+        def iterdicts(table, cols=[]):
+            for batch in table.to_batches(1024):
+                d = batch.to_pydict()
+                int250 = d['int250']
+                int640 = d['int640']
+                for i in range(len(int250)):
+                    row = {'int250':int250[i],'int640':int640[i]}
+                    yield row
         """;
         var op = """
         source = ds.dataset('/data/source.parquet', format="parquet").to_table()
-        result = pa.Table.from_pydict({
-            'total':[sum(row['int250'][0] + row['int640'][0] for row in iterdicts(source))]
-        })
+        rsum = sum(row['int250'] + row['int640'] for row in iterdicts(source))
+        result = pa.Table.from_pydict({'total':[rsum]})
         """;
         var msize = "source.num_rows";
         var rsize = "result.num_rows";
@@ -69,10 +72,8 @@ public class RowIteratorTest {
         var setup = "import pandas as pd";
         var op = """
         source = pd.read_parquet('/data/source.parquet')
-        result = pd.DataFrame(
-            [[sum(row.int250 + row.int640 for row in source.itertuples())]], 
-            columns=['total']
-        )
+        rsum = sum(row.int250 + row.int640 for row in source.itertuples())
+        result = pd.DataFrame([[rsum]], columns=['total'])
         """;
         var msize = "len(source)";
         var rsize = "len(result)";
@@ -87,7 +88,7 @@ public class RowIteratorTest {
         import duckdb as db
 
         def iterdicts(table):
-            while batch := table.fetchmany(1000):
+            while batch := table.fetchmany(1024):
                 for row in batch:
                     r = {'int250':row[0],'int640':row[1]}
                     yield r
@@ -96,7 +97,8 @@ public class RowIteratorTest {
         source = db.sql("SELECT * FROM '/data/source.parquet'")
         
         db.sql("CREATE TABLE results(total INT)")
-        db.sql("INSERT INTO results VALUES(" + str(sum(row['int250'] + row['int640'] for row in iterdicts(source))) + ")")
+        rsum = sum(row['int250'] + row['int640'] for row in iterdicts(source))
+        db.sql("INSERT INTO results VALUES(" + str(rsum) + ")")
         sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
         resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
         """;
