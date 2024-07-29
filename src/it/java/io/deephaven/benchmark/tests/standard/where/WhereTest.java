@@ -7,6 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the where table operation. Filters rows of data from the source table.
  */
+@Tag("Iterate")
 public class WhereTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
@@ -17,7 +18,6 @@ public class WhereTest {
     }
 
     @Test
-    @Tag("Iterate")
     void where1Filter() {
         runner.setScaleFactors(330, 310);
         var q = """

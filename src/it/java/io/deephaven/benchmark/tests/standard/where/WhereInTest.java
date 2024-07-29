@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the whereIn table operation. Filters rows of data from the source table where the rows match
  * column values in the filter table.
  */
+@Tag("Iterate")
 public class WhereInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
@@ -28,7 +29,6 @@ public class WhereInTest {
     }
 
     @Test
-    @Tag("Iterate")
     void whereIn1Filter() {
         runner.setScaleFactors(135, 100);
         var q = "source.where_in(where_filter, cols=['key1 = set1'])";
