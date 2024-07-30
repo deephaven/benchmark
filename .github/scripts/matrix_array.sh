@@ -3,11 +3,10 @@
 set -o errexit
 set -o pipefail
 
-# For a given descriptor, return the appropriate matrix array
-# that can be read in a Github workflow with fromJSON(array) that 
-# corresponds 
-# ex. matrix_array.sh adhoc 5
-# ex. matrix_array.sh release 4
+# For a given descriptor, return the appropriate array that can be read by a Github 
+# workflow with fromJSON(array)
+# ex. matrix_array.sh matrix-arr adhoc 5
+# ex. matrix_array.sh matrix-arr release 4
 
 NAME=$1
 RUN_TYPE=$2
