@@ -101,7 +101,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        tag: fromJSON(${{ needs.setup-benchmarks.outputs.matrix-iterations }})
+        tag: ${{ fromJson(needs.setup-benchmarks.outputs.matrix-iterations) }}
     env: 
       SD: .github/scripts
       HOST: ${{secrets.BENCHMARK_HOST}}
