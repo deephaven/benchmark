@@ -93,7 +93,7 @@ jobs:
     - name: Set Iteration Matrix Output Variable
       id: matrix-iterations
       run: | 
-        $(${SD}/matrix_array.sh matrix-iterations ${RUN_TYPE} ${TEST_ITERS}) >> "$GITHUB_OUTPUT"
+        ${SD}/matrix_array.sh matrix-iterations ${RUN_TYPE} ${TEST_ITERS} >> "$GITHUB_OUTPUT"
 
   run-benchmarks:
     needs: setup-benchmarks
@@ -101,7 +101,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        tag: needs.setup-benchmarks.outputs.matrix-iterations
+        tag: ${{ needs.setup-benchmarks.outputs.matrix-iterations }}
     env: 
       SD: .github/scripts
       HOST: ${{secrets.BENCHMARK_HOST}}
