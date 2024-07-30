@@ -4,8 +4,11 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Run benchmarks on the remote side
-# Assumes the deephaven-benchmark-*.jar artifact has been built and placed
+# Run benchmarks on the remote side doing one iteration according to the following contract:
+# - If TAG_NAME is "Any", run all tests
+# - If TAG_NAME starts with "!", run all tests except the named tag
+# - Otherwise, run tests marked with the tag name
+# Note: Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
 if [[ $# != 6 ]]; then
   echo "$0: Missing run type, test package, test regex, row count, distribution, or tag name"
@@ -36,11 +39,14 @@ cd ${DEEPHAVEN_DIR};
 title "-- Running Benchmarks --"
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
+RUN_EXEC=java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar
 
 if [ "${TAG_NAME}" = "Any" ]; then
-  java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+  ${RUN_EXEC} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+elif [[ "${TAG_NAME}" = !* ]]; then
+  ${RUN_EXEC} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}" -T "${TAG_NAME:1}"
 else
-  java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -t "${TAG_NAME}"
+  ${RUN_EXEC} -p ${TEST_PACKAGE} -t "${TAG_NAME}"
 fi
 
 title "-- Getting Docker Logs --"

@@ -11,14 +11,18 @@ set -o pipefail
 
 NAME=$1
 RUN_TYPE=$2
-ITERATIONS=$(($3 - 1))
-
-STR='["Any"'
-TAG='Any'
+ITERATIONS=$3
 
 if [ "${RUN_TYPE}" = 'release' ] || [ "${RUN_TYPE}" = 'adhoc' ]; then
-  TAG='Iterate' 
+  FIRST='!Iterate'
+  TAG='Iterate'
+else
+  FIRST='Any'
+  TAG='Any'
+  ITERATIONS=$((ITERATIONS - 1))
 fi
+
+STR='["'${FIRST}'"'
 
 for i in $(seq ${ITERATIONS}); do
   STR=${STR}',"'${TAG}'"'
@@ -27,5 +31,4 @@ done
 STR=${STR}']'
 
 echo "${NAME}=${STR}"
-
 
