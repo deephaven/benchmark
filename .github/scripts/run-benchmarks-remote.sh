@@ -39,14 +39,14 @@ cd ${DEEPHAVEN_DIR};
 title "-- Running Benchmarks --"
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
-RUN_EXEC=java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar
+JAVA_OPTS=-Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar
 
 if [ "${TAG_NAME}" = "Any" ]; then
-  ${RUN_EXEC} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
 elif [[ "${TAG_NAME}" = !* ]]; then
-  ${RUN_EXEC} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}" -T "${TAG_NAME:1}"
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}" -T "${TAG_NAME:1}"
 else
-  ${RUN_EXEC} -p ${TEST_PACKAGE} -t "${TAG_NAME}"
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -t "${TAG_NAME}"
 fi
 
 title "-- Getting Docker Logs --"
