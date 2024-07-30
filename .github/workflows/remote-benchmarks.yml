@@ -46,13 +46,7 @@ jobs:
       BRANCH: ${{github.ref_name}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
-      RUN_LABEL: ${{inputs.run_label}}
-      TEST_PKG: ${{inputs.test_package}}
-      TEST_RGX: ${{inputs.test_class_regex}}
-      ROW_CNT: ${{inputs.scale_row_count}}
-      DISTRIB: ${{inputs.distribution}}
       TEST_ITERS: ${{inputs.test_iterations}}
-      ACTOR: "${{ inputs.run_label == 'adhoc' && github.actor || github.repository_owner }}"    
 
     steps:
     - uses: actions/checkout@v3
@@ -132,11 +126,8 @@ jobs:
       HOST: ${{secrets.BENCHMARK_HOST}}
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
-      TEST_PKG: ${{inputs.test_package}}
-      TEST_RGX: ${{inputs.test_class_regex}}
-      ROW_CNT: ${{inputs.scale_row_count}}
-      DISTRIB: ${{inputs.distribution}}
-      TEST_ITERS: ${{inputs.test_iterations}}
+      DOCKER_IMG: ${{inputs.docker_image}}
+      RUN_LABEL: ${{inputs.run_label}}
       ACTOR: "${{ inputs.run_label == 'adhoc' && github.actor || github.repository_owner }}" 
     
     steps:
