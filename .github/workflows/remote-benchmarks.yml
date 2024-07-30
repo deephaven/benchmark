@@ -97,11 +97,11 @@ jobs:
 
   run-benchmarks:
     needs: setup-benchmarks
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 1
       matrix:
         tag: needs.setup-benchmarks.outputs.matrix-iterations
-    runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
       HOST: ${{secrets.BENCHMARK_HOST}}
@@ -112,6 +112,9 @@ jobs:
       ROW_CNT: ${{inputs.scale_row_count}}
       DISTRIB: ${{inputs.distribution}}
 
+    steps:
+    - uses: actions/checkout@v3
+    
     - name: Run Remote Benchmarks
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
@@ -130,7 +133,17 @@ jobs:
       DISTRIB: ${{inputs.distribution}}
       TEST_ITERS: ${{inputs.test_iterations}}
       ACTOR: "${{ inputs.run_label == 'adhoc' && github.actor || github.repository_owner }}" 
-        
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
     - name: Fetch Benchmark Results and Prepare for Upload
       run: |
         ${SD}/fetch-results-local.sh ${HOST} ${USER} ${SD} ${RUN_TYPE} "${ACTOR}" "${RUN_LABEL}" "${DOCKER_IMG}"
