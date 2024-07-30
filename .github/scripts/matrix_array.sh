@@ -13,7 +13,7 @@ NAME=$1
 RUN_TYPE=$2
 ITERATIONS=$3
 
-if [ "${RUN_TYPE}" = 'release' ] || [ "${RUN_TYPE}" = 'adhoc' ]; then
+if [ "${RUN_TYPE}" = 'release' ] || [ "${RUN_TYPE}" = 'nightly' ]; then
   FIRST='!Iterate'
   TAG='Iterate'
 else
