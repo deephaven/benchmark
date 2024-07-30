@@ -34,9 +34,10 @@ on:
         type: string
 
 jobs:
-  process-benchmarks:
-
+  setup-benchmarks:
     runs-on: ubuntu-22.04
+    outputs:
+      matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
       SD: .github/scripts
       HOST: ${{secrets.BENCHMARK_HOST}}
@@ -81,17 +82,54 @@ jobs:
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote
 
-    - name: Start Remote Remote Deephaven Server
+    - name: Start Remote Deephaven Server
       run: | 
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} manage-deephaven-remote start "${DOCKER_IMG}"
 
     - name: Run Remote Benchmark Artifact Build
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-benchmark-artifact-remote
+        
+    - name: Set Iteration Matrix Output Variable
+      id: matrix-iterations
+      run: | 
+        $(${SD}/matrix_array.sh matrix-iterations ${RUN_TYPE} ${TEST_ITERS}) >> "$GITHUB_OUTPUT"
+
+  run-benchmarks:
+    needs: setup-benchmarks
+    strategy:
+      max-parallel: 1
+      matrix:
+        tag: needs.setup-benchmarks.outputs.matrix-iterations
+    runs-on: ubuntu-22.04
+    env: 
+      SD: .github/scripts
+      HOST: ${{secrets.BENCHMARK_HOST}}
+      USER: ${{secrets.BENCHMARK_USER}}
+      RUN_TYPE: ${{inputs.run_type}}
+      TEST_PKG: ${{inputs.test_package}}
+      TEST_RGX: ${{inputs.test_class_regex}}
+      ROW_CNT: ${{inputs.scale_row_count}}
+      DISTRIB: ${{inputs.distribution}}
 
     - name: Run Remote Benchmarks
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT} ${DISTRIB} ${TEST_ITERS}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
+
+  report-benchmarks:
+    needs: benchmarks
+    runs-on: ubuntu-22.04
+    env: 
+      SD: .github/scripts
+      HOST: ${{secrets.BENCHMARK_HOST}}
+      USER: ${{secrets.BENCHMARK_USER}}
+      RUN_TYPE: ${{inputs.run_type}}
+      TEST_PKG: ${{inputs.test_package}}
+      TEST_RGX: ${{inputs.test_class_regex}}
+      ROW_CNT: ${{inputs.scale_row_count}}
+      DISTRIB: ${{inputs.distribution}}
+      TEST_ITERS: ${{inputs.test_iterations}}
+      ACTOR: "${{ inputs.run_label == 'adhoc' && github.actor || github.repository_owner }}" 
         
     - name: Fetch Benchmark Results and Prepare for Upload
       run: |
