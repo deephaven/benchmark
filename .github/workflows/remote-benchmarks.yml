@@ -120,7 +120,7 @@ jobs:
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_RGX}" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
 
   report-benchmarks:
-    needs: benchmarks
+    needs: run-benchmarks
     runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
