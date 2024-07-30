@@ -16,7 +16,7 @@ ITERATIONS=$(($3 - 1))
 STR='["Any"'
 TAG='Any'
 
-if [ "${RUN_TYPE}" = 'release' ] || [ "${RUN_TYPE}" = 'nigthly' ]; then
+if [ "${RUN_TYPE}" = 'release' ] || [ "${RUN_TYPE}" = 'adhoc' ]; then
   TAG='Iterate' 
 fi
 
