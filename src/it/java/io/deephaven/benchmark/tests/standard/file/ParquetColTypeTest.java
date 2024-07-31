@@ -41,6 +41,7 @@ class ParquetColTypeTest {
 
     @Test
     @Order(5)
+    @Tag("Iterate")
     void writeOneBigDecimalCol() {
         runner.setScaleFactors(5, 5);
         runner.runParquetWriteTest("ParquetWrite- 1 Big Decimal Col -Static", "NONE", "bigDec10K");
@@ -48,6 +49,7 @@ class ParquetColTypeTest {
 
     @Test
     @Order(6)
+    @Tag("Iterate")
     void readOneBigDecimalCol() {
         runner.setScaleFactors(5, 5);
         runner.runParquetReadTest("ParquetRead- 1 Big Decimal Col -Static");

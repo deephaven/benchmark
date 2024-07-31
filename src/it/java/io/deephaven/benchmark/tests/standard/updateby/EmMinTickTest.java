@@ -15,6 +15,7 @@ public class EmMinTickTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emMinTick0Group1Col() {
         setup.factors(6, 14, 11);
         setup.emTick0Groups("emmin_tick");

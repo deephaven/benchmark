@@ -15,6 +15,7 @@ public class EmStdTimeTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emStdTime0Group1Col() {
         setup.factors(5, 12, 10);
         setup.emTime0Groups("emstd_time");

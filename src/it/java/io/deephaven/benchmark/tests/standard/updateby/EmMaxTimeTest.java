@@ -15,6 +15,7 @@ public class EmMaxTimeTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emMaxTime0Group1Col() {
         setup.factors(5, 10, 8);
         setup.emTime0Groups("emmax_time");
