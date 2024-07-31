@@ -4,11 +4,14 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Run benchmarks on the remote side
-# Assumes the deephaven-benchmark-*.jar artifact has been built and placed
+# Run benchmarks on the remote side doing one iteration according to the following contract:
+# - If TAG_NAME is "Any", run all tests
+# - If TAG_NAME starts with "!", run all tests except the named tag
+# - Otherwise, run tests marked with the tag name
+# Note: Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
 if [[ $# != 6 ]]; then
-  echo "$0: Missing run type, test package, test regex, row count, distribution, or iterations argument"
+  echo "$0: Missing run type, test package, test regex, row count, distribution, or tag name"
   exit 1
 fi
 
@@ -17,8 +20,7 @@ TEST_PACKAGE=$2
 TEST_PATTERN="$3"
 ROW_COUNT=$4
 DISTRIB=$5
-ITERATIONS=$6
-TAG_ITERS=4
+TAG_NAME=$6
 HOST=$(hostname)
 RUN_DIR=/root/run
 DEEPHAVEN_DIR=/root/deephaven
@@ -32,26 +34,19 @@ title () { echo; echo $1; }
 
 title "- Running Remote Benchmark Artifact on ${HOST} -"
 
-title "-- Setting up for Benchmark Run --"
-
 cd ${DEEPHAVEN_DIR};
-docker compose down
-rm -f data/*.*
-docker compose up -d
-sleep 10
 
 title "-- Running Benchmarks --"
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
+JAVA_OPTS="-Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar"
 
-for i in `seq 1 ${ITERATIONS}`; do
-  java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
-done
-
-if [ "${RUN_TYPE}" = "nightly" ] || [ "${RUN_TYPE}" = "release" ]; then
-  for i in `seq 1 ${TAG_ITERS}`; do
-    java -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar -p ${TEST_PACKAGE} -t "Iterate"
-  done
+if [ "${TAG_NAME}" = "Any" ]; then
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
+elif [[ "${TAG_NAME}" = !* ]]; then
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}" -T "${TAG_NAME:1}"
+else
+  java ${JAVA_OPTS} -p ${TEST_PACKAGE} -t "${TAG_NAME}"
 fi
 
 title "-- Getting Docker Logs --"
