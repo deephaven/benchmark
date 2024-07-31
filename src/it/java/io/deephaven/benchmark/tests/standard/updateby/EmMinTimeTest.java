@@ -16,6 +16,7 @@ public class EmMinTimeTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emMinTime0Group1Col() {
         setup.factors(5, 10, 8);
         setup.emTime0Groups("emmin_time");

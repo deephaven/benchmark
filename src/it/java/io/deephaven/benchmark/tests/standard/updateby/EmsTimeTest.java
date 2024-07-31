@@ -15,6 +15,7 @@ public class EmsTimeTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emsTime0Group1Col() {
         setup.factors(5, 11, 8);
         setup.emTime0Groups("ems_time");

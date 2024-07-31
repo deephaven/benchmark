@@ -22,6 +22,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void select1Calc1ColFormula() {
         setup(6, 22, 8);
         var q = "source.select(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
@@ -29,6 +30,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void select1Calc2ColsFormula() {
         setup(6, 14, 7);
         var q = "source.select(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
@@ -36,6 +38,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void select2Calcs2ColsFormula() {
         setup(6, 12, 6);
         var q = "source.select(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
@@ -43,6 +46,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void update1Calc1ColsFormula() {
         setup(6, 32, 20);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc1col1);
@@ -50,6 +54,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void update1Calc2ColsFormula() {
         setup(6, 22, 16);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
@@ -86,6 +91,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void updateView1Calc1ColFormula() {
         setup(6, 37, 35);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc1col1);
@@ -93,6 +99,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void updateView1Calc2ColsFormula() {
         setup(6, 22, 20);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
@@ -100,6 +107,7 @@ public class InlineFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     void updateView2Calcs2ColsFormula() {
         setup(6, 17, 17);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
