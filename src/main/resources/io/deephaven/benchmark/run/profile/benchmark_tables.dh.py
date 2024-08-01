@@ -18,7 +18,7 @@ def normalize_name(name):
 # Get the latest GCloud run_ids for the benchmark category up to max_runs
 def get_remote_children(parent_uri, category, max_runs=10):
     run_ids = []
-    search_uri = parent_uri + '?delimiter=/&prefix=' + category + '/' + '&max-keys=100000'
+    search_uri = parent_uri + '?delimiter=/&prefix=' + category + '/' + '&max-keys=10000'
     with urlopen(search_uri) as r:
         text = r.read().decode()
         for run_id in re.findall('<Prefix>{}/([^/><]+)/</Prefix>'.format(category), text, re.MULTILINE):
@@ -45,6 +45,7 @@ def get_children(storage_uri, category, max_runs):
 def get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets):
     set_matcher = re.compile(set_filter)
     actor_matcher = re.compile(actor_filter)
+    run_matcher = re.compile('run-[0-9A-Za-z]+')
     benchmark_sets = []
     for actor in get_children(storage_uri, category, 1000):
         if actor_matcher.match(actor): 
@@ -56,7 +57,8 @@ def get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets):
     benchmark_runs = []
     for set_path in benchmark_sets:
         for run_id in get_children(storage_uri, category + '/' + set_path, 1000):
-            benchmark_runs.append(set_path + '/' + run_id)
+            if run_matcher.match(run_id): 
+                benchmark_runs.append(set_path + '/' + run_id)
     return benchmark_runs
 
 # Cache an HTTP url into a local directory and return the local path  
@@ -151,6 +153,7 @@ metric_props = benchmark_metric_props_arg if 'benchmark_metric_props_arg' in glo
 
 print('Running:', {'storage_uri':storage_uri,'category':category,'max_sets':max_sets,'history_runs':history_runs,
     'actor_filter':actor_filter,'set_filter':set_filter,'platform_props':platform_props,'metric_props':metric_props})
+
 
 run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
 bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', convert_result)

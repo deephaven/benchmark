@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the whereNotIn table operation. Filters rows of data from the source table where the rows match
  * column values in the filter table. Note: These benchmarks do the converse of the ones in WhereInTest
  */
+@Tag("Iterate")
 public class WhereNotInTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 

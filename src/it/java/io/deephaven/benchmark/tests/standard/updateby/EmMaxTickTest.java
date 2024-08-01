@@ -16,6 +16,7 @@ public class EmMaxTickTest {
     final Setup setup = new Setup(runner);
 
     @Test
+    @Tag("Iterate")
     void emMaxTick0Group1Col() {
         setup.factors(5, 14, 12);
         setup.emTick0Groups("emmax_tick");

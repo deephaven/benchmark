@@ -19,6 +19,7 @@ class ParquetMultiColTest {
 
     @Test
     @Order(1)
+    @Tag("Iterate")
     void writeMultiColSnappy() {
         runner.runParquetWriteTest("ParquetWrite- Snappy Multi Col -Static", "SNAPPY", usedColumns);
     }
@@ -31,6 +32,7 @@ class ParquetMultiColTest {
 
     @Test
     @Order(3)
+    @Tag("Iterate")
     void writeMultiColZstd() {
         runner.runParquetWriteTest("ParquetWrite- Zstd Multi Col -Static", "ZSTD", usedColumns);
     }
@@ -43,6 +45,7 @@ class ParquetMultiColTest {
 
     @Test
     @Order(5)
+    @Tag("Iterate")
     void writeMultiColLzo() {
         runner.runParquetWriteTest("ParquetWrite- Lzo Multi Col -Static", "LZO", usedColumns);
     }

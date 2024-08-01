@@ -24,6 +24,7 @@ public class MedianByTest {
 //    }
 
     @Test
+    @Tag("Iterate")
     void medianBy1Group() {
         runner.setScaleFactors(12, 0);
         var q = "source.median_by(by=['key1'])";

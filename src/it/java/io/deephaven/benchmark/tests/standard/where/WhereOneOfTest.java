@@ -8,6 +8,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
  * Standard tests for the whereOneOf table operation. Filters rows of data from the source table where the rows match
  * column values in the filter table.
  */
+@Tag("Iterate")
 public class WhereOneOfTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
@@ -18,7 +19,6 @@ public class WhereOneOfTest {
     }
 
     @Test
-    @Tag("Iterate")
     void whereOneOf1Filter() {
         runner.setScaleFactors(365, 0);
         var q = """
