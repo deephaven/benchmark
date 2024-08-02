@@ -8,6 +8,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
  * the "read" tests.
  */
 @TestMethodOrder(OrderAnnotation.class)
+@Tag("Iterate")
 class CsvMultiColTest {
     final String[] usedColumns = {"str10K", "long10K", "int10K", "short10K"};
     final FileTestRunner runner = new FileTestRunner(this);
