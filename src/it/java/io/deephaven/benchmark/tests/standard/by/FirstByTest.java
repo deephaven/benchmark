@@ -25,7 +25,7 @@ public class FirstByTest {
 
     @Test
     void firstBy2Group() {
-        runner.setScaleFactors(6, 1);
+        runner.setScaleFactors(6, 0);
         var q = "source.first_by(by=['key1','key2'])";
         runner.test("FirstBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
