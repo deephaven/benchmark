@@ -7,6 +7,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
  * Standard tests for writing single column parquet for different column types.
  */
 @TestMethodOrder(OrderAnnotation.class)
+@Tag("Iterate")
 class ParquetColTypeTest {
     final FileTestRunner runner = new FileTestRunner(this);
 
