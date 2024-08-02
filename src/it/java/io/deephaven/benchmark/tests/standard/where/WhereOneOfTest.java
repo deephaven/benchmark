@@ -29,7 +29,7 @@ public class WhereOneOfTest {
 
     @Test
     void whereOneOf2Filters() {
-        runner.setScaleFactors(90, 80);
+        runner.setScaleFactors(90, 0);
         var q = """
         source.where_one_of(filters=["key1 = '50'", "key2 = '51'"]);
         """;

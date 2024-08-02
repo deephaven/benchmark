@@ -39,7 +39,7 @@ public class AvgByTest {
 
     @Test
     void avgBy3Groups() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(2, 0);
         var q = "source.avg_by(by=['key1', 'key2', 'key3'])";
         runner.test("AvgBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

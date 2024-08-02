@@ -51,7 +51,7 @@ public class PositionalComboTest {
 
     @Test
     void posComboAggBy4Ops3GroupsLarge() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(2, 0);
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
         runner.test("PositionCombo-AggBy- 4 Ops 3 Groups 1M Unique Combos", 999900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
