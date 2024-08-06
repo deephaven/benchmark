@@ -236,10 +236,6 @@ final public class StandardTestRunner {
             long_col("processed_row_count", [loaded_tbl_size]),
             long_col("result_row_count", [result.size]),
         ])
-        
-        import os
-        if os.path.exists("/opt/deephaven/server-jetty/bin/show"):
-            print(os.popen("/opt/deephaven/server-jetty/bin/show").read())
         """;
         return runTest(name + " -Static", staticQuery, operation, read, loadColumns);
     }
