@@ -38,6 +38,8 @@ rm -rf deephaven-core
 git clone https://github.com/${OWNER}/deephaven-core.git
 cd deephaven-core
 git checkout ${BRANCH_NAME}
+echo 'echo "*** BUILD FROM BRANCH: '${BRANCH_NAME}'"' > ./server/jetty-app/build/scripts/show
+chmod +x ./server/jetty-app/build/scripts/show
 
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
