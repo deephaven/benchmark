@@ -40,4 +40,18 @@ public class DeephavenDockerControllerTest {
                 "Wrong deephaven container compose uri");
     }
 
+    @Test
+    void parseServicesList() {
+        var dockerServicesStr = """
+        deephaven
+            minio
+        minio-bucket
+            redpanda
+
+        """;
+        var c = new DeephavenDockerController(null, null);
+        var services = c.parseServicesList(dockerServicesStr);
+        assertEquals("[deephaven, minio, minio-bucket, redpanda]", services.toString(), "Bad services list");
+    }
+
 }

@@ -25,6 +25,7 @@ final public class StandardTestRunner {
     final List<String> supportTables = new ArrayList<>();
     final List<String> setupQueries = new ArrayList<>();
     final List<String> preOpQueries = new ArrayList<>();
+    final Set<String> requiredServices = new TreeSet<>();
     private String mainTable = "source";
     private Bench api;
     private Controller controller;
@@ -88,6 +89,10 @@ final public class StandardTestRunner {
     public void groupedTable(String name, String... groups) {
         mainTable = name;
         generateTable(name, null, groups);
+    }
+    
+    public void addServices(String... services) {
+        requiredServices.addAll(Arrays.asList(services));
     }
 
     /**
@@ -376,6 +381,15 @@ final public class StandardTestRunner {
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
+    
+    void stopDockerUnused(Set<String> keepServices) {
+        var timer = api.timer();
+        if (!controller.stopService(keepServices))
+            return;
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
+        metrics.set("stop", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
+    }
 
     void generateTable(String name, String distribution, String[] groups) {
         var isNew = generateNamedTable(name, distribution, groups);
@@ -388,6 +402,7 @@ final public class StandardTestRunner {
             initialize(testInst);
             // This should not necessary. Why does DH need it?
             generateNamedTable(name, distribution, groups);
+            stopDockerUnused(requiredServices);
         }
     }
 

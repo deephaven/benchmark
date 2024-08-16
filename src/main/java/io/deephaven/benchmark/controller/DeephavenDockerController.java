@@ -6,8 +6,13 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import io.deephaven.benchmark.util.Exec;
+import io.deephaven.benchmark.util.Strings;
 import io.deephaven.benchmark.util.Threads;
 
 /**
@@ -33,45 +38,57 @@ public class DeephavenDockerController implements Controller {
     }
 
     /**
-     * Start the Deephaven service. If an existing Deephaven service is running, stop it first. If a docker compose file
-     * is not specified, do nothing.
+     * Start the services that match the given prefixes. If an existing Deephaven service is running, stop all services
+     * first. If a docker compose file is not specified, do nothing.
      * 
-     * @return true if the service was started, otherwise false
+     * @param servicePrefixes prefixes of service names to start
+     * @return true if the services were started, otherwise false
      */
     @Override
-    public boolean startService() {
+    public boolean startService(Collection<String> servicePrefixes) {
         if (composePropPath.isBlank() || httpHostPort.isBlank())
             return false;
         var composeRunPath = getRunningComposePath();
         if (composeRunPath != null)
             exec("sudo", "docker", "compose", "-f", composeRunPath, "down");
-        exec("sudo", "docker", "compose", "-f", composePropPath, "up", "-d");
-        waitForEngineReady();
+        var availableServices = listServices(composePropPath);
+        var services = Strings.startsWith(availableServices, servicePrefixes);
+        exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "up", "-d", services));
+        if (services.contains("deephaven") || (services.isEmpty() && availableServices.contains("deephaven")))
+            waitForEngineReady();
         return true;
     }
 
     /**
-     * Stop the Deephaven service and remove the docker container. If no docker compose is specified, do nothing.
+     * Stop services that do NOT match the given prefixes and remove their docker containers. If no docker compose is
+     * specified, do nothing.
      * 
-     * @return true if the service was stopped, otherwise false
+     * @return true if the services were stopped, otherwise false
      */
     @Override
-    public boolean stopService() {
+    public boolean stopService(Collection<String> keepServicePrefixes) {
         if (composePropPath.isBlank())
             return false;
-        exec("sudo", "docker", "compose", "-f", composePropPath, "down", "--timeout", "0");
+
+        Set<String> services = Collections.emptySet();
+        if (!keepServicePrefixes.isEmpty()) {
+            services = listServices(composePropPath);
+            services.removeAll(Strings.startsWith(services, keepServicePrefixes));
+        }
+        exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "down", "--timeout", "0", services));
         return true;
     }
 
     /**
-     * Stop the Deephaven service and start it.
+     * Stop all services including Deephaven and start the services that match the given prefixes
      * 
-     * @return true if the service was started, otherwise false
+     * @param services the prefixes of the service names to load or none to load all
+     * @return true if the services were started, otherwise false
      */
     @Override
-    public boolean restartService() {
+    public boolean restartService(Collection<String> servicePrefixes) {
         stopService();
-        return startService();
+        return startService(servicePrefixes);
     }
 
     /**
@@ -141,6 +158,11 @@ public class DeephavenDockerController implements Controller {
         return parseContainerInfo(out);
     }
 
+    Set<String> listServices(String composePath) {
+        var out = exec("sudo", "docker", "compose", "-f", composePath, "config", "--services");
+        return parseServicesList(out);
+    }
+
     List<String> parseContainerIds(String dockerPsStr) {
         return dockerPsStr.lines().filter(s -> s.contains("/deephaven/server"))
                 .map(s -> s.replaceAll("^([^ \t]+)[ \t].*$", "$1")).toList();
@@ -150,6 +172,10 @@ public class DeephavenDockerController implements Controller {
         var name = getPropValue(dockerInspectStr, "Name", "deephaven");
         var composeUri = getPropValue(dockerInspectStr, "com.docker.compose.project.config_files", "compose");
         return new ContainerInfo(name, composeUri);
+    }
+
+    Set<String> parseServicesList(String servicesStr) {
+        return new LinkedHashSet<String>(servicesStr.lines().map(s -> s.trim()).filter(s -> !s.isBlank()).toList());
     }
 
     String getPropValue(String props, String name, String containsVal) {
@@ -162,6 +188,7 @@ public class DeephavenDockerController implements Controller {
     }
 
     String exec(String... command) {
+        // System.out.println("Exec: " + Arrays.asList(command));
         return Exec.exec(workDir, command);
     }
 

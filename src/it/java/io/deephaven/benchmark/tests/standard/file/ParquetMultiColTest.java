@@ -15,7 +15,8 @@ class ParquetMultiColTest {
 
     @BeforeEach
     void setup() {
-        runner.setScaleFactors(3, 3);
+        runner.setRequiredServices("deephaven");
+        runner.setScaleFactors(6, 1);
     }
 
     @Test

@@ -2,7 +2,7 @@ package io.deephaven.benchmark.tests.standard.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.Controller;
@@ -16,6 +16,7 @@ import io.deephaven.benchmark.util.Timer;
 class FileTestRunner {
     final String parquetCfg = "max_dictionary_keys=1048576, max_dictionary_size=1048576, target_page_size=65536";
     final Object testInst;
+    final Set<String> requiredServices = new TreeSet<>();
     private Bench api;
     private Controller controller;
     private double rowCountFactor = 1;
@@ -38,6 +39,17 @@ class FileTestRunner {
         this.rowCountFactor = rowCountFactor;
         this.scaleRowCount = (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
         this.scaleFactor = scaleFactor;
+    }
+
+    /**
+     * Sets the prefixes of the services required to run this test. Those services will be turned on while the rest will
+     * be turned off.
+     * 
+     * @param services the services to run the test
+     */
+    void setRequiredServices(String... servicePrefixes) {
+        requiredServices.clear();
+        requiredServices.addAll(Arrays.asList(servicePrefixes));
     }
 
     /**
@@ -78,7 +90,24 @@ class FileTestRunner {
     }
 
     /**
-     * Run a benchmark the measures parquet write performance.
+     * Run a benchmark that measures parquet S3 read performance. This test always runs after a corresponding write
+     * test.
+     * 
+     * @param testName name that will appear in the results as the benchmark name
+     */
+    void runParquetS3ReadTest(String testName) {
+        var q = """
+        read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
+            region_name='aws-global', endpoint_override='http://minio:9000',
+              access_key_id='minioadmin', secret_access_key='minioadmin'
+            )
+        ).select()
+        """;
+        runReadTest(testName, q);
+    }
+
+    /**
+     * Run a benchmark that measures parquet write performance.
      * 
      * @param testName the benchmark name to record with the measurement
      * @param codec a compression codec
@@ -86,6 +115,7 @@ class FileTestRunner {
      */
     void runParquetWriteTest(String testName, String codec, String... columnNames) {
         var q = """
+        remove_path('/data/source.ptr.parquet')
         write(
             source, '/data/source.ptr.parquet', compression_codec_name='${codec}'${parquetSettings}
         )
@@ -98,6 +128,26 @@ class FileTestRunner {
     }
 
     /**
+     * Run a benchmark that measures parquet S3 write performance.
+     * 
+     * @param testName the benchmark name to record with the measurement
+     * @param columnNames the names of the pre-defined columns to generate
+     */
+    void runParquetS3WriteTest(String testName, String... columnNames) {
+        var q = """
+        remove_path('/minio/data/source.ptr.parquet')
+        write(
+            source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
+              region_name='aws-global',  endpoint_override='http://minio:9000',
+              access_key_id='minioadmin',
+              secret_access_key='minioadmin'
+            )
+        )
+        """;
+        runWriteTest(testName, q, columnNames);
+    }
+
+    /**
      * Run a benchmark the measures csv write performance.
      * 
      * @param testName the benchmark name to record with the measurement
@@ -105,6 +155,7 @@ class FileTestRunner {
      */
     void runCsvWriteTest(String testName, String... columnNames) {
         var q = """
+        remove_path('/data/source.ptr.parquet')
         write_csv(source, '/data/source.ptr.csv')
         metric_file_size = os.path.getsize('/data/source.ptr.csv')
         bench_api_metrics_add('data', 'file.size', str(metric_file_size), 'csv')
@@ -136,9 +187,12 @@ class FileTestRunner {
 
     private void runWriteTest(String testName, String writeQuery, String... columnNames) {
         var q = """
-        source = merge([empty_table(${rowCount}).update([
-            ${generators}
-        ])] * ${scaleFactor})
+        if(${scaleFactor} > 1):
+            source = merge([empty_table(${rowCount}).update([
+                ${generators}
+            ])] * ${scaleFactor})
+        else:
+            source = empty_table(${rowCount}).update([${generators}])
         
         begin_time = time.perf_counter_ns()
         ${writeQuery}
@@ -160,6 +214,7 @@ class FileTestRunner {
 
     private void runTest(String testName, String query) {
         try {
+            stopDockerUnused(requiredServices);
             api.setName(testName);
             api.query(query).fetchAfter("stats", table -> {
                 long rowCount = table.getSum("processed_row_count").longValue();
@@ -243,12 +298,18 @@ class FileTestRunner {
 
     private Bench initialize(Object testInst) {
         var query = """
-        import time, os
+        import time, os, shutil
         from deephaven import empty_table, garbage_collect, new_table, merge
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read, write
         from deephaven import read_csv, write_csv
         from deephaven import dtypes as dht
+        from deephaven.experimental import s3
+        
+        def remove_path(path):
+            if(os.path.exists(path)):
+                if(os.path.isdir(path)): shutil.rmtree(path)
+                else: os.remove(path)
         
         bench_api_metrics_init()
         """;
@@ -279,6 +340,15 @@ class FileTestRunner {
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
+    }
+    
+    void stopDockerUnused(Set<String> keepServices) {
+        var timer = api.timer();
+        if (!controller.stopService(keepServices))
+            return;
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
+        metrics.set("stop", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
 
