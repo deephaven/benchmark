@@ -16,7 +16,7 @@ class S3ParquetMultiColTest {
     @BeforeEach
     void setup() {
         runner.setRequiredServices("deephaven", "minio");
-        runner.setScaleFactors(6, 1);
+        runner.setScaleFactors(3, 3);
     }
 
     @Test
