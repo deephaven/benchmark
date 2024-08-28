@@ -99,9 +99,9 @@ class FileTestRunner {
         var q = """
         read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
             region_name='aws-global', endpoint_override='http://minio:9000',
-              access_key_id='minioadmin', secret_access_key='minioadmin'
-            )
-        ).select()
+            access_key_id='minioadmin', secret_access_key='minioadmin',
+            read_timeout='PT20S', connection_timeout='PT20S'
+        )).select()
         """;
         runReadTest(testName, q);
     }
@@ -138,9 +138,9 @@ class FileTestRunner {
         remove_path('/minio/data/source.ptr.parquet')
         write(
             source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
-              region_name='aws-global',  endpoint_override='http://minio:9000',
-              access_key_id='minioadmin',
-              secret_access_key='minioadmin'
+              region_name='aws-global', endpoint_override='http://minio:9000',
+              access_key_id='minioadmin', secret_access_key='minioadmin',
+              connection_timeout='PT20S'
             )
         )
         """;
