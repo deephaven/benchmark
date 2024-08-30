@@ -30,3 +30,39 @@ services:
     - 8082:8082
     - 9092:9092
     - 29092:29092
+    
+  minio-server:
+    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    command: server /minio --console-address ":9001"
+    hostname: minio
+    environment:
+      MINIO_DOMAIN: minio
+    networks:
+      default:
+        aliases:
+          - data.minio
+    expose:
+    - "9000"
+    - "9001"
+    ports:
+    - 9000:9000
+    - 9001:9001
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+    - ./minio:/minio
+
+  minio-bucket:
+    image: minio/mc
+    depends_on:
+      - minio-server
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb endpoint/data;
+      /usr/bin/mc anonymous set public endpoint/data;
+      exit 0;
+      "
