@@ -12,7 +12,6 @@ class ParquetColTypeTest {
     final FileTestRunner runner = new FileTestRunner(this);
 
     void setup(double rowFactor, int scaleFactor) {
-        runner.setRequiredServices("deephaven");
         runner.setScaleFactors(rowFactor, scaleFactor);
     }
     
