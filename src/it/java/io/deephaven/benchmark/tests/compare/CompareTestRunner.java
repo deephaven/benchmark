@@ -9,7 +9,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.DeephavenDockerController;
+import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Filer;
+import io.deephaven.benchmark.util.Timer;
 
 /**
  * A wrapper for the Bench api that allows running tests for the purpose of comparing Deephaven to other products that
@@ -102,7 +104,6 @@ public class CompareTestRunner {
      */
     public void test(String name, long expectedRowCount, String setup, String operation, String mainSizeGetter,
             String resultSizeGetter) {
-        stopUnusedServices();
         Result result;
         if (requiredPackages.size() > 0) {
             installRequiredPackages();
@@ -304,6 +305,7 @@ public class CompareTestRunner {
         if (api == null)
             throw new RuntimeException("Initialize with initDeephaven() or initPython()s before running the test");
         api.setName(name);
+        stopUnusedServices();
         query = query.replace("${setupQueries}", setup);
         query = query.replace("${operation}", operation);
         query = query.replace("${mainSizeGetter}", mainSizeGetter);
@@ -382,15 +384,13 @@ public class CompareTestRunner {
     }
 
     void stopUnusedServices() {
-        var api = Bench.create("# Services Stop Unused");
-        try {
-            api.setName("# Services Stop Unused");
-            var c = new DeephavenDockerController(api.property("docker.compose.file", ""),
-                    api.property("deephaven.addr", ""));
-            c.stopService(Set.of("deephaven"));
-        } finally {
-            api.close();
-        }
+        var timer = api.timer();
+        var c = new DeephavenDockerController(api.property("docker.compose.file", ""), api.property("deephaven.addr", ""));
+        if (!c.stopService(Set.of("deephaven")))
+            return;
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
+        metrics.set("stop", timer.duration().toMillis(), "standard");
+        api.metrics().add(metrics);
     }
 
     // Replace heap (e.g. -Xmx64g) in docker-compose.yml with new heap value
