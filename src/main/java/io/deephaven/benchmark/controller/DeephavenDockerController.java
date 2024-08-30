@@ -51,11 +51,12 @@ public class DeephavenDockerController implements Controller {
         var composeRunPath = getRunningComposePath();
         if (composeRunPath != null)
             exec("sudo", "docker", "compose", "-f", composeRunPath, "down");
-        var availableServices = listServices(composePropPath);
+        var availableServices = listAvailableServices(composePropPath);
         var services = Strings.startsWith(availableServices, servicePrefixes);
         exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "up", "-d", services));
         if (services.contains("deephaven") || (services.isEmpty() && availableServices.contains("deephaven")))
             waitForEngineReady();
+        System.out.println("Running Services after Start: " + listRunningServices(composePropPath));
         return true;
     }
 
@@ -72,10 +73,11 @@ public class DeephavenDockerController implements Controller {
 
         Set<String> services = Collections.emptySet();
         if (!keepServicePrefixes.isEmpty()) {
-            services = listServices(composePropPath);
+            services = listAvailableServices(composePropPath);
             services.removeAll(Strings.startsWith(services, keepServicePrefixes));
         }
         exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "down", "--timeout", "0", services));
+        System.out.println("Running Services after stop: " + listRunningServices(composePropPath));
         return true;
     }
 
@@ -158,8 +160,13 @@ public class DeephavenDockerController implements Controller {
         return parseContainerInfo(out);
     }
 
-    Set<String> listServices(String composePath) {
+    Set<String> listAvailableServices(String composePath) {
         var out = exec("sudo", "docker", "compose", "-f", composePath, "config", "--services");
+        return parseServicesList(out);
+    }
+
+    Set<String> listRunningServices(String composePath) {
+        var out = exec("sudo", "docker", "compose", "-f", composePath, "ps", "--services");
         return parseServicesList(out);
     }
 

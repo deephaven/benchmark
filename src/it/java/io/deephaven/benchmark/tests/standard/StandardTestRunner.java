@@ -25,7 +25,7 @@ final public class StandardTestRunner {
     final List<String> supportTables = new ArrayList<>();
     final List<String> setupQueries = new ArrayList<>();
     final List<String> preOpQueries = new ArrayList<>();
-    final Set<String> requiredServices = new TreeSet<>();
+    final Set<String> requiredServices = new TreeSet<>(List.of("deephaven"));
     private String mainTable = "source";
     private Bench api;
     private Controller controller;
@@ -91,7 +91,8 @@ final public class StandardTestRunner {
         generateTable(name, null, groups);
     }
     
-    public void addServices(String... services) {
+    public void setServices(String... services) {
+        requiredServices.clear();
         requiredServices.addAll(Arrays.asList(services));
     }
 
@@ -294,6 +295,8 @@ final public class StandardTestRunner {
         if (api.isClosed())
             initialize(testInst);
         api.setName(name);
+        stopUnusedServices(requiredServices);
+        
         query = query.replace("${readTable}", read);
         query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
@@ -323,7 +326,7 @@ final public class StandardTestRunner {
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
         } finally {
-            addDockerLog(api);
+            addServiceLog(api);
             api.close();
         }
     }
@@ -358,35 +361,35 @@ final public class StandardTestRunner {
         this.api = Bench.create(testInst);
         this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
                 api.property("deephaven.addr", ""));
-        restartDocker();
+        restartServices();
         api.query(query).execute();
     }
 
-    void addDockerLog(Bench api) {
+    void addServiceLog(Bench api) {
         var timer = api.timer();
         var logText = controller.getLog();
         if (logText.isBlank())
             return;
         api.log().add("deephaven-engine", logText);
-        var metrics = new Metrics(Timer.now(), "test-runner", "teardown.docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "teardown.services");
         metrics.set("log", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
 
-    void restartDocker() {
+    void restartServices() {
         var timer = api.timer();
         if (!controller.restartService())
             return;
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
     
-    void stopDockerUnused(Set<String> keepServices) {
+    void stopUnusedServices(Set<String> keepServices) {
         var timer = api.timer();
         if (!controller.stopService(keepServices))
             return;
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
         metrics.set("stop", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
@@ -396,13 +399,12 @@ final public class StandardTestRunner {
         if (isNew) {
             if (!api.isClosed()) {
                 api.setName("# Data Table Generation " + name);
-                addDockerLog(api);
+                addServiceLog(api);
                 api.close();
             }
             initialize(testInst);
             // This should not necessary. Why does DH need it?
             generateNamedTable(name, distribution, groups);
-            stopDockerUnused(requiredServices);
         }
     }
 

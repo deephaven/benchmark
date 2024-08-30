@@ -55,11 +55,11 @@ public class CompareTestRunner {
      * @param columnNames the columns in both tables to included
      */
     public void initDeephaven(int rowCountFactor, String leftTable, String rightTable, String... columnNames) {
-        restartDocker();
+        restartServices();
         generateTable(rowCountFactor, leftTable, columnNames);
         if (rightTable != null)
             generateTable(rowCountFactor, rightTable, columnNames);
-        restartDocker();
+        restartServices();
         initialize(testInst);
     }
 
@@ -102,6 +102,7 @@ public class CompareTestRunner {
      */
     public void test(String name, long expectedRowCount, String setup, String operation, String mainSizeGetter,
             String resultSizeGetter) {
+        stopUnusedServices();
         Result result;
         if (requiredPackages.size() > 0) {
             installRequiredPackages();
@@ -352,23 +353,22 @@ public class CompareTestRunner {
         api.query(query).execute();
     }
 
-    void restartDocker() {
-        var api = Bench.create("# Docker Restart");
+    void restartServices() {
+        var api = Bench.create("# Services Restart");
         try {
-            api.setName("# Docker Restart");
-            var controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+            api.setName("# Services Restart");
+            var c = new DeephavenDockerController(api.property("docker.compose.file", ""),
                     api.property("deephaven.addr", ""));
-            if (!controller.restartService())
-                return;
+            c.restartService();
         } finally {
             api.close();
         }
     }
 
     void restartDocker(int heapGigs) {
-        var api = Bench.create("# Docker Restart");
+        var api = Bench.create("# Services Restart");
         try {
-            api.setName("# Docker Restart " + heapGigs + "G");
+            api.setName("# Services Restart " + heapGigs + "G");
             String dockerComposeFile = api.property("docker.compose.file", "");
             String deephavenHostPort = api.property("deephaven.addr", "");
             if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
@@ -376,6 +376,18 @@ public class CompareTestRunner {
             dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
             var controller = new DeephavenDockerController(dockerComposeFile, deephavenHostPort);
             controller.restartService();
+        } finally {
+            api.close();
+        }
+    }
+
+    void stopUnusedServices() {
+        var api = Bench.create("# Services Stop Unused");
+        try {
+            api.setName("# Services Stop Unused");
+            var c = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                    api.property("deephaven.addr", ""));
+            c.stopService(Set.of("deephaven"));
         } finally {
             api.close();
         }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Set;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.Controller;
 import io.deephaven.benchmark.controller.DeephavenDockerController;
@@ -21,6 +22,7 @@ class KafkaTestRunner {
     final Object testInst;
     final Bench api;
     final Controller controller;
+    final Set<String> requiredServices = Set.of("deephaven","redpanda");
     private long rowCount;
     private int colCount;
     private String colType;
@@ -51,7 +53,7 @@ class KafkaTestRunner {
             return;
         dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, deephavenHeapGigs);
         var timer = api.timer();
-        controller.restartService();
+        controller.restartService(requiredServices);
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
         metrics.set("restart", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);

@@ -16,7 +16,7 @@ import io.deephaven.benchmark.util.Timer;
 class FileTestRunner {
     final String parquetCfg = "max_dictionary_keys=1048576, max_dictionary_size=1048576, target_page_size=65536";
     final Object testInst;
-    final Set<String> requiredServices = new TreeSet<>();
+    final Set<String> requiredServices = new TreeSet<>(List.of("deephaven"));
     private Bench api;
     private Controller controller;
     private double rowCountFactor = 1;
@@ -214,8 +214,8 @@ class FileTestRunner {
 
     private void runTest(String testName, String query) {
         try {
-            stopDockerUnused(requiredServices);
             api.setName(testName);
+            stopUnusedServices(requiredServices);
             api.query(query).fetchAfter("stats", table -> {
                 long rowCount = table.getSum("processed_row_count").longValue();
                 long elapsedNanos = table.getSum("elapsed_nanos").longValue();
@@ -343,11 +343,11 @@ class FileTestRunner {
         api.metrics().add(metrics);
     }
     
-    void stopDockerUnused(Set<String> keepServices) {
+    private void stopUnusedServices(Set<String> keepServices) {
         var timer = api.timer();
         if (!controller.stopService(keepServices))
             return;
-        var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");
+        var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
         metrics.set("stop", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
     }
