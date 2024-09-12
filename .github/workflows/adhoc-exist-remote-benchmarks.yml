@@ -7,15 +7,87 @@ name: Adhoc Benchmarks (Existing Server)
 on:
   workflow_dispatch:
     inputs:
-      message:
-        message: 'Message'
+      docker_image:
+        description: 'Docker Image Name or DH Core Branch'
+        required: true
+        default: 'edge'
+        type: string
+      config_options:
+        description: 'Deephaven or JVM Config Options'
         required: true
         default: ''
         type: string
+      run_label:
+        description: 'Set Label'
+        required: true
+        type: string
+        default: ''
+      test_package:
+        description: 'Benchmark Test Package'
+        required: true
+        default: 'io.deephaven.benchmark.tests.standard'
+        type: string
+      test_class_list:
+        description: 'Benchmark Test Classes'
+        required: true
+        default: 'Where, Avg*'
+        type: string
+      test_iterations:
+        description: 'Benchmark Iterations'
+        required: true
+        default: '1'
+        type: string
+      scale_row_count:
+        description: 'Benchmark Scale Row Count (Millions)'
+        required: true
+        default: '1000000'
+        type: string
+      distribution:
+        description: 'Benchmark Data Distribution'
+        required: true
+        default: 'random'
+        type: choice
+        options: 
+        - random
+        - ascending
+        - descending
+        - runlength
 
 jobs:
-  hello-world:
-    runs-on: ubuntu-22.04      
+  setup-benchmark-system:
+    runs-on: ubuntu-22.04
+    outputs:
+      test_class_regex: "${{ steps.make-test-regex.outputs.TEST_CLASS_REGEX }}"
+      test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
+      test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
+    env:
+      SD: .github/scripts
+      
     steps:
-    - name: Print Message
-      run: echo "Hello ${{ inputs.message }}"
+    - uses: actions/checkout@v4
+    - name: Make Wildcard Regex
+      id: make-test-regex 
+      run: |
+        ${SD}/adhoc.sh make-test-regex "${{ inputs.test_class_list }}"
+        cat adhoc-make-test-regex.out >> "$GITHUB_OUTPUT"
+    
+    - name: Scale Input Numbers
+      id: scale-nums
+      run: |
+        ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
+        cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
+
+  process-adhoc-benchmarks:
+    uses: ./.github/workflows/remote-benchmarks.yml
+    with:
+      run_type: adhoc
+      docker_image: ${{ inputs.docker_image }}
+      run_label: ${{ inputs.run_label }}
+      test_package: ${{ inputs.test_package }}
+      test_class_regex: "${{ needs.setup-benchmark-system.outputs.test_class_regex }}"
+      test_iterations: ${{ inputs.scale_row_count }}
+      scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
+      distribution: ${{ inputs.distribution }}
+      test_device_addr: ${{ secrets.BENCHMARK_HOST }}
+    secrets: inherit
+

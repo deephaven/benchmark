@@ -32,6 +32,9 @@ on:
       distribution:
         required: true
         type: string
+      test_device_addr:
+        required: true
+        type: string
 
 jobs:
   setup-benchmarks:
@@ -40,7 +43,7 @@ jobs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
       SD: .github/scripts
-      HOST: ${{secrets.BENCHMARK_HOST}}
+      HOST: ${{inputs.test_device_addr}}
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
@@ -98,11 +101,11 @@ jobs:
         tag: ${{ fromJson(needs.setup-benchmarks.outputs.matrix-iterations) }}
     env: 
       SD: .github/scripts
-      HOST: ${{secrets.BENCHMARK_HOST}}
+      HOST: ${{inputs.test_device_addr}}
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       TEST_PKG: ${{inputs.test_package}}
-      TEST_RGX: ${{inputs.test_class_regex}}
+      TEST_RGX: "${{inputs.test_class_regex}}"
       ROW_CNT: ${{inputs.scale_row_count}}
       DISTRIB: ${{inputs.distribution}}
 
@@ -123,7 +126,7 @@ jobs:
     runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
-      HOST: ${{secrets.BENCHMARK_HOST}}
+      HOST: ${{inputs.test_device_addr}}
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
@@ -175,7 +178,7 @@ jobs:
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
-        name: Benchmarks and Logs
+        name: Benchmarks and Logs for Set ${{env.RUN_LABEL}}
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*

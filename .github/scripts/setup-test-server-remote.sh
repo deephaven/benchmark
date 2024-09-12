@@ -32,17 +32,15 @@ title "-- Adding OS Applications --"
 UPDATED=$(update-alternatives --list java | grep -i temurin; echo $?)
 if [[ ${UPDATED} != 0 ]]; then
   title "-- Adding Adoptium to APT registry --"
-  apt install -y wget apt-transport-https gpg
-  wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add -
+  apt -y install wget apt-transport-https gpg
+  wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
   echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
-  apt update
+  apt -y update
 fi
 
 title "-- Installing JVMs --"
 apt -y install temurin-11-jdk
 apt -y install temurin-21-jdk
-# Look at installed packages:  dpkg --list | grep jdk
-# Configure default java:  update-alternatives --config java
 
 title "-- Installing Maven --"
 apt -y install maven
@@ -54,16 +52,18 @@ command_exists() {
 if command_exists docker; then
   echo "Docker already installed... skipping"
 else
-  apt-get install ca-certificates curl gnupg
-  install -m 0755 -d /etc/apt/keyringsA
-  rm -f /etc/apt/keyrings/docker.gpg
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-  chmod a+r /etc/apt/keyrings/docker.gpg
+  apt -y update
+  apt -y install ca-certificates curl
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  chmod a+r /etc/apt/keyrings/docker.asc
+
   echo \
-    "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
     tee /etc/apt/sources.list.d/docker.list > /dev/null
-    apt-get --assume-yes install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  apt -y update
+  apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 fi
 
 title "-- Removing Git Benchmark Repositories --"

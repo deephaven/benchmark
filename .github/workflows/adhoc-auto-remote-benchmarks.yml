@@ -1,19 +1,163 @@
+# Provision a server and run benchmarks on that system, cleaning up after
+# - Deploys a new server on the fly
+# - Calls the reusable worflow remote-benchmarks.yml to run and upload benchmarks
+# - Runs a comparison between two images/branches
+# - Deletes the server on success or failure
 
 name: Adhoc Benchmarks (Auto-provisioned Server)
 
 on:
   workflow_dispatch:
     inputs:
-      message:
-        message: 'Message'
+      docker_image_1:
+        description: 'Deephaven Image or Core Branch'
         required: true
-        default: ''
+        default: '0.35.0'
         type: string
+      docker_image_2:
+        description: 'Deephaven Image or Core Branch'
+        required: true
+        default: '0.36.0'
+        type: string
+      set_label_prefix:
+        description: 'Set Label Prefix'
+        required: true
+        type: string
+        default: ''
+      test_class_list:
+        description: 'Benchmark Test Classes'
+        required: true
+        default: 'Where, Avg*'
+        type: string
+      test_iterations:
+        description: 'Benchmark Iterations'
+        required: true
+        default: '1'
+        type: string
+      scale_row_count:
+        description: 'Benchmark Scale Row Count (Millions)'
+        required: true
+        default: '10'
+        type: string
+      distribution:
+        description: 'Benchmark Data Distribution'
+        required: true
+        default: 'random'
+        type: choice
+        options:
+        - random
+        - ascending
+        - descending
+        - runlength
 
 jobs:
-  hello-world:
-    runs-on: ubuntu-22.04      
+  setup-benchmark-system:
+    runs-on: ubuntu-22.04
+    outputs:
+      set_label_1: ${{ steps.make-labels.outputs.SET_LABEL_1 }}
+      set_label_2: ${{ steps.make-labels.outputs.SET_LABEL_2 }}
+      test_class_regex: "${{ steps.make-test-regex.outputs.TEST_CLASS_REGEX }}"
+      metal_device_id: ${{ steps.deploy-metal.outputs.DEVICE_ID }}
+      metal_device_name: ${{ steps.deploy-metal.outputs.DEVICE_NAME }}
+      metal_ip_addr: ${{ steps.deploy-metal.outputs.DEVICE_ADDR }}
+      test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
+      test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
+    env:
+      SD: .github/scripts
+      METAL_EXPIRE: "2 days"
+      METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
+      METAL_PLAN: "c3.small.x86"
+      METAL_ACTOR: "${{ github.actor }}"
+      
     steps:
-    - name: Print Message
-      run: echo "Hello ${{ inputs.message }}"
+    - uses: actions/checkout@v4
+    - name: Make Set Labels
+      id: make-labels 
+      run: |
+        ${SD}/adhoc.sh make-labels ${{ inputs.set_label_prefix }} ${{ inputs.docker_image_1 }} ${{ inputs.docker_image_2 }}
+        cat adhoc-make-labels.out >> "$GITHUB_OUTPUT"
+
+    - name: Make Wildcard Regex
+      id: make-test-regex 
+      run: |
+        ${SD}/adhoc.sh make-test-regex "${{ inputs.test_class_list }}"
+        cat adhoc-make-test-regex.out >> "$GITHUB_OUTPUT"
+    
+    - name: Scale Input Numbers
+      id: scale-nums
+      run: |
+        ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
+        cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
+    
+    - name: Deploy Bare Metal
+      id: deploy-metal
+      run: |
+        ${SD}/adhoc.sh deploy-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_PLAN} ${METAL_ACTOR} ${METAL_EXPIRE}
+        cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
+    
+    - name: Archive Setup Logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: Provisioning Setup Logs
+        path: |
+          *.out
+          *.json
+  
+  process-adhoc-benchmarks-1:
+    needs: setup-benchmark-system
+    uses: ./.github/workflows/remote-benchmarks.yml
+    with:
+      run_type: adhoc
+      docker_image: ${{ inputs.docker_image_1 }}
+      run_label: ${{ needs.setup-benchmark-system.outputs.set_label_1 }}
+      test_package: "io.deephaven.benchmark.tests.standard"
+      test_class_regex: "${{ needs.setup-benchmark-system.outputs.test_class_regex }}"
+      test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
+      scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
+      distribution: ${{ inputs.distribution }}
+      test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
+      
+    secrets: inherit
+    
+  process-adhoc-benchmarks-2:
+    needs: [setup-benchmark-system, process-adhoc-benchmarks-1] 
+    uses: ./.github/workflows/remote-benchmarks.yml
+    with:
+      run_type: adhoc
+      docker_image: ${{ inputs.docker_image_2 }}
+      run_label: ${{ needs.setup-benchmark-system.outputs.set_label_2 }}
+      test_package: "io.deephaven.benchmark.tests.standard"
+      test_class_regex: "${{ needs.setup-benchmark-system.outputs.test_class_regex }}"
+      test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
+      scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
+      distribution: ${{ inputs.distribution }}
+      test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
+    secrets: inherit
+
+  teardown-benchmark-system:
+    if: ${{ always() && needs.setup-benchmark-system.outputs.metal_device_id }}
+    needs: [setup-benchmark-system, process-adhoc-benchmarks-2]
+    runs-on: ubuntu-22.04
+    env: 
+      SD: .github/scripts
+      METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_DEVICE_ID: ${{ needs.setup-benchmark-system.outputs.metal_device_id }}
+      METAL_DEVICE_NAME: ${{ needs.setup-benchmark-system.outputs.metal_device_name }}
+      
+    steps:
+    - uses: actions/checkout@v4
+    - name: Delete Bare Metal
+      id: delete-metal
+      run: |
+        ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
+        cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
+        
+    - name: Archive Teardown Logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: Provisioning Teardown Logs
+        path: |
+          *.out
+          *.json
 

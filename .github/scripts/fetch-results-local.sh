@@ -17,7 +17,7 @@ USER=$2
 SCRIPT_DIR=$3
 RUN_TYPE=$4
 ACTOR=$5
-RUN_LABEL=${6:-$(echo -n "set-"; ${SCRIPT_DIR}/base62.sh $(date +%s%03N))}
+RUN_LABEL=${6:-$(echo -n "set-"; ${SCRIPT_DIR}/base.sh $(date +%s%03N) 62)}
 DOCKER_IMG=$7
 RUN_DIR=/root/run
 
