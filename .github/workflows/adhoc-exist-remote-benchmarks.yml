@@ -1,0 +1,21 @@
+# Run benchmarks on an already provisioned system
+# - Calls the reusable worflow remote-benchmarks.yml to run and upload benchmarks
+# - Runs the given options with the given image/branch
+
+name: Adhoc Benchmarks (Existing Server)
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        message: 'Message'
+        required: true
+        default: ''
+        type: string
+
+jobs:
+  hello-world:
+    runs-on: ubuntu-22.04      
+    steps:
+    - name: Print Message
+      run: echo "Hello ${{ inputs.message }}"
