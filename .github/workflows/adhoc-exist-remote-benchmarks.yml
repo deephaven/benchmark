@@ -59,6 +59,7 @@ jobs:
       test_class_regex: "${{ steps.make-test-regex.outputs.TEST_CLASS_REGEX }}"
       test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
+      test_ip_address: ${{ secrets.BENCHMARK_HOST }}
     env:
       SD: .github/scripts
       
@@ -88,6 +89,6 @@ jobs:
       test_iterations: ${{ inputs.scale_row_count }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
-      test_device_addr: ${{ secrets.BENCHMARK_HOST }}
+      test_device_addr: ${{ needs.setup-benchmark-system.outputs.test_ip_address }}
     secrets: inherit
 
