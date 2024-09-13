@@ -74,12 +74,12 @@ jobs:
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} setup-test-server-remote ${REPO} ${BRANCH} ${RUN_TYPE} "${DOCKER_IMG}"
 
     - name: Run Remote Server Distribution Build
-      if: ${{ contains(env.DOCKER_IMG, '::') }}
+      if: ${{ !contains(env.DOCKER_IMG, '@sha:') && contains(env.DOCKER_IMG, ':') }}
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-server-distribution-remote "${DOCKER_IMG}"
         
     - name: Run Remote Docker Image Build
-      if: ${{ contains(env.DOCKER_IMG, '::') }}
+      if: ${{ !contains(env.DOCKER_IMG, '@sha:') && contains(env.DOCKER_IMG, ':') }}
       run: |
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} build-docker-image-remote
 
