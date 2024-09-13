@@ -43,7 +43,7 @@ jobs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
       SD: .github/scripts
-      HOST: ${{inputs.test_device_addr}}
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}

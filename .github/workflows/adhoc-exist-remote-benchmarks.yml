@@ -59,10 +59,8 @@ jobs:
       test_class_regex: "${{ steps.make-test-regex.outputs.TEST_CLASS_REGEX }}"
       test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
-      test_ip_address: ${{ steps.scale-nums.outputs.BENCHMARK_IP }}
     env:
       SD: .github/scripts
-      BENCHMARK_IP: ${{ secrets.BENCHMARK_HOST }}
       
     steps:
     - uses: actions/checkout@v4
@@ -77,9 +75,6 @@ jobs:
       run: |
         ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
-        echo "- BENCHMARK_IP=${BENCHMARK_IP}"
-        echo "BENCHMARK_IP=${BENCHMARK_IP}" >> "$GITHUB_OUTPUT"
-        cat "$GITHUB_OUTPUT"
 
   process-adhoc-benchmarks:
     needs: [setup-benchmark-system] 
@@ -93,6 +88,6 @@ jobs:
       test_iterations: ${{ inputs.scale_row_count }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
-      test_device_addr: ${{ needs.setup-benchmark-system.outputs.test_ip_address }}
+      test_device_addr: "<default>"
     secrets: inherit
 
