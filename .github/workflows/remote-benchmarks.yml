@@ -53,7 +53,7 @@ jobs:
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
       TEST_ITERS: ${{inputs.test_iterations}}
-      CONFIG_OPTS: ${{inputs.config_options}}
+      CONFIG_OPTS: "${{inputs.config_options}}"
 
     steps:
     - uses: actions/checkout@v4

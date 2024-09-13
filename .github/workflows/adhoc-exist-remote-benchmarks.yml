@@ -89,7 +89,7 @@ jobs:
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
       test_device_addr: "<default>"
-      config_options: ${{ inputs.config_options }}
+      config_options: "${{ inputs.config_options }}"
       
     secrets: inherit
 
