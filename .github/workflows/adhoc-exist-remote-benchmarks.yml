@@ -78,6 +78,7 @@ jobs:
         ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
         echo "BENCHMARK_IP=${BENCHMARK_IP}" >> "$GITHUB_OUTPUT"
+        cat "$GITHUB_OUTPUT"
 
   process-adhoc-benchmarks:
     needs: [setup-benchmark-system] 
