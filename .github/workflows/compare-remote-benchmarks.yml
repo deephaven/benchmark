@@ -26,4 +26,5 @@ jobs:
       test_iterations: 5
       scale_row_count: 70000000
       distribution: random
+      test_device_addr: "<default>"
     secrets: inherit

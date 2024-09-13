@@ -111,7 +111,7 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
     }' | jq | tee create-device-response.json | jq -r '.id')
 
   IP_ADDRESS="null"
-  for i in $(seq 60); do
+  for i in $(seq 100); do
     echo -n "$i) Device Status: "
     STATE=$(getDeviceInfo ${API_KEY} ${DEVICE_ID} ".state")
     echo "${STATE}"
