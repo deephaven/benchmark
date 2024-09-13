@@ -7,16 +7,16 @@ set -o pipefail
 # The directives argument can be start or stop
 # The supplied image argument can be an image name or <owner>::<branch>
 
-if [[ $# != 2 ]]; then
-  echo "$0: Missing docker directive or image/branch argument"
+if [[ $# != 3 ]]; then
+  echo "$0: Missing docker directive, image/branch, config options argument"
   exit 1
 fi
 
-HOST=`hostname`
-DEEPHAVEN_DIR=/root/deephaven
 DIRECTIVE=$1
 DOCKER_IMG=$2
-BRANCH_DELIM="::"
+CONFIG_OPTS=$3
+HOST=`hostname`
+DEEPHAVEN_DIR=/root/deephaven
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
@@ -29,11 +29,23 @@ title "- Setting up Remote Docker Image on ${HOST} -"
 
 cd ${DEEPHAVEN_DIR}
 
-if [[ ${DOCKER_IMG} != *"${BRANCH_DELIM}"* ]]; then
-  echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" > .env
+if [[ ${CONFIG_OPTS} == "<default>" ]]; then
+  CONFIG_OPTS="-Xmx24g"
+fi
+echo "CONFIG_OPTS=${CONFIG_OPTS}" > .env
+
+IS_BRANCH="false"
+if [[ ${DOCKER_IMG} == *"@sha"*":"* ]]; then
+  IS_BRANCH="false"
+elif [[ ${DOCKER_IMG} == *":"* ]]; then
+  IS_BRANCH="true"
+fi
+
+if [[ ${IS_BRANCH} == "false" ]]; then
+  echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" >> .env
   docker compose pull
 else 
-  echo "DOCKER_IMG=deephaven/server:benchmark-local" > .env
+  echo "DOCKER_IMG=deephaven/server:benchmark-local" >> .env
 fi
 
 if [[ ${DIRECTIVE} == 'start' ]]; then

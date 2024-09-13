@@ -117,7 +117,7 @@ jobs:
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
-      
+      config_options: "<default>"
     secrets: inherit
     
   process-adhoc-benchmarks-2:
@@ -133,6 +133,7 @@ jobs:
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
+      config_options: "<default>"
     secrets: inherit
 
   teardown-benchmark-system:

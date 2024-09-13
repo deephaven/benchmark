@@ -35,6 +35,9 @@ on:
       test_device_addr:
         required: true
         type: string
+      config_options:
+        required: true
+        type: string
 
 jobs:
   setup-benchmarks:
@@ -50,6 +53,7 @@ jobs:
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
       TEST_ITERS: ${{inputs.test_iterations}}
+      CONFIG_OPTS: ${{inputs.config_options}}
 
     steps:
     - uses: actions/checkout@v4
@@ -81,7 +85,7 @@ jobs:
 
     - name: Start Remote Deephaven Server
       run: | 
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} manage-deephaven-remote start "${DOCKER_IMG}"
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} manage-deephaven-remote start "${DOCKER_IMG}" "${CONFIG_OPTS}"
 
     - name: Run Remote Benchmark Artifact Build
       run: |
