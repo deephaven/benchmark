@@ -85,7 +85,7 @@ jobs:
       run_label: ${{ inputs.run_label }}
       test_package: ${{ inputs.test_package }}
       test_class_regex: "${{ needs.setup-benchmark-system.outputs.test_class_regex }}"
-      test_iterations: ${{ inputs.scale_row_count }}
+      test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
       test_device_addr: "<default>"
