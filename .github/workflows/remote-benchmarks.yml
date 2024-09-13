@@ -101,7 +101,7 @@ jobs:
         tag: ${{ fromJson(needs.setup-benchmarks.outputs.matrix-iterations) }}
     env: 
       SD: .github/scripts
-      HOST: ${{inputs.test_device_addr}}
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       TEST_PKG: ${{inputs.test_package}}
@@ -126,12 +126,12 @@ jobs:
     runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
-      HOST: ${{inputs.test_device_addr}}
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
       RUN_LABEL: ${{inputs.run_label}}
-      ACTOR: "${{ inputs.run_label == 'adhoc' && github.actor || github.repository_owner }}" 
+      ACTOR: "${{ inputs.run_type == 'adhoc' && github.actor || github.repository_owner }}" 
     
     steps:
     - uses: actions/checkout@v4
