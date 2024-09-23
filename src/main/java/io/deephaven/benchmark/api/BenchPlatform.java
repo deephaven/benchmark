@@ -155,6 +155,7 @@ public class BenchPlatform {
         from deephaven import dtypes as dht
         from deephaven.column import string_col
         
+        
         def benchApiAddProperty(prop_table, origin, name, value):
             t = new_table([string_col('origin', [origin]), string_col('name', [name]), string_col('value', [str(value)])])
             prop_table.add(t)
@@ -182,6 +183,13 @@ public class BenchPlatform {
                 Runtime.getRuntime().availableProcessors());
         benchApiAddProperty(benchApiProps, benchApiOrigin, "java.max.memory", Runtime.getRuntime().maxMemory());
         benchApiAddProperty(benchApiProps, benchApiOrigin, "deephaven.version", deephavenVersion);
+        
+        # Temporarily write process info log to data directory
+        import deephaven.perfmon as pm
+        from deephaven import write_csv
+
+        pil = pm.process_info_log()
+        write_csv(pil, '/data/pil.csv')
         """;
 
         ResultTable t = fetchResult(query);
