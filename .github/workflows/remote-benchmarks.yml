@@ -62,7 +62,6 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven
         
     - name: Setup Local Scripts
       run: |
@@ -145,7 +144,6 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven
     
     - name: Setup Local Scripts
       run: |
