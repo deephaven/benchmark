@@ -153,8 +153,10 @@ jobs:
         ${SD}/setup-ssh-local.sh ${HOST} "${{secrets.BENCHMARK_KEY}}"
     
     - name: Fetch Benchmark Results and Prepare for Upload
+      id: fetch-results
       run: |
         ${SD}/fetch-results-local.sh ${HOST} ${USER} ${SD} ${RUN_TYPE} "${ACTOR}" "${RUN_LABEL}" "${DOCKER_IMG}"
+        cat fetch-results-local.out >> "$GITHUB_OUTPUT"
 
     - name: Authorize GCloud Credentials
       uses: google-github-actions/auth@v2
@@ -171,6 +173,7 @@ jobs:
         destination: deephaven-benchmark
         
     - name: Sync GCloud with Demo NFS
+      if: ${{ env.RUN_TYPE != 'adhoc' }}
       run: |
         gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="sudo gsutil -m rsync -d -r gs://deephaven-benchmark /nfs/deephaven-benchmark"
         gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client --command="sudo find /nfs/deephaven-benchmark -mindepth 1 -type d -empty -delete"
@@ -182,7 +185,7 @@ jobs:
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
-        name: Benchmarks and Logs for Set ${{env.RUN_LABEL}}
+        name: Benchmarks and Logs for Set ${{steps.fetch-results.outputs.SET_LABEL}}
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
