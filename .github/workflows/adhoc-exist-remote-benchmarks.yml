@@ -13,7 +13,7 @@ on:
         default: 'edge'
         type: string
       config_options:
-        description: 'Deephaven or JVM Config Options'
+        description: 'Deephaven JVM Options'
         default: '-Xmx24g'
         type: string
       run_label:
