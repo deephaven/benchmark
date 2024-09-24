@@ -171,6 +171,7 @@ jobs:
       with:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
+        process_gcloudignore: false
         
     - name: Sync GCloud with Demo NFS
       if: ${{ env.RUN_TYPE != 'adhoc' }}
@@ -189,5 +190,4 @@ jobs:
         path: |
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
-
 
