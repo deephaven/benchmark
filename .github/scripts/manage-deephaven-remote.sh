@@ -8,7 +8,7 @@ set -o pipefail
 # The supplied image argument can be an image name or <owner>::<branch>
 
 echo "Manage Deephaven Remote Arg Count: $#"
-if [[ $# < 3 ]]; then
+if [[ $# -lt 3 ]]; then
   echo "$0: Missing docker directive, image/branch, config options argument"
   exit 1
 fi
