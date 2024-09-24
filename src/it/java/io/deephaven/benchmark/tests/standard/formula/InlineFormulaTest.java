@@ -21,14 +21,14 @@ public class InlineFormulaTest {
         runner.setScaleFactors(staticFactor, incFactor);
     }
 
-    @Test
-    @Tag("Iterate")
-    void select1Calc1ColFormula() {
-        setup(6, 22, 0);
-        var q = "source.select(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
-        runner.test("Select-Sum- 1 Calc Using 1 Col", 1, q, "num2");
-    }
-
+//    @Test
+//    @Tag("Iterate")
+//    void select1Calc1ColFormula() {
+//        setup(6, 22, 0);
+//        var q = "source.select(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
+//        runner.test("Select-Sum- 1 Calc Using 1 Col", 1, q, "num2");
+//    }
+//
 //    @Test
 //    @Tag("Iterate")
 //    void select1Calc2ColsFormula() {
