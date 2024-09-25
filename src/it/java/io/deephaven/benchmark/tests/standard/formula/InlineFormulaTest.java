@@ -24,7 +24,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void select1Calc1ColFormula() {
-        setup(6, 22, 0);
+        setup(6, 22, 8);
         var q = "source.select(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("Select-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
@@ -64,7 +64,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void update2Calcs2ColsFormula() {
-        setup(6, 16, 0);
+        setup(6, 16, 10);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
         runner.test("Update-Sum- 2 Calcs Using 2 Cols", 1, q, "num1", "num2");
     }
