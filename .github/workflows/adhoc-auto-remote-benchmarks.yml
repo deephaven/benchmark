@@ -93,7 +93,7 @@ jobs:
     - name: Deploy Bare Metal
       id: deploy-metal
       run: |
-        ${SD}/adhoc.sh deploy-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_PLAN} ${METAL_ACTOR} ${METAL_EXPIRE}
+        ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}" "${METAL_EXPIRE}"
         cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
     
     - name: Archive Setup Logs
