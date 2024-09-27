@@ -7,9 +7,7 @@ name: Benchmark Test on Docker Deephaven
 
 on:
   workflow_call:
-    secrets:
-      test_device_addr:
-        required: true
+    secrets: inherit
     inputs:
       run_type:
         required: true
