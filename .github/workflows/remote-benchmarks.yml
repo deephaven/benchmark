@@ -13,22 +13,31 @@ on:
     inputs:
       run_type:
         required: true
+        type: string
       docker_image:
         required: true
+        type: string
       run_label:
         required: true
+        type: string
       test_package:
         required: true
+        type: string
       test_class_regex:
         required: true
+        type: string
       test_iterations:
         required: true
+        type: string
       scale_row_count:
         required: true
+        type: string
       distribution:
         required: true
+        type: string
       config_options:
         required: true
+        type: string
 
 jobs:
   setup-benchmarks:
