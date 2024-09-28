@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run benchmarks on the remote side doing one iteration according to the following contract:
 # - If TAG_NAME is "Any", run all tests
 # - If TAG_NAME starts with "!", run all tests except the named tag

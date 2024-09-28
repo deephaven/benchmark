@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Executes a local script on a remote server while storing output relative to the 
 # local working directory. Also, this script wraps arguments provided for the
 # remote scripts in single-quotes to avoid syntax errors.

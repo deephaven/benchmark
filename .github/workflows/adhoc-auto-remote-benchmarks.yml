@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Provision a server and run benchmarks on that system, cleaning up after
 # - Deploys a new server on the fly
 # - Calls the reusable worflow remote-benchmarks.yml to run and upload benchmarks
@@ -116,9 +118,9 @@ jobs:
       test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
-      config_options: "<default>"
-    secrets:
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
+      config_options: "<default>"
+    secrets: inherit
     
   process-adhoc-benchmarks-2:
     needs: [setup-benchmark-system, process-adhoc-benchmarks-1] 
@@ -132,9 +134,9 @@ jobs:
       test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
-      config_options: "<default>"
-    secrets:
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
+      config_options: "<default>"
+    secrets: inherit
 
   teardown-benchmark-system:
     if: ${{ always() && needs.setup-benchmark-system.outputs.metal_device_id }}

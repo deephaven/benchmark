@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run benchmarks on a remote system for the release the project is using
 # - This workflow is reusable with run_type set to release or nightly
 # - Scripts ending in "-local" run on the github runner
@@ -7,14 +9,13 @@ name: Benchmark Test on Docker Deephaven
 
 on:
   workflow_call:
-    secrets: inherit
     inputs:
       run_type:
         required: true
         type: string
       docker_image:
-        required: true
-        type: string
+       required: true
+       type: string
       run_label:
         required: true
         type: string
@@ -33,6 +34,9 @@ on:
       distribution:
         required: true
         type: string
+      test_device_addr:
+        required: true
+        type: string
       config_options:
         required: true
         type: string
@@ -44,7 +48,7 @@ jobs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
       SD: .github/scripts
-      HOST: "${{ secrets.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || secrets.test_device_addr }}"
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
@@ -102,7 +106,7 @@ jobs:
         tag: ${{ fromJson(needs.setup-benchmarks.outputs.matrix-iterations) }}
     env: 
       SD: .github/scripts
-      HOST: "${{ secrets.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || secrets.test_device_addr }}"
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       TEST_PKG: ${{inputs.test_package}}
@@ -127,7 +131,7 @@ jobs:
     runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
-      HOST: "${{ secrets.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || secrets.test_device_addr }}"
+      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}

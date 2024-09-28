@@ -3,6 +3,8 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Start or Stop a Deephaven image based on the given directive and image/branch name
 # The directives argument can be start or stop
 # The supplied image argument can be an image name or <owner>::<branch>

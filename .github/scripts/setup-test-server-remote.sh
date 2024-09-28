@@ -4,7 +4,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Runs the remote side of test server setup
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
+# Runs the remote test server setup where the benchmarks will be run
 
 if [ ! -d "/root" ]; then
   echo "$0: Missing the Benchmark install directory"

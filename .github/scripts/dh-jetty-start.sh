@@ -3,6 +3,8 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Build and start the python native Deephaven Community Server
 
 MY_ID=DH_JETTY_BY_STAN

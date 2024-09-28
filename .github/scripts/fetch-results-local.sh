@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Fetches Benchmark results and logs from the remote test server and
 # compresses the runs before upload. Writes an output file with the 
 # SET_LABEL that was used for the set directory name

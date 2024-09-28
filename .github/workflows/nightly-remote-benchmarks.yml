@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run benchmarks on a remote system for the nightly (edge) build
 # - Calls the reusable worflow remote-benchmarks.yml
 

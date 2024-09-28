@@ -3,6 +3,8 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Assemble the Deephaven server artifacts on the remote side if needed
 # The supplied argument can be an image name or <owner>::<branch>
 # Ensure that the artifacts and Deephaven version are available in standard directories

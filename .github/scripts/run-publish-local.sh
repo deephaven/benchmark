@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run queries that publish a secret slack channel. Queries operation exclusively
 # the deephaven-benchmark GCloud bucket
 

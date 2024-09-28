@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run Integration Tests against a Docker install on Github
 
 name: Integration Test on Docker Deephaven

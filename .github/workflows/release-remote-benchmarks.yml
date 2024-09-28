@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run benchmarks on a remote system according to the release defined 
 # in resources/release-benchmark-docker-compose.yml
 # - Calls the reusable worflow remote-benchmarks.yml

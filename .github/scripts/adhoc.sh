@@ -3,6 +3,8 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Provides what is needed to set up an adhoc benchmark run, including bare metal and labels
 # ex. adhoc.sh make-labels "where" "0.36.0" "user123:branch-name-123"
 # ex. adhoc.sh metal-deploy api-key project-id c3.small.x86 server-name "2 days" 

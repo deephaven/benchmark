@@ -3,6 +3,8 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # For a given descriptor, return the appropriate array that can be read by a Github 
 # workflow with fromJSON(array)
 # ex. matrix_array.sh matrix-arr adhoc 5

@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Build, Run Unit tests, and make the Benchmark artifacts; jar and test-jar
 
 name: Unit Test and Package

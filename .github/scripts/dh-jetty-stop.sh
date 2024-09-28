@@ -4,6 +4,8 @@
 # set -o pipefail
 # set -o nounset
 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Stop the native python Deephaven Community Server
 
 MY_ID=DH_JETTY_BY_STAN

@@ -1,3 +1,5 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+
 # Run benchmarks on an already provisioned system
 # - Calls the reusable worflow remote-benchmarks.yml to run and upload benchmarks
 # - Runs the given options with the given image/branch
