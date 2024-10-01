@@ -45,7 +45,7 @@ env:
   HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
   
 concurrency:
-  group: ${{ env.HOST }}
+  group: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
   cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
 
 jobs:
