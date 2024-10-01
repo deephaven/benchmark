@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
 #
 # Deephaven query to run against historical benchmark data stored in GCloud bucket and produce
 # some useful correlated tables

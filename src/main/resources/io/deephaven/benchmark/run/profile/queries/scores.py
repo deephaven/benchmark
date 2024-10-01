@@ -1,3 +1,8 @@
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
+#
+# Show nightly scores over time. Useful for detecting problematic benchmarks
+# that have periodic outliers
+
 from deephaven.updateby import rolling_group_tick
 from urllib.request import urlopen; import os
 

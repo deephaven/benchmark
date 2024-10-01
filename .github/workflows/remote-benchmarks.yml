@@ -40,6 +40,9 @@ on:
       config_options:
         required: true
         type: string
+        
+env:
+  HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
 
 jobs:
   setup-benchmarks:
@@ -48,7 +51,6 @@ jobs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
       SD: .github/scripts
-      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       REPO: ${{github.repository}}
       BRANCH: ${{github.ref_name}}
@@ -106,7 +108,6 @@ jobs:
         tag: ${{ fromJson(needs.setup-benchmarks.outputs.matrix-iterations) }}
     env: 
       SD: .github/scripts
-      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       TEST_PKG: ${{inputs.test_package}}
@@ -131,7 +132,6 @@ jobs:
     runs-on: ubuntu-22.04
     env: 
       SD: .github/scripts
-      HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}

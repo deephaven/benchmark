@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between nightly benchmarks
 # - Drill into nightly rate gain/loss for a single operations for a date-time range

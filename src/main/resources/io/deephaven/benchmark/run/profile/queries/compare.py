@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate product comparisons.
 # - Generate a table that shows the comparisons between products for each benchmark

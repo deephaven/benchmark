@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between releases
 # - Generate tables for best and wost static rates between the latest release and previous

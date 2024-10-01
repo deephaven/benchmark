@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between nightly benchmarks
 # - Make two tables; one cryptic and small, the other clearer with more rows
@@ -38,8 +38,7 @@ def latest_comparable_benchmarks(filter_table):
 bench_results = latest_comparable_benchmarks(bench_results_sets)
 
 # Get static benchmarks and compare to last 5 days and previous release
-nightly_score = bench_results.where(['benchmark_name.endsWith(`-Static`)']) \
-    .sort_descending(['benchmark_name','timestamp','deephaven_version','origin']) \
+nightly_score = bench_results.sort_descending(['benchmark_name','timestamp','deephaven_version','origin']) \
     .group_by(['benchmark_name','deephaven_version','origin']) \
     .head_by(2, ['benchmark_name','origin']) \
     .group_by(['benchmark_name','origin']) \
@@ -54,39 +53,45 @@ nightly_score = bench_results.where(['benchmark_name.endsWith(`-Static`)']) \
         'prob=zprob(score)'])
 
 nightly_worst_score_large = nightly_score \
-    .view(['Static_Benchmark=benchmark_name.replace(` -Static`,``)',
+    .view(['Benchmark=benchmark_name',
         'Variability=var_rate/100','Rate=op_rate',
         'Change=gain(avg_rate,op_rate)/100',
         'Since_Release=gain(prev_vers_avg_rate,op_rate)/100',
         'Score=score','Score_Prob=prob']) \
     .sort(['Score']) \
-    .head_by(20) \
+    .head(20) \
     .format_columns(['Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
         'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)',
         'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'])
 
+def benchname(name):
+    btype = 'S' if name.endswith('-Static') else 'I'
+    name = name.replace(' -Static','').replace(' -Inc','')
+    name = truncate(name, 50)
+    return btype  + ' ' + name
+
 nightly_worst_score_small = nightly_worst_score_large \
-    .head_by(10) \
-    .view(['Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
+    .head(10) \
+    .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
         'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
     .format_columns(['Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
         'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
 
 nightly_best_score_large = nightly_score \
-    .view(['Static_Benchmark=benchmark_name.replace(` -Static`,``)',
+    .view(['Benchmark=benchmark_name',
         'Variability=var_rate/100','Rate=op_rate',
         'Change=gain(avg_rate,op_rate)/100',
         'Since_Release=gain(prev_vers_avg_rate,op_rate)/100',
         'Score=score','Score_Prob=prob']) \
     .sort_descending(['Score']) \
-    .head_by(20) \
+    .head(20) \
     .format_columns(['Variability=Decimal(`0.0%`)','Rate=Decimal(`###,##0`)',
         'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)',
         'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'])
 
 nightly_best_score_small = nightly_best_score_large \
-    .head_by(10) \
-    .view(['Static_Benchmark=truncate(Static_Benchmark,50)','Chng5d=Change',
+    .head(10) \
+    .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
         'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
     .format_columns(['Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
         'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
