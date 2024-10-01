@@ -47,10 +47,10 @@ env:
 # Workaround for the ommission of support for env vars in concurrency groups
 strategy:
   matrix:
-    HOST: ${{ env.HOST }}
+    hostname: "[${{ env.HOST }}]"
 
 concurrency:
-  group: "${{ matrix.HOST }}"
+  group: "${{ matrix.hostname }}"
   cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
 
 jobs:
