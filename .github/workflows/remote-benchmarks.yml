@@ -50,7 +50,7 @@ strategy:
     hostname: "[${{ env.HOST }}]"
 
 concurrency:
-  group: "${{ matrix.hostname }}"
+  group: ${{ matrix.hostname }}
   cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
 
 jobs:
