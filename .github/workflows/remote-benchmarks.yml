@@ -47,7 +47,7 @@ env:
 # Workaround for the ommission of support for env vars in concurrency groups
 strategy:
   matrix:
-    HOST: [${{ env.HOST }}]
+    HOST: ${{ env.HOST }}
 
 concurrency:
   group: "${{ matrix.HOST }}"
