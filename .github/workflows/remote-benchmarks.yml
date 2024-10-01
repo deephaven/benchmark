@@ -43,14 +43,9 @@ on:
         
 env:
   HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
-  
-# Workaround for the ommission of support for env vars in concurrency groups
-strategy:
-  matrix:
-    hostname: "[${{ env.HOST }}]"
 
 concurrency:
-  group: ${{ matrix.hostname }}
+  group: ${{ inputs.test_device_addr }}
   cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
 
 jobs:
