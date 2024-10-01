@@ -48,7 +48,7 @@ env:
 strategy:
   matrix:
     HOST: [${{ env.HOST }}]
-  
+
 concurrency:
   group: "${{ matrix.HOST }}"
   cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
