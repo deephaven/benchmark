@@ -43,6 +43,10 @@ on:
         
 env:
   HOST: "${{ inputs.test_device_addr == '<default>' && secrets.BENCHMARK_HOST || inputs.test_device_addr }}"
+  
+concurrency:
+  group: ${{ env.HOST }}
+  cancel-in-progress: ${{ inputs.run_type == 'nightly' }}
 
 jobs:
   setup-benchmarks:
