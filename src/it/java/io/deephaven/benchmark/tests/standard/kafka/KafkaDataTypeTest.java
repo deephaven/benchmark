@@ -14,7 +14,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20LongColsFromKafkaAvroAppend() {
-        runner.api.setName("NoOp- 20 Long Cols Avro Append");
+        runner.api.setName("NoOp- 20 Long Cols Avro Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "long", "avro");
         runner.runTest("None", "append");
@@ -22,7 +22,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20LongColsFromKafkaJsonAppend() {
-        runner.api.setName("NoOp- 20 Long Cols JSON Append");
+        runner.api.setName("NoOp- 20 Long Cols JSON Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "long", "json");
         runner.runTest("None", "append");
@@ -30,7 +30,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20LongColsFromKafkaProtobufAppend() {
-        runner.api.setName("NoOp- 20 Long Cols Protobuf Append");
+        runner.api.setName("NoOp- 20 Long Cols Protobuf Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 3, colCount, "long", "protobuf");
         runner.runTest("None", "append");
@@ -38,7 +38,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20DoubleColsFromKafkaAvroAppend() {
-        runner.api.setName("NoOp- 20 Double Cols Avro Append");
+        runner.api.setName("NoOp- 20 Double Cols Avro Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount, colCount, "double", "avro");
         runner.runTest("None", "append");
@@ -46,7 +46,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOpDoubleColsFromKafkaJsonAppend() {
-        runner.api.setName("NoOp- 20 Double Cols JSON Append");
+        runner.api.setName("NoOp- 20 Double Cols JSON Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 4, colCount, "double", "json");
         runner.runTest("None", "append");
@@ -54,7 +54,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOpDoubleColsFromKafkaProtobufAppend() {
-        runner.api.setName("NoOp- 20 Double Cols Protobuf Append");
+        runner.api.setName("NoOp- 20 Double Cols Protobuf Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 4, colCount, "double", "protobuf");
         runner.runTest("None", "append");
@@ -62,7 +62,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20DateTimeColsFromKafkaAvroAppend() {
-        runner.api.setName("NoOp- 20 DateTime Cols Avro Append");
+        runner.api.setName("NoOp- 20 DateTime Cols Avro Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "timestamp-millis", "avro");
         runner.runTest("None", "append");
@@ -70,7 +70,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20DateTimeColsFromKafkaJsonAppend() {
-        runner.api.setName("NoOp- 20 DateTime Cols JSON Append");
+        runner.api.setName("NoOp- 20 DateTime Cols JSON Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 2, colCount, "timestamp-millis", "json");
         runner.runTest("None", "append");
@@ -78,7 +78,7 @@ public class KafkaDataTypeTest {
 
     @Test
     void NoOp20DateTimeColsFromKafkaProtobufAppend() {
-        runner.api.setName("NoOp- 20 DateTime Cols Protobuf Append");
+        runner.api.setName("NoOp- 20 DateTime Cols Protobuf Append -Inc");
         runner.restartWithHeap(10);
         runner.table(rowCount / 8, colCount, "timestamp-millis", "protobuf");
         runner.runTest("None", "append");
