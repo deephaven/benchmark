@@ -4,7 +4,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Copyright (c) 2032-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
 #
 # This script shows an example of how to run the Deephaven operational benchmarks against
 # the Docker Deephaven in this directory. Each run will purge results and generated data from

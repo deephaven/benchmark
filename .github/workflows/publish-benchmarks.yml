@@ -10,10 +10,29 @@ on:
   workflow_dispatch:
     inputs:
      version:
-       description: 'Version'
+       description: 'Deephaven Community Version'
        required: true
        default: '0.36.0'
        type: string
+     release-commit:
+       description: 'Benchmark Release Commit Hash'
+       required: true
+       default: '849d7e99a873ad6ff1ccd6c1a5099d33f8393f1a'
+       type: string
+     previous-commit:
+       description: 'Benchmark Previous Commit or Tag'
+       required: true
+       default: 'v0.35.0'
+       type: string
+     mark-latest:
+       description: 'Mark as Latest'
+       required: true
+       default: true
+       type: boolean
+       
+env:
+  TAG_NAME: "v${{inputs.version}}"
+  VERSION: "${{inputs.version}}"
 
 jobs:
   build:
@@ -39,18 +58,26 @@ jobs:
         mvn -B verify --file pom.xml
         docker compose down 
       
-    - name: Build Release Distro
-      run: .github/scripts/make-release-distro.sh ${{ inputs.version }}
+    - name: Build Release Distro and Notes
+      run: .github/scripts/make-release-distro.sh ${VERSION}
       
     - name: Test Release Distro
-      run: .github/scripts/test-release-distro.sh ${{ inputs.version }}
-
+      run: .github/scripts/test-release-distro.sh ${VERSION} 
+      
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
         name: Deephaven Benchmark Release
         path: |
-          target/deephaven-benchmark-${{inputs.version}}.tar
-          target/deephaven-benchmark-${{inputs.version}}-results.tar
+          target/deephaven-benchmark-${VERSION}.tar
+          target/deephaven-benchmark-${VERSION}-results.tar
+          
+    - name: Publish Github Release
+      uses: ncipollo/release-action@v1
+      with:
+        commit: ${{ inputs.tag-commit }}
+        allowUpdates: true
+        artifacts: target/deephaven-benchmark-${env.VERSION}.tar"
+        bodyFile: "release-body.md"
           
 
