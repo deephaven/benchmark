@@ -1,0 +1,68 @@
+services:
+  deephaven:
+    image: ghcr.io/deephaven/server:${VERSION}
+    ports:
+      - "${DEEPHAVEN_PORT:-10000}:10000"
+    volumes:
+      - ./data:/data
+    environment:
+      - "START_OPTS=-Xmx24G -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
+
+  redpanda:
+    command:
+    - redpanda
+    - start
+    - --smp 2
+    - --memory 2G
+    - --reserve-memory 0M
+    - --overprovisioned
+    - --node-id 0
+    - --check=false
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    - --pandaproxy-addr 0.0.0.0:8082
+    - --advertise-pandaproxy-addr redpanda:8082
+    image: redpandadata/redpanda:v24.1.2
+    ports:
+    - 8081:8081
+    - 8082:8082
+    - 9092:9092
+    - 29092:29092
+    
+  minio-server:
+    image: minio/minio:RELEASE.2024-08-26T15-33-07Z
+    command: server /minio --console-address ":9001"
+    hostname: minio
+    environment:
+      MINIO_DOMAIN: minio
+    networks:
+      default:
+        aliases:
+          - data.minio
+    expose:
+    - "9000"
+    - "9001"
+    ports:
+    - 9000:9000
+    - 9001:9001
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+    - ./minio:/minio
+
+  minio-bucket:
+    image: minio/mc
+    depends_on:
+      - minio-server
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb endpoint/data;
+      /usr/bin/mc anonymous set public endpoint/data;
+      exit 0;
+      "

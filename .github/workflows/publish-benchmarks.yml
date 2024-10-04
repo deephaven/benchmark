@@ -4,15 +4,53 @@
 # deephaven-benchmark jar to maven central and a distro tar file to 
 # the Github release notes as an asset
 
-name: Publish Deephaven Benchmarks
+name: Publish Deephaven Benchmark
 
 on:
   workflow_dispatch:
+    inputs:
+     version:
+       description: 'Version'
+       required: true
+       default: '0.36.0'
+       type: string
 
 jobs:
-  echo:
+  build:
+
     runs-on: ubuntu-22.04
+
     steps:
-    - name: Echo Something
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Start Deephaven and Supporting Containers
       run: |
-        echo "Something"
+        cp .github/resources/integration-docker-compose.yml docker-compose.yml
+        docker compose up -d
+
+    - name: Build with Maven
+      run: |
+        mvn -B verify --file pom.xml
+        docker compose down 
+      
+    - name: Build Release Distro
+      run: .github/scripts/make-release-distro.sh ${{ inputs.version }}
+      
+    - name: Test Release Distro
+      run: .github/scripts/test-release-distro.sh ${{ inputs.version }}
+
+    - name: Archive Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: Deephaven Benchmark Release
+        path: |
+          target/deephaven-benchmark-${{inputs.version}}.tar
+          target/deephaven-benchmark-${{inputs.version}}-results.tar
+          
+
