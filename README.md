@@ -76,3 +76,5 @@ used for nightly Deephaven benchmarks. Either way the submission of the result t
 
 [Summary of Comparison Benchmarks](docs/ComparisonSummary.md)
 ![Operation Rate Product Comparison](https://storage.googleapis.com/deephaven-benchmark/compare/deephaven/benchmark-summary.svg?)
+
+
