@@ -1,0 +1,18 @@
+# Copyright (c) 2024-2024 Deephaven Data Labs and Patent Pending
+
+# Run the Benchmark release process that results in publishing a 
+# deephaven-benchmark jar to maven central and a distro tar file to 
+# the Github release notes as an asset
+
+name: Publish Deephaven Benchmark
+
+on:
+  workflow_dispatch:
+
+jobs:
+  echo:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Echo Something
+      run: |
+        echo "Something"
