@@ -82,23 +82,21 @@ jobs:
       run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
       
     - name: Archive Results
-      working-directory: ${RELEASE_DIR}
       uses: actions/upload-artifact@v4
       with:
         name: Deephaven Benchmark Release
         path: |
-          target/deephaven-benchmark-${VERSION}.tar
-          target/deephaven-benchmark-${VERSION}-results.tar
+          ${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}.tar
+          ${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}-results.tar
           
     - name: Publish Github Release
-      working-directory: ${RELEASE_DIR}
       uses: ncipollo/release-action@v1
       with:
         tag: "v${VERSION}"
         commit: ${{ inputs.release-commit }}
         makeLatest: ${{ inputs.mark-latest }}
         allowUpdates: true
-        artifacts: target/deephaven-benchmark-${VERSION}.tar"
-        bodyFile: "release-notes.md"
+        artifacts: "${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}.tar"
+        bodyFile: "${RELEASE_DIR}/target/release-notes.md"
 
 

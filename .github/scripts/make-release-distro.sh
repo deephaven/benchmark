@@ -22,11 +22,12 @@ PREVIOUS_TAG="v${PREVIOUS_VERSION}"
 ARTIFACT=deephaven-benchmark-${RELEASE_VERSION}
 DISTRO=target/distro
 THIS=$(basename "$0")
+RELEASE_NOTES=target/release-notes.md
 
 # Make the Release Notes File
-echo "**What's Changed**" > release-notes.md
-git log --oneline ${PREVIOUS_TAG}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> release-notes.md
-echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVIOUS_TAG}...${RELEASE_TAG}" >> release-notes.md
+echo "**What's Changed**" > ${RELEASE_NOTES}
+git log --oneline ${PREVIOUS_TAG}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> ${RELEASE_NOTES}
+echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVIOUS_TAG}...${RELEASE_TAG}" >> ${RELEASE_NOTES}
 
 # Build the Distro for running standard benchmarks
 mkdir -p ${DISTRO}/libs/
