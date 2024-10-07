@@ -50,12 +50,12 @@ jobs:
     - name: Checkout Latest
       uses: actions/checkout@v4
       with:
-        path: ${LATEST_DIR}
+        path: latest
 
     - name: Checkout Release
       uses: actions/checkout@v4
       with:
-        path: ${RELEASE_DIR}
+        path: release
         fetch-depth: 0
         fetch-tags: true
 
