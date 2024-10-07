@@ -9,8 +9,14 @@ set -o nounset
 # Create a tar file with the given version using the git project located in the 
 # working directory 
 
+if [[ $# != 3 ]]; then
+    echo "$0: Missing release version, release commit or previous version/commit argument"
+    exit 1
+fi
+
 RELEASE_VERSION=$1
-PREVIOUS_VERSION=$2
+RELEASE_COMMIT=$2
+PREVIOUS_VERSION=$3
 RELEASE_TAG="v${RELEASE_VERSION}"
 PREVIOUS_TAG="v${PREVIOUS_VERSION}"
 ARTIFACT=deephaven-benchmark-${RELEASE_VERSION}
@@ -18,7 +24,8 @@ DISTRO=target/distro
 THIS=$(basename "$0")
 
 # Make the Release Notes File
-git log --oneline ${RELEASE_TAG}...${PREVIOUS_TAG} > release-notes.md
+echo "**What's Changed**" > release-notes.md
+git log --oneline ${PREVIOUS_TAG}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> release-notes.md
 echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVIOUS_TAG}...${RELEASE_TAG}" >> release-notes.md
 
 # Build the Distro for running standard benchmarks

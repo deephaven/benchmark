@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
      version:
-       description: 'Deephaven Community Version'
+       description: 'Benchmark Release Version'
        required: true
        default: '0.36.0'
        type: string
@@ -19,52 +19,71 @@ on:
        required: true
        default: '849d7e99a873ad6ff1ccd6c1a5099d33f8393f1a'
        type: string
-     previous-commit:
-       description: 'Benchmark Previous Commit or Tag'
+     previous-version:
+       description: 'Benchmark Previous Version'
        required: true
        default: 'v0.35.0'
        type: string
      mark-latest:
-       description: 'Mark as Latest'
+       description: 'Mark Release as Latest'
        required: true
        default: true
        type: boolean
        
 env:
-  TAG_NAME: "v${{inputs.version}}"
-  VERSION: "${{inputs.version}}"
+  VERSION: "${{inputs.version}}"VERSION
+  COMMIT: "${{inputs.release-commit}}"
+  PREV_VERSION: "${{inputs.previous-version}}"
+  LATEST_DIR: ${{github.workspace}}/latest
+  RELEASE_DIR: ${{github.workspace}}/release
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
-
+    
     steps:
-    - uses: actions/checkout@v4
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: maven
 
-    - name: Start Deephaven and Supporting Containers
+    - name: Checkout Latest
+      uses: actions/checkout@v4
+      with:
+        path: ${LATEST_DIR}
+
+    - name: Checkout Release
+      uses: actions/checkout@v4
+      with:
+        path: ${RELEASE_DIR}
+
+    - name: Checkout Distro Target
+      working-directory: ${RELEASE_DIR}
+      run: git checkout ${COMMIT}
+
+    - name: Build Release Artifacts
+      working-directory: ${RELEASE_DIR}
       run: |
-        cp .github/resources/integration-docker-compose.yml docker-compose.yml
+        cp ${LATEST_DIR}/.github/resources/integration-docker-compose.yml docker-compose.yml
         docker compose up -d
 
-    - name: Build with Maven
-      run: |
+    - name: Build Release Artifacts
+      working-directory: ${RELEASE_DIR}
+      run: | 
         mvn -B verify --file pom.xml
         docker compose down 
       
     - name: Build Release Distro and Notes
-      run: .github/scripts/make-release-distro.sh ${VERSION}
+      working-directory: ${RELEASE_DIR}
+      run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
       
     - name: Test Release Distro
-      run: .github/scripts/test-release-distro.sh ${VERSION} 
+      working-directory: ${RELEASE_DIR}
+      run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
       
     - name: Archive Results
+      working-directory: ${RELEASE_DIR}
       uses: actions/upload-artifact@v4
       with:
         name: Deephaven Benchmark Release
@@ -73,11 +92,14 @@ jobs:
           target/deephaven-benchmark-${VERSION}-results.tar
           
     - name: Publish Github Release
+      working-directory: ${RELEASE_DIR}
       uses: ncipollo/release-action@v1
       with:
-        commit: ${{ inputs.tag-commit }}
+        tag: "v${VERSION}"
+        commit: ${{ inputs.release-commit }}
+        makeLatest: ${{ inputs.mark-latest }}
         allowUpdates: true
-        artifacts: target/deephaven-benchmark-${env.VERSION}.tar"
-        bodyFile: "release-body.md"
-          
+        artifacts: target/deephaven-benchmark-${VERSION}.tar"
+        bodyFile: "release-notes.md"
+
 
