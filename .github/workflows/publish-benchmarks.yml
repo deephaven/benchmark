@@ -9,26 +9,26 @@ name: Publish Deephaven Benchmarks
 on:
   workflow_dispatch:
     inputs:
-     version:
-       description: 'Benchmark Release Version'
-       required: true
-       default: '0.36.0'
-       type: string
-     release-commit:
-       description: 'Benchmark Release Commit Hash'
-       required: true
-       default: '849d7e99a873ad6ff1ccd6c1a5099d33f8393f1a'
-       type: string
-     previous-version:
-       description: 'Benchmark Previous Version'
-       required: true
-       default: 'v0.35.0'
-       type: string
-     mark-latest:
-       description: 'Mark Release as Latest'
-       required: true
-       default: true
-       type: boolean
+      version:
+        description: 'Benchmark Release Version'
+        required: true
+        default: '0.36.0'
+        type: string
+      release-commit:
+        description: 'Benchmark Release Commit Hash'
+        required: true
+        default: '849d7e99a873ad6ff1ccd6c1a5099d33f8393f1a'
+        type: string
+      previous-version:
+        description: 'Benchmark Previous Version'
+        required: true
+        default: 'v0.35.0'
+        type: string
+      mark-latest:
+        description: 'Mark Release as Latest'
+        required: true
+        default: true
+        type: boolean
        
 env:
   VERSION: "${{inputs.version}}"VERSION
