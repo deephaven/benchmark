@@ -26,8 +26,7 @@ on:
         type: string
       mark-latest:
         description: 'Mark Release as Latest'
-        required: true
-        default: 'true'
+        required: false
         type: boolean
    
 env:
