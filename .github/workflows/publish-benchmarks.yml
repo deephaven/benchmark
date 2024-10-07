@@ -60,27 +60,27 @@ jobs:
         fetch-tags: true
 
     - name: Checkout Distro Target
-      working-directory: ${RELEASE_DIR}
+      working-directory: ${{env.RELEASE_DIR}}
       run: git checkout ${COMMIT}
 
     - name: Build Release Artifacts
-      working-directory: ${RELEASE_DIR}
+      working-directory: ${{env.RELEASE_DIR}}
       run: |
         cp ${LATEST_DIR}/.github/resources/integration-docker-compose.yml docker-compose.yml
         docker compose up -d
 
     - name: Build Release Artifacts
-      working-directory: ${RELEASE_DIR}
+      working-directory: ${{env.RELEASE_DIR}}
       run: | 
         mvn -B verify --file pom.xml
         docker compose down 
       
     - name: Build Release Distro and Notes
-      working-directory: ${RELEASE_DIR}
+      working-directory: ${{env.RELEASE_DIR}}
       run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
       
     - name: Test Release Distro
-      working-directory: ${RELEASE_DIR}
+      working-directory: ${{env.RELEASE_DIR}}
       run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
       
     - name: Archive Results
@@ -94,11 +94,11 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@v1
       with:
-        tag: "v${VERSION}"
-        commit: ${{ inputs.release-commit }}
-        makeLatest: ${{ inputs.mark-latest }}
+        tag: "v${{env.VERSION}}"
+        commit: ${{inputs.release-commit}}
+        makeLatest: ${{inputs.mark-latest}}
         allowUpdates: true
-        artifacts: "${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}.tar"
-        bodyFile: "${RELEASE_DIR}/target/release-notes.md"
+        artifacts: "${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar"
+        bodyFile: "${{env.RELEASE_DIR}}/target/release-notes.md"
 
 
