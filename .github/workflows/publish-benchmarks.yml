@@ -4,7 +4,7 @@
 # deephaven-benchmark jar to maven central and a distro tar file to 
 # the Github release notes as an asset
 
-name: Publish Deephaven Benchmark
+name: Publish Deephaven Benchmarks
 
 on:
   workflow_dispatch:
