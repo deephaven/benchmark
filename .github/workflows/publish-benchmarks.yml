@@ -29,9 +29,9 @@ on:
         required: true
         default: 'true'
         type: boolean
-       
+   
 env:
-  VERSION: "${{inputs.version}}"VERSION
+  VERSION: "${{inputs.version}}"
   COMMIT: "${{inputs.release-commit}}"
   PREV_VERSION: "${{inputs.previous-version}}"
   LATEST_DIR: ${{github.workspace}}/latest
