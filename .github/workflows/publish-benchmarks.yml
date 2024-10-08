@@ -39,6 +39,7 @@ env:
 permissions:
   actions: write
   contents: write
+  workflows: write
 
 jobs:
   build:
