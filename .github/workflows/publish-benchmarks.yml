@@ -22,7 +22,7 @@ on:
       previous-version:
         description: 'Benchmark Previous Version'
         required: true
-        default: 'v0.35.0'
+        default: '0.35.0'
         type: string
       mark-latest:
         description: 'Mark Release as Latest'
