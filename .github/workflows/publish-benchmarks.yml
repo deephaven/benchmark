@@ -81,15 +81,17 @@ jobs:
       
     - name: Test Release Distro
       working-directory: ${{env.RELEASE_DIR}}
-      run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
+      run: |
+        ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
+        ls -l ${RELEASE_DIR}/target/
       
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
         name: Deephaven Benchmark Release
         path: |
-          ${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}.tar
-          ${RELEASE_DIR}/target/deephaven-benchmark-${VERSION}-results.tar
+          ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar
+          ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}-results.tar
           
     - name: Publish Github Release
       uses: ncipollo/release-action@v1
