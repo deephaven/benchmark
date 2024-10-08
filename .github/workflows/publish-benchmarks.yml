@@ -37,6 +37,7 @@ env:
   RELEASE_DIR: ${{github.workspace}}/release
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
