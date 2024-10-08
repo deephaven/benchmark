@@ -36,9 +36,6 @@ env:
   LATEST_DIR: ${{github.workspace}}/latest
   RELEASE_DIR: ${{github.workspace}}/release
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-22.04
