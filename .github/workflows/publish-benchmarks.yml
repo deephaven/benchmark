@@ -81,7 +81,7 @@ jobs:
       
     - name: Build Release Distro and Notes
       working-directory: ${{env.RELEASE_DIR}}
-      run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
+      run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${COMMIT} ${PREV_VERSION} ${LATEST_DIR}/.github/distro
       
     - name: Test Release Distro
       working-directory: ${{env.RELEASE_DIR}}
