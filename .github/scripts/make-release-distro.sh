@@ -36,6 +36,9 @@ echo "**What's Changed**" > ${RELEASE_NOTES}
 git log --oneline ${PREVIOUS_REF}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> ${RELEASE_NOTES}
 echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVIOUS_TAG}...${RELEASE_TAG}" >> ${RELEASE_NOTES}
 
+echo "-- Make Release Current Directory --"
+ls -l
+
 # Build the Distro for running standard benchmarks
 mkdir -p ${DISTRO_DEST}/libs/
 cp ${DISTRO_SOURCE}/* ${DISTRO_DEST}
