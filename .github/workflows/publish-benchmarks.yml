@@ -98,15 +98,8 @@ jobs:
           ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}-results.tar
           ${{env.RELEASE_DIR}}/target/release-notes.md
           
-    #- name: Apply Release Tag
-    #  working-directory: ${{env.RELEASE_DIR}}
-    #  run: |
-    #    git config user.name "${{ github.actor }}"
-    #    git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-    #    git tag -a "v${VERSION}" ${COMMIT} -m "v${VERSION}"
-    #    git push origin --tags
-          
     - name: Publish Github Release
+      if: ${{ github.ref_name == 'main' }}
       uses: ncipollo/release-action@v1
       with:
         tag: "v${{env.VERSION}}"
