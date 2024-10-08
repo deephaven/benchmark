@@ -7,10 +7,11 @@ set -o nounset
 # Copyright (c) 2024-2024 Deephaven Data Labs and Patent Pending
 
 # Create a tar file with the given version using the git project located in the 
-# working directory 
+# working directory. Also, make a release-notes.md files compared between the given
+# release commit and previous version
 
-if [[ $# != 3 ]]; then
-    echo "$0: Missing release version, release commit or previous version/commit argument"
+if [[ $# != 4 ]]; then
+    echo "$0: Missing release version, release commit, previous version, or distro source argument"
     exit 1
 fi
 
