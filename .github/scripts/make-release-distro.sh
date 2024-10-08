@@ -26,6 +26,9 @@ DISTRO_DEST=target/distro
 THIS=$(basename "$0")
 RELEASE_NOTES=target/release-notes.md
 
+echo "-- TAGS --"
+git tag
+
 # Make the Release Notes File
 echo "**What's Changed**" > ${RELEASE_NOTES}
 git log --oneline ${PREVIOUS_TAG}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> ${RELEASE_NOTES}
