@@ -100,6 +100,8 @@ jobs:
     - name: Apply Release Tag
       working-directory: ${{env.RELEASE_DIR}}
       run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
         git tag -a "v${VERSION}" ${COMMIT} -m "v${VERSION}"
         git push origin --tags
           
