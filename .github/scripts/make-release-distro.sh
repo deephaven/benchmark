@@ -26,8 +26,10 @@ DISTRO_DEST=target/distro
 THIS=$(basename "$0")
 RELEASE_NOTES=target/release-notes.md
 
-echo "-- TAGS --"
-git tag
+PREVIOUS_REF=${PREVIOUS_TAG}
+if [[ ${PREVIOUS_VERSION} != *"."*"."* ]]; then
+  PREVIOUS_REF=${PREVIOUS_VERSION}
+fi
 
 # Make the Release Notes File
 echo "**What's Changed**" > ${RELEASE_NOTES}
