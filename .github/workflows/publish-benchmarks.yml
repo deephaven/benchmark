@@ -67,16 +67,16 @@ jobs:
       working-directory: ${{env.RELEASE_DIR}}
       run: git checkout ${COMMIT}
 
-    - name: Build Release Artifacts
+    - name: Pull and Start Docker Image
       working-directory: ${{env.RELEASE_DIR}}
       run: |
         cp ${LATEST_DIR}/.github/resources/integration-docker-compose.yml docker-compose.yml
         docker compose up -d
 
-    - name: Build Release Artifacts
+    - name: Build and Install Release Artifacts Locally
       working-directory: ${{env.RELEASE_DIR}}
       run: | 
-        mvn -B verify --file pom.xml
+        mvn -B install --file pom.xml
         docker compose down 
       
     - name: Build Release Distro and Notes
