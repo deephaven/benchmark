@@ -25,6 +25,7 @@ ARTIFACT=deephaven-benchmark-${RELEASE_VERSION}
 DISTRO_DEST=target/distro
 THIS=$(basename "$0")
 RELEASE_NOTES=target/release-notes.md
+WORKING_DIR=$(pwd)
 
 PREVIOUS_REF=${PREVIOUS_TAG}
 if [[ ${PREVIOUS_VERSION} != *"."*"."* ]]; then
@@ -38,11 +39,13 @@ echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVI
 
 # Generate dependencies directory
 mkdir -p ${DISTRO_DEST}/libs/
-cp ${DISTRO_SOURCE}/dependency-pom.xml ${DISTRO_DEST}
-(cd ${DISTRO_DEST}; mvn -B install --file dependency-pom.xml)
-mv ${DISTRO_DEST}/target/dependencies/* ${DISTRO_DEST}/libs/
-rm -rf ${DISTRO_DEST}/target
-rm ${DISTRO_DEST}/libs/deephaven-benchmark-*SNAPSHOT*.jar
+cd ${DISTRO_DEST}
+cp ${DISTRO_SOURCE}/dependency-pom.xml .
+mvn -B install --file dependency-pom.xml
+mv target/dependencies/* libs/
+rm -rf target
+rm libs/deephaven-benchmark-*SNAPSHOT*.jar
+cd ${WORKING_DIR}
 
 # Build the Distro for running standard benchmarks
 cp ${DISTRO_SOURCE}/* ${DISTRO_DEST}
