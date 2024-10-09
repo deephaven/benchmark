@@ -41,7 +41,7 @@ cd ${DEEPHAVEN_DIR};
 title "-- Running Benchmarks --"
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
-JAVA_OPTS="-Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*.jar -cp standard-tests.jar"
+JAVA_OPTS="-Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*-standalone.jar -cp standard-tests.jar"
 
 if [ "${TAG_NAME}" = "Any" ]; then
   java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
