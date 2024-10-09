@@ -37,7 +37,7 @@ sudo docker compose up -d
 sleep 10
 
 cd ${RUN_DIR}
-java -Dbenchmark.profile=${BENCH_PROPS_NAME} -jar deephaven-benchmark-*.jar publish
+java -Dbenchmark.profile=${BENCH_PROPS_NAME} -jar deephaven-benchmark-*-standalone.jar publish
 
 cd ${DEEPHAVEN_DIR};
 sudo docker compose down
