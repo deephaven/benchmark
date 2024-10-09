@@ -10,32 +10,16 @@ set -o nounset
 # working directory. Also, make a release-notes.md files compared between the given
 # release commit and previous version
 
-if [[ $# != 4 ]]; then
-    echo "$0: Missing release version, release commit, previous version, or distro source argument"
+if [[ $# != 2 ]]; then
+    echo "$0: Missing release version or distro source argument"
     exit 1
 fi
 
 RELEASE_VERSION=$1
-RELEASE_COMMIT=$2
-PREVIOUS_VERSION=$3
-DISTRO_SOURCE=$4
-RELEASE_TAG="v${RELEASE_VERSION}"
-PREVIOUS_TAG="v${PREVIOUS_VERSION}"
+DISTRO_SOURCE=$2
 ARTIFACT=deephaven-benchmark-${RELEASE_VERSION}
 DISTRO_DEST=target/distro
-THIS=$(basename "$0")
-RELEASE_NOTES=target/release-notes.md
 WORKING_DIR=$(pwd)
-
-PREVIOUS_REF=${PREVIOUS_TAG}
-if [[ ${PREVIOUS_VERSION} != *"."*"."* ]]; then
-  PREVIOUS_REF=${PREVIOUS_VERSION}
-fi
-
-# Make the Release Notes File
-echo "**What's Changed**" > ${RELEASE_NOTES}
-git log --oneline ${PREVIOUS_REF}...${RELEASE_COMMIT} | sed -e 's/^/- /' >> ${RELEASE_NOTES}
-echo "**Full Changelog**: https://github.com/deephaven/benchmark/compare/${PREVIOUS_TAG}...${RELEASE_TAG}" >> ${RELEASE_NOTES}
 
 # Generate dependencies directory
 mkdir -p ${DISTRO_DEST}/libs/

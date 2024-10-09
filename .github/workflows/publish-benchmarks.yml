@@ -33,7 +33,7 @@ env:
   VERSION: "${{inputs.version}}"
   COMMIT: "${{inputs.release-commit}}"
   PREV_VERSION: "${{inputs.previous-version}}"
-  LATEST_DIR: ${{github.workspace}}/latest
+  LATEST_DIR: ${{github.workspace}}
   RELEASE_DIR: ${{github.workspace}}/release
 
 permissions:
@@ -54,14 +54,13 @@ jobs:
     - name: Checkout Latest
       uses: actions/checkout@v4
       with:
-        path: latest
+        fetch-depth: 0
+        fetch-tags: true
 
     - name: Checkout Release
       uses: actions/checkout@v4
       with:
         path: release
-        fetch-depth: 0
-        fetch-tags: true
 
     - name: Checkout Distro Target
       working-directory: ${{env.RELEASE_DIR}}
@@ -79,15 +78,16 @@ jobs:
         mvn -B install --file pom.xml
         docker compose down 
       
-    - name: Build Release Distro and Notes
+    - name: Build Release Distribution
       working-directory: ${{env.RELEASE_DIR}}
-      run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${COMMIT} ${PREV_VERSION} ${LATEST_DIR}/.github/distro
+      run: ${LATEST_DIR}/.github/scripts/make-release-distro.sh ${VERSION} ${LATEST_DIR}/.github/distro
       
     - name: Test Release Distro
       working-directory: ${{env.RELEASE_DIR}}
-      run: |
-        ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
-        ls -l ${RELEASE_DIR}/target/
+      run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
+        
+    - name: Make Release Notes
+      run: .github/scripts/make-release-notes.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
       
     - name: Archive Results
       uses: actions/upload-artifact@v4
@@ -96,7 +96,7 @@ jobs:
         path: |
           ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar
           ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}-results.tar
-          ${{env.RELEASE_DIR}}/target/release-notes.md
+          release-notes.md
           
     - name: Publish Github Release
       if: ${{ github.ref_name == 'main' }}
@@ -107,6 +107,6 @@ jobs:
         makeLatest: ${{inputs.mark-latest}}
         allowUpdates: true
         artifacts: "${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar"
-        bodyFile: "${{env.RELEASE_DIR}}/target/release-notes.md"
+        bodyFile: release-notes.md"
 
 
