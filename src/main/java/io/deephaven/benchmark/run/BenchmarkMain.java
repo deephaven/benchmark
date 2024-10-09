@@ -10,8 +10,8 @@ import io.deephaven.benchmark.api.Bench;
  * Main class for running the benchmark framework from the deephaven-benchmark artifact. This wraps the JUnit standalone
  * console launcher.
  * <p/>
- * ex. java -Dbenchmark.profile=my-benchmark.properties -jar deephaven-benchmark-1.0-SNAPSHOT.jar -cp my-tests.jar -p
- * my.tests
+ * ex. java -Dbenchmark.profile=my-benchmark.properties -jar deephaven-benchmark-1.0-SNAPSHOT-standalone.jar -cp
+ * my-tests.jar -p my.tests
  * <p/>
  * In addition to running benchmark tests using the console launcher, this class creates a
  * <code>benchmark-summary-results.csv</code> that is a merge of any per-run results files that match

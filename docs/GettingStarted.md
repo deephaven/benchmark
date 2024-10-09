@@ -64,7 +64,8 @@ After checking out the Benchmark project, running *mvn verify* from the director
 the code, package the uber main and test jars, and run some integration tests against your running Deephave Server.
 
 The jar artifacts produce by the build are
-- deephaven-benchmark-1.0-SNAPSHOT.jar: The main uber jar
+- deephaven-benchmark-1.0-SNAPSHOT.jar: The main artifact
+- deephaven-benchmark-1.0-SNAPSHOT-standalone.jar: The standalone super jar
 - deephaven-benchmark-1.0-SNAPSHOT-tests.jar: The jar containing project tests
 
 Run the uber jar according to the [Command Line Guide](CommandLine.md)
