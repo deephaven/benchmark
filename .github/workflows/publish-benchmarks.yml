@@ -111,7 +111,7 @@ jobs:
         commit: ${{env.COMMIT}}
         makeLatest: ${{inputs.mark-latest}}
         allowUpdates: true
-        artifacts: "${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar"
+        artifacts: "deephaven-benchmark-${{env.VERSION}}.tar"
         bodyFile: release-notes.md
 
 
