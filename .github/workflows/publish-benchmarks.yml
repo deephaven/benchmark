@@ -86,7 +86,10 @@ jobs:
       
     - name: Test Release Distro
       working-directory: ${{env.RELEASE_DIR}}
-      run: ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
+      run: |
+        ${LATEST_DIR}/.github/scripts/test-release-distro.sh ${VERSION}
+        mv target/deephaven-benchmark-${VERSION}.tar ${LATEST_DIR}/
+        mv target/deephaven-benchmark-${VERSION}-results.tar ${LATEST_DIR}/
         
     - name: Make Release Notes
       run: .github/scripts/make-release-notes.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
@@ -96,8 +99,8 @@ jobs:
       with:
         name: Deephaven Benchmark Release
         path: |
-          ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}.tar
-          ${{env.RELEASE_DIR}}/target/deephaven-benchmark-${{env.VERSION}}-results.tar
+          deephaven-benchmark-${{env.VERSION}}.tar
+          deephaven-benchmark-${{env.VERSION}}-results.tar
           release-notes.md
           
     - name: Publish Github Release
