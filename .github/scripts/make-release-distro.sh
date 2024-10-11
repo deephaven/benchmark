@@ -15,10 +15,10 @@ if [[ $# != 2 ]]; then
 fi
 
 RELEASE_VERSION=$1
-DISTRO_SOURCE=$2
+DISTRO_SOURCE=$(echo $(cd $(dirname "$2"); pwd)/$(basename "$2"))
 ARTIFACT=deephaven-benchmark-${RELEASE_VERSION}
-DISTRO_DEST=target/distro
 WORKING_DIR=$(pwd)
+DISTRO_DEST=${WORKING_DIR}/target/distro
 
 # Generate dependencies directory
 mkdir -p ${DISTRO_DEST}/libs/
