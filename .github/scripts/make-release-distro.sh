@@ -23,7 +23,7 @@ WORKING_DIR=$(pwd)
 # Generate dependencies directory
 mkdir -p ${DISTRO_DEST}/libs/
 cd ${DISTRO_DEST}
-cat ${DISTRO_SOURCE}/dependency-pom.xml | sed -i "s!<version>1.0-SNAPSHOT</version>!<version>${RELEASE_VERSION}</version>!g" > dependency-pom.xml
+cat ${DISTRO_SOURCE}/dependency-pom.xml | sed "s!<version>1.0-SNAPSHOT</version>!<version>${RELEASE_VERSION}</version>!g" > dependency-pom.xml
 mvn -B install --file dependency-pom.xml
 mv target/dependencies/* libs/
 rm -rf target
