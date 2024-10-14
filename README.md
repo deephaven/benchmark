@@ -28,6 +28,7 @@ Resources:
 - [Getting Started](docs/GettingStarted.md) - Getting set up to run benchmarks against Deephaven Community Core
 - [Test-writing Basics](docs/TestWritingBasics.md) - How to generate data and use it for tests
 - [Collected Results](docs/CollectedResults.md) - What's in the benchmark results
+- [Running the Release Distribution](docs/distro/BenchmarkDistribution.md) - How to run Deephaven benchmarks from a release tar file
 - [Running from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
 - [Published Results Storage](docs/PublishedResults.md) - How to grab and use Deephaven's published benchmarks
 

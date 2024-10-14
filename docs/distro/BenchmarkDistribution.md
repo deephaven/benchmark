@@ -13,6 +13,7 @@ Notes
 - Variability for Rates between runs for the same benchmark is likely, even on the same hardware
 - The base scale for Deephaven's nightly Benchmark runs is 10mm rows
 - Running all Deephaven benchmarks, like those done every night, takes over 7.5 hours
+- The included benchmarks run only on Deephaven with Python queries
 
 > [!WARNING]   
 > If other docker containers are running on the same system, there may be conflicts.
