@@ -17,5 +17,5 @@ Deephaven Community License.  See the `LICENSE` and `NOTICE` files in
 these directories for more information.
 
 Examples:
-* libs/arrow-vector-<version>.jar has Apache 2.0 License in META-INF/LICENSE
-* libs/junit-<version>.jar has Eclipse Public License 1.0 in LICENSE-junit.txt
+* libs/arrow-vector-*version*.jar has Apache 2.0 License in META-INF/LICENSE
+* libs/junit-*version*.jar has Eclipse Public License 1.0 in LICENSE-junit.txt
