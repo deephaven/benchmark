@@ -1,6 +1,5 @@
 package io.deephaven.benchmark.tests.internal.generator;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.api.Bench;
 
