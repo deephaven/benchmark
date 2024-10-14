@@ -23,12 +23,12 @@ Each Benchmark release includes a tar asset in the [Github Releases](https://git
 
 - Download the Benchmark distribution tar into an empty directory.  ex. `wget https://github.com/deephaven/benchmark/releases/download/v0.36.1/deephaven-benchmark-0.36.1.tar`
 - From that directory, unpack the tar file. ex. `tar xvf deephaven-benchmark-0.36.1.tar`
-- Test to make sure things work. ex. `./benchmark 1 Avg*`
+- Test to make sure things work. ex. `./benchmark.sh 1 "Avg*"`
 - When the tests are finished, check the results. ex. `cat results/benchmark-summary-results.csv`
 - Try running the same set as before at higher scale and more iterations
   - In *benchmark.properties*, overwrite exsiting row count with `scale.row.count=10000000`
-  - Run the script again.  It will take much longer. ex. `./benchmark 3 Avg*`
-  - The results will contain 3 runs, each with a result csv
+  - Run the script again.  It will take much longer. ex. `./benchmark.sh 3 "Avg*"`
+  - The results will contain 3 runs, each with a `benchmark-results.csv` file
 - If the host system has enough memory, try increasing DHC memory and runnning at even higher scale
   - Edit *docker-compose.yml* and change `-Xmx24G` to `-Xmx48G`
   - In *benchmark.properties*, set `scale.row.count` higher
