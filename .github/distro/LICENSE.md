@@ -4,6 +4,8 @@ and is making software available under the following licenses:
 - **Deephaven Open Source** is made available under the Apache 2.0 License
 - **Deephaven Community** is provided under a source-available license, the
 Deephaven Community License Agreement
+- **Deephaven Benchmark** is provided under a source-available license, the
+Deephaven Community License Agreement
 
 To request a commercial license for software or uses not covered by these
 licenses or to ask any license-related question, please contact us at:

@@ -1,4 +1,4 @@
-# Deephaven Community Core
+# Deephaven Community Benchmark
 Copyright 2021 Deephaven Data Lab
 
 Licensed under the Deephaven Community License Agreement 1.0 (the "License");  
@@ -12,9 +12,10 @@ limitations under the License.
 
 --------------------------------------------------------------------------------
 
-Specific directories in this project are released under licenses other than 
+Specific directories in this archive are released under licenses other than 
 Deephaven Community License.  See the `LICENSE` and `NOTICE` files in 
 these directories for more information.
 
-* [Container](Container): Apache-2.0
-* [style](style): Apache-2.0
+Examples:
+* libs/arrow-vector-<version>.jar has Apache 2.0 License in META-INF/LICENSE
+* libs/junit-<version>.jar has Eclipse Public License 1.0 in LICENSE-junit.txt
