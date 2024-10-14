@@ -10,12 +10,12 @@ Prerequisites
 
 Notes
 - Benchmarks are only tested and run on [Ubuntu Linux](https://ubuntu.com/server). Other Operating Systems may work but may not be supported
-- Variability amongs Rates between runs for the same benchmark is likely, even on the same hardware
-- The base scale for the nightly Benchmark runs is 10mm rows
+- Variability for Rates between runs for the same benchmark is likely, even on the same hardware
+- The base scale for Deephaven's nightly Benchmark runs is 10mm rows
 - Running all Deephaven benchmarks, like those done every night, takes over 7.5 hours
 
-[!WARNING]   
-If other docker containers are running on the same system, there may be conflicts.
+> [!WARNING]   
+> If other docker containers are running on the same system, there may be conflicts.
 
 ## Running the Benchmarks
 
@@ -33,15 +33,15 @@ Each Benchmark release includes a tar asset in the [Github Releases](https://git
   - Edit *docker-compose.yml* and change `-Xmx24G` to `-Xmx48G`
   - In *benchmark.properties*, set `scale.row.count` higher
   
-[!WARNING]  
-Setting `scale.row.count` to a higher value will effect memory usage in DHC.  If set too high, DHC may crash with an "Out of Memory" error.
+> [!WARNING]  
+> Setting `scale.row.count` to a higher value will effect memory usage in DHC.  If set too high, DHC may crash with an "Out of Memory" error.
 
 ## Benchmarking like Deephaven
 
-If you've gotten this far, you are now using the same software Deephaven uses to benchmark DHC.  However, the configuration of the Benchmark distribution is not necessarily the same as what is used every night.  See the [full documentation in Github](https://github.com/deephaven/benchmark) for more information on Benchmark concepts, configuration, running and more.
+If you've gotten this far, you are now using the same software Deephaven uses to benchmark DHC.  However, the configuration of the Benchmark distribution is not necessarily the same as what is used every night.  It is also difficult to reproduce the same Rates without running on exactly the same hardware.  So expect differences. See the [full documentation in Github](https://github.com/deephaven/benchmark) for more information on Benchmark concepts, configuration, running, recent results, and more.
 
-[!NOTE]  
-More information on Deephaven Community Core and Deephaven Enterprise can be found at [Deephaven IO](https://deephaven.io/)
+> [!NOTE]  
+> More information on Deephaven Community Core and Deephaven Enterprise can be found at [Deephaven IO](https://deephaven.io/)
 
 
 
