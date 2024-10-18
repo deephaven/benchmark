@@ -60,7 +60,7 @@ class QueryLog implements Closeable {
     /**
      * Set the name of the current test. The query log records queries for a test class and denotes queries according to
      * user-supplied test names.
-     * <p/>
+     * <p>
      * Note: The special character "#" is used to denote that this name is not a test name. This log uses it to denote
      * test setup, while other file handlers, like <code>BenchResult</code>, treat it as "skip recording results"
      * 

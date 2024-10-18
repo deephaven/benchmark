@@ -8,18 +8,18 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class Classes {
+class Classes {
     final List<String> jarPaths;
 
-    public Classes() {
+    Classes() {
         this(System.getProperty("java.class.path").split("[" + System.getProperty("path.separator") + "]"));
     }
 
-    public Classes(String... jarPaths) {
+    Classes(String... jarPaths) {
         this.jarPaths = Arrays.stream(jarPaths).filter(j -> j.endsWith(".jar")).toList();
     }
 
-    public List<String> getDuplicatesClasses() {
+    List<String> getDuplicatesClasses() {
         var classes = new TreeMap<String, ClassInfo>();
         for (String jarPath : jarPaths) {
             addClasses(jarPath, classes);
@@ -27,7 +27,7 @@ public class Classes {
         return classes.values().stream().filter(c -> c.paths.size() > 1).map(c -> c.toString()).toList();
     }
 
-    public List<String> getJarsForClass(String className) {
+    List<String> getJarsForClass(String className) {
         var classes = new TreeMap<String, ClassInfo>();
         for (String jarPath : jarPaths) {
             addClasses(jarPath, classes);

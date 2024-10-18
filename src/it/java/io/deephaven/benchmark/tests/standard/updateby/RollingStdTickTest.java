@@ -7,7 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Defines a tick-based rolling standard deviation. The result table
  * contains additional columns with windowed rolling standard deviations for each specified column in the source table.
- * <p/>
+ * <p>
  * Note: This test must contain benchmarks and <code>rev_ticks/fwd_ticks</code> that are comparable to
  * <code>RollingStdTimeTest</code>
  */

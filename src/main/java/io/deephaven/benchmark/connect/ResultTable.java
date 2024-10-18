@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Table used to fetch during or after executing a query through a connector (e.g. <code>BarrageConnector</code>) or
  * through the Bench API
- * <p/>
+ * <p>
  * ex. api.query(query).fetchAfter("myTableName", table -> { // do something }).execute();
  */
 public interface ResultTable {
@@ -65,7 +65,7 @@ public interface ResultTable {
      * Return values for the given columns in the order they are listed
      * 
      * @param rowIndex the row position starting at 0
-     * @param columNames the column names to use for value retrieval
+     * @param columnNames the column names to use for value retrieval
      * @return the column values for the row
      */
     public List<Object> getRow(int rowIndex, List<String> columnNames);
@@ -81,7 +81,7 @@ public interface ResultTable {
     /**
      * Return a string containing the Csv representation of this table. Allow setting column justification to right or
      * left depending on the 'R' or 'L' specified in the alignment description.
-     * <p/>
+     * <p>
      * ex. "|", "LRRRRL" where there are 6 columns in the data
      * 
      * @param delim the delimiter to use between column

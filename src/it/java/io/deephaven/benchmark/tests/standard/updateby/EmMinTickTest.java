@@ -7,7 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Calculates a tick-based exponential moving minimum for specified
  * columns and places the result into a new column for each row. *
- * <p/>
+ * <p>
  * Note: This test must contain benchmarks and <code>decay_time</code> that are comparable to <code>EmMinTickTest</code>
  */
 public class EmMinTickTest {

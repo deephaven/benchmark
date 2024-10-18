@@ -19,7 +19,7 @@ public interface Generator {
      *        for debugging)
      * @param maxRecordCount the maximum record count to produce
      * @param maxDurationSecs the maximum seconds to produce records
-     * @return
+     * @return a future contains metrics for the producer
      */
     public Future<Metrics> produce(int perRecordPauseMillis, long maxRecordCount, int maxDurationSecs);
 

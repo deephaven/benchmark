@@ -8,7 +8,7 @@ import java.util.Set;
 import jdk.jfr.consumer.RecordedEvent;
 import jdk.jfr.consumer.RecordingFile;
 
-public class JfrReader {
+class JfrReader {
     final private URL url;
 
     JfrReader(URL url) {

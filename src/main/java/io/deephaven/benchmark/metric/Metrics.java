@@ -20,7 +20,6 @@ public class Metrics {
      * 
      * @param origin where the metrics came from (ex. myservice, myhost)
      * @param category groups these metrics with other metrics
-     * @param type identifies this set of metrics
      */
     public Metrics(String origin, String category) {
         this(System.currentTimeMillis(), origin, category);
@@ -44,6 +43,7 @@ public class Metrics {
      * 
      * @param metricName name of the metric
      * @param value numeric value of the metric
+     * @param notes optional notes to clarify the metric
      * @return this instance
      */
     public Metrics set(String metricName, Number value, String... notes) {
@@ -73,6 +73,12 @@ public class Metrics {
         return (m != null) ? m.note() : null;
     }
 
+    /**
+     * Get a metric Map with the given name
+     * 
+     * @param metricName the name of the metric to retrieve
+     * @return a <code>Map</code> containing the metric details
+     */
     public Map<String, Object> getMetric(String metricName) {
         var v = getValue(metricName);
         var n = getNote(metricName);

@@ -8,16 +8,18 @@ import io.deephaven.benchmark.util.Numbers;
  * Contains column definitions used to generate data and schemas. Columns are described by name, type, and data range
  * (ex. "[1-100]", "str[1-100]ing"). Values are retrieved during data generation either randomly or incrementally
  * through the range. The same seed is used for random each time this class is instantiated.
- * <p/>
+ * <p>
  * Note: All possible data values are loaded up front to prevent object-creation during production. This can take a
  * considerable amount of memory for larger scales, especially for generated strings.
- * <p/>
  */
 public class ColumnDefs {
     final int valueCacheSize;
     final List<ColumnDef> columns = new ArrayList<>();
     private String defaultDistribution = "random";
 
+    /**
+     * Initialize the instance with a default cache size of 1024
+     */
     public ColumnDefs() {
         this(1024);
     }
@@ -108,7 +110,7 @@ public class ColumnDefs {
      * 
      * @param columnIndex the index of the column
      * @param seed a value to use to get the next value (e.g. row id)
-     * @param the maximum value that could be used as a seed (e.g. row count)
+     * @param max the maximum value that could be used as a seed (e.g. row count)
      * @return the next value according to the column definition
      */
     public Object nextValue(int columnIndex, long seed, long max) {
@@ -117,7 +119,7 @@ public class ColumnDefs {
 
     /**
      * Get the column definitions as a string. It intentionally avoids OS-specific line endings.
-     * <p/>
+     * <p>
      * Note: This method is used to write table definitions for comparison to the file system. Do not change without
      * understanding the impact.
      * 

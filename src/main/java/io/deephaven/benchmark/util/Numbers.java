@@ -71,7 +71,7 @@ public class Numbers {
     /**
      * Format a given byte count into Gigabytes. ex. 1g, 200g
      * 
-     * @param bytes the byte count to convert
+     * @param val the byte count to convert
      * @return a string of the form 1g
      */
     static public String formatBytesToGigs(Object val) {
@@ -104,7 +104,7 @@ public class Numbers {
 
     /**
      * Determine whether the given number is even or odd.
-     * <p/>
+     * <p>
      * Note: While this method accepts any Number, even or odd for a decimal will be determined by the integral portion.
      * 
      * @param val a number
@@ -122,7 +122,8 @@ public class Numbers {
      * Subtract the number in the given string from the given max offset and replace it in the string.
      * 
      * @param value the string containing a number
-     * @param maxOffset the uppermost possible number the string may contain
+     * @param offset the uppermost possible number the string may contain
+     * @param size a size to add to the offset
      * @return a string with the number replaced by a number offset from the maximum
      */
     static public Object offsetInString(Object value, long offset, long size) {
@@ -147,7 +148,7 @@ public class Numbers {
 
     /**
      * Convert a Base 10 string to Base 62. Accepted values are positive digits.
-     * <p/>
+     * <p>
      * Note: The results of this method should match the results of <code>./github/scripts/base58.sh exactly</code>
      * 
      * @param num the number to convert

@@ -16,7 +16,7 @@ import io.deephaven.benchmark.util.Numbers;
  * Generates an SVG file from a template that contains variables (e.g. <code>${My Agg=>op_duration}</code>) referencing
  * benchmark data from the benchmark result produced by the {@code ResultSummary}. If the benchmark results summary
  * contains more than one run, the values for the newest run are used.
- * <p/>
+ * <p>
  * Note: This class is used to transform the specific template format defined in {@code benchmark-summary.template.svg}
  * against the {@code benchmark-results.csv} file. It is not general-purpose nor bulletproof.
  * 

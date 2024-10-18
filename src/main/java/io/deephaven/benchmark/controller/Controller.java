@@ -7,7 +7,7 @@ import java.util.Collections;
 /**
  * Represents a mechanism that can manage the external service (e.g. Deephaven Engine) the benchmarks are running
  * against. This includes; start, stop, logging, etc.
- * <p/>
+ * <p>
  * Note: For now, this is not part of the Bench API but is used by runners that wrap the Bench API to provide normalized
  * behavior or generated data reuse.
  */
@@ -33,7 +33,6 @@ public interface Controller {
      * <li>If a service definition is supplied, wait for the service to be in a usable state</li>
      * </ul>
      * 
-     * @param services the service names to load or none to load all
      * @return true if the service is running, otherwise false
      */
     default public boolean startService() {
@@ -47,6 +46,7 @@ public interface Controller {
      * <li>If a service definition is supplied, stop the service and clear state (e.g. logs)</li>
      * </ul>
      * 
+     * @param servicePrefixes prefixes for names of services that will to be stopped
      * @return true if the service definition is specified, otherwise false
      */
     public boolean stopService(Collection<String> servicePrefixes);
@@ -68,7 +68,7 @@ public interface Controller {
      * Stop all services, cleanup state, and start services that match the given prefixes. Implementors can simply call
      * <code>stopService</code> followed by <code>startService</code> if desired.
      * 
-     * @param services the service names to load or none to load all
+     * @param servicePrefixes the service names to load or none to load all
      * @return true if the service restarted, otherwise false
      */
     public boolean restartService(Collection<String> servicePrefixes);
@@ -76,8 +76,7 @@ public interface Controller {
     /**
      * Stop all services, cleanup state, and start all services. Implementors can simply call <code>stopService</code>
      * followed by <code>startService</code> if desired.
-     * 
-     * @param services the service names to load or none to load all
+     *
      * @return true if the service restarted, otherwise false
      */
     default public boolean restartService() {

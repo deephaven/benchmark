@@ -17,19 +17,44 @@ import io.deephaven.benchmark.util.Timer;
 
 /**
  * The root accessor class for the API. Use <code>Bench.create(this)</code> in a typical JUnit test to start things off
- * <p/>
+ * <p>
  * Bench API methods are not thread-safe, nor are they intended to be. It makes no sense to run benchmark tests in
  * parallel. If parallel tests are desired to shorten overall test time, use the standalone uber-jar and select separate
  * sets of test packages to run on different systems simultaneously.
  */
 final public class Bench {
+    /**
+     * The root benchmark result directory
+     */
     static final public Path rootOutputDir = Paths.get("results");
+    /**
+     * The name of the benchmark results csv file
+     */
     static final public String resultFileName = "benchmark-results.csv";
+    /**
+     * The name of the benchmark metrics csv file
+     */
     static final public String metricsFileName = "benchmark-metrics.csv";
+    /**
+     * The name of the benchmark platform csv file
+     */
     static final public String platformFileName = "benchmark-platform.csv";
+    /**
+     * The profile that includes the properties defined in the properties file, system and startup
+     */
     static final Profile profile = new Profile();
+    /**
+     * The benchmark output directory for the current run
+     */
     static final public Path outputDir = initializeOutputDirectory();
 
+
+    /**
+     * The starting point for the Bench API
+     * 
+     * @param testInst the test case instance in operation
+     * @return the root of the Bench API for the given test
+     */
     static public Bench create(Object testInst) {
         Bench v = new Bench(testInst.getClass());
         v.setName(testInst.getClass().getSimpleName());
@@ -105,7 +130,7 @@ final public class Bench {
     /**
      * Get an integral property from the profile, System, Environment or return a default value. Values are specified to
      * match the following regular expression:
-     * <p/>
+     * <p>
      * <code>[0-9]+ ( nanos | nano | millis | milli | seconds | second | minutes | minute )</code>
      * 
      * @param name the property name

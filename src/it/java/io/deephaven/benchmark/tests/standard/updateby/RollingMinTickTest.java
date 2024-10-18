@@ -7,7 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Defines a tick-based rolling minimum. The result table contains
  * additional columns with windowed rolling minimums for each specified column in the source table. *
- * <p/>
+ * <p>
  * Note: This test must contain benchmarks and <code>rev_ticks/fwd_ticks</code> that are comparable to
  * <code>RollingMinTimeTest</code>
  */

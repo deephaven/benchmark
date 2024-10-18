@@ -48,6 +48,14 @@ public class BenchPlatform {
         this.profileProps = profileProps;
     }
 
+    /**
+     * Add a platform detail
+     * 
+     * @param origin where the platform detail came from
+     * @param name name of the platform detail
+     * @param value value of the platform detail
+     * @return this instance
+     */
     public BenchPlatform add(String origin, String name, Object value) {
         benchApiAddProperty(properties, origin, name, value);
         return this;
