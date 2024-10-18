@@ -8,6 +8,8 @@ set -o nounset
 
 # Create a tar file with the given version using the git project located in the 
 # working directory.
+#
+# ex. .github/scripts/make-release-distro.sh 0.33.4 .github/distro
 
 if [[ $# != 2 ]]; then
     echo "$0: Missing release version or distro source argument"
@@ -39,4 +41,10 @@ echo "VERSION=${RELEASE_VERSION}" > ${DISTRO_DEST}/.env
 
 cd ${DISTRO_DEST}
 tar cvzf ../${ARTIFACT}.tar * .env
+
+# Copy other artifact to parent directory
+cp ${ARTIFACT}-sources.jar ../
+cp ${ARTIFACT}-javadoc.jar ../
+
+
 

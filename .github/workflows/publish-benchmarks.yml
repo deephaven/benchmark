@@ -103,6 +103,8 @@ jobs:
           deephaven-benchmark-${{env.VERSION}}.tar
           deephaven-benchmark-${{env.VERSION}}-results.tar
           release-notes.md
+          deephaven-benchmark-${{env.VERSION}}-sources.jar
+          deephaven-benchmark-${{env.VERSION}}-javadoc.jar
           
     - name: Publish Github Release
       if: ${{ github.ref_name == 'main' }}
