@@ -43,8 +43,8 @@ cd ${DISTRO_DEST}
 tar cvzf ../${ARTIFACT}.tar * .env
 
 # Copy other artifact to parent directory
-cp ${ARTIFACT}-sources.jar ../
-cp ${ARTIFACT}-javadoc.jar ../
+cp target/${ARTIFACT}-sources.jar ./
+cp target/${ARTIFACT}-javadoc.jar ./
 
 
 
