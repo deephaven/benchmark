@@ -44,9 +44,10 @@ public class Ids {
     /**
      * Make a unique time-based identifier (not a UUID). Successive calls guarantee a unique name returned within a
      * single JVM.
-     * <p/>
+     * <p>
      * ex. PREFIX.UIuyguJ.2cOP
      * 
+     * @param prefix the prefix to apply to the generated unique name
      * @return the unique name
      */
     static public String uniqueName(String prefix) {

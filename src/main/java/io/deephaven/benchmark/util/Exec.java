@@ -14,6 +14,7 @@ public class Exec {
      * Blindly execute a command in whatever shell Java decides is relevant. Throw exceptions on timeout, non-zero exit
      * code, or other general failures.
      * 
+     * @param workingDir the path for the working dir where the command will be executed
      * @param command the shell command to run
      * @return the standard output of the process
      */

@@ -51,7 +51,7 @@ final public class StandardTestRunner {
      * Generate the given pre-defined tables according to the default data distribution defined by the
      * <code>default.data.distribution</code> property. The first table name provided will be the main
      * <code>source</code> table.
-     * <p/>
+     * <p>
      * This method should only be called once per test.
      * 
      * @param names the table names
@@ -81,7 +81,7 @@ final public class StandardTestRunner {
     /**
      * Generate a pre-defined table and set a column grouping for the resulting table. The given table name will be used
      * as the main table used by subsequent queries.
-     * <p/>
+     * <p>
      * 
      * @param name the table name to generate
      * @param groups
@@ -163,7 +163,7 @@ final public class StandardTestRunner {
      * <li>If static test duration <code>&lt; scale.elapsed.time.target</code>, scale row count and do it again</li>
      * <li>Run test with auto increment release filter according to the previously determined row count</li>
      * <li>Assert that both static and incremental result tables have the same number of rows</li>
-     * <p/>
+     * <p>
      * 
      * @param name the name of the test as it will show in the result file
      * @param expectedRowCount the max row count expected from the operation regardless of scale, or zero if the count

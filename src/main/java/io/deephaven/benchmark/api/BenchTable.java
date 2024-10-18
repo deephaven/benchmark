@@ -75,7 +75,7 @@ final public class BenchTable implements Closeable {
     /**
      * Set column names to be used for grouping where applicable (ex. parquet generation)
      * 
-     * @param columns the grouping column names
+     * @param columnNames the grouping column names
      * @return this instance
      */
     public BenchTable withColumnGrouping(String... columnNames) {
@@ -122,12 +122,12 @@ final public class BenchTable implements Closeable {
     /**
      * Configure this table to use a row count based on the column data ranges rather than the
      * <code>scale.row.count</code> property.
-     * <p/>
+     * <p>
      * Note: This property will be ignored if <code>withRowCount()</code> is used or if no columns are defined with a
      * <code>descending</code> or <code>ascending</code> distribution
      * 
      * @param isFixed true to fix the row count, otherwise false (default)
-     * @return
+     * @return this instance
      */
     public BenchTable withFixedRowCount(boolean isFixed) {
         this.isFixed = isFixed;
@@ -137,6 +137,7 @@ final public class BenchTable implements Closeable {
     /**
      * Set a default column data distribution to use for columns that have no distribution set.
      * 
+     * @param distro the name of the generator distribution <code>random | ascending | descending | runlength</code>
      * @return this instance
      */
     public BenchTable withDefaultDistribution(String distro) {

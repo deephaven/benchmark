@@ -82,9 +82,9 @@ public class DeephavenDockerController implements Controller {
     }
 
     /**
-     * Stop all services including Deephaven and start the services that match the given prefixes
+     * Stop all services, including Deephaven, and start the services that match the given prefixes
      * 
-     * @param services the prefixes of the service names to load or none to load all
+     * @param servicePrefixes the prefixes of the service names to load or none to load all
      * @return true if the services were started, otherwise false
      */
     @Override

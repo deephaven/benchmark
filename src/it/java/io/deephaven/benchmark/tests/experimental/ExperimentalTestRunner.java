@@ -14,7 +14,7 @@ import io.deephaven.benchmark.controller.DeephavenDockerController;
  * boilerplate logic like imports, parquet reads, time measurement logic, etc. Each <code>test</code> runs two tests;
  * one reading from a static parquet, and the other exercising ticking tables through the
  * <code>AutotuningIncrementalReleaseFilter</code>.
- * <p/>
+ * <p>
  * Note: This class is for running tests in the <code>experimental</code> package. It will change as new experiments are
  * added and may require external setup (i.e. parquet files) to work.
  */
@@ -112,7 +112,7 @@ public class ExperimentalTestRunner {
      * Run the benchmark test according to the operation and the columns loaded from the source table. The name will
      * show in the benchmark result output. The expected row count, since tests can scale, is an upper bound what result
      * row count is expected.
-     * <p/>
+     * <p>
      * This method assembles and runs two queries according to the settings provided previously: static and incremental
      * release. Both runs are expected to produce the same resulting row count.
      * 

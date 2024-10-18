@@ -9,11 +9,11 @@ import io.deephaven.benchmark.tests.compare.CompareTestRunner;
  * Product comparison tests for iterating and summing table columns. Tests read the same parquet data. To avoid an
  * unfair advantage where some products may partition or group data during the read, parquet read time is included in
  * the benchmark results.
- * <p/>
+ * <p>
  * Each test produces a table result containing one row with one column that is the total of the result of the sum of
  * two columns for each row. ex. sum((r1c1 + r1c2)..(rNc1 + rNc2)). This is achieved without creating an extra column to
  * hold the column sums.
- * <p/>
+ * <p>
  * Data generation only happens in the first test, the Deephaven test. Tests can be run individually, but only after the
  * desired data has been generated.
  */

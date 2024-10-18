@@ -15,7 +15,7 @@ import io.deephaven.engine.table.Table;
  * Create an in-memory table from either CSV or a Deephaven table. Provides some basic accessors for getting column
  * values. No data typing is done on import of the data. Use typed methods like {@code getNumber()} to convert from
  * whatever row value came from the import.
- * <p/>
+ * <p>
  * Note: This class is not a general purpose class for reading CSV or Deephaven Table data. It fits specific cases used
  * by the Benchmark framework.
  */
@@ -27,7 +27,7 @@ public class CachedResultTable implements ResultTable {
      * data types.
      * 
      * @param csv basic csv with a header and columns
-     * @param delim
+     * @param delim the delimeter to use between columns
      * @return a cached result table instance
      */
     static public ResultTable create(String csv, String delim) {

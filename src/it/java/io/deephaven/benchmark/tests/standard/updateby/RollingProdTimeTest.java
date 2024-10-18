@@ -7,7 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the updateBy table operation. Defines a time-based rolling product. The result table contains
  * additional columns with windowed rolling products for each specified column in the source table. *
- * <p/>
+ * <p>
  * Note: This test must contain benchmarks and <code>rev_time/fwd_time</code> that are comparable to
  * <code>RollingProdTickTest</code>
  */

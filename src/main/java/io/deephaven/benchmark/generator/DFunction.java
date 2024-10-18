@@ -10,7 +10,7 @@ import io.deephaven.benchmark.util.Ids;
  * For example, a function returning a random value need only ensure that the value is found within the given
  * destination range. On the other hand, a scaling function would used source range and destination range to translate a
  * source value to a value within the destination range.
- * <p/>
+ * <p>
  * Note: In a practical sense, and from the perspective of usage in the <code>columnDefs</code> class, the distribution
  * functions do not return data values but indexes to data values. Put another way, the function return data positions.
  */

@@ -7,7 +7,7 @@ package io.deephaven.benchmark.api;
 class Snippets {
     /**
      * Provides a consumer to a kafka topic according to the APIs properties (e.g. kafka.consumer.addr)
-     * <p/>
+     * <p>
      * ex. mytable = bench_api_kafka_consume('mytopic', 'append')
      * 
      * @param topic a kafka topic name
@@ -35,7 +35,7 @@ class Snippets {
     /**
      * Captures table size every Deephaven ticking interval and does not allow advancement in the current query logic
      * until the given table size is reached
-     * <p/>
+     * <p>
      * ex. bench_api_await_table_size(table, 1000000)
      * 
      * @param table the table to monitor
@@ -55,7 +55,7 @@ class Snippets {
     /**
      * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
      * in the current query logic until that value is reached
-     * <p/>
+     * <p>
      * ex. bench_api_await_column_value_limit(table, 'count', 1000000)
      * 
      * @param table the table to monitor
@@ -75,7 +75,7 @@ class Snippets {
 
     /**
      * Initialize the container for storing benchmark metrics
-     * <p/>
+     * <p>
      * ex. bench_api_metrics_init()
      */
     static String bench_api_metrics_init = """
@@ -87,7 +87,7 @@ class Snippets {
     /**
      * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
      * in the current query logic until that value is reached
-     * <p/>
+     * <p>
      * ex. bench_api_metrics_add('docker', 'restart.secs', 5.1, 'restart duration in between tests')
      * 
      * @param category the metric category
@@ -104,7 +104,7 @@ class Snippets {
 
     /**
      * Collect any metrics and turn them into a Deephaven table that can be fetched from the bench api.
-     * <p/>
+     * <p>
      * ex. bench_api_metrics_table = bench_api_metrics_collect()
      */
     static String bench_api_metrics_collect = """
