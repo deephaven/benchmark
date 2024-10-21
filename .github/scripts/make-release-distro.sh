@@ -37,8 +37,6 @@ cp ${DISTRO_SOURCE}/* ${DISTRO_DEST}
 rm ${DISTRO_DEST}/dependency-pom.xml
 cp target/${ARTIFACT}.jar ${DISTRO_DEST}/libs/
 cp target/${ARTIFACT}-tests.jar ${DISTRO_DEST}/libs/
-cp target/${ARTIFACT}-sources.jar ${DISTRO_DEST}/libs/
-cp target/${ARTIFACT}-javadoc.jar ${DISTRO_DEST}/libs/
 echo "VERSION=${RELEASE_VERSION}" > ${DISTRO_DEST}/.env
 
 cd ${DISTRO_DEST}
