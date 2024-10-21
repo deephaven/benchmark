@@ -24,7 +24,10 @@ ARTIFACT=deephaven-benchmark-${VERSION}
 sed -i "s;<version>1.0-SNAPSHOT</version>;<version>${VERSION}</version>;" pom.xml
 mvn -B install --file pom.xml
 
-cp pom.xml ${ARTIFACT}.pom 
+cp pom.xml ${ARTIFACT}.pom
+cp target/${ARTIFACT}.jar .
+cp target/${ARTIFACT}-sources.jar .
+cp target/${ARTIFACT}-javadoc.jar .
 
 gpg --import ${KEY_FILE}
 gpg -ab ${ARTIFACT}.pom
