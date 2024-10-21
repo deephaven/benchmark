@@ -12,7 +12,7 @@ import io.deephaven.benchmark.util.Timer;
  * This tests a sort operation based on generated rows of data. The expected row count is achieved by fully generating
  * the data to a parquet file or partially generating the data and merging that by <code>tableFactor</code> to get row
  * count.
- * <p/>
+ * <p>
  * Note: For best results, use base and row counts that are highly divisible and clear like 1,000,000 so that the
  * <code>tableFactor</code> is a whole number.
  */

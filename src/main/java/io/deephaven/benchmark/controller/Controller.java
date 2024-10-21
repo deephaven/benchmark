@@ -4,7 +4,7 @@ package io.deephaven.benchmark.controller;
 /**
  * Represents a mechanism that can manage the external service (e.g. Deephaven Engine) the benchmarks are running
  * against. This includes; start, stop, logging, etc.
- * <p/>
+ * <p>
  * Note: For now, this is not part of the Bench API but is used by runners that wrap the Bench API to provide normalized
  * behavior or generated data reuse.
  */

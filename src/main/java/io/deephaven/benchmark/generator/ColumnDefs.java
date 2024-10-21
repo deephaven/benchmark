@@ -7,10 +7,10 @@ import java.util.*;
  * Contains column definitions used to generate data and schemas. Columns are described by name, type, and data range
  * (ex. "[1-100]", "str[1-100]ing"). Values are retrieved during data generation either randomly or incrementally
  * through the range. The same seed is used for random each time this class is instantiated.
- * <p/>
+ * <p>
  * Note: All possible data values are loaded up front to prevent object-creation during production. This can take a
  * considerable amount of memory for larger scales, especially for generated strings.
- * <p/>
+ * <p>
  */
 public class ColumnDefs {
     final int valueCacheSize;
@@ -108,7 +108,7 @@ public class ColumnDefs {
 
     /**
      * Get the column definitions as a string. It intentionally avoids OS-specific line endings.
-     * <p/>
+     * <p>
      * Note: This method is used to write table definitions for comparison to the file system. Do not change without
      * understanding the impact.
      * 

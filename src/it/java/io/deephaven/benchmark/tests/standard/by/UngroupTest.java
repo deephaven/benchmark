@@ -7,7 +7,7 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 /**
  * Standard tests for the groupBy table operation. ungroups column content. It is the inverse of the group_by method.
  * Ungroup unwraps columns containing either Deephaven arrays or java arrays.
- * <p/>
+ * <p>
  * Note: These test do group then ungroup, since the data generator does not support arrays
  */
 public class UngroupTest {

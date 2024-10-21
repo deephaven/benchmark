@@ -36,7 +36,7 @@ final public class BenchResult {
     /**
      * Record a test rate for this result instance
      * 
-     * @param the place where the measurement was collected
+     * @param origin the place where the measurement was collected
      * @param timer a started timer measuring the test
      * @param count the processed item count (e.g. rowCount)
      * @return this result instance
@@ -50,7 +50,7 @@ final public class BenchResult {
      * Record a test rate for this result instance
      * 
      * @param origin the place where the measurement was collected
-     * @param timer a started timer measuring the test
+     * @param duration the time it took the test to run
      * @param count the processed item count (e.g. rowCount)
      * @return this result instance
      */

@@ -42,7 +42,7 @@ public class JoinTablesFromKafkaStreamTest {
      * </ol>
      * This test is identical to {@link #joinTwoTablesFromKafkaStream_Shorthand} except without the use of
      * <code>bench_api_</code> functions for Kafka consumers and table waiting.
-     * <p/>
+     * <p>
      * Properties (e.g. ${kafka.consumer.addr}) are automatically filled in during query execution.
      */
     @Test
@@ -114,7 +114,7 @@ public class JoinTablesFromKafkaStreamTest {
      * </ol>
      * This test is identical to {@link #joinTwoTablesFromKafkaStream_Longhand} except without the use of
      * <code>bench_api_</code> functions for Kafka consumers and table waiting.
-     * <p/>
+     * <p>
      * Properties (e.g. ${kafka.consumer.addr}) are automatically filled in during query execution.
      */
     @Test

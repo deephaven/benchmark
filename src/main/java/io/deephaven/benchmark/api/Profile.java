@@ -106,7 +106,7 @@ class Profile {
     /**
      * Get the value of the given property name as a Duration. Supported unit types are; nano, milli, second, minute.
      * Fractional amounts are not supported.
-     * <p/>
+     * <p>
      * ex. 100000 nanos, 10 millis, 1 second, 5 minutes
      * 
      * @param name a property name

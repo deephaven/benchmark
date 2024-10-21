@@ -10,10 +10,10 @@ import io.deephaven.benchmark.tests.compare.Setup;
  * Product comparison tests for filter (where) operations. Tests read the same parquet data. To avoid an unfair
  * advantage where some products may partition or group data during the read, parquet read time is included in the
  * benchmark results.
- * <p/>
+ * <p>
  * Each test produces a table result filtered by three criteria; value is an exact string, value > an integer, value <
  * an integer.
- * <p/>
+ * <p>
  * Data generation only happens in the first tests, the Deephaven test. Tests can be run individually, but only after
  * the desired data has been generated.
  */

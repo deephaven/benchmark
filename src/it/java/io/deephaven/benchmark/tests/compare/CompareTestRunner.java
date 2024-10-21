@@ -15,12 +15,12 @@ import io.deephaven.benchmark.util.Filer;
  * A wrapper for the Bench api that allows running tests for the purpose of comparing Deephaven to other products that
  * perform similar operations. It allows running Deephaven operations or using Deephaven as an agent to run command line
  * python tests in the same environment (e.g. Docker).
- * <p/>
+ * <p>
  * One of two initializers must be called to set up which type of tests is desired; {@code initDeephaven()} or
  * {@code initPython()}. Deephaven tests run queries inside of Deephaven like the standard benchmarks. Python tests use
  * Deephaven as an agent to run python scripts from the command line by first installing required pip modules in a
  * python virtual environment and then running each test from there.
- * <p/>
+ * <p>
  * Note: This runner requires test ordering, so it follows that tests in a single test class are meant to be run as a
  * group. This violates the standard Benchmark convention that every test be able to be run by itself. This is done for
  * practical purposes, though it is not ideal.

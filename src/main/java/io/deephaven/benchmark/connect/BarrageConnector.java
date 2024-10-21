@@ -37,7 +37,7 @@ import io.grpc.ManagedChannelBuilder;
 /**
  * Client that communicates with the Deephaven Server, allows queries to be executed, and results to be retrieved. At
  * present, this connector only supports python queries.
- * <p/>
+ * <p>
  * The typical workflow will be initialize connection, execute query, fetch results, close. Note: This class is meant to
  * be used through the Bench api rather than directly.
  */

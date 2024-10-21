@@ -108,7 +108,7 @@ final public class BenchTable implements Closeable {
      * Direct the table generator to produce column values according to an incremental distribution and rows up the
      * maximum defined by all column ranges. For example, if col1 has range [1-10] and col2 has range [1-20] the total
      * number of rows generated will be 20, unless {@code withRowCount()} is used to override it.
-     * <p/>
+     * <p>
      * Calling this method will override the default of fixed = false and distribution = random.
      * 
      * @return this instance

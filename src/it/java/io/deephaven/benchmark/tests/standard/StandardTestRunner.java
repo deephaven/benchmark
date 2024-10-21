@@ -128,7 +128,7 @@ final public class StandardTestRunner {
      * <li>If static test duration <code>&lt; scale.elapsed.time.target</code>, scale row count and do it again</li>
      * <li>Run test with auto increment release filter according to the previously determined row count</li>
      * <li>Assert that both static and incremental result tables have the same number of rows</li>
-     * <p/>
+     * <p>
      * 
      * @param name the name of the test as it will show in the result file
      * @param expectedRowCount the max row count expected from the operation regardless of scale, or zero if the count

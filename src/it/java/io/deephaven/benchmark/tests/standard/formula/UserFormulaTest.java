@@ -6,10 +6,10 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
  * Standard tests for running user-defined functions. These tests are meant to be compared, and so use the same data.
- * <p/>
+ * <p>
  * Note: When scaling row count, vector size should not get bigger. That would cause more than one axis change and
  * invalidate any expected comparisons.
- * <p/>
+ * <p>
  * Note: The "NoHints" tests do have return hints to make them equivalent to the hints tests, otherwise the return value
  * would always be a PyObject and not really the same test.
  */
