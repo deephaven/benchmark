@@ -77,7 +77,7 @@ jobs:
     - name: Build Release Artifacts Bundle
       working-directory: ${{env.RELEASE_DIR}}
       run: |
-          echo ${{secrets.BENCHMARK_SIGNING_KEY}} > signing-key.txt
+          echo "${{secrets.BENCHMARK_SIGNING_KEY}}" > signing-key.txt
           ${LATEST_DIR}/.github/scripts/make-release-artifact-bundle.sh ${VERSION} signing-key.txt
           docker compose down
       
