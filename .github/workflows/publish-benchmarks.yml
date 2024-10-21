@@ -74,12 +74,12 @@ jobs:
         cp ${LATEST_DIR}/.github/resources/integration-docker-compose.yml docker-compose.yml
         docker compose up -d
 
-    - name: Build and Install Release Artifacts Locally
+    - name: Build Release Artifacts Bundle
       working-directory: ${{env.RELEASE_DIR}}
-      run: | 
-        sed -i "s;<version>1.0-SNAPSHOT</version>;<version>${VERSION}</version>;" pom.xml
-        mvn -B install --file pom.xml
-        docker compose down
+      run: |
+          echo ${{secrets.BENCHMARK_SIGNING_KEY}} > signing-key.txt
+          ${LATEST_DIR}/.github/scripts/make-release-artifact-bundle.sh ${VERSION} signing-key.txt
+          docker compose down
       
     - name: Build Release Distribution
       working-directory: ${{env.RELEASE_DIR}}
@@ -102,9 +102,8 @@ jobs:
         path: |
           deephaven-benchmark-${{env.VERSION}}.tar
           deephaven-benchmark-${{env.VERSION}}-results.tar
+          deephaven-benchmark-${{env.VERSION}}-bundle.jar
           release-notes.md
-          deephaven-benchmark-${{env.VERSION}}-sources.jar
-          deephaven-benchmark-${{env.VERSION}}-javadoc.jar
           
     - name: Publish Github Release
       if: ${{ github.ref_name == 'main' }}
