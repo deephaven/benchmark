@@ -105,7 +105,7 @@ jobs:
           deephaven-benchmark-${{env.VERSION}}-bundle.jar
           release-notes.md
           
-    - name: Publish Github Release
+    - name: Publish Github Release {{env.VERSION}}
       if: ${{ github.ref_name == 'main' }}
       uses: ncipollo/release-action@v1
       with:
