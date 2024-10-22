@@ -98,7 +98,7 @@ jobs:
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
-        name: Deephaven Benchmark Release
+        name: Deephaven Benchmark Release ${{env.VERSION}}
         path: |
           deephaven-benchmark-${{env.VERSION}}.tar
           deephaven-benchmark-${{env.VERSION}}-results.tar
