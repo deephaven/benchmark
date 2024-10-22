@@ -98,14 +98,14 @@ jobs:
     - name: Archive Results
       uses: actions/upload-artifact@v4
       with:
-        name: Deephaven Benchmark Release
+        name: Deephaven Benchmark Release ${{env.VERSION}}
         path: |
           deephaven-benchmark-${{env.VERSION}}.tar
           deephaven-benchmark-${{env.VERSION}}-results.tar
           deephaven-benchmark-${{env.VERSION}}-bundle.jar
           release-notes.md
           
-    - name: Publish Github Release {{env.VERSION}}
+    - name: Publish Github Release
       if: ${{ github.ref_name == 'main' }}
       uses: ncipollo/release-action@v1
       with:
