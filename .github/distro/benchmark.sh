@@ -3,6 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
+set -f
 
 # Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
 #
@@ -11,9 +12,9 @@ set -o nounset
 # any previous run and produce results as a set of csv files for each iteration.
 #
 # Examples:
-# - Run Where benchmarks three times: ./benchmark.sh 1 Where 
+# - Run Where benchmarks three times: ./benchmark.sh 1 "Where"
 # - Run Where and AvgBy benchmarks three times: ./benchmark.sh 3 "Where,Avg*"
-# - Run all benchmarks one time: ./benchmark.sh 1 *
+# - Run all benchmarks one time: ./benchmark.sh 1 "*"
 #
 # Notes:
 # - Docker is a prerequisite, and the Deephaven image will be installed if it's missing
@@ -39,9 +40,11 @@ sudo rm -f ./data/*.def
 sudo rm -f ./data/*.parquet
 
 sudo docker compose up -d 
+sleep 5
+set -f
 
 TEST_REGEX="^.*[.]("
-for r in $(echo ${TEST_WILD} | sed 's/\s*,\s*/ /g'); do
+for r in $(echo "${TEST_WILD}" | sed 's/\s*,\s*/ /g'); do
   TEST_REGEX="${TEST_REGEX}"$(echo "(${r}Test)|" | sed 's/\*/.*/g')
 done
 TEST_REGEX=$(echo ${TEST_REGEX} | sed -E 's/\|+$//g')
