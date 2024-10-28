@@ -52,7 +52,12 @@ public class BarrageConnector implements AutoCloseable {
      * @param hostPort a host and port string for connecting to a Deephaven worker (ex. localhost:10000)
      */
     public BarrageConnector(String hostPort) {
-        String[] split = hostPort.split(":");
+        String[] split;
+        try {
+            split = hostPort.split(":");
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to parse connection hostPort: " + hostPort, ex);
+        }
         try {
             this.channel = getManagedChannel(split[0], Integer.parseInt(split[1]));
             this.session = getSession(channel);
