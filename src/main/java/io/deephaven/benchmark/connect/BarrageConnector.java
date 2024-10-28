@@ -155,8 +155,11 @@ public class BarrageConnector implements AutoCloseable {
     }
 
     /**
-     * Close the connector session and associated resources. Note: Because of the nature of the Deephaven Community Core
-     * worker, closing the connector session does not close the session on the server.
+     * Make a best effort to close the connector session and all associated resources. No exception is thrown if the
+     * close fails.
+     * <p>
+     * Note: Because of the nature of the Deephaven Community Core worker, closing the connector session does not close
+     * the session on the server.
      */
     public void close() {
         try {
@@ -168,22 +171,27 @@ public class BarrageConnector implements AutoCloseable {
             });
             subscriptions.clear();
             variableNames.clear();
-            if (console != null)
-                console.close();
-            if (session != null)
-                session.close();
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to close Session", ex);
-        } finally {
-            try {
-                if (session != null)
-                    session.session().closeFuture().get(5, TimeUnit.SECONDS);
-                if (scheduler != null)
-                    scheduler.shutdownNow();
-                if (channel != null)
-                    channel.shutdownNow();
-            } catch (Exception ex) {
-            }
+        }
+        try {
+            console.close();
+        } catch (Exception ex) {
+        }
+        try {
+            session.close();
+        } catch (Exception ex) {
+        }
+        try {
+            session.session().closeFuture().get(5, TimeUnit.SECONDS);
+        } catch (Exception ex) {
+        }
+        try {
+            scheduler.shutdownNow();
+        } catch (Exception ex) {
+        }
+        try {
+            channel.shutdownNow();
+        } catch (Exception ex) {
         }
     }
 
