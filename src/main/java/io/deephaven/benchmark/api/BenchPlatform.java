@@ -230,7 +230,7 @@ public class BenchPlatform {
         engine_class='io/deephaven/engine/table/Table'
         command=f'javap -cp {engine_artifact} -v {engine_class} | grep -E "(minor .*: [0-9]+)|(major .*: [0-9]+)" | sort'
         class_vers = '.'.join(re.findall('[0-9]+',os.popen(command).read()))
-        bench_api_add_platform('java.compile.class.revision',class_vers)
+        bench_api_add_platform('java.class.version',class_vers)
         
         # Python Dependency Versions
         import importlib.metadata
