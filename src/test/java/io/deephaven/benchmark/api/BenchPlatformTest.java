@@ -13,7 +13,7 @@ import io.deephaven.benchmark.connect.ResultTable;
 public class BenchPlatformTest {
 
     @Test
-    public void commit() throws Exception {
+    void commit() throws Exception {
         Path outParent = Paths.get(getClass().getResource("test-profile.properties").toURI()).getParent();
         var platform = new LocalPlatform(outParent, "platform-test.out");
         platform.commit();
@@ -23,11 +23,11 @@ public class BenchPlatformTest {
         assertEquals("origin,name,value", lines.get(0), "Wrong header");
         assertTrue(lines.get(1).matches("test-runner,java.version,[0-9.]+"), "Wrong values: " + lines.get(1));
         assertTrue(lines.get(3).matches("test-runner,java.class.version,[0-9.]+"), "Wrong values: " + lines.get(3));
-        assertTrue(lines.get(7).matches("test-runner,java.max.memory,[0-9]+g"), "Wrong values: " + lines.get(7));
+        assertTrue(lines.get(7).matches("test-runner,java.max.memory,[0-9]+"), "Wrong values: " + lines.get(7));
         assertEquals("test-runner,profile.prop2,prop2", lines.get(9), "Wrong values");
         assertEquals("deephaven-engine,java.version,17.0.5", lines.get(11), "Wrong values");
         assertEquals("deephaven-engine,java.class.version,61.0", lines.get(13), "Wrong values");
-        assertEquals("deephaven-engine,java.max.memory,24g", lines.get(17), "Wrong values");
+        assertEquals("deephaven-engine,java.max.memory,25769803776", lines.get(17), "Wrong values");
 
         platform.add("deephaven-engine", "no.repeat.no.overwrite", "100");
         platform.add("deephaven-engine", "no.repeat.no.overwrite", "200");
@@ -38,11 +38,19 @@ public class BenchPlatformTest {
     }
 
     @Test
-    public void getDeephavenVersionFromPom() throws Exception {
+    void getDeephavenVersionFromPom() throws Exception {
         Path outParent = Paths.get(getClass().getResource("test-profile.properties").toURI()).getParent();
         var platform = new LocalPlatform(outParent, "platform-test.out");
         assertEquals("0.22.0", platform.getDeephavenVersion(outParent, "platform-test-pom.xml"));
         assertEquals("Unknown", platform.getDeephavenVersion(outParent, "test-profile.properties"));
+    }
+
+    @Test
+    void nomalize() {
+        assertEquals("one", BenchPlatform.normalize("one"));
+        assertEquals("one two", BenchPlatform.normalize("one,two"));
+        assertEquals("one two", BenchPlatform.normalize("one, \"two\""));
+        assertEquals("one two", BenchPlatform.normalize("   one, 'two'   "));
     }
 
 
