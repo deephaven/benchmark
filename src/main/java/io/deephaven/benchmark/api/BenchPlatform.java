@@ -170,7 +170,7 @@ public class BenchPlatform {
         
         def bench_api_get_proc_info(proctype, prockey):
             info = pm.process_info_log().where(['Type.equals(proctype)','Key.equals(prockey)'])
-            return next(info.iter_dict())['Value']
+            return info.j_table.columnIterator('Value').next()
         
         def bench_api_add_proc_info(name, proctype, prockeys, delim=' '):
             values = []
