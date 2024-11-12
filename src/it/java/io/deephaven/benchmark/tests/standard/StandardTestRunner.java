@@ -90,7 +90,7 @@ final public class StandardTestRunner {
         mainTable = name;
         generateTable(name, null, groups);
     }
-    
+
     public void setServices(String... services) {
         requiredServices.clear();
         requiredServices.addAll(Arrays.asList(services));
@@ -225,16 +225,16 @@ final public class StandardTestRunner {
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
-
-        garbage_collect()
-
         ${preOpQueries}
+        bench_api_metrics_start()
         print('${logOperationBegin}')
-        
+
         begin_time = time.perf_counter_ns()
         result = ${operation}
         end_time = time.perf_counter_ns()
+        
         print('${logOperationEnd}')
+        bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -260,11 +260,9 @@ final public class StandardTestRunner {
         if right: 
             right_filter = autotune(0, 1010000, 1.0, True)
             right = right.where(right_filter)
-            print('Using Inc Right')
-        
-        garbage_collect()
         
         ${preOpQueries}
+        bench_api_metrics_start()
         print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
         result = ${operation}
@@ -280,6 +278,7 @@ final public class StandardTestRunner {
         
         end_time = time.perf_counter_ns()
         print('${logOperationEnd}')
+        bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -296,7 +295,7 @@ final public class StandardTestRunner {
             initialize(testInst);
         api.setName(name);
         stopUnusedServices(requiredServices);
-        
+
         query = query.replace("${readTable}", read);
         query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
@@ -381,16 +380,16 @@ final public class StandardTestRunner {
         if (!controller.restartService())
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
-        metrics.set("restart", timer.duration().toMillis(), "standard");
+        metrics.set("restart", timer.duration().toMillis() / 1000.0, "standard");
         api.metrics().add(metrics);
     }
-    
+
     void stopUnusedServices(Set<String> keepServices) {
         var timer = api.timer();
         if (!controller.stopService(keepServices))
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
-        metrics.set("stop", timer.duration().toMillis(), "standard");
+        metrics.set("stop", timer.duration().toMillis() / 1000.0, "standard");
         api.metrics().add(metrics);
     }
 

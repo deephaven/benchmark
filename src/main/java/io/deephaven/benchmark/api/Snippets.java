@@ -2,7 +2,7 @@
 package io.deephaven.benchmark.api;
 
 /**
- * Contains snippets of query code that can be called inside a query
+ * Contains snippets of python functions that can be called inside a query executed on the Deephaven Engine
  */
 class Snippets {
     /**
@@ -74,7 +74,8 @@ class Snippets {
         """;
 
     /**
-     * Initialize the container for storing benchmark metrics
+     * Initialize the container for storing benchmark metrics. Define functions for getting some MX Bean data for gc,
+     * jit and heap
      * <p>
      * ex. bench_api_metrics_init()
      */
@@ -85,10 +86,76 @@ class Snippets {
         """;
 
     /**
-     * Captures the value of the first column in a table every Deephaven ticking interval and does not allow advancement
-     * in the current query logic until that value is reached
+     * Get the MX bean for the given getter factory method that works from
+     * <code>java.lang.management.ManagementFactory</code>
+     */
+    static String bench_api_get_bean = """
+        import jpy
+        def bench_api_get_bean(bean_getter):
+            return getattr(jpy.get_type('java.lang.management.ManagementFactory'),bean_getter)()
+        """;
+
+    /**
+     * Get the current JVM heap usage in bytes
+     */
+    static String bench_api_mem_usage = """
+        def bench_api_mem_usage():
+            return bench_api_get_bean('getMemoryMXBean').getHeapMemoryUsage().getUsed()
+        """;
+
+    /**
+     * Get the accumulated compile time
+     */
+    static String bench_api_compile_time = """
+        def bench_api_compile_time():
+            return bench_api_get_bean('getCompilationMXBean').getTotalCompilationTime()
+        """;
+
+    /**
+     * Get the accumulated total time spent in GC and GC count
+     */
+    static String bench_api_gc_info = """
+        def bench_api_gc_info():
+            total = 0.0; count = 0
+            beans = bench_api_get_bean('getGarbageCollectorMXBeans')
+            for i in range(0, beans.size()):
+                b = beans.get(i)
+                total = total + b.getCollectionTime()
+                count = count + b.getCollectionCount()
+            return total, count
+        """;
+
+    /**
+     * Set heap usage, compile time, GC time and GC Count to global variables
+     */
+    static String bench_api_metrics_start = """
+        from deephaven import garbage_collect   
+        def bench_api_metrics_start():
+            global bench_mem_usage, bench_compile_time, bench_gc_time, bench_gc_count
+            garbage_collect()
+            bench_compile_time = bench_api_compile_time()
+            bench_gc_time, bench_gc_count = bench_api_gc_info()
+            bench_mem_usage = bench_api_mem_usage()
+        """;
+
+    /**
+     * Get difference from <code>bench_api_metrics_start values and add as collected metrics
+     */
+    static String bench_api_metrics_end = """
+        def bench_api_metrics_end():
+            bench_api_metrics_add('operation','compile.time',(bench_api_compile_time()-bench_compile_time)/1000.0)
+            gc_time, gc_count = bench_api_gc_info()
+            bench_api_metrics_add('operation','gc.time',(gc_time - bench_gc_time)/1000.0)
+            bench_api_metrics_add('operation','gc.count',gc_count - bench_gc_count)
+            garbage_collect()
+            bench_api_metrics_add('operation','heap.gain',bench_api_mem_usage() - bench_mem_usage) 
+        """;
+
+    /**
+     * Add a metrics to the accumulated list of metrics that will be transformed by
+     * <code>bench_api_metrics_collect</code> into a Deephaven table for retrieval
      * <p>
-     * ex. bench_api_metrics_add('docker', 'restart.secs', 5.1, 'restart duration in between tests')
+     * ex. bench_api_metrics_add('docker', 'restart.secs', '5.1', 'restart duration in between tests')
      * 
      * @param category the metric category
      * @param name the name of the metric
@@ -126,18 +193,26 @@ class Snippets {
      * @return a query containing function definitions
      */
     static String getFunctions(String query) {
-        String functionDefs = "";
-        functionDefs += getFunction("bench_api_kafka_consume", bench_api_kafka_consume, query);
-        functionDefs += getFunction("bench_api_await_table_size", bench_api_await_table_size, query);
-        functionDefs += getFunction("bench_api_metrics_init", bench_api_metrics_init, query);
-        functionDefs += getFunction("bench_api_metrics_add", bench_api_metrics_add, query);
-        functionDefs += getFunction("bench_api_metrics_collect", bench_api_metrics_collect, query);
-        functionDefs += getFunction("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query);
-        return functionDefs;
+        String defs = "";
+        defs += getFunc("bench_api_kafka_consume", bench_api_kafka_consume, query, "");
+        defs += getFunc("bench_api_await_table_size", bench_api_await_table_size, query, defs);
+        defs += getFunc("bench_api_metrics_init", bench_api_metrics_init, query, defs);
+        defs += getFunc("bench_api_metrics_start", bench_api_metrics_start, query, defs);
+        defs += getFunc("bench_api_metrics_end", bench_api_metrics_end, query, defs);
+        defs += getFunc("bench_api_mem_usage", bench_api_mem_usage, query, defs);
+        defs += getFunc("bench_api_compile_time", bench_api_compile_time, query, defs);
+        defs += getFunc("bench_api_gc_info", bench_api_gc_info, query, defs);
+        defs += getFunc("bench_api_get_bean", bench_api_get_bean, query, defs);
+        defs += getFunc("bench_api_metrics_add", bench_api_metrics_add, query, defs);
+        defs += getFunc("bench_api_metrics_collect", bench_api_metrics_collect, query, defs);
+        defs += getFunc("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query, defs);
+        return defs;
     }
 
-    static String getFunction(String functionName, String functionDef, String query) {
-        return query.contains(functionName) ? (functionDef + System.lineSeparator()) : "";
+    static String getFunc(String functionName, String functionDef, String query, String funcs) {
+        if (!query.contains(functionName) && !funcs.contains(functionName))
+            return "";
+        return functionDef + System.lineSeparator();
     }
 
 }
