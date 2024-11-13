@@ -170,9 +170,12 @@ class FileTestRunner {
      */
     private void runReadTest(String testName, String readQuery, String... columnNames) {
         var q = """
+        bench_api_metrics_init()
+        bench_api_metrics_start()
         begin_time = time.perf_counter_ns()
         source = ${readQuery}
         end_time = time.perf_counter_ns()
+        bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
@@ -194,9 +197,12 @@ class FileTestRunner {
         else:
             source = empty_table(${rowCount}).update([${generators}])
         
+        bench_api_metrics_init()
+        bench_api_metrics_start()
         begin_time = time.perf_counter_ns()
         ${writeQuery}
         end_time = time.perf_counter_ns()
+        bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([

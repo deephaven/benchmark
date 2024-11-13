@@ -44,7 +44,7 @@ class KafkaTestRunner {
      * If a {@code docker.compose.file} is specified in supplied runtime properties, restart the corresponding docker
      * images with Deephaven max heap set to the given gigabytes.
      * 
-     * @param deephavenHeapGigs the number of gigabytes to use for Deephave max heap
+     * @param deephavenHeapGigs the number of gigabytes to use for Deephaven max heap
      */
     void restartWithHeap(int deephavenHeapGigs) {
         String dockerComposeFile = api.property("docker.compose.file", "");
@@ -106,6 +106,7 @@ class KafkaTestRunner {
         import deephaven.dtypes as dht
         
         bench_api_metrics_init()
+        bench_api_metrics_start()
         kc_spec = ${kafkaConsumerSpec}
         
         begin_time = time.perf_counter_ns()
@@ -121,6 +122,7 @@ class KafkaTestRunner {
         ${awaitTableLoad}
         
         end_time = time.perf_counter_ns()
+        bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
         
         stats = new_table([
