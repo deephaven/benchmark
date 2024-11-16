@@ -90,23 +90,6 @@ class FileTestRunner {
     }
 
     /**
-     * Run a benchmark that measures parquet S3 read performance. This test always runs after a corresponding write
-     * test.
-     * 
-     * @param testName name that will appear in the results as the benchmark name
-     */
-    void runParquetS3ReadTest(String testName) {
-        var q = """
-        read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
-            region_name='aws-global', endpoint_override='http://minio:9000',
-            access_key_id='minioadmin', secret_access_key='minioadmin',
-            read_timeout='PT20S', connection_timeout='PT20S'
-        )).select()
-        """;
-        runReadTest(testName, q);
-    }
-
-    /**
      * Run a benchmark that measures parquet write performance.
      * 
      * @param testName the benchmark name to record with the measurement
@@ -115,7 +98,6 @@ class FileTestRunner {
      */
     void runParquetWriteTest(String testName, String codec, String... columnNames) {
         var q = """
-        remove_path('/data/source.ptr.parquet')
         write(
             source, '/data/source.ptr.parquet', compression_codec_name='${codec}'${parquetSettings}
         )
@@ -128,26 +110,6 @@ class FileTestRunner {
     }
 
     /**
-     * Run a benchmark that measures parquet S3 write performance.
-     * 
-     * @param testName the benchmark name to record with the measurement
-     * @param columnNames the names of the pre-defined columns to generate
-     */
-    void runParquetS3WriteTest(String testName, String... columnNames) {
-        var q = """
-        remove_path('/minio/data/source.ptr.parquet')
-        write(
-            source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
-              region_name='aws-global', endpoint_override='http://minio:9000',
-              access_key_id='minioadmin', secret_access_key='minioadmin',
-              connection_timeout='PT20S'
-            )
-        )
-        """;
-        runWriteTest(testName, q, columnNames);
-    }
-
-    /**
      * Run a benchmark the measures csv write performance.
      * 
      * @param testName the benchmark name to record with the measurement
@@ -155,7 +117,6 @@ class FileTestRunner {
      */
     void runCsvWriteTest(String testName, String... columnNames) {
         var q = """
-        remove_path('/data/source.ptr.parquet')
         write_csv(source, '/data/source.ptr.csv')
         metric_file_size = os.path.getsize('/data/source.ptr.csv')
         bench_api_metrics_add('data', 'file.size', str(metric_file_size), 'csv')
@@ -168,9 +129,8 @@ class FileTestRunner {
      * 
      * @param testName name that will appear in the results as the benchmark name
      */
-    private void runReadTest(String testName, String readQuery, String... columnNames) {
+    void runReadTest(String testName, String readQuery, String... columnNames) {
         var q = """
-        bench_api_metrics_init()
         bench_api_metrics_start()
         begin_time = time.perf_counter_ns()
         source = ${readQuery}
@@ -188,7 +148,8 @@ class FileTestRunner {
         runTest(testName, q);
     }
 
-    private void runWriteTest(String testName, String writeQuery, String... columnNames) {
+    void runWriteTest(String testName, String writeQuery, String... columnNames) {
+        cleanWritePaths(api);
         var q = """
         if(${scaleFactor} > 1):
             source = merge([empty_table(${rowCount}).update([
@@ -197,7 +158,6 @@ class FileTestRunner {
         else:
             source = empty_table(${rowCount}).update([${generators}])
         
-        bench_api_metrics_init()
         bench_api_metrics_start()
         begin_time = time.perf_counter_ns()
         ${writeQuery}
@@ -307,7 +267,7 @@ class FileTestRunner {
         import time, os, shutil
         from deephaven import empty_table, garbage_collect, new_table, merge
         from deephaven.column import long_col, double_col
-        from deephaven.parquet import read, write
+        from deephaven.parquet import read, write, write_partitioned
         from deephaven import read_csv, write_csv
         from deephaven import dtypes as dht
         from deephaven.experimental import s3
@@ -356,6 +316,19 @@ class FileTestRunner {
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");
         metrics.set("stop", timer.duration().toMillis(), "standard");
         api.metrics().add(metrics);
+    }
+    
+    private void cleanWritePaths(Bench api) {
+        try {
+            var q = """
+            remove_path('/data/source.ptr.parquet')
+            remove_path('/data/source.ptr.csv')
+            remove_path('/minio/data/source.ptr.parquet')
+            """;
+            api.query(q).execute();
+        } catch(Exception ex) {
+            throw new RuntimeException("Error cleaning up CSV and Parquet files", ex);
+        }
     }
 
 }
