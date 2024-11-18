@@ -4,11 +4,11 @@
 # format strings, and do calculations. The data for creating tables is downloaded and cached from 
 # either the Deephaven Benchmark GCloud bucket or from NFS on one of Deephaven's demos servers.
 #
-# Requirements: Deephaven 0.36.0 or greater
+# Requirements: Deephaven 0.36.1 or greater
 
 import os, re, glob, jpy
 import deephaven.dtypes as dht
-from deephaven import read_csv, merge, agg, empty_table
+from deephaven import read_csv, merge, agg, empty_table, input_table, dtypes as dht
 from urllib.request import urlopen, urlretrieve
 from numpy import typing as npt
 
@@ -140,6 +140,27 @@ def get_default_set_filter(category):
     if category in ['release','compare']: return '[0-9]{2}[.][0-9]{3}[.][0-9]{2}'  # ##.###.##
     if category in ['nightly']: return '[0-9]{4}([-][0-9]{2}){2}'  # yyyy-mm-dd
     return '.+'
+    
+def empty_bench_results():
+    return input_table({'benchmark_name':dht.string,'origin':dht.string,'timestamp':dht.int64,
+        'test_duration':dht.float64,'op_duration':dht.float64,'op_rate':dht.int64,
+        'row_count':dht.int64,'set_id':dht.string,'run_id':dht.string})
+
+def empty_bench_result_sets():
+    sets = input_table({'benchmark_name':dht.string,'origin':dht.string,'timestamp':dht.int64,
+        'test_duration':dht.float64,'set_op_rates':dht.int64_array,'op_duration':dht.float64,
+        'op_rate':dht.int64,'row_count':dht.int64,'variability':dht.float32,'set_id':dht.string,
+        'run_id':dht.string,'set_count':dht.int64,'deephaven_version':dht.string})
+    return sets, empty_bench_results()
+
+def empty_bench_platform():
+    return input_table({'origin':dht.string,'name':dht.string,'value':dht.string,
+        'set_id':dht.string,'run_id':dht.string})
+        
+def empty_bench_metrics():
+    return input_table({'benchmark_name':dht.string,'origin':dht.string,'timestamp':dht.int64,
+        'name':dht.string,'value':dht.float64,'note':dht.string, 'set_id':dht.string,
+        'run_id':dht.string})
 
 # Load all benchmark-results.csv data collected from the given storage, category, and filters
 def load_bench_results(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
@@ -158,9 +179,8 @@ def load_bench_platform(storage_uri, category='adhoc', actor_filter=None, set_fi
 
 # Load all benchmark-results.csv data collected from the given storage, category, and filters by set
 # Sets contain one or more runs for each benchmark. This function loads the median run by rate for each benchmark
-def load_bench_results_sets(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
-    print("load_main_table", storage_uri, category, actor_filter, set_filter)
-    bench_results = load_bench_results(storage_uri, category, actor_filter, set_filter)
+def load_bench_result_sets(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
+    bench_results = load_bench_results(storage_uri,category,actor_filter,set_filter)
     bench_results_sets = bench_results.sort(['benchmark_name','origin','set_id','op_rate']) \
         .group_by(['benchmark_name','origin','set_id']) \
         .view(['benchmark_name','origin','timestamp=(long)mid_item(timestamp)','test_duration=(double)mid_item(test_duration)',
@@ -173,6 +193,12 @@ def load_bench_results_sets(storage_uri, category='adhoc', actor_filter=None, se
     #bench_results_sets = add_platform_values(bench_results_sets, ['deephaven.version'] + platform_props, local_platform_props)
     #bench_results_sets = add_metric_values(bench_results_sets, metric_props, local_metric_props)
     return bench_results_sets, bench_results
+    
+def load_table_or_empty(table_name, storage_uri, category='adhoc', actor_filter='', set_filter=''):
+    actor = actor_filter.strip(); prefix = set_filter.strip()
+    if actor and prefix:
+        return globals()[f'load_bench_{table_name}'](storage_uri, category, actor, prefix)
+    return globals()[f'empty_bench_{table_name}']()
 
 # Add columns for the specified platform properties
 def add_platform_values(table, pnames=[], cnames = []):
@@ -197,6 +223,17 @@ def add_metric_values(table, pnames=[], cnames=[]):
             single_metrtics, on=['benchmark_name','set_id','run_id','origin'], joins=[new_pname+'=value']
         )
     return table
+
+# Format column values for percent or integral depending on the start of the name
+def format_columns(table,pct_cols=(),int_cols=()):
+    column_formats = []
+    for col in table.columns:
+        n = col.name
+        if n.startswith(pct_cols):
+            column_formats.append(n + '=Decimal(`0.0%`)')
+        if n.startswith(int_cols):
+            column_formats.append(n + '=Decimal(`###,##0`)')
+    return table.format_columns(column_formats)
 
 import statistics
 # Get a percentage standard deviation for the given list of rates
@@ -254,34 +291,5 @@ def merge_arrays(type_str, arrs):
         for i in arr.copyToArray():
             final_arr.append(i)
     return jpy.array(type_str, final_arr)
-
-# Create a table showing percentage variability and change in rates
-
-## Reduce the runs in each set to one row
-#bench_results_sets = bench_results.sort(['benchmark_name','origin','set_id','op_rate']) \
-#    .group_by(['benchmark_name','origin','set_id']) \
-#    .view([
-#        'benchmark_name','origin','timestamp=(long)mid_item(timestamp)','test_duration=(double)mid_item(test_duration)',
-        #'set_op_rates=op_rate','op_duration=(double)mid_item(op_duration)','op_rate=(long)mid_item(op_rate)','row_count=(long)mid_item(row_count)',
-#        'variability=(float)rstd(set_op_rates)','set_id','run_id=(String)mid_item(run_id)','set_count=count(set_op_rates)'
-#    ])
-
-## Attach columns for specified metrics and platform properties
-#local_platform_props = []
-#local_metric_props = []
-#bench_results_sets = add_platform_values(bench_results_sets, ['deephaven.version'] + platform_props, local_platform_props)
-#bench_results_sets = add_metric_values(bench_results_sets, metric_props, local_metric_props)
-
-# Create a table showing rate changes between sets
-#local_platform_props = [p + '=last_item(' + p + ')' for p in local_platform_props]
-#local_metric_props = [p + '=last_item(' + p + ')' for p in local_metric_props]
-#bench_results_change = bench_results_sets.sort(['benchmark_name','origin','set_id']) \
-#    .tail_by(10, ['benchmark_name','origin']) \
-#    .group_by(['benchmark_name','origin']) \
-#    .view(['benchmark_name','origin','timestamp=last_item(timestamp)'] + local_platform_props + local_metric_props +
-#        ['test_duration=last_item(test_duration)','op_duration=last_item(op_duration)','op_rate=last_item(op_rate)',
-#        'set_op_rates=(long[])merge_arrays("long",set_op_rates)','op_rate_variability=(float)rstd(set_op_rates)',
-#        'op_rate_change=(float)rchange(set_op_rates)','set_id'
-#    ])
 
 
