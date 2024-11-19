@@ -334,9 +334,9 @@ final public class StandardTestRunner {
             }).fetchAfter("standard_metrics", table -> {
                 api.metrics().add(table);
                 var metrics = new Metrics(Timer.now(), "test-runner", "setup.scale");
-                metrics.set("static_scale_factor", staticFactor);
-                metrics.set("inc_scale_factor", incFactor);
-                metrics.set("row_count_factor", rowCountFactor);
+                metrics.set("static.factor", staticFactor);
+                metrics.set("inc.factor", incFactor);
+                metrics.set("row.factor", rowCountFactor);
                 api.metrics().add(metrics);
             }).execute();
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
