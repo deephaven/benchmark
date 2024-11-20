@@ -235,6 +235,7 @@ final public class StandardTestRunner {
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
         ${preOpQueries}
+        bench_api_metrics_init()
         bench_api_metrics_start()
         print('${logOperationBegin}')
 
@@ -272,6 +273,7 @@ final public class StandardTestRunner {
             right = right.where(right_filter)
         
         ${preOpQueries}
+        bench_api_metrics_init()
         bench_api_metrics_start()
         print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
@@ -370,8 +372,6 @@ final public class StandardTestRunner {
         from numpy import typing as npt
         import numpy as np
         import numba as nb
-        
-        bench_api_metrics_init()
         """;
 
         this.api = Bench.create(testInst);
