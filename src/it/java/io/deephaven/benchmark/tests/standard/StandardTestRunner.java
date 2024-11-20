@@ -176,7 +176,6 @@ final public class StandardTestRunner {
         if (staticFactor > 0) {
             var sname = name + " -Static";
             var warmup = getStaticQuery(sname, operation, getWarmupRowCount(), loadColumns);
-            Threads.sleep(5000);
             var query = getStaticQuery(sname, operation, getGeneratedRowCount(), loadColumns);
             var result = runTest(sname, warmup, query);
             var rcount = result.resultRowCount();
@@ -187,7 +186,6 @@ final public class StandardTestRunner {
         if (incFactor > 0) {
             var iname = name + " -Inc";
             var warmup = getIncQuery(iname, operation, getWarmupRowCount(), loadColumns);
-            Threads.sleep(5000);
             var query = getIncQuery(iname, operation, getGeneratedRowCount(), loadColumns);
             var result = runTest(iname, warmup, query);
             var rcount = result.resultRowCount();
