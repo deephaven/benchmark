@@ -10,6 +10,7 @@ import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.Controller;
 import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
+import io.deephaven.benchmark.util.Threads;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -175,6 +176,7 @@ final public class StandardTestRunner {
         if (staticFactor > 0) {
             var sname = name + " -Static";
             var warmup = getStaticQuery(sname, operation, getWarmupRowCount(), loadColumns);
+            Threads.sleep(5000);
             var query = getStaticQuery(sname, operation, getGeneratedRowCount(), loadColumns);
             var result = runTest(sname, warmup, query);
             var rcount = result.resultRowCount();
@@ -185,6 +187,7 @@ final public class StandardTestRunner {
         if (incFactor > 0) {
             var iname = name + " -Inc";
             var warmup = getIncQuery(iname, operation, getWarmupRowCount(), loadColumns);
+            Threads.sleep(5000);
             var query = getIncQuery(iname, operation, getGeneratedRowCount(), loadColumns);
             var result = runTest(iname, warmup, query);
             var rcount = result.resultRowCount();
@@ -230,12 +233,12 @@ final public class StandardTestRunner {
     String getStaticQuery(String name, String operation, long warmupRows, String... loadColumns) {
         var staticQuery = """
         source = right = timed = result = None
+        bench_api_metrics_init()
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
         ${preOpQueries}
-        bench_api_metrics_init()
         bench_api_metrics_start()
         print('${logOperationBegin}')
 
@@ -260,6 +263,7 @@ final public class StandardTestRunner {
     String getIncQuery(String name, String operation, long warmupRows, String... loadColumns) {
         var incQuery = """
         source = right = timed = result = source_filter = right_filter = autotune = None
+        bench_api_metrics_init()
         ${loadSupportTables}
         ${mainTable} = ${readTable}
         loaded_tbl_size = ${mainTable}.size
@@ -273,7 +277,6 @@ final public class StandardTestRunner {
             right = right.where(right_filter)
         
         ${preOpQueries}
-        bench_api_metrics_init()
         bench_api_metrics_start()
         print('${logOperationBegin}')
         begin_time = time.perf_counter_ns()
