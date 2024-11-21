@@ -10,7 +10,6 @@ import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.Controller;
 import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Threads;
 import io.deephaven.benchmark.util.Timer;
 
 /**
