@@ -14,7 +14,7 @@ from deephaven.plot.figure import Figure
 from deephaven.plot import PlotStyle
 
 root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
-with urlopen('file:///data/deephaven-benchmark/benchmark_functions.dh.py') as r:
+with urlopen(f'{root}/deephaven-benchmark/benchmark_functions.dh.py') as r:
     exec(r.read().decode(), globals(), locals())
     storage_uri = f'{root}/deephaven-benchmark'
 
@@ -64,7 +64,8 @@ def use_metrics_chart(metrics_table,row_selection,metric_selection,user_input):
     metrics_table = metrics_table.where([f'benchmark_name=`{selected_benchmark}`',f'name=`{metric_selection}`'])
     ui_figure = Figure()
     for i, setid in enumerate(setids):
-        if i == 0: ui_figure = ui_figure.axes(plot_style=PlotStyle.BAR)
+        if i == 0:
+            ui_figure = ui_figure.axes(plot_style=PlotStyle.BAR).chart_title(title=f'{selected_benchmark} {metric_selection}')
         setcol = normalize_column_name(setprefix,setid)
         chart_table = metrics_table.where([f'benchmark_name=`{selected_benchmark}`',f'set_id=`{setid}`']) \
             .sort(['timestamp']).update('run=i+1')
@@ -186,5 +187,4 @@ def load_metrics_tables(parent_table, actor, prefix):
     enginediff = bench_metrics.where(['origin=`deephaven-engine`'])
 
     return runnerdiff, enginediff
-
 

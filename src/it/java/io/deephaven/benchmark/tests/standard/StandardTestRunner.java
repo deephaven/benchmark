@@ -371,7 +371,7 @@ final public class StandardTestRunner {
             return;
         api.log().add("deephaven-engine", logText);
         var metrics = new Metrics(Timer.now(), "test-runner", "teardown.services");
-        metrics.set("log", timer.duration().toMillis(), "standard");
+        metrics.set("log", timer.duration().toMillis() / 1000.0, "standard");
         api.metrics().add(metrics);
     }
 

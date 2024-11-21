@@ -292,4 +292,3 @@ def merge_arrays(type_str, arrs):
             final_arr.append(i)
     return jpy.array(type_str, final_arr)
 
-
