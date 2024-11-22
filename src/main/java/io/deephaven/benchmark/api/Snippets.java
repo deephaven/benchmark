@@ -139,7 +139,7 @@ class Snippets {
         """;
 
     /**
-     * Get difference from <code>bench_api_metrics_start values and add as collected metrics
+     * Get difference from <code>bench_api_metrics_start</code> values and add as collected metrics
      */
     static String bench_api_metrics_end = """
         def bench_api_metrics_end():
