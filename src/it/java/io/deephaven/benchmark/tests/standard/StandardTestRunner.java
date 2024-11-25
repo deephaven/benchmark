@@ -215,6 +215,7 @@ final public class StandardTestRunner {
                 'timestamp=timestamp.plusMillis((long)(ii / ${rows}) * ${rows})'
             ])${headRows}.select()
             """;
+            read = read.replace("${headRows}",headRows);
             return read.replace("${scaleFactor}", "" + scaleFactor).replace("${rows}", "" + rowCount);
         }
 
