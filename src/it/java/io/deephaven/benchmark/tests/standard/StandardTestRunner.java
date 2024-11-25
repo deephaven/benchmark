@@ -301,7 +301,7 @@ final public class StandardTestRunner {
             long_col("result_row_count", [result.size])
         ])
         """;
-        var read = getReadOperation(staticFactor, rowCount, loadColumns);
+        var read = getReadOperation(incFactor, rowCount, loadColumns);
         return populateQuery(name, incQuery, operation, read, loadColumns);
     }
 
