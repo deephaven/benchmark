@@ -206,30 +206,31 @@ final public class StandardTestRunner {
     }
 
     String getReadOperation(int scaleFactor, long rowCount, String... loadColumns) {
+        var headRows = (rowCount >= getGeneratedRowCount())?"":".head(${rows})";
         if (scaleFactor > 1 && mainTable.equals("timed") && Arrays.asList(loadColumns).contains("timestamp")) {
             var read = """
             merge([
                 read('/data/timed.parquet').view(formulas=[${loadColumns}])
             ] * ${scaleFactor}).update_view([
                 'timestamp=timestamp.plusMillis((long)(ii / ${rows}) * ${rows})'
-            ]).head(${rows}).select()
+            ])${headRows}.select()
             """;
             return read.replace("${scaleFactor}", "" + scaleFactor).replace("${rows}", "" + rowCount);
         }
 
-        var read = "read('/data/${mainTable}.parquet').head(${rows}).select(formulas=[${loadColumns}])";
+        var read = "read('/data/${mainTable}.parquet')${headRows}.select(formulas=[${loadColumns}])";
         read = (loadColumns.length == 0) ? ("empty_table(${rows})") : read;
 
         if (scaleFactor > 1) {
             read = "merge([${readTable}] * ${scaleFactor})".replace("${readTable}", read);
             read = read.replace("${scaleFactor}", "" + scaleFactor);
         }
-        return read.replace("${rows}", "" + rowCount);
+        return read.replace("${headRows}",headRows).replace("${rows}", "" + rowCount);
     }
 
-    String getStaticQuery(String name, String operation, long warmupRows, String... loadColumns) {
+    String getStaticQuery(String name, String operation, long rowCount, String... loadColumns) {
         var staticQuery = """
-        source = right = timed = result = None
+        source = right = timed = result = stats = None
         bench_api_metrics_init()
         ${loadSupportTables}
         ${mainTable} = ${readTable}
@@ -253,13 +254,13 @@ final public class StandardTestRunner {
             long_col("result_row_count", [result.size]),
         ])
         """;
-        var read = getReadOperation(staticFactor, warmupRows, loadColumns);
+        var read = getReadOperation(staticFactor, rowCount, loadColumns);
         return populateQuery(name, staticQuery, operation, read, loadColumns);
     }
 
-    String getIncQuery(String name, String operation, long warmupRows, String... loadColumns) {
+    String getIncQuery(String name, String operation, long rowCount, String... loadColumns) {
         var incQuery = """
-        source = right = timed = result = source_filter = right_filter = autotune = None
+        source = right = timed = result = source_filter = right_filter = autotune = stats = None
         bench_api_metrics_init()
         ${loadSupportTables}
         ${mainTable} = ${readTable}
@@ -299,7 +300,7 @@ final public class StandardTestRunner {
             long_col("result_row_count", [result.size])
         ])
         """;
-        var read = getReadOperation(staticFactor, warmupRows, loadColumns);
+        var read = getReadOperation(staticFactor, rowCount, loadColumns);
         return populateQuery(name, incQuery, operation, read, loadColumns);
     }
 
