@@ -210,10 +210,10 @@ final public class StandardTestRunner {
         if (scaleFactor > 1 && mainTable.equals("timed") && Arrays.asList(loadColumns).contains("timestamp")) {
             var read = """
             merge([
-                read('/data/timed.parquet').view(formulas=[${loadColumns}])
+                read('/data/timed.parquet').view(formulas=[${loadColumns}])${headRows}
             ] * ${scaleFactor}).update_view([
                 'timestamp=timestamp.plusMillis((long)(ii / ${rows}) * ${rows})'
-            ])${headRows}.select()
+            ]).select()
             """;
             read = read.replace("${headRows}",headRows);
             return read.replace("${scaleFactor}", "" + scaleFactor).replace("${rows}", "" + rowCount);
