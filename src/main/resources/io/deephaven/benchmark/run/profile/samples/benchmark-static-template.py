@@ -26,7 +26,7 @@ source = empty_table(row_count).update([
 
 start_time = 1676557157537
 timed = empty_table(row_count).update([
-    'timestamp=start_time+ii','num1=(double)randomInt(0,5)','num2=(double)randomInt(1,11)',
+    'timestamp=epochMillisToInstant(start_time+ii)','num1=(double)randomInt(0,5)','num2=(double)randomInt(1,11)',
     'key1=``+randomInt(1,101)','key2=``+randomInt(1,102)','key3=randomInt(0,9)','key4=randomInt(0,99)'
 ])
 
