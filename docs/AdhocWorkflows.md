@@ -1,0 +1,71 @@
+# Running Adhoc Workflows
+
+In addition to the benchmarks that are run nightly and after every release, developers can run adhoc benchmarks. These benchmarks can be configured to run small sets of standard benchmarks on-demand. This is useful for more targeted comparisons between multiple sets of [Deephaven Community Core](https://deephaven.io/community/) versions or configuration options.
+
+A common practice is to run a comparison from a source branch that is ready for review to the main branch for a subset of relevant benchmarks (e.g. Parquet). This allows developers to validate the performance impact of code changes before they are merged. Other possibilities include comparing JVM options for the same DHC version, comparing data distributions (e.g. ascending, descending), and comparing levels of data scale.
+
+All results are stored according to the initiating user and a user-supplied label in the public [Benchmarking GCloud bucket](https://console.cloud.google.com/storage/browser/deephaven-benchmark). Though the results are available through public URLs, Google Cloud browsing is not. Retrieval of the generated data is mainly the domain of the Adhoc Dashboard.
+
+Prerequisites:
+- Permission to use Deephaven's Bare Metal servers and [Github Secrets](./GithubSecrets.md)
+- An installation of a [Deephaven Community Core w/ Python docker image](https://deephaven.io/core/docs/getting-started/docker-install/) (0.36.1+)
+- The Adhoc Dashboard python snippet shown in this guide
+
+### Common Workflow UI Field
+
+The ui fields used for both Adhoc workflows that are common are defined below:
+- Use workflow from
+  - Select the branch where the desired benchmarks are. This is typically "main" but could be a branch in a fork
+- Deephaven Image or Core Branch
+  - The [Deephaven Core](https://github.com/deephaven/deephaven-core) branch, commit hash, tag, or docker image/sha
+  - ex. Branch: `deephaven:main or myuser:mybranch`
+  - ex. Commit: `efad062e5488db50221647b63bd9b38e2eb2dc5a`
+  - ex. Tag: `v0.37.0`
+  - ex. Docker Image: `0.37.0`
+  - ex. Docker Sha: `edge@sha256:bba0344347063baff39c1b5c975573fb9773190458d878bea58dfab041e09976`
+- Benchmark Test Classes
+  - Wildcard names of available test classes. For example, `Avg*` will match the AvgByTest
+  - Because of the nature of the benchmark runner, there is no way to select individual tests by name
+  - Test classes can be found under in the [standard test directory](https://github.com/deephaven/benchmark/tree/main/src/it/java/io/deephaven/benchmark/tests/standard)
+- Benchmark Iterations
+  - The number of iterations to run for each benchmark. Be careful, large numbers may take hours or days
+  - Given that the Adhoc Dashboard uses medians, any even numbers entered here will be incremented
+- Benchmark Scale Row Count
+  - The number of millions of rows for the base row count
+  - All standard benchmarks are scaled using this number. The default is 10
+- Benchmark Data Distribution
+  - The distribution the data is generated to follow for each column's successive values
+  - random: random symmetrical data distributed around and including 0 (e.g. -4, -8, 0, 1, 5)
+  - ascending: positive numbers that increase (e.g. 1, 2, 3, 4, 5)
+  - descending: negative numbers that decrease (e.g. -1, -2, -3, -4, -5)
+  - runlength: numbers that repeat (e.g. 1, 1, 1, 2, 2, 2, 3, 3, 3)
+
+### Adhoc Benchmarks (Auto-provisioned Server)
+
+The auto-provisioned adhoc workflow allows developers to run workflows on bare metal server hardware that is provisioned on the fly for the benchmark run. It requires two branches, tags, commit hashes, or docker images/shas to run for the same benchmark set. This is the workflow most commonly used to compare performance between a Deephaven PR branch and the main branch.
+
+Workflow fields not shared with the Existing Server workflow:
+- Set Label Prefix
+  - The prefix used to make the Set Label for each side of the benchmark comparison
+  - ex. Setting `myprefix` with the images `0.36.0` and `0.37.0` for Deephaven Image or Core Branch cause two directories in the GCloud benchmark bucket
+    - `adhoc/githubuser/myprefix_0_36_0` and `adhoc/githubuser/myprefix_0_37_0`
+    - Because of naming rules, non-alpha-nums will be replaced with underscores
+
+### Adhoc Benchmarks (Existing Server)
+
+The adhoc workflow that uses an existing server allows developers more freedom to experiment with JVM options. It also gives them more freedom to shoot themselves in the foot. For example, if max heap is set bigger than the test server memory, the Deephaven service will crash.
+
+Workflow fields not shared with the Auto-provisioned Server workflow:
+- Deephaven JVM Options
+  - Options that will be included as JVM arguments to the Deephaven service
+  - ex. `-Xmx24g -DQueryTable.memoizeResults=true`
+- Set Label
+  - The label to used to store the result in the GCloud benchmark bucket
+  - ex. Setting `mysetlabel` would be stored at `adhoc/mygithubuser/mysetlabel`
+- Benchmark Test Package
+  - The java package where the desired benchmark test classes are
+  - Unless making custom tests in a fork, use the default
+  
+# The Adhoc Dashboard
+
+
