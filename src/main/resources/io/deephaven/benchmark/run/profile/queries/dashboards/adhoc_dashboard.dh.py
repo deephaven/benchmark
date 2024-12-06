@@ -107,7 +107,7 @@ def adhoc_dashboard():
             ui.stack(
                 ui.panel(ui.flex(engine_metrics_combo,engine_metrics_chart,direction='column'), title='Engine Metrics'),
                 ui.panel(ui.flex(runner_metrics_combo,runner_metrics_chart,direction='column'), title='Runner Metrics'),
-                activeItemIndex=0
+                active_item_index=0
             ),
             height='36')
     ])
@@ -187,4 +187,5 @@ def load_metrics_tables(parent_table, actor, prefix):
     enginediff = bench_metrics.where(['origin=`deephaven-engine`'])
 
     return runnerdiff, enginediff
+
 
