@@ -33,7 +33,6 @@ Resources:
 - [Running from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
 - [Running Adhoc Github Workflows](docs/AdhocWorkflows.md) - Running benchmark sets on-demand from Github
 - [Published Results Storage](docs/PublishedResults.md) - How to grab and use Deephaven's published benchmarks
-- [Sssh Secrets](docs/GithubSecrets.md) - How to define Github secrets for running Benchmark workflows in a fork
 
 ## Other Deephaven Summaries
 
