@@ -111,4 +111,4 @@ The most Common Error Occurs when entering Actor and Set Label values that do no
 DHError
 merge tables operation failed. : RuntimeError: java.lang.IllegalArgumentException: No non-null tables provided to merge
 ```
-In this case, check the User and Set Labels run during the Adhoc Workflow and try again.
+In this case, check the Actor/User and Set Labels (or Prefix) values used for the Adhoc Workflow and try again.
