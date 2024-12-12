@@ -7,9 +7,10 @@ A common practice is to run a comparison from a source branch that is ready for 
 All results are stored according to the initiating user and a user-supplied label in the public [Benchmarking GCloud bucket](https://console.cloud.google.com/storage/browser/deephaven-benchmark). Though the results are available through public URLs, Google Cloud browsing is not. Retrieval of the generated data is mainly the domain of the Adhoc Dashboard.
 
 Prerequisites:
-- Permission to use Deephaven's Bare Metal servers and [Github Secrets](./GithubSecrets.md)
+- Permission to use Deephaven's Bare Metal servers and Github Secrets
 - An installation of a [Deephaven Community Core w/ Python docker image](https://deephaven.io/core/docs/getting-started/docker-install/) (0.36.1+)
 - The Adhoc Dashboard python snippet shown in this guide
+- Access to the [Benchmark Workflow Actions](https://github.com/deephaven/benchmark/actions)
 
 ### Common Workflow UI Fields
 
