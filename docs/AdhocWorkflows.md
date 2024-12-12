@@ -11,7 +11,7 @@ Prerequisites:
 - An installation of a [Deephaven Community Core w/ Python docker image](https://deephaven.io/core/docs/getting-started/docker-install/) (0.36.1+)
 - The Adhoc Dashboard python snippet shown in this guide
 
-### Common Workflow UI Field
+### Common Workflow UI Fields
 
 The ui fields used for both Adhoc workflows that are common are defined below:
 - Use workflow from
@@ -58,7 +58,7 @@ The adhoc workflow that uses an existing server allows developers more freedom t
 Workflow fields not shared with the Auto-provisioned Server workflow:
 - Deephaven JVM Options
   - Options that will be included as JVM arguments to the Deephaven service
-  - ex. `-Xmx24g -DQueryTable.memoizeResults=true`
+  - ex. `-Xmx24g -DQueryTable.memoizeResults=false`
 - Set Label
   - The label to used to store the result in the GCloud benchmark bucket
   - ex. Setting `mysetlabel` would be stored at `adhoc/mygithubuser/mysetlabel`
@@ -66,6 +66,49 @@ Workflow fields not shared with the Auto-provisioned Server workflow:
   - The java package where the desired benchmark test classes are
   - Unless making custom tests in a fork, use the default
   
-# The Adhoc Dashboard
+### The Adhoc Dashboard
 
+The Adhoc Dashboard provides visualization for Benchmark results using Deephaven UI. The typical use case runs a set of benchmarks through the auto-provisioned workflow, and then the two result sets are compared using the dashboard. Results that are displayed include rate comparisons, a rate chart for the runs in each benchmark set, version and platform changes between each set, and basic metrics take before and after each measured run. 
 
+The Adhoc Dashboard is not intended to be bullet proof. It is expected that you know what values to fill in to the dashboard input, and there are no prompts or validation. There are also no "waiting" icons when waiting for data to be download from GCloud.
+
+### Running Adhoc Dashboard
+
+For ease of running on different Deephaven service locations, the snippet below is provided, which downloads and runs the Adhoc Dashboard remotely. This this snippet in DHC code studio.
+```
+from urllib.request import urlopen; import os
+
+root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
+with urlopen(f'{root}/deephaven-benchmark/adhoc_dashboard.dh.py') as r:
+    exec(r.read().decode(), globals(), locals())
+    storage_uri = f'{root}/deephaven-benchmark'
+```
+This script will bring up a Deephaven UI dashboard separated generally into quadrants that are blank. To view results, use the following prescription:
+- Input Text Fields
+  - Actor: Fill in your user (the one that ran the Adhoc workflow)
+  - Set Label: A portion of the set label (or prefix) supplied during the workflow to match at least one Benchmark Set
+  - Click the Apply button, and a table should be loaded underneath the input form
+- Benchmark Results Table
+  - `Var_` column: A percentage deviation (variability) for the mean for the Benchmark Set runs
+  - `Rate_` column: The number of rows per second processed for the benchmark
+  - `Change_` column: The gain (+/-) of the rate compared to the first rate from the left
+- Benchmark Rate Chart
+  - Click a benchmark row in the table
+  - A line chart appear showing the runs that make up each set
+  - Each series represents a Benchmark Set
+- Benchmark Metric Charts
+  - Click a benchmark row in the table
+  - Dropdowns in the lower left quadrant will be populated with metrics
+  - Select a metrics of interest
+  - Compare to another series (e.g. Benchmark Set) or to the line chart on the left
+- Dependency Diffs
+  - In the upper right, there are tabs showing various differences between the DHC versions/bits run
+  - Python Changes: Differences in module versions, additions, or subtractions
+  - Jar Changes: Differences in jar library versions, additions, or subtractions
+
+The most Common Error Occurs when entering Actor and Set Label values that do not match anything
+```
+DHError
+merge tables operation failed. : RuntimeError: java.lang.IllegalArgumentException: No non-null tables provided to merge
+```
+In this case, check the User and Set Labels run during the Adhoc Workflow and try again.
