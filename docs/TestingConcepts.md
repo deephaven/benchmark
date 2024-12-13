@@ -1,6 +1,6 @@
 # Benchmarking Concepts
 
-Benchmark is designed to work easily in different contexts like within and IDE, from the command line, and as part of Github workflows. However, there is more to writing benchmarks than getting a test working and measuring between two points. Is it reproducible? Does it perform similarly at different scales? What about from day to day? Is setup included in the measurement? Is it easy to add to and maintain?
+Benchmark is designed to work easily in different contexts like within an IDE, from the command line, and as part of Github workflows. However, there is more to writing benchmarks than getting a test working and measuring between two points. Is it reproducible? Does it perform similarly at different scales? What about from day to day? Is setup included in the measurement? Is it easy to add to and maintain?
 
 What follows are some concepts that guide the development of Benchmark meant to kept it versatile, simple, and relevant.
 
