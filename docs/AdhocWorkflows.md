@@ -12,11 +12,21 @@ Prerequisites:
 - The Adhoc Dashboard python snippet shown in this guide
 - Access to the [Benchmark Workflow Actions](https://github.com/deephaven/benchmark/actions)
 
+### Starting a Benchmark Run
+
+The typical Benchmark run will be initiated from a Github on-demand workflow action in the main [Deephaven Benchmark](https://github.com/deephaven/benchmark/actions). However, the "Adhoc" workflows can be run from a fork as well, assuming the correct privileges are set up. (This is outside the scope of this document.)
+
+There are two Adhoc Workflows:
+- [Adhoc Benchmarks (Auto-provisioned Server)](https://github.com/deephaven/benchmark/actions/workflows/adhoc-auto-remote-benchmarks.yml)
+- [Adhoc Benchmarks (Existing Server) ](https://github.com/deephaven/benchmark/actions/workflows/adhoc-exist-remote-benchmarks.yml)
+
+Of the two workflows, privileged users will use the "Auto-provisioned Server" workflow in the vast majority of cases. Using the "Existing Server" workflow requires a dedicated server and extra setup.
+
 ### Common Workflow UI Fields
 
 The ui fields used for both Adhoc workflows that are common are defined below:
 - Use workflow from
-  - Select the branch where the desired benchmarks are. This is typically "main" but could be a branch in a fork
+  - From the workflow dropdown, select the branch where the desired benchmarks are. This is typically "main" but could be a branch in a fork
 - Deephaven Image or Core Branch
   - The [Deephaven Core](https://github.com/deephaven/deephaven-core) branch, commit hash, tag, or docker image/sha
   - ex. Branch: `deephaven:main or myuser:mybranch`
@@ -27,7 +37,7 @@ The ui fields used for both Adhoc workflows that are common are defined below:
 - Benchmark Test Classes
   - Wildcard names of available test classes. For example, `Avg*` will match the AvgByTest
   - Because of the nature of the benchmark runner, there is no way to select individual tests by name
-  - Test classes can be found under in the [standard test directory](https://github.com/deephaven/benchmark/tree/main/src/it/java/io/deephaven/benchmark/tests/standard)
+  - Test classes can be found under the [standard test directory](https://github.com/deephaven/benchmark/tree/main/src/it/java/io/deephaven/benchmark/tests/standard)
 - Benchmark Iterations
   - The number of iterations to run for each benchmark. Be careful, large numbers may take hours or days
   - Given that the Adhoc Dashboard uses medians, any even numbers entered here will be incremented
