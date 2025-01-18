@@ -14,7 +14,7 @@ Prerequisites:
 
 ### Starting a Benchmark Run
 
-The typical Benchmark run will be initiated from a Github on-demand workflow action in the main [Deephaven Benchmark](https://github.com/deephaven/benchmark/actions). However, the "Adhoc" workflows can be run from a fork as well, assuming the correct privileges are set up. (This is outside the scope of this document.)
+The typical Benchmark run will be initiated from a [Github on-demand workflow](https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow) action in the main [Deephaven Benchmark](https://github.com/deephaven/benchmark/actions). However, the "Adhoc" workflows can be run from a fork as well, assuming the correct privileges are set up. (This is outside the scope of this document.) 
 
 There are two Adhoc Workflows:
 - [Adhoc Benchmarks (Auto-provisioned Server)](https://github.com/deephaven/benchmark/actions/workflows/adhoc-auto-remote-benchmarks.yml)
