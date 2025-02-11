@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import io.deephaven.benchmark.connect.BarrageConnector;
+import io.deephaven.benchmark.connect.Connector;
+import io.deephaven.benchmark.connect.ConnectorFactory;
 import io.deephaven.benchmark.connect.ResultTable;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.util.Timer;
@@ -23,7 +24,7 @@ final public class BenchQuery implements Closeable {
     final QueryLog queryLog;
     final Map<String, Consumer<ResultTable>> snapshotFetchers = new LinkedHashMap<>();
     final Map<String, Function<ResultTable, Boolean>> tickingFetchers = new LinkedHashMap<>();
-    private BarrageConnector session = null;
+    private Connector session = null;
 
     BenchQuery(Bench bench, String logic, QueryLog queryLog) {
         this.bench = bench;
@@ -96,8 +97,10 @@ final public class BenchQuery implements Closeable {
     // Add function defs in separate query so if there are errors in the "logic" part, the line numbers match up
     private void executeBarrageQuery(String logic) {
         if (session == null) {
-            String deephavenServer = bench.property("deephaven.addr", "localhost:10000");
-            session = new BarrageConnector(deephavenServer);
+            var deephavenServer = bench.property("deephaven.addr", "localhost:10000");
+            var connectorClass = bench.property("connector.class", "io.deephaven.benchmark.connect.BarrageConnector");
+            var connectorAuth = bench.property("deephaven.auth", "");
+            session = ConnectorFactory.create(connectorClass, deephavenServer, connectorAuth);
         }
         String snippetsLogic = Bench.profile.replaceProperties(Snippets.getFunctions(logic));
         if (!snippetsLogic.isBlank()) {

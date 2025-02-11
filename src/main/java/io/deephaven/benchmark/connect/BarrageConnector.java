@@ -30,7 +30,7 @@ import io.grpc.ManagedChannelBuilder;
  * The typical workflow will be initialize connection, execute query, fetch results, close. Note: This class is meant to
  * be used through the Bench api rather than directly.
  */
-public class BarrageConnector implements AutoCloseable {
+class BarrageConnector implements Connector {
     static {
         System.setProperty("thread.initialization", ""); // Remove server side initializers (e.g. DebuggingInitializer)
     }
@@ -51,15 +51,15 @@ public class BarrageConnector implements AutoCloseable {
      * 
      * @param hostPort a host and port string for connecting to a Deephaven worker (ex. localhost:10000)
      */
-    public BarrageConnector(String hostPort) {
-        String[] split;
+    BarrageConnector(String hostPort, String userPass) {
+        var host = hostPort.replaceAll(":.*", "");
+        var port = hostPort.replaceAll(".*:", "");
+        if (host.isEmpty() || port.isEmpty())
+            throw new RuntimeException("Missing Connector host or port");
+        if (!userPass.isBlank())
+            System.out.println("Ignoring supplied User and Pass");
         try {
-            split = hostPort.split(":");
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to parse connection hostPort: " + hostPort, ex);
-        }
-        try {
-            this.channel = getManagedChannel(split[0], Integer.parseInt(split[1]));
+            this.channel = getManagedChannel(host, Integer.parseInt(port));
             this.session = getSession(channel);
             this.console = session.session().console("python").get();
         } catch (Exception ex) {
