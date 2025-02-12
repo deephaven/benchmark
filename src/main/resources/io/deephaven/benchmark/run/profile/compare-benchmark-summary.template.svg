@@ -123,7 +123,7 @@
       	  <tr><td>Sort</td><td>${Deephaven Sort=>op_rate}</td><td>${PyArrow Sort=>op_rate}</td><td>${Pandas Sort=>op_rate}</td></tr>
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="3">* cpu-threads=${deephaven-engine>>available.processors=>value} heap=${deephaven-engine>>java.max.memory=>value} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
+		  <tr><td colspan="3">* cpu-threads=${deephaven-engine>>java.available.processors=>value} heap=${deephaven-engine>>java.max.heap=>value} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
 		</tfoot>
       </table>
     </div>
