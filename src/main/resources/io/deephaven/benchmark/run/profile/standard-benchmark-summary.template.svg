@@ -125,7 +125,7 @@
       	  <tr><td>AsOfJoin on 2 Columns Matching 1 Row Each</td><td>${AsOfJoin- Join On 2 Cols -Static=>op_rate}</td><td>${AsOfJoin- Join On 2 Cols -Inc=>op_rate}</td></tr>
       	</tbody>
       	<tfoot>
-		  <tr><td colspan="3">* cpu-threads=${deephaven-engine>>available.processors=>value} heap=${deephaven-engine>>java.max.memory=>value} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
+		  <tr><td colspan="3">* cpu-threads=${deephaven-engine>>java.available.processors=>value} heap=${deephaven-engine>>java.max.heap=>value} os=${os_name} full-benchmark-set=${benchmark_count}</td></tr>
 		</tfoot>
       </table>
     </div>

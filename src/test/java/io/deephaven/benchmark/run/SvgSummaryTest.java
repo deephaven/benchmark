@@ -39,7 +39,7 @@ public class SvgSummaryTest {
                     <tr><td>Avg By Row1</td><td>14,915,478</td><td>9,609,994</td></tr>
                     <tr><td>Median By Row2</td><td>2,309,348</td><td>2,226,799</td></tr>
                   </tbody>
-                  <tfoot><tr><td colspan="3">* threads=16 heap=24g os=ubuntu-22.04.1-lts benchmark-count=5</td></tr></tfoot>
+                  <tfoot><tr><td colspan="3">* threads=16 heap=24g os=ubuntu-22.04.5-lts benchmark-count=5</td></tr></tfoot>
                 </table>
               </div>
             </foreignObject>

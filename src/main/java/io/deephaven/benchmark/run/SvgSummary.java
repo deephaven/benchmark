@@ -64,7 +64,7 @@ class SvgSummary {
             var platformProp = platformProps.get(lookupName);
             var benchmark = benchmarks.get(lookupName);
             if (platformProp != null)
-                return platformProp.getValue(columnName);
+                return formatPlatformValue(lookupName, platformProp.getValue(columnName));
             if (benchmark != null)
                 return Numbers.formatNumber(benchmark.getValue(columnName));
             return "$0";
@@ -103,8 +103,14 @@ class SvgSummary {
     private String replacePlatformVars(String str) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         str = str.replace("${run_date}", dtf.format(LocalDateTime.now()));
-        str = str.replace("${os_name}", "Ubuntu 22.04.1 LTS".toLowerCase().replace(" ", "-"));
+        str = str.replace("${os_name}", "Ubuntu 22.04.5 LTS".toLowerCase().replace(" ", "-"));
         return str.replace("${benchmark_count}", "" + benchmarks.size());
+    }
+
+    private String formatPlatformValue(String name, String value) {
+        if (name.contains(".heap"))
+            return Numbers.formatBytesToGigs(value);
+        return value;
     }
 
     class RowComparator implements Comparator<Row> {
