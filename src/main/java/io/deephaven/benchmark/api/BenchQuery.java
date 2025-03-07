@@ -1,9 +1,10 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,6 +25,7 @@ final public class BenchQuery implements Closeable {
     final QueryLog queryLog;
     final Map<String, Consumer<ResultTable>> snapshotFetchers = new LinkedHashMap<>();
     final Map<String, Function<ResultTable, Boolean>> tickingFetchers = new LinkedHashMap<>();
+    final Properties props = new Properties();
     private Connector session = null;
 
     BenchQuery(Bench bench, String logic, QueryLog queryLog) {
@@ -55,6 +57,16 @@ final public class BenchQuery implements Closeable {
      */
     public BenchQuery fetchDuring(String table, Function<ResultTable, Boolean> tableHandler) {
         tickingFetchers.put(table, tableHandler);
+        return this;
+    }
+
+    /**
+     * Add properties to be passed to the <code>Connector</code> used in the query
+     */
+    public BenchQuery withProperty(String name, String value) {
+        if (value != null && !value.isBlank()) {
+            props.setProperty(name, value);
+        }
         return this;
     }
 
@@ -97,10 +109,10 @@ final public class BenchQuery implements Closeable {
     // Add function defs in separate query so if there are errors in the "logic" part, the line numbers match up
     private void executeBarrageQuery(String logic) {
         if (session == null) {
-            var deephavenServer = bench.property("deephaven.addr", "localhost:10000");
             var connectorClass = bench.property("connector.class", "io.deephaven.benchmark.connect.BarrageConnector");
-            var connectorAuth = bench.property("deephaven.auth", "");
-            session = ConnectorFactory.create(connectorClass, deephavenServer, connectorAuth);
+            var localProps = Bench.profile.getProperties();
+            localProps.putAll(props);
+            session = ConnectorFactory.create(connectorClass, localProps);
         }
         String snippetsLogic = Bench.profile.replaceProperties(Snippets.getFunctions(logic));
         if (!snippetsLogic.isBlank()) {

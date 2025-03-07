@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.InputStream;
@@ -13,19 +13,20 @@ import io.deephaven.benchmark.run.BenchmarkMain;
 import io.deephaven.benchmark.util.Log;
 
 /**
- * Represents properties for a the Benchmark API .profile file in addition to allowing retrieval of System and
- * environment properties.
+ * Represents properties for the Benchmark API profile file in addition to allowing retrieval of System and environment
+ * properties. The default property file (e.g. default.properties) for the profile can be overridden with
+ * <code>System.setProperty("benchmark.profile.default", "my-properties-path")</code>.
  */
 class Profile {
     final private URL url;
     final private Properties props;
 
     /**
-     * Initialize the profile from the supplied benchmark.profile property. That that property is absent, use the
-     * default properties file.
+     * Initialize the profile from the supplied "benchmark.profile" property. If that property is absent, use the
+     * "benchmark.profile.default" property. If that property is absent, use the "default.properties" resource file.
      */
     Profile() {
-        this(System.getProperty("benchmark.profile", "default.properties"));
+        this(System.getProperty("benchmark.profile", getProfileDefaultFile()));
     }
 
     /**
@@ -216,6 +217,10 @@ class Profile {
         } catch (Exception ex) {
             throw new RuntimeException("Failed to find resource profile: " + uri);
         }
+    }
+
+    static String getProfileDefaultFile() {
+        return System.getProperty("benchmark.profile.default", "default.properties");
     }
 
 }

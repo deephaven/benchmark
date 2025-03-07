@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.connect;
 
 import java.util.*;
@@ -51,7 +51,9 @@ class BarrageConnector implements Connector {
      * 
      * @param hostPort a host and port string for connecting to a Deephaven worker (ex. localhost:10000)
      */
-    BarrageConnector(String hostPort, String userPass) {
+    BarrageConnector(Properties props) {
+        var hostPort = props.getProperty("deephaven.addr", "localhost:10000");
+        var userPass = props.getProperty("deephaven.auth", "");
         var host = hostPort.replaceAll(":.*", "");
         var port = hostPort.replaceAll(".*:", "");
         if (host.isEmpty() || port.isEmpty())
