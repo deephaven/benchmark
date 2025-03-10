@@ -88,18 +88,21 @@ public class Numbers {
      * @return the negated number or null if <code>val</code> was null
      */
     static public Number negate(Object val) {
-        if (val instanceof Number && ((Number) val).doubleValue() == 0.0)
+        if (val == null || (val instanceof Number && ((Number) val).doubleValue() == 0.0))
             return (Number) val;
-        return switch (val) {
-            case Integer v -> -v.intValue();
-            case Float v -> -v.floatValue();
-            case Long v -> -v.longValue();
-            case Double v -> -v.doubleValue();
-            case Short v -> (short) (-v.shortValue());
-            case Byte v -> (byte) (-v.byteValue());
-            case null -> null;
-            default -> throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
-        };
+        if (val instanceof Integer)
+            return -((Integer) val).intValue();
+        if (val instanceof Float)
+            return -((Float) val).floatValue();
+        if (val instanceof Long)
+            return -((Long) val).longValue();
+        if (val instanceof Double)
+            return -((Double) val).doubleValue();
+        if (val instanceof Short)
+            return (short) -((Short) val).shortValue();
+        if (val instanceof Byte)
+            return (byte) -((Byte) val).byteValue();
+        throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
     }
 
     /**
@@ -111,11 +114,11 @@ public class Numbers {
      * @return true if an even number, otherwise false
      */
     static public boolean isEven(Object val) {
-        return switch (val) {
-            case Number v -> v.longValue() % 2 == 0;
-            case null -> false;
-            default -> throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
-        };
+        if (val == null)
+            return false;
+        if (val instanceof Number)
+            return ((Number) val).longValue() % 2 == 0;
+        throw new RuntimeException("Unsupported Type: " + val.getClass().getSimpleName());
     }
 
     /**
