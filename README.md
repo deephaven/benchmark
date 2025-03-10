@@ -29,9 +29,10 @@ Resources:
 - [Testing Concepts](docs/TestingConcepts.md) - Understanding what drives Benchmark development
 - [Test-writing Basics](docs/TestWritingBasics.md) - How to generate data and use it for tests
 - [Collected Results](docs/CollectedResults.md) - What's in the benchmark results
-- [Running the Release Distribution](docs/distro/BenchmarkDistribution.md) - How to run Deephaven benchmarks from a release tar file
-- [Running from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
-- [Running Adhoc Github Workflows](docs/AdhocWorkflows.md) - Running benchmark sets on-demand from Github
+- [Run the Release Distribution](docs/distro/BenchmarkDistribution.md) - How to run Deephaven benchmarks from a release tar file
+- [Run from the Command Line](docs/CommandLine.md) - How to run the benchmark jar with a test package
+- [Run Adhoc Github Workflows](docs/AdhocWorkflows.md) - Running benchmark sets on-demand from Github
+- [Set up a Benchmark Fork](docs/ForkSetup.md) - Set up and run from a Deephaven benchmark fork
 - [Published Results Storage](docs/PublishedResults.md) - How to grab and use Deephaven's published benchmarks
 
 ## Other Deephaven Summaries
