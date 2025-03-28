@@ -76,7 +76,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
+				<version>3.14.0</version>
 				<configuration>
 					<source>17</source>
 					<target>17</target>
@@ -167,7 +167,7 @@
 				'core.autocrlf' to true -->
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
-				<version>2.44.2</version>
+				<version>2.44.3</version>
 				<configuration>
 					<java>
 						<includes>
@@ -247,7 +247,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.114.Final</version>
+			<version>4.1.115.Final</version>
 		</dependency>
 		<!-- Added because of conflicts -->
 		<dependency>
@@ -259,7 +259,7 @@
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.25.4</version>
+			<version>3.25.5</version>
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
@@ -274,12 +274,12 @@
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.37.6</version>
+			<version>0.38.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
-			<version>0.37.6</version>
+			<version>0.38.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>

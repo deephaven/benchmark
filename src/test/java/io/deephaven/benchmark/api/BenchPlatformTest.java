@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,7 +56,7 @@ public class BenchPlatformTest {
 
     static class LocalPlatform extends BenchPlatform {
         LocalPlatform(Path dir, String fileName) {
-            super(dir, fileName, getProfileProps());
+            super(null, dir, fileName, getProfileProps());
         }
 
         static Properties getProfileProps() {

@@ -183,7 +183,7 @@ final public class BenchTable implements Closeable {
         String q = replaceTableAndGeneratorFields(useExistingParquetQuery);
 
         AtomicBoolean usedExistingParquet = new AtomicBoolean(false);
-        bench.query(q).fetchAfter("result", table -> {
+        bench.query(q).fetchAfter("used_existing_parquet_" + tableName, table -> {
             usedExistingParquet.set(table.getValue(0, "UsedExistingParquet").toString().equalsIgnoreCase("true"));
         }).execute();
 
@@ -346,7 +346,7 @@ final public class BenchTable implements Closeable {
             os.link(str(matching_gen_parquet) + '.gen.parquet', table_parquet)
             usedExisting = True
 
-        result = new_table([string_col("UsedExistingParquet", [str(usedExisting)])])
+        used_existing_parquet_${table.name} = new_table([string_col("UsedExistingParquet", [str(usedExisting)])])
         """;
 
     static final String kafkaToParquetQuery = """

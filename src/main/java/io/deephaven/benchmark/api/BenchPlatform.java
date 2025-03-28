@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.BufferedWriter;
@@ -23,6 +23,7 @@ import io.deephaven.engine.exceptions.ArgumentException;
 public class BenchPlatform {
     static final Map<String, Property> properties = new LinkedHashMap<>();
     static boolean hasBeenCommitted = false;
+    final Bench api;
     final Path platformFile;
     final Properties profileProps;
 
@@ -32,8 +33,8 @@ public class BenchPlatform {
      * 
      * @param parent the parent directory of the platform file
      */
-    BenchPlatform(Path parent) {
-        this(parent, Bench.platformFileName, Bench.profile.getProperties());
+    BenchPlatform(Bench api, Path parent) {
+        this(api, parent, Bench.platformFileName, Bench.profile.getProperties());
     }
 
     /**
@@ -42,7 +43,8 @@ public class BenchPlatform {
      * @param parent the parent directory of the platform file
      * @param platformFileName the name the file to store platform properties
      */
-    BenchPlatform(Path parent, String platformFileName, Properties profileProps) {
+    BenchPlatform(Bench api, Path parent, String platformFileName, Properties profileProps) {
+        this.api = api;
         this.platformFile = parent.resolve(platformFileName);
         this.profileProps = profileProps;
     }
@@ -87,14 +89,10 @@ public class BenchPlatform {
      * @return a cached result table containing properties
      */
     protected ResultTable fetchResult(String query) {
-        Bench api = new Bench(Bench.class);
-        api.setName("# Write Platform Details"); // # means skip adding to results file
-
         var tbl = new AtomicReference<ResultTable>();
         api.query(query).fetchAfter("bench_api_platform", table -> {
             tbl.set(table);
         }).execute();
-        api.close();
 
         return tbl.get();
     }
