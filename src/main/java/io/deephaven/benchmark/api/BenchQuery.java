@@ -8,7 +8,6 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import io.deephaven.benchmark.connect.Connector;
 import io.deephaven.benchmark.connect.ConnectorFactory;
 import io.deephaven.benchmark.connect.ResultTable;
 import io.deephaven.benchmark.metric.Metrics;
@@ -26,12 +25,13 @@ final public class BenchQuery implements Closeable {
     final Map<String, Consumer<ResultTable>> snapshotFetchers = new LinkedHashMap<>();
     final Map<String, Function<ResultTable, Boolean>> tickingFetchers = new LinkedHashMap<>();
     final Properties props = new Properties();
-    private Connector session = null;
+    final Session session;
 
     BenchQuery(Bench bench, String logic, QueryLog queryLog) {
         this.bench = bench;
         this.logic = logic;
         this.queryLog = queryLog;
+        this.session = bench.session;
     }
 
     /**
@@ -40,7 +40,7 @@ final public class BenchQuery implements Closeable {
      * 
      * @param table a table name present in the query logic
      * @param tableHandler a consumer that receives a non-live snapshot of the table
-     * @return a query configuration instance
+     * @return this bench query instance
      */
     public BenchQuery fetchAfter(String table, Consumer<ResultTable> tableHandler) {
         snapshotFetchers.put(table, tableHandler);
@@ -53,7 +53,7 @@ final public class BenchQuery implements Closeable {
      * 
      * @param table a table name present in the query logic
      * @param tableHandler a function that receives non-live snapshot of the table
-     * @return a query configuration instance
+     * @return this bench query instance
      */
     public BenchQuery fetchDuring(String table, Function<ResultTable, Boolean> tableHandler) {
         tickingFetchers.put(table, tableHandler);
@@ -62,8 +62,15 @@ final public class BenchQuery implements Closeable {
 
     /**
      * Add properties to be passed to the <code>Connector</code> used in the query
+     * 
+     * @param name the name of the property
+     * @param value the value of the property
+     * @return this bench query instance
      */
     public BenchQuery withProperty(String name, String value) {
+        if (session.getConnector() != null) {
+            throw new RuntimeException("Cannot set properties after first query is executed");
+        }
         if (value != null && !value.isBlank()) {
             props.setProperty(name, value);
         }
@@ -76,11 +83,12 @@ final public class BenchQuery implements Closeable {
     public void execute() {
         var timer = Timer.start();
         executeBarrageQuery(logic);
-        tickingFetchers.entrySet().forEach(e -> bench.addFuture(session.fetchTickingData(e.getKey(), e.getValue())));
+        var conn = session.getConnector();
+        tickingFetchers.entrySet().forEach(e -> bench.addFuture(conn.fetchTickingData(e.getKey(), e.getValue())));
 
         snapshotFetchers.entrySet().forEach(e -> {
             try {
-                Future<Metrics> f = session.fetchSnapshotData(e.getKey(), e.getValue());
+                Future<Metrics> f = conn.fetchSnapshotData(e.getKey(), e.getValue());
                 Metrics metrics = f.get();
                 metrics.set("duration.secs", timer.duration().toMillis() / 1000.0);
                 bench.addFuture(f);
@@ -94,33 +102,33 @@ final public class BenchQuery implements Closeable {
      * Unsubscribe any fetchers, free used variables, and close the session
      */
     public void close() {
-        if (session == null)
+        var conn = session.getConnector();
+        if (conn == null)
             return;
 
-        if (!session.getUsedVariableNames().isEmpty()) {
-            String logic = String.join("=None; ", session.getUsedVariableNames()) + "=None\n";
+        if (!conn.getUsedVariableNames().isEmpty()) {
+            String logic = String.join("=None; ", conn.getUsedVariableNames()) + "=None\n";
             executeBarrageQuery(logic);
         }
-
-        session.close();
-        session = null;
     }
 
     // Add function defs in separate query so if there are errors in the "logic" part, the line numbers match up
     private void executeBarrageQuery(String logic) {
-        if (session == null) {
+        var conn = session.getConnector();
+        if (conn == null) {
             var connectorClass = bench.property("connector.class", "io.deephaven.benchmark.connect.BarrageConnector");
             var localProps = Bench.profile.getProperties();
             localProps.putAll(props);
-            session = ConnectorFactory.create(connectorClass, localProps);
+            conn = ConnectorFactory.create(connectorClass, localProps);
+            session.setConnector(conn);
         }
         String snippetsLogic = Bench.profile.replaceProperties(Snippets.getFunctions(logic));
         if (!snippetsLogic.isBlank()) {
             queryLog.logQuery(snippetsLogic);
-            session.executeQuery(snippetsLogic);
+            conn.executeQuery(snippetsLogic);
         }
         String userLogic = Bench.profile.replaceProperties(logic);
-        session.executeQuery(userLogic);
+        conn.executeQuery(userLogic);
         queryLog.logQuery(userLogic);
     }
 

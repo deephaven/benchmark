@@ -11,6 +11,7 @@ import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 import io.deephaven.benchmark.metric.Metrics;
 import io.deephaven.benchmark.metric.MetricsFuture;
+import io.deephaven.benchmark.util.Log;
 import io.deephaven.client.impl.*;
 import io.deephaven.client.impl.script.Changes;
 import io.deephaven.engine.context.ExecutionContext;
@@ -98,7 +99,7 @@ class BarrageConnector implements Connector {
     }
 
     /**
-     * Fetch the rows of a table create or modified by this session's queries
+     * Fetch the rows of a table created or modified by this session's queries
      * 
      * @param table the name of the table to fetch data from
      * @param tableHandler a consumer used to process the result table
@@ -108,6 +109,10 @@ class BarrageConnector implements Connector {
         checkClosed();
         Metrics metrics = new Metrics("test-runner", "session." + table);
         MetricsFuture future = new MetricsFuture(metrics);
+
+        if (snapshots.containsKey(table))
+            throw new RuntimeException("Cannot subscribe twice to the same table: " + table);
+
         snapshots.computeIfAbsent(table, s -> {
             try {
                 BarrageSubscriptionOptions options = BarrageSubscriptionOptions.builder().build();
@@ -141,6 +146,10 @@ class BarrageConnector implements Connector {
         checkClosed();
         Metrics metrics = new Metrics("test-runner", "session." + table);
         MetricsFuture future = new MetricsFuture(metrics);
+
+        if (subscriptions.containsKey(table))
+            throw new RuntimeException("Cannot subscribe twice to the same table: " + table);
+
         subscriptions.computeIfAbsent(table, s -> {
             try {
                 BarrageSubscriptionOptions options = BarrageSubscriptionOptions.builder().build();
@@ -169,17 +178,17 @@ class BarrageConnector implements Connector {
      * the session on the server.
      */
     public void close() {
-        try {
-            if (isClosed.get())
-                return;
-            isClosed.set(true);
-            subscriptions.values().forEach(s -> {
-                s.handle.close();
-            });
-            subscriptions.clear();
-            variableNames.clear();
-        } catch (Exception ex) {
-        }
+        if (isClosed.get())
+            return;
+        isClosed.set(true);
+        subscriptions.keySet().forEach(t -> {
+            closeSubscription(t);
+        });
+        snapshots.keySet().forEach(t -> {
+            closeSubscription(t);
+        });
+        variableNames.clear();
+
         try {
             console.close();
         } catch (Exception ex) {
@@ -205,6 +214,16 @@ class BarrageConnector implements Connector {
     private void checkClosed() {
         if (isClosed.get())
             throw new RuntimeException("Session is closed");
+    }
+
+    private void closeSubscription(String tableName) {
+        try {
+            var subscription = subscriptions.remove(tableName);
+            if (subscription != null)
+                subscription.handle.close();
+        } catch (Exception ex) {
+            Log.info("Failed to close handle for subscription: %s", tableName);
+        }
     }
 
     private FieldInfo findTable(String table) {

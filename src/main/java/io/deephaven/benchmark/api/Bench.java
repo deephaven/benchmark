@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
@@ -69,13 +69,14 @@ final public class Bench {
     final BenchLog runLog;
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
+    final Session session = new Session();
     private boolean isClosed = false;
 
     Bench(Class<?> testInst) {
         this.testInst = testInst;
         this.result = new BenchResult(outputDir);
         this.metrics = new BenchMetrics(outputDir);
-        this.platform = new BenchPlatform(outputDir);
+        this.platform = new BenchPlatform(this, outputDir);
         this.queryLog = new QueryLog(outputDir, testInst);
         this.runLog = new BenchLog(outputDir, testInst);
     }
@@ -245,6 +246,7 @@ final public class Bench {
         platform.commit();
         runLog.close();
         queryLog.close();
+        session.close();
     }
 
     Metrics awaitCompletion(Future<Metrics> future) {
