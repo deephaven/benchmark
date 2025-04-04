@@ -41,7 +41,7 @@ if [[ ${UPDATED} != 0 ]]; then
 fi
 
 title "-- Installing JVMs --"
-apt -y install temurin-11-jdk
+apt -y install temurin-17-jdk
 apt -y install temurin-21-jdk
 
 title "-- Installing Maven --"
