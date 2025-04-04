@@ -19,7 +19,7 @@ GIT_DIR=/root/git
 DEEPHAVEN_DIR=/root/deephaven
 DOCKER_IMG=$1
 BRANCH_DELIM=":"
-BUILD_JAVA=temurin-11-jdk-amd64
+BUILD_JAVA=temurin-17-jdk-amd64
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
