@@ -1,25 +1,19 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between releases
 # - Generate tables for best and wost static rates between the latest release and previous
 # - Generate table using same benchmarks as standard summmary SVG for comparison to previous releases
-# Requirements: Deephaven 0.23.0 or greater
+# Requirements: Deephaven 0.32.0 or greater
 
 from urllib.request import urlopen; import os
 
 root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_storage_uri_arg = root + '/deephaven-benchmark'
-    benchmark_category_arg = 'release'  # release | nightly
-    benchmark_max_sets_arg = 5
+    benchmark_category_arg = 'release'
+    benchmark_max_sets_arg = 4
     benchmark_actor_filter_arg = 'deephaven'
-    benchmark_set_filter_arg = '[0-9]{2}[.][0-9]{3}[.][0-9]{2}'
     exec(r.read().decode(), globals(), locals())
-
-# Replace any characters that are illegal in DH column names
-def column_name(name):
-    name = name.replace('/','__')
-    return re.sub('[^A-Za-z0-9_$]', '_', name)
 
 # Return a table containing only non-obsolete benchmarks having at least two of the most recent versions
 # Candidate for pulling up into deephaven_tables.py
@@ -44,13 +38,13 @@ newest_benchmarks = latest_comparable_benchmarks(bench_results_sets).sort_descen
 vers_tbl = newest_benchmarks.view(["deephaven_version"])
 
 from deephaven import numpy as dhnp
-vers = dhnp.to_numpy(newest_benchmarks.view(["deephaven_version"]).first_by())
-print("Vers: ", vers)
+vers = dhnp.to_numpy(newest_benchmarks.select_distinct(["deephaven_version"]))
 versLen = len(vers)
-vers = [normalize_name(ver) for ver in vers]
+vers = [normalize_name('V_' + ver[0]) for ver in vers]
+print("Vers: ", vers)
 
 past_static_rates = newest_benchmarks.where(['benchmark_name.endsWith(`-Static`)']) \
-    .group_by(['benchmark_name','origin','set_id']) \
+    .sort_descending(['set_id']).group_by(['benchmark_name','origin']) \
     .update(['Change=gain(op_rate[1], op_rate[0])']) \
     .update([(vers[i] + "=op_rate[" + str(i) + "]") for i in range(versLen)]) \
     .view(['Static_Benchmark=benchmark_name.replace(` -Static`,``)',
@@ -74,5 +68,5 @@ summary_benchmarks = past_static_rates.where_one_of([
     ("Static_Benchmark='" + name + "'") for name in summary_bechmark_names
 ])
 
-parquet_benchmarks = past_static_rates.where(["Static_Benchmark.startsWith(`Parquet`)"]).sort(['Change'])
+parquet_benchmarks = past_static_rates.where(["Static_Benchmark.contains(`Parquet`)"]).sort(['Change'])
 

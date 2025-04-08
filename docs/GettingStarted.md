@@ -22,8 +22,8 @@ installed.  For Windows, you must have Docker Desktop installed. See
 [Deephaven's Quick Start Guide](https://deephaven.io/core/docs/tutorials/quickstart/) for Docker version requirements
 and setup tips.  
 
-For Benchmark setup, the following docker-compose.yml file is useful.
-````
+For Benchmark setup, the following `docker-compose.yml` file is useful.
+```
 services:
   deephaven:
     image: ghcr.io/deephaven/server:edge
@@ -39,8 +39,8 @@ services:
     - redpanda
     - start
     - --smp 2
-    - --memory 2G
     - --reserve-memory 0M
+    - --memory=1G
     - --overprovisioned
     - --node-id 0
     - --check=false
@@ -50,13 +50,49 @@ services:
     - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     - --pandaproxy-addr 0.0.0.0:8082
     - --advertise-pandaproxy-addr redpanda:8082
-    image: docker.redpanda.com/vectorized/redpanda:v23.2.22
+    image: redpandadata/redpanda:v24.1.2
     ports:
     - 8081:8081
     - 8082:8082
     - 9092:9092
     - 29092:29092
-````
+    
+  minio-server:
+    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    command: server /minio --console-address ":9001"
+    hostname: minio
+    environment:
+      MINIO_DOMAIN: minio
+    networks:
+      default:
+        aliases:
+          - data.minio
+    expose:
+    - "9000"
+    - "9001"
+    ports:
+    - 9000:9000
+    - 9001:9001
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+    - ./minio:/minio
+
+  minio-bucket:
+    image: minio/mc
+    depends_on:
+      - minio-server
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb endpoint/data;
+      /usr/bin/mc anonymous set public endpoint/data;
+      exit 0;
+      "
+```
 
 ## Building/Running Tests Outside of the IDE
 
