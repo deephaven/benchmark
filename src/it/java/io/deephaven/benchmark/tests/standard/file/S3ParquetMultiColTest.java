@@ -26,7 +26,7 @@ class S3ParquetMultiColTest {
         write(
             source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
               region_name='aws-global', endpoint_override='http://minio:9000',
-              access_key_id='minioadmin', secret_access_key='minioadmin',
+              credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
               connection_timeout='PT20S'
             )
         )
@@ -40,7 +40,7 @@ class S3ParquetMultiColTest {
         var q = """
         read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
             region_name='aws-global', endpoint_override='http://minio:9000',
-            access_key_id='minioadmin', secret_access_key='minioadmin',
+            credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
             read_timeout='PT20S', connection_timeout='PT20S'
         )).select()
         """;
@@ -55,7 +55,7 @@ class S3ParquetMultiColTest {
         write_partitioned(
             source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
               region_name='aws-global', endpoint_override='http://minio:9000',
-              access_key_id='minioadmin', secret_access_key='minioadmin',
+              credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
               connection_timeout='PT20S'
             )
         )
@@ -66,11 +66,10 @@ class S3ParquetMultiColTest {
     @Test
     @Order(4)
     void readPartitionedMultiColNone() {
-
         var q = """
         read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
             region_name='aws-global', endpoint_override='http://minio:9000',
-            access_key_id='minioadmin', secret_access_key='minioadmin',
+            credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
             read_timeout='PT20S', connection_timeout='PT20S'
         )).select()
         """;

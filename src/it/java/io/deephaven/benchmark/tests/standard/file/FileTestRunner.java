@@ -158,6 +158,8 @@ class FileTestRunner {
         else:
             source = empty_table(${rowCount}).update([${generators}])
         
+        sourceSize = source.size
+        
         bench_api_metrics_start()
         begin_time = time.perf_counter_ns()
         ${writeQuery}
@@ -167,8 +169,8 @@ class FileTestRunner {
         
         stats = new_table([
             double_col("elapsed_nanos", [end_time - begin_time]),
-            long_col("processed_row_count", [source.size]),
-            long_col("result_row_count", [source.size])
+            long_col("processed_row_count", [sourceSize]),
+            long_col("result_row_count", [sourceSize])
         ])
         """;
         q = q.replace("${writeQuery}", writeQuery);
