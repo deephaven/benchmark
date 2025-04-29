@@ -5,6 +5,7 @@ services:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
       - ./data:/data
+      - ./minio:/minio
     environment:
       - "START_OPTS=-DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler ${CONFIG_OPTS}"
 
@@ -24,7 +25,7 @@ services:
     - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     - --pandaproxy-addr 0.0.0.0:8082
     - --advertise-pandaproxy-addr redpanda:8082
-    image: redpandadata/redpanda:v24.1.2
+    image: redpandadata/redpanda:v25.1.2
     ports:
     - 8081:8081
     - 8082:8082
@@ -32,7 +33,7 @@ services:
     - 29092:29092
     
   minio-server:
-    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /minio --console-address ":9001"
     hostname: minio
     environment:

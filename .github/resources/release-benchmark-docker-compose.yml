@@ -5,6 +5,7 @@ services:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
       - ./data:/data
+      - ./minio:/minio
     environment:
       - "START_OPTS=-Xmx24g -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
 
@@ -32,7 +33,7 @@ services:
     - 29092:29092
     
   minio-server:
-    image: minio/minio:RELEASE.2024-07-04T14-25-45Z
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /minio --console-address ":9001"
     hostname: minio
     environment:
