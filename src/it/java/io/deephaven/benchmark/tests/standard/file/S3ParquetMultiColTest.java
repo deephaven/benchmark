@@ -13,15 +13,15 @@ class S3ParquetMultiColTest {
     final String[] usedColumns = {"str10K", "long10K", "int10K", "short10K", "bigDec10K", "intArr5", "intVec5"};
     final FileTestRunner runner = new FileTestRunner(this);
 
-    @BeforeEach
-    void setup() {
+    void setup(double rowCountFactor, int scaleFactor) {
         runner.setRequiredServices("deephaven", "minio");
-        runner.setScaleFactors(3, 3);
+        runner.setScaleFactors(rowCountFactor, scaleFactor);
     }
 
     @Test
     @Order(1)
     void writeMultiColNone() {
+        setup(3, 3);
         var q = """
         write(
             source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
@@ -37,6 +37,7 @@ class S3ParquetMultiColTest {
     @Test
     @Order(2)
     void readMultiColNone() {
+        setup(3, 3);
         var q = """
         read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
             region_name='aws-global', endpoint_override='http://minio:9000',
@@ -50,30 +51,30 @@ class S3ParquetMultiColTest {
     @Test
     @Order(3)
     void writePartitionedMultiColNone() {
+        setup(2, 1);
         var q = """
         source = source.partition_by('short10K')
-        write_partitioned(
-            source, 's3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
-              region_name='aws-global', endpoint_override='http://minio:9000',
-              credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
-              connection_timeout='PT20S'
-            )
-        )
+        write_partitioned(source, 's3://data/source.partitioned', special_instructions=s3.S3Instructions(
+            region_name='aws-global', endpoint_override='http://minio:9000',
+            credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
+            connection_timeout='PT20S'
+        ))
         """;
-        runner.runWriteTest("S3ParquetWrite- No Codec Multi Col -Static", q, usedColumns);
+        runner.runWriteTest("S3PartitionedWrite- No Codec Multi Col -Static", q, usedColumns);
     }
 
     @Test
     @Order(4)
     void readPartitionedMultiColNone() {
+        setup(2, 1);
         var q = """
-        read('s3://data/source.ptr.parquet', special_instructions=s3.S3Instructions(
+        read('s3://data/source.partitioned', special_instructions=s3.S3Instructions(
             region_name='aws-global', endpoint_override='http://minio:9000',
             credentials=s3.Credentials.basic('minioadmin', 'minioadmin'),
             read_timeout='PT20S', connection_timeout='PT20S'
         )).select()
         """;
-        runner.runReadTest("S3ParquetRead- No Codec Multi Col -Static", q);
+        runner.runReadTest("S3PartitionedRead- No Codec Multi Col -Static", q);
     }
 
 }

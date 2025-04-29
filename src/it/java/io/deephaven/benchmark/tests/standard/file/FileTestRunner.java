@@ -325,7 +325,7 @@ class FileTestRunner {
             var q = """
             remove_path('/data/source.ptr.parquet')
             remove_path('/data/source.ptr.csv')
-            remove_path('/minio/data/source.ptr.parquet')
+            remove_path('/minio/data/source.partitioned')
             """;
             api.query(q).execute();
         } catch(Exception ex) {
