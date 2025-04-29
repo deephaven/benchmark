@@ -38,6 +38,8 @@ services:
     hostname: minio
     environment:
       MINIO_DOMAIN: minio
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     networks:
       default:
         aliases:
@@ -57,12 +59,12 @@ services:
     - ./minio:/minio
 
   minio-bucket:
-    image: minio/mc
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
     depends_on:
       - minio-server
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      until (/usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb endpoint/data;
       /usr/bin/mc anonymous set public endpoint/data;
       exit 0;
