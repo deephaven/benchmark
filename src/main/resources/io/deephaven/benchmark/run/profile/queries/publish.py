@@ -9,7 +9,7 @@ root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https:/
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_storage_uri_arg = root + '/deephaven-benchmark'
     benchmark_category_arg = 'nightly'  # release | nightly
-    benchnark_max_sets_arg = 45
+    benchmark_max_sets_arg = 45
     benchmark_actor_filter_arg = 'deephaven'
     benchmark_set_filter_arg = '[0-9]{4}([-][0-9]{2}){2}'  # yyyy-mm-dd
     exec(r.read().decode(), globals(), locals())
