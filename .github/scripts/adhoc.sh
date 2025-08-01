@@ -100,12 +100,12 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   EXPIRE_WHEN=$6
   echo "Deploying Server: ${ACTOR}"
 
-  BEGIN_SECS=$(date +%s)  
+  BEGIN_SECS=$(date +%s)
   DEVICE_ID=$(curl --fail-with-body -X POST \
     -H "Content-Type: application/json" -H "X-Auth-Token: ${API_KEY}" \
     "https://api.equinix.com/metal/v1/projects/${PROJECT_ID}/devices?exclude=plan,ssh_keys,provisioning_events,network_ports,operating_system" \
     -d '{
-      "metro": "da",
+      "metro": "sv",
       "plan": "'${PLAN}'",
       "operating_system": "ubuntu_22_04",
       "hostname": "'${ACTOR}'",
