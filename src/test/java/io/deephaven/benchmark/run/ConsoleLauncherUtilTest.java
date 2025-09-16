@@ -2,6 +2,9 @@
 package io.deephaven.benchmark.run;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ConsoleLauncherUtilTest {
@@ -20,7 +23,7 @@ class ConsoleLauncherUtilTest {
 
         expected = new String[] {"-Db.p=my.pr", "-jar", "d-b-*-s.jar", "-cp", "s-t.jar", "-p", "my.test.package",
                 "-n", "^.*[.](A.*|.*B|.*C.*)Test.*$"};
-        args = getArgs("my.test.package", "A*,*B,*C*", "");
+        args = getArgs("my.test.package", "A*, *B ,*C*", "");
         formatted = ConsoleLauncherUtil.formatConsoleWildcards(args);
         assertArrayEquals(expected, formatted, "Wrong formatted args");
 
@@ -38,14 +41,19 @@ class ConsoleLauncherUtilTest {
     }
 
     private String[] getArgs(String testPackage, String testPattern, String tagName) {
-        var opts = "-Db.p=my.pr -jar d-b-*-s.jar -cp s-t.jar";
-        var args = opts + " -p " + testPackage;
+        var args = new ArrayList<String>(Arrays.asList());
+        append(args, "-Db.p=my.pr", "-jar", "d-b-*-s.jar", "-cp", "s-t.jar");
+        append(args, "-p", testPackage);
         if (!testPattern.isBlank())
-            args += " -n " + testPattern;
+            append(args, "-n", testPattern);
         if (!tagName.isBlank())
-            args += " -t " + tagName;
+            append(args, "-t", tagName);
         System.out.println("Args: " + args);
-        return args.trim().split("\\s+");
+        return args.toArray(new String[0]);
+    }
+
+    private void append(List<String> list, String... s) {
+        list.addAll(Arrays.asList(s));
     }
 
 }
