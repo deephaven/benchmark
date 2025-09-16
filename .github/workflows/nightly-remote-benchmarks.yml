@@ -18,7 +18,7 @@ jobs:
       docker_image: edge
       run_label: "<date>"
       test_package: "io.deephaven.benchmark.tests.standard"
-      test_class_regex: "^(Test.*|.+[.$]Test.*|.*Tests?)$"
+      test_class_regex: "*"
       test_iterations: 5
       scale_row_count: 10000000
       distribution: random

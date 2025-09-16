@@ -58,7 +58,6 @@ jobs:
   setup-benchmark-system:
     runs-on: ubuntu-22.04
     outputs:
-      test_class_regex: "${{ steps.make-test-regex.outputs.TEST_CLASS_REGEX }}"
       test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
     env:
@@ -66,12 +65,6 @@ jobs:
       
     steps:
     - uses: actions/checkout@v4
-    - name: Make Wildcard Regex
-      id: make-test-regex 
-      run: |
-        ${SD}/adhoc.sh make-test-regex "${{ inputs.test_class_list }}"
-        cat adhoc-make-test-regex.out >> "$GITHUB_OUTPUT"
-    
     - name: Scale Input Numbers
       id: scale-nums
       run: |
@@ -86,7 +79,7 @@ jobs:
       docker_image: ${{ inputs.docker_image }}
       run_label: ${{ inputs.run_label }}
       test_package: ${{ inputs.test_package }}
-      test_class_regex: "${{ needs.setup-benchmark-system.outputs.test_class_regex }}"
+      test_class_regex: "${{ inputs.test_class_list }}" 
       test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}

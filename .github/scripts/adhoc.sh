@@ -57,22 +57,6 @@ if [[ ${ACTION} == "make-labels" ]]; then
   echo "SET_LABEL_2=${LABEL2}" | tee -a ${OUTPUT_NAME}
 fi
 
-# Make a regex from a list of wilcarded test class names
-if [[ ${ACTION} == "make-test-regex" ]]; then
-  WILDCARDS=$2
-  echo "Making Test Regex: ${WILDCARDS}"
-  
-  TEST_REGEX="^.*[.]("
-  for r in $(echo ${WILDCARDS} | sed 's/\s*,\s*/ /g'); do 
-    TEST_REGEX="${TEST_REGEX}"$(echo "(${r}Test)|" | sed 's/\*/.*/g')
-  done
-  TEST_REGEX=$(echo ${TEST_REGEX} | sed -E 's/\|+$//g')
-  TEST_REGEX="${TEST_REGEX})$"
-  
-  echo "WILDCARDS=${WILDCARDS}" | tee -a ${OUTPUT_NAME}
-  echo "TEST_CLASS_REGEX=${TEST_REGEX}" | tee -a ${OUTPUT_NAME}
-fi
-
 # Format some number used for scaling the tests
 if [[ ${ACTION} == "scale-nums" ]]; then
   INPUT_ROW_COUNT=$2
