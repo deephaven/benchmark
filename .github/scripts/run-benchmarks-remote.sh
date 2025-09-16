@@ -14,7 +14,11 @@ set -o nounset
 
 if [[ $# != 6 ]]; then
   echo "$0: Missing run type, test package, test regex, row count, distribution, or tag name"
-  echo "COMMAND: $0 $@"
+  count=1
+  for arg in "$@"; do
+    echo "Arg #$count = $arg"
+    count=$((count + 1))
+  done
   exit 1
 fi
 
