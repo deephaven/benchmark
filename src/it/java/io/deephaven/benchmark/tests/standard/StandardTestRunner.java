@@ -369,7 +369,7 @@ final public class StandardTestRunner {
         var query = """
         import time, jpy
         from deephaven import new_table, empty_table, garbage_collect, merge 
-        from deephaven.column import long_col, double_col
+        from deephaven.column import long_col, double_col, int_col
         from deephaven.parquet import read
         from numpy import typing as npt
         import numpy as np

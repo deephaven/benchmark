@@ -33,6 +33,7 @@ public class BenchmarkMain {
         if (args.length > 0 && args[0].equals("publish"))
             return publish(Bench.rootOutputDir);
 
+        args = ConsoleLauncherUtil.formatConsoleWildcards(args);
         int exitCode = ConsoleLauncher.execute(System.out, System.err, args).getExitCode();
         if (exitCode == 0) {
             Path d = Bench.rootOutputDir;
