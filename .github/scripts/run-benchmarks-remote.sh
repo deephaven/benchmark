@@ -13,12 +13,7 @@ set -o nounset
 # Note: Assumes the deephaven-benchmark-*.jar artifact has been built and placed
 
 if [[ $# != 6 ]]; then
-  echo "$0: Missing run type, test package, test regex, row count, distribution, or tag name"
-  count=1
-  for arg in "$@"; do
-    echo "Arg #$count = $arg"
-    count=$((count + 1))
-  done
+  echo "$0: Missing run type, test package, test classes, row count, distribution, or tag name"
   exit 1
 fi
 

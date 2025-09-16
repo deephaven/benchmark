@@ -29,7 +29,7 @@ if [[ $# != 2 ]]; then
 fi
 
 ITERATIONS=$1
-TEST_WILD=$2
+TEST_WILD="$2"
 BENCH_MAIN="io.deephaven.benchmark.run.BenchmarkMain"
 TEST_PACKAGE="io.deephaven.benchmark.tests.standard"
 
@@ -43,19 +43,12 @@ sudo docker compose up -d
 sleep 5
 set -f
 
-TEST_REGEX="^.*[.]("
-for r in $(echo "${TEST_WILD}" | sed 's/\s*,\s*/ /g'); do
-  TEST_REGEX="${TEST_REGEX}"$(echo "(${r}Test)|" | sed 's/\*/.*/g')
-done
-TEST_REGEX=$(echo ${TEST_REGEX} | sed -E 's/\|+$//g')
-TEST_REGEX="${TEST_REGEX})$"
-
 for i in `seq 1 ${ITERATIONS}`
 do
 
 echo "*** Starting Iteration: $i ***"
 
-java -Dbenchmark.profile=benchmark.properties -cp "libs/*" ${BENCH_MAIN} -p ${TEST_PACKAGE} -n "${TEST_REGEX}" 
+java -Dbenchmark.profile=benchmark.properties -cp "libs/*" ${BENCH_MAIN} -p ${TEST_PACKAGE} -n "${TEST_WILD}" 
 
 done
 

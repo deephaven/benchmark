@@ -79,7 +79,7 @@ jobs:
       docker_image: ${{ inputs.docker_image }}
       run_label: ${{ inputs.run_label }}
       test_package: ${{ inputs.test_package }}
-      test_class_regex: "${{ inputs.test_class_list }}"
+      test_class_list: "${{ inputs.test_class_list }}"
       test_iterations: ${{ needs.setup-benchmark-system.outputs.test_iterations }}
       scale_row_count: ${{ needs.setup-benchmark-system.outputs.test_row_count }}
       distribution: ${{ inputs.distribution }}
