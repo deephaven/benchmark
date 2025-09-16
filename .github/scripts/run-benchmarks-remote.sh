@@ -14,6 +14,9 @@ set -o nounset
 
 if [[ $# != 6 ]]; then
   echo "$0: Missing run type, test package, test classes, row count, distribution, or tag name"
+  for i in "${!@}"; do
+    echo "Argument $i: ${!i}"
+  done
   exit 1
 fi
 
