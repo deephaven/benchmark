@@ -3,6 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
+set -f
 
 # Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
 
@@ -21,12 +22,9 @@ SCRIPT_DIR=$3
 SCRIPT_NAME=$4
 
 for ((i = 1; i <= $#; i++)); do
-  set -f
   echo "Argument $i: ${!i}"
-  set +f
 done
 
-set -f
 args=()
 for i in ${@:5}; do
   args+=("'"$i"'")
