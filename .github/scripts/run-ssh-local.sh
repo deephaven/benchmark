@@ -27,7 +27,7 @@ done
 
 args=()
 for i in ${@:5}; do
-  args+=("'"$i"'")
+  args+=("''"$i"''")
 done
 
 
