@@ -26,11 +26,12 @@ for ((i = 1; i <= $#; i++)); do
   set +f
 done
 
+set -f
 args=()
 for i in ${@:5}; do
   args+=("'"$i"'")
 done
 
-set -f
+
 ssh -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' "${args[*]}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
 set +f
