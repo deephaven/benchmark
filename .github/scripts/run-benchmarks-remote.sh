@@ -3,6 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
+set -f
 
 # Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
 
@@ -15,9 +16,7 @@ set -o nounset
 if [[ $# != 6 ]]; then
   echo "$0: Missing run type, test package, test classes, row count, distribution, or tag name"
   for ((i = 1; i <= $#; i++)); do
-    set -f
-    echo "Argument $i: ${!i}"
-    set +f
+    echo "run-benchmarks-remote Arg $i: ${!i}"
   done
   exit 1
 fi

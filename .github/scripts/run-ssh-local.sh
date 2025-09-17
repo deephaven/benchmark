@@ -22,7 +22,7 @@ SCRIPT_DIR=$3
 SCRIPT_NAME=$4
 
 for ((i = 1; i <= $#; i++)); do
-  echo "Argument $i: ${!i}"
+  echo "run-ssh-local Arg $i: ${!i}"
 done
 
 args=()
