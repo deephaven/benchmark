@@ -12,8 +12,8 @@ set -f
 # remote scripts in single-quotes to avoid syntax errors.
 
 if [[ $# -lt 4 ]]; then
-	echo "$0: Missing host, user, script dir, or script name argument"
-	exit 1
+  echo "$0: Missing host, user, script dir, or script name argument"
+  exit 1
 fi
 
 HOST=$1
