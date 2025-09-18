@@ -22,7 +22,7 @@ fi
 
 RUN_TYPE=$1
 TEST_PACKAGE=$2
-TEST_PATTERN="$3"
+TEST_PATTERN="'"$3"'"
 ROW_COUNT=$4
 DISTRIB=$5
 TAG_NAME=$6
@@ -46,7 +46,6 @@ cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
 JAVA_OPTS="-Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*-standalone.jar -cp standard-tests.jar"
 
-set -f
 if [ "${TAG_NAME}" = "Any" ]; then
   java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}"
 elif [[ "${TAG_NAME}" = !* ]]; then
@@ -54,7 +53,6 @@ elif [[ "${TAG_NAME}" = !* ]]; then
 else
   java ${JAVA_OPTS} -p ${TEST_PACKAGE} -t "${TAG_NAME}"
 fi
-set +f
 
 title "-- Getting Docker Logs --"
 mkdir -p ${RUN_DIR}/logs
