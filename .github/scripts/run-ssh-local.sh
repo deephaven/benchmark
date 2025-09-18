@@ -3,6 +3,7 @@
 set -o errexit
 set -o pipefail
 set -o nounset
+set -f
 
 # Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
 
@@ -29,5 +30,4 @@ for i in ${@:5}; do
   args+=("'"$i"'")
 done
 
-
-ssh -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' "${args[@]}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
+ssh -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' -- "${args[@]}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
