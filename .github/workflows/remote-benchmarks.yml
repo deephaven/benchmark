@@ -129,7 +129,7 @@ jobs:
     
     - name: Run Remote Benchmarks
       run: |
-        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "'"${TEST_CLS}"'" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
+        ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_CLS}" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
 
   report-benchmarks:
     needs: run-benchmarks
