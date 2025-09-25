@@ -64,7 +64,7 @@ nightly_worst_score_large = nightly_score \
         'Change=Decimal(`0.0%`)','Since_Release=Decimal(`0.0%`)',
         'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'])
 
-def benchname(name):
+def benchname(name) -> str:
     btype = 'S' if name.endswith('-Static') else 'I'
     name = name.replace(' -Static','').replace(' -Inc','')
     name = truncate(name, 50)
