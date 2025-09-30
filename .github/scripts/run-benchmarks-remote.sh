@@ -15,17 +15,8 @@ set -f
 
 if [[ $# != 6 ]]; then
   echo "$0: Missing run type, test package, test classes, row count, distribution, or tag name"
-  echo "run-benchmark-remote $# arguments"
-  for i in "$@"; do
-    printf '[%s]\n' "$i"
-  done
   exit 1
 fi
-
-echo "run-benchmark-remote $# arguments"
-for i in "$@"; do
-  printf '[%s]\n' "$i"
-done
 
 RUN_TYPE=$1
 TEST_PACKAGE=$2
