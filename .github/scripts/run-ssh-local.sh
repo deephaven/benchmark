@@ -21,15 +21,9 @@ USER=$2
 SCRIPT_DIR=$3
 SCRIPT_NAME=$4
 
-for ((i = 1; i <= $#; i++)); do
-  echo "run-ssh-local Arg $i: ${!i}"
-done
-
 args=()
 for i in ${@:5}; do
   args+=("'"$i"'")
 done
-
-echo "run-ssh-local Args: ${myArray[@]}"
 
 ssh -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' -- "${args[@]}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& tee logs/${SCRIPT_NAME}.log
