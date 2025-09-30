@@ -274,12 +274,12 @@
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>
-			<version>0.40.0</version>
+			<version>0.40.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-log-to-slf4j</artifactId>
-			<version>0.40.0</version>
+			<version>0.40.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
