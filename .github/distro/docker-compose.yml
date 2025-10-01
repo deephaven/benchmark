@@ -13,8 +13,8 @@ services:
     - redpanda
     - start
     - --smp 2
-    - --memory 2G
     - --reserve-memory 0M
+    - --memory=1G
     - --overprovisioned
     - --node-id 0
     - --check=false
@@ -24,7 +24,7 @@ services:
     - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     - --pandaproxy-addr 0.0.0.0:8082
     - --advertise-pandaproxy-addr redpanda:8082
-    image: redpandadata/redpanda:v24.1.2
+    image: redpandadata/redpanda:v25.2.5
     ports:
     - 8081:8081
     - 8082:8082
@@ -32,11 +32,13 @@ services:
     - 29092:29092
     
   minio-server:
-    image: minio/minio:RELEASE.2024-08-26T15-33-07Z
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     command: server /minio --console-address ":9001"
     hostname: minio
     environment:
       MINIO_DOMAIN: minio
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     networks:
       default:
         aliases:
@@ -56,13 +58,14 @@ services:
     - ./minio:/minio
 
   minio-bucket:
-    image: minio/mc
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
     depends_on:
       - minio-server
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      until (/usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb endpoint/data;
       /usr/bin/mc anonymous set public endpoint/data;
       exit 0;
       "
+
