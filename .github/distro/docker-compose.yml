@@ -5,6 +5,7 @@ services:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
       - ./data:/data
+      - ./minio:/minio
     environment:
       - "START_OPTS=-Xmx24G -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
 
@@ -24,7 +25,7 @@ services:
     - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
     - --pandaproxy-addr 0.0.0.0:8082
     - --advertise-pandaproxy-addr redpanda:8082
-    image: redpandadata/redpanda:v24.1.2
+    image: redpandadata/redpanda:v25.1.2
     ports:
     - 8081:8081
     - 8082:8082
@@ -32,11 +33,13 @@ services:
     - 29092:29092
     
   minio-server:
-    image: minio/minio:RELEASE.2024-08-26T15-33-07Z
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /minio --console-address ":9001"
     hostname: minio
     environment:
       MINIO_DOMAIN: minio
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
     networks:
       default:
         aliases:
@@ -56,12 +59,12 @@ services:
     - ./minio:/minio
 
   minio-bucket:
-    image: minio/mc
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
     depends_on:
       - minio-server
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin;
+      until (/usr/bin/mc alias set endpoint http://minio:9000 minioadmin minioadmin) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc mb endpoint/data;
       /usr/bin/mc anonymous set public endpoint/data;
       exit 0;
