@@ -8,6 +8,7 @@ name: Nightly Benchmark Test on Docker Deephaven
 on:
   schedule:
     - cron: '0 6 * * *'
+  workflow_dispatch:
 
 jobs:
   process-nightly-benchmarks:
