@@ -40,6 +40,7 @@ public class DateTimeFormulaTest {
     }
 
     @Test
+    @Tag("Iterate")
     public void epochNanosToZonedDateTime() {
         setup(24, 1, 1);
         var q = """
