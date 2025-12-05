@@ -57,6 +57,20 @@ public class UserFormulaTest {
         var q = "source.select(['num1=f(num1, num2)','num1=(double)num1'])";
         runner.test("UDF- 2 Doubles to Double No Hints", q, "num1", "num2");
     }
+    
+    @Test
+    void udf2DoublesToDoubleNoHintsSerial() {
+        var setup = """
+        def f(num1, num2):
+            return num1 + num2
+        from deephaven.table import Selectable
+        col1 = Selectable.parse('num1=f(num1, num2)').with_serial()
+        col2 = Selectable.parse('num1=(double)num1').with_serial()
+        """;
+        runner.addSetupQuery(setup);
+        var q = "source.select([col1, col2])";
+        runner.test("UDF- 2 Doubles to Double No Hints Serial", q, "num1", "num2");
+    }
 
     @Test
     void udf2DoublesToDoubleNoHintsNoVectorize() {
@@ -79,6 +93,20 @@ public class UserFormulaTest {
         runner.addSetupQuery(setup);
         var q = "source.select(['num1=f(num1, num2)'])";
         runner.test("UDF- 2 Doubles to Double Python Hints", q, "num1", "num2");
+    }
+    
+    @Test
+    void udf2DoublesToDoublePythonHintsSerial() {
+        runner.setScaleFactors(3, 0);
+        var setup = """
+        def f(num1: float, num2: float) -> float:
+            return num1 + num2
+        from deephaven.table import Selectable
+        col = Selectable.parse('num1=f(num1, num2)').with_serial()
+        """;
+        runner.addSetupQuery(setup);
+        var q = "source.select([col])";
+        runner.test("UDF- 2 Doubles to Double Python Hints Serial", q, "num1", "num2");
     }
 
     @Test
@@ -125,6 +153,19 @@ public class UserFormulaTest {
         runner.addSetupQuery(setup);
         var q = "source.select(['num1=f(num1, num2)'])";
         runner.test("UDF- 2 Doubles to Double Numpy Hints", q, "num1", "num2");
+    }
+    
+    @Test
+    void udf2DoublesToDoubleNumpyHintsSerial() {
+        var setup = """
+        def f(num1: np.float64, num2: np.float64) -> np.float64:
+            return num1 + num2
+        from deephaven.table import Selectable
+        col = Selectable.parse('num1=f(num1, num2)').with_serial()
+        """;
+        runner.addSetupQuery(setup);
+        var q = "source.select([col])";
+        runner.test("UDF- 2 Doubles to Double Numpy Hints Serial", q, "num1", "num2");
     }
 
     @Test
