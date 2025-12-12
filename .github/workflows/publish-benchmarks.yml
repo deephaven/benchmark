@@ -102,7 +102,7 @@ jobs:
         path: |
           deephaven-benchmark-${{env.VERSION}}.tar
           deephaven-benchmark-${{env.VERSION}}-results.tar
-          deephaven-benchmark-${{env.VERSION}}-bundle.jar
+          deephaven-benchmark-${{env.VERSION}}-bundle.zip
           release-notes.md
           
     - name: Publish Github Release

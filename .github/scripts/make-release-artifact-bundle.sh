@@ -10,7 +10,7 @@ set -o nounset
 # artifact and signatures for each. This script expects to run in the directory where the 
 # release branch has been checked out
 #
-# ex. .github/scripts/make-release-bundle.sh 0.33.4 keyfile.asc
+# ex. .github/scripts/make-release-artifact-bundle.sh 0.33.4 keyfile.asc
 
 if [[ $# != 2 ]]; then
     echo "$0: Missing release version or signature file argument"
@@ -20,6 +20,7 @@ fi
 VERSION=$1
 KEY_FILE=$2
 ARTIFACT=deephaven-benchmark-${VERSION}
+TARGET=io/deephaven/deephaven-benchmark/${VERSION}
 
 sed -i "s;<version>1.0-SNAPSHOT</version>;<version>${VERSION}</version>;" pom.xml
 mvn -B install --file pom.xml
@@ -30,10 +31,21 @@ cp target/${ARTIFACT}-sources.jar .
 cp target/${ARTIFACT}-javadoc.jar .
 
 gpg --import ${KEY_FILE}
-gpg -ab ${ARTIFACT}.pom
-gpg -ab ${ARTIFACT}.jar
-gpg -ab ${ARTIFACT}-javadoc.jar
-gpg -ab ${ARTIFACT}-sources.jar
 
-jar -cvf ../${ARTIFACT}-bundle.jar ${ARTIFACT}.pom ${ARTIFACT}.pom.asc ${ARTIFACT}.jar ${ARTIFACT}.jar.asc ${ARTIFACT}-javadoc.jar ${ARTIFACT}-javadoc.jar.asc ${ARTIFACT}-sources.jar ${ARTIFACT}-sources.jar.asc
+sign() {
+  gpg --batch --yes -ab $1
+  shasum -a 1 "$1" | cut -d ' ' -f 1 > "$1.sha1"
+  md5sum "$1" | cut -d ' ' -f 1 > "$1.md5"
+}
+
+sign ${ARTIFACT}.pom
+sign ${ARTIFACT}.jar
+sign ${ARTIFACT}-javadoc.jar
+sign ${ARTIFACT}-sources.jar
+
+mkdir -p ${TARGET}
+cp ${ARTIFACT}.* ${TARGET}
+cp ${ARTIFACT}-* ${TARGET}
+
+zip -r ../${ARTIFACT}-bundle.zip io/
 
