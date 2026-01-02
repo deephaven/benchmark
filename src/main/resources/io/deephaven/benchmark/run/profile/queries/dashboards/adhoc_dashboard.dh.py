@@ -123,7 +123,7 @@ def get_property_list_keys(table):
     return table.select_distinct(['name']).view(['key=name','label=name']).sort(['label'])
 
 def get_setids(bench_results):
-    setids = bench_results.select_distinct(['set_id']).sort_descending(['set_id'])
+    setids = bench_results.sort(['timestamp']).select_distinct(['set_id'])
     return [row.set_id for row in setids.iter_tuple()]
 
 def load_results_tables(parent_table, actor, prefix):
