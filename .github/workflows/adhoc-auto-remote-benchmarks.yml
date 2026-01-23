@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Provision a server and run benchmarks on that system, cleaning up after
 # - Deploys a new server on the fly
@@ -65,10 +65,9 @@ jobs:
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
     env:
       SD: .github/scripts
-      METAL_EXPIRE: "2 days"
       METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
       METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
-      METAL_PLAN: "c3.small.x86"
+      METAL_PLAN: "s2.c2.small"
       METAL_ACTOR: "${{ github.actor }}"
       
     steps:
@@ -84,11 +83,12 @@ jobs:
       run: |
         ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
-    
+
+    - uses: hashicorp/setup-terraform@v3
     - name: Deploy Bare Metal
       id: deploy-metal
       run: |
-        ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}" "${METAL_EXPIRE}"
+        ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}"
         cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
     
     - name: Archive Setup Logs

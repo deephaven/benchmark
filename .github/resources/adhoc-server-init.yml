@@ -1,0 +1,7 @@
+#cloud-config
+users:
+  - name: benchmark
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+
