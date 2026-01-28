@@ -4,13 +4,15 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
+
 # Build benchmark artifact on the remote side
 # Assumes git branch is available and docker is running
 
 HOST=`hostname`
-GIT_DIR=/root/git/benchmark
-RUN_DIR=/root/run
-DEEPHAVEN_DIR=/root/deephaven
+GIT_DIR=/${HOME}/git/benchmark
+RUN_DIR=/${HOME}/run
+DEEPHAVEN_DIR=/${HOME}/deephaven
 
 if [ ! -d "${GIT_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"

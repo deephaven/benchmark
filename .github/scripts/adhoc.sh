@@ -37,6 +37,12 @@ getSetLabel() {
   echo "${PREFIX}_${SUFFIX}" | sed -E 's/(^[0-9])/_\1/g' | sed 's/[^0-9a-zA-Z_]/_/g'
 }
 
+getApiToken() {
+  curl -s -X POST "https://auth.phoenixnap.com/auth/realms/BMC/protocol/openid-connect/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=client_credentials" \
+    --data-urlencode "client_id=$1" --data-urlencode "client_secret=$2" | jq -r '.access_token'
+}
+
 # Make set labels from a prefix and image/branch names
 if [[ ${ACTION} == "make-labels" ]]; then
   PREFIX=$2
@@ -79,25 +85,32 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   echo "Deploying Server: ${ACTOR}"
   BEGIN_SECS=$(date +%s)
   
-  export TF_VAR_client_id="${PROJECT_ID}"
-  export TF_VAR_client_secret="${API_KEY}"
-  export TF_VAR_hostname="${ACTOR}"
-  export TF_VAR_plan="${PLAN}"
-  
   pushd ${SCRIPT_DIR}/../resources
-  tofu init -input=false
-  tofu apply -auto-approve -input=false
-  IP_ADDRESS=$(tofu output -raw public_ip)
-  DEVICE_ID=$(tofu output -raw server_id)
+  TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
+  CI=$(cat adhoc-server-init.yml)
+
+  echo "Making Deploy POST"
+  jq --arg hostname "${ACTOR}" --arg plan "${PLAN}" --arg userData "$(printf '%s' "$CI" | base64 -w 0)" \
+   '.hostname = $hostname | .type = $plan' adhoc-server-deploy.json > adhoc-server-deploy-final.json
+  echo "Finished Deploy POST"
+
+  echo "Running Deploy API"
+  RESPONSE=$(curl -s -X POST "https://api.phoenixnap.com/bmc/v1/servers" -H "Authorization: Bearer ${TOKEN}" \
+    -H "Content-Type: application/json" -d @adhoc-server-deploy-final.json)
+
+  IP_ADDRESS=$(jq -r '.publicIpAddresses[0]' <<< "$RESPONSE")
+  DEVICE_ID=$(jq -r '.id' <<< "$RESPONSE")
+  echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
   popd
 
-  STATUS=0 
-  for i in {1..30}; do
-    if ssh -o StrictHostKeyChecking=no benchmark@"${IP_ADDRESS}" "echo ok" 2>/dev/null; then
+  STATUS=0
+  for i in {1..60}; do
+    echo "Checking the SSH is up $i"
+    if ssh -o StrictHostKeyChecking=no ubuntu@"${IP_ADDRESS}" "echo ok" 2>/dev/null; then
       STATUS=1
       break
     fi
-    sleep 10
+    sleep 5
   done
   
   DURATION=$(($(date +%s) - ${BEGIN_SECS}))
@@ -113,15 +126,16 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   echo "DEVICE_ADDR=${IP_ADDRESS}" | tee -a ${OUTPUT_NAME}
 fi
 
-# Delete a bare metal server. Expects that tofu state exists from a previous tofu create
+# Delete a bare metal server with the given id
 if [[ ${ACTION} == "delete-metal" ]]; then
   API_KEY=$2
-  DEVICE_ID=$3
-  DEVICE_NAME=$4
+  PROJECT_ID=$3
+  DEVICE_ID=$4
+  DEVICE_NAME=$5
 
-  pushd ${SCRIPT_DIR}/../resources
-  tofu destroy -auto-approve
-  popd
+  TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
+  echo "  DELETING: $name (ID: $id)"
+  curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
 
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_NAME=${DEVICE_NAME}" | tee -a ${OUTPUT_NAME}
@@ -132,36 +146,31 @@ fi
 if [[ ${ACTION} == "purge-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3
-  EXPIRATION_HOURS=24
+  EXPIRATION_HOURS=0.25
   
   echo "Starting Ephemeral Server Cleanup"
   echo "Max Hours to Expiration: ${EXPIRATION_HOURS}"
-  echo "Requesting OAuth2 Token"
-  TOKEN=$(curl -s -X POST -d "grant_type=client_credentials" -d "client_id=${PROJECT_ID}" -d "client_secret=${API_KEY}" \
-    https://auth.phoenixnap.com/auth/realms/BMC/protocol/openid-connect/token | jq -r '.access_token')
+  TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
+  PREFIX="adhoc-test-server-"
+  THRESHOLD=$(echo "${EXPIRATION_HOURS} * 3600" | bc)
+  NOW=$(date +%s)
 
-  if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
-    echo "Failed to obtain OAuth2 Token"
-    exit 1
-  fi
-  echo "OAuth2 Token Acquired"
-
-  CUTOFF=$(date -u -d "$TTL_HOURS hours ago" +"%Y-%m-%dT%H:%M:%SZ")
-  echo "Fetching Ephemeral Servers"
-  SERVERS=$(curl -s -H "Authorization: Bearer $TOKEN" "https://api.phoenixnap.com/bmc/v1/servers?tag=ephemeral")
-  COUNT=$(echo "$servers" | jq 'length')
-  echo "Found ${COUNT} Ephemeral Servers."
-
-  echo "${SERVERS}" | jq -c '.[]' | while read server; do
+  servers=$(curl -s -H "Authorization: Bearer $TOKEN" https://api.phoenixnap.com/bmc/v1/servers)
+  echo "$servers" | jq -c '.[]' | while read server; do
     id=$(echo "$server" | jq -r '.id')
-    hostname=$(echo "$server" | jq -r '.hostname')
-    created=$(echo "$server" | jq -r '.creationDate')
-    if [[ "$created" < "${CUTOFF}" ]]; then
-      echo "Deleting Server: $hostname ($id)"
-      curl -s -X DELETE -H "Authorization: Bearer $TOKEN" "https://api.phoenixnap.com/bmc/v1/servers/$id" > /dev/null
+    name=$(echo "$server" | jq -r '.hostname')
+    created=$(echo "$server" | jq -r '.provisionedOn')
+    [ "$created" = "null" ] && continue
+    created_epoch=$(date -d "$created" +%s)
+    age_seconds=$(( NOW - created_epoch ))
+    age_hours=$(printf "%0.4f" "$(echo "$age_seconds / 3600" | bc -l)")
+    echo "Server: $name  Age: $age_hours hours"
+
+    if [[ "$name" == "$PREFIX"* ]] && (( $(echo "$age_seconds > ${THRESHOLD}" | bc -l) )); then
+      echo "  DELETING: $name (ID: $id)"
+      curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
     fi
   done
-
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
 fi
 

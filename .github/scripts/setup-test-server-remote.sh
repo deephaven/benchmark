@@ -4,14 +4,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Runs the remote test server setup where the benchmarks will be run
-
-if [ ! -d "/root" ]; then
-  echo "$0: Missing the Benchmark install directory"
-  exit 1
-fi
 
 if [[ $# != 4 ]]; then
   echo "$0: Missing repo, branch, run type, or docker image argument"
@@ -19,12 +14,12 @@ if [[ $# != 4 ]]; then
 fi
 
 HOST=`hostname`
-GIT_DIR=/root/git
+GIT_DIR=/${HOME}/git
 GIT_REPO=$1
 GIT_BRANCH=$2
 RUN_TYPE=$3                     # ex. nightly | release | compare
 DOCKER_IMG=$4			# ex. edge | 0.32.0 (assumes location ghcr.io/deephaven/server)
-DEEPHAVEN_DIR=/root/deephaven
+DEEPHAVEN_DIR=/${HOME}/deephaven
 
 title () { echo; echo $1; }
 

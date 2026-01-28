@@ -9,17 +9,6 @@
     {
       "type": "PRIMARY"
     }
-  ],
-  "cloudInit": "",
-  "tags": [
-    {
-      "name": "ephemeral",
-      "value": "true"
-    },
-    {
-      "name": "created",
-      "value": "2026-01-23T22:00:00Z"
-    }
   ]
 }
 

@@ -138,6 +138,7 @@ jobs:
     env: 
       SD: .github/scripts
       METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
       METAL_DEVICE_ID: ${{ needs.setup-benchmark-system.outputs.metal_device_id }}
       METAL_DEVICE_NAME: ${{ needs.setup-benchmark-system.outputs.metal_device_name }}
       
@@ -146,7 +147,7 @@ jobs:
     - name: Delete Bare Metal
       id: delete-metal
       run: |
-        ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
+        ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
         cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
         
     - name: Archive Teardown Logs
