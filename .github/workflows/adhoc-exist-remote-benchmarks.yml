@@ -31,7 +31,7 @@ on:
       test_class_list:
         description: 'Benchmark Test Classes'
         required: true
-        default: 'Where, Avg*'
+        default: 'Where,Avg*'
         type: string
       test_iterations:
         description: 'Benchmark Iterations'
