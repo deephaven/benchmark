@@ -30,10 +30,10 @@ mvn verify
 title "-- Cleanup After Build  --"
 cd ${DEEPHAVEN_DIR};
 docker compose down
-rm -f data/*.*
+sudo rm -f data/*.*
 
 title "-- Copying Artifact and Tests to Run Directory --"
-rm -rf ${RUN_DIR}
+sudo rm -rf ${RUN_DIR}
 mkdir -p ${RUN_DIR}/
 cp ${GIT_DIR}/target/deephaven-benchmark-*.jar ${RUN_DIR}/
 mv ${RUN_DIR}/deephaven-benchmark-*-tests.jar ${RUN_DIR}/standard-tests.jar
