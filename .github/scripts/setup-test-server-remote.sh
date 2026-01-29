@@ -62,6 +62,7 @@ else
   sudo apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker ${USER}
   sudo newgrp docker
+  sudo systemctl restart docker
 fi
 
 title "-- Removing Git Benchmark Repositories --"
