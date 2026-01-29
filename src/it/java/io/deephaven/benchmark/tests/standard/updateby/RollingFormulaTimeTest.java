@@ -24,9 +24,9 @@ public class RollingFormulaTimeTest {
         """;
         runner.addSetupQuery(s);
     }
-    
+
     @Test
-    void rollingFormulaTime0Group3Ops() {
+    void rollingFormulaParamTime0Group3Ops() {
         setup(1, 1, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
@@ -37,7 +37,7 @@ public class RollingFormulaTimeTest {
     }
 
     @Test
-    void rollingFormulaTime1Group3Ops() {
+    void rollingFormulaParamTime1Group3Ops() {
         setup(3, 3, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
@@ -48,7 +48,7 @@ public class RollingFormulaTimeTest {
     }
 
     @Test
-    void rollingFormulaTime2Groups3Ops() {
+    void rollingFormulaParamTime2Groups3Ops() {
         setup(2, 2, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
@@ -59,7 +59,7 @@ public class RollingFormulaTimeTest {
     }
 
     @Test
-    void rollingFormulaTime3Groups3Ops() {
+    void rollingFormulaParamTime3Groups3Ops() {
         setup(1, 3, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
@@ -67,6 +67,51 @@ public class RollingFormulaTimeTest {
         """);
         var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
         runner.test("RollingFormulaTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");
+    }
+
+    @Test
+    void rollingFormulaGeneralTime0Group3Ops() {
+        setup(1, 1, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
+            cols=["Contains=num1"], rev_time="PT2S", fwd_time="PT3S")
+        """);
+        var q = "timed.update_by(ops=[contains])";
+        runner.test("RollingFormulaGeneralTime- No Groups 1 Col", q, "num1", "timestamp");
+    }
+
+    @Test
+    void rollingFormulaGeneralTime1Group3Ops() {
+        setup(3, 3, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
+            cols=["Contains=num1"], rev_time="PT2S", fwd_time="PT3S")
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1'])";
+        runner.test("RollingFormulaGeneralTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
+    }
+
+    @Test
+    void rollingFormulaGeneralTime2Groups3Ops() {
+        setup(2, 2, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
+            cols=["Contains=num1"], rev_time="PT4M", fwd_time="PT5M")
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
+        runner.test("RollingFormulaGeneralTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
+    }
+
+    @Test
+    void rollingFormulaGeneralTime3Groups3Ops() {
+        setup(1, 3, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
+            cols=["Contains=num1"], rev_time="PT40M", fwd_time="PT50M")
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
+        runner.test("RollingFormulaGeneralTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",
+                "timestamp");
     }
 
 }

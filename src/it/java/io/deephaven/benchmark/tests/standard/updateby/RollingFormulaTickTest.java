@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -25,47 +25,77 @@ public class RollingFormulaTickTest {
     }
 
     @Test
-    void rollingFormulaTick0Group3Ops() {
+    void rollingFormulaParamTick0Group3Ops() {
         setup(1, 1, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
             rev_ticks=2000, fwd_ticks=3000)
         """);
         var q = "timed.update_by(ops=[contains])";
-        runner.test("RollingFormulaTick- No Groups 1 Col", q, "num1");
+        runner.test("RollingFormulaParamTick- No Groups 1 Col", q, "num1");
     }
 
     @Test
-    void rollingFormulaTick1Group3Ops() {
+    void rollingFormulaParamTick1Group3Ops() {
         setup(3, 7, 2);
         runner.addSetupQuery("""
         contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
             rev_ticks=20, fwd_ticks=30)
         """);
         var q = "timed.update_by(ops=[contains], by=['key1'])";
-        runner.test("RollingFormulaTick- 1 Group 100 Unique Vals", q, "key1", "num1");
+        runner.test("RollingFormulaParamTick- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
-    void rollingFormulaTick2Groups3Ops() {
-        setup(2, 3, 1);
-        runner.addSetupQuery("""
-        contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
-            rev_ticks=20, fwd_ticks=30)
-        """);
-        var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
-        runner.test("RollingFormulaTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
-    }
-
-    @Test
-    void rollingFormulaTick3Groups3Ops() {
+    void rollingFormulaParamTick3Groups3Ops() {
         setup(1, 3, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
             rev_ticks=20, fwd_ticks=30)
         """);
         var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
-        runner.test("RollingFormulaTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
+        runner.test("RollingFormulaParamTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
+    }
+
+    @Test
+    void rollingFormulaGeneralTick0Group3Ops() {
+        setup(1, 1, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
+            rev_ticks=2000, fwd_ticks=3000)
+        """);
+        var q = "timed.update_by(ops=[contains])";
+        runner.test("RollingFormulaGeneralTick- No Groups 1 Col", q, "num1");
+    }
+
+    @Test
+    void rollingFormulaGeneralTick1Group3Ops() {
+        setup(3, 7, 2);
+        runner.addSetupQuery("""
+        contains = rolling_formula_tick(formula="Contains=avg(num1)", rev_ticks=20, fwd_ticks=30)
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1'])";
+        runner.test("RollingFormulaGeneralTick- 1 Group 100 Unique Vals", q, "key1", "num1");
+    }
+
+    @Test
+    void rollingFormulaGeneralTick2Groups3Ops() {
+        setup(2, 3, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_tick(formula="Contains=avg(num1)", rev_ticks=20, fwd_ticks=30)
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
+        runner.test("RollingFormulaGeneralTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
+    }
+
+    @Test
+    void rollingFormulaGeneralTick3Groups3Ops() {
+        setup(1, 3, 1);
+        runner.addSetupQuery("""
+        contains = rolling_formula_tick(formula="Contains=avg(num1)", rev_ticks=20, fwd_ticks=30)
+        """);
+        var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
+        runner.test("RollingFormulaGeneralTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }
