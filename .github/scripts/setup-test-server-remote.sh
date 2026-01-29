@@ -26,20 +26,20 @@ title () { echo; echo $1; }
 title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 title "-- Adding OS Applications --"
-UPDATED=$(update-alternatives --list java | grep -i temurin; echo $?)
+UPDATED=$(sudo update-alternatives --list java | grep -i temurin; echo $?)
 if [[ ${UPDATED} != 0 ]]; then
   title "-- Adding Adoptium to APT registry --"
-  apt -y install wget apt-transport-https gpg
-  wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
-  echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
-  apt -y update
+  sudo apt -y install wget apt-transport-https gpg
+  sudo wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+  echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
+  sudo apt -y update
 fi
 
 title "-- Installing JVMs --"
-apt -y install temurin-17-jdk
+sudo apt -y install temurin-17-jdk
 
 title "-- Installing Maven --"
-apt -y install maven
+sudo apt -y install maven
 
 title "-- Installing Docker --"
 command_exists() {
@@ -48,22 +48,24 @@ command_exists() {
 if command_exists docker; then
   echo "Docker already installed... skipping"
 else
-  apt -y update
-  apt -y install ca-certificates curl
-  install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-  chmod a+r /etc/apt/keyrings/docker.asc
+  sudo apt -y update
+  sudo apt -y install ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
 
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null
-  apt -y update
-  apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt -y update
+  sudo apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo groupadd docker
+  sudo usermod -aG docker ${USER}
 fi
 
 title "-- Removing Git Benchmark Repositories --"
-rm -rf ${GIT_DIR}
+sudo rm -rf ${GIT_DIR}
 mkdir -p ${GIT_DIR}
 
 title "-- Clone Git Benchmark Repository ${GIT_REPO} --"
@@ -85,7 +87,7 @@ docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
 
 title "-- Pruning Docker Volumes --"
 docker system prune --volumes --force
-rm -rf ${DEEPHAVEN_DIR}
+sudo rm -rf ${DEEPHAVEN_DIR}
 
 title "-- Staging Docker Resources --"
 mkdir -p ${DEEPHAVEN_DIR}
