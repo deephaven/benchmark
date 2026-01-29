@@ -89,8 +89,8 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
 
   echo "Making Deploy POST"
-  jq --arg hostname "${ACTOR}" --arg plan "${PLAN}" '.hostname = $hostname | .type = $plan' \ 
-    adhoc-server-deploy.json > adhoc-server-deploy-final.json
+  jq --arg hostname "${ACTOR}" --arg plan "${PLAN}" \
+   '.hostname = $hostname | .type = $plan' adhoc-server-deploy.json > adhoc-server-deploy-final.json
   echo "Finished Deploy POST"
 
   echo "Running Deploy API"

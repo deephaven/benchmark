@@ -54,7 +54,7 @@ on:
 
 jobs:
   setup-benchmark-system:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       set_label_1: ${{ steps.make-labels.outputs.SET_LABEL_1 }}
       set_label_2: ${{ steps.make-labels.outputs.SET_LABEL_2 }}
@@ -134,7 +134,7 @@ jobs:
   teardown-benchmark-system:
     if: ${{ always() && needs.setup-benchmark-system.outputs.metal_device_id }}
     needs: [setup-benchmark-system, process-adhoc-benchmarks-2]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env: 
       SD: .github/scripts
       METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}

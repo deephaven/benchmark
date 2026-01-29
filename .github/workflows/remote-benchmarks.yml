@@ -50,7 +50,7 @@ concurrency:
 
 jobs:
   setup-benchmarks:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
@@ -105,7 +105,7 @@ jobs:
 
   run-benchmarks:
     needs: setup-benchmarks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 1
       matrix:
@@ -134,7 +134,7 @@ jobs:
 
   report-benchmarks:
     needs: run-benchmarks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env: 
       SD: .github/scripts
       USER: ${{secrets.BENCHMARK_USER}}
