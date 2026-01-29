@@ -87,11 +87,10 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   
   pushd ${SCRIPT_DIR}/../resources
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
-  CI=$(cat adhoc-server-init.yml)
 
   echo "Making Deploy POST"
-  jq --arg hostname "${ACTOR}" --arg plan "${PLAN}" --arg userData "$(printf '%s' "$CI" | base64 -w 0)" \
-   '.hostname = $hostname | .type = $plan' adhoc-server-deploy.json > adhoc-server-deploy-final.json
+  jq --arg hostname "${ACTOR}" --arg plan "${PLAN}" '.hostname = $hostname | .type = $plan' \ 
+    adhoc-server-deploy.json > adhoc-server-deploy-final.json
   echo "Finished Deploy POST"
 
   echo "Running Deploy API"
