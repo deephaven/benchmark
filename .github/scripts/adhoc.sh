@@ -101,13 +101,15 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   DEVICE_ID=$(jq -r '.id' <<< "$RESPONSE")
   echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
   popd
-
+  
   STATUS=0
   for i in {1..60}; do
-    echo "Checking the SSH is up $i"
-    if ssh -o StrictHostKeyChecking=no ubuntu@"${IP_ADDRESS}" "echo ok" 2>/dev/null; then
-      STATUS=1
-      break
+    if [[ $STATUS -eq 0 ]]; then
+      [[ "$(curl -s -H "Authorization: Bearer $TOKEN" \
+        https://api.phoenixnap.com/bmc/v1/servers/$ID | jq -r '.status')" == "powered-on" ]] && STATUS=1
+    fi
+    if [[ $STATUS -eq 1 ]]; then
+      nc -z -w 2 "$IP" 22 && break
     fi
     sleep 5
   done
