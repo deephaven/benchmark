@@ -97,23 +97,25 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   RESPONSE=$(curl -s -X POST "https://api.phoenixnap.com/bmc/v1/servers" -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" -d @adhoc-server-deploy-final.json)
 
-  IP_ADDRESS=$(jq -r '.publicIpAddresses[0]' <<< "$RESPONSE")
-  DEVICE_ID=$(jq -r '.id' <<< "$RESPONSE")
+  IP_ADDRESS=$(jq -r '.publicIpAddresses[0]' <<< "${RESPONSE}")
+  DEVICE_ID=$(jq -r '.id' <<< "${RESPONSE}")
   echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
   popd
   
+  echo "Waiting for Server Ready"
   STATUS=0
   for i in {1..60}; do
-    if [[ $STATUS -eq 0 ]]; then
-      [[ "$(curl -s -H "Authorization: Bearer $TOKEN" \
-        https://api.phoenixnap.com/bmc/v1/servers/$ID | jq -r '.status')" == "powered-on" ]] && STATUS=1
+    STATUS_RESPONSE=$(curl -s -H "Authorization: Bearer ${TOKEN}" "https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID}")
+    if [[ ${STATUS} -eq 0 ]]; then
+      [[ "$(echo "${STATUS_RESPONSE}" | jq -r '.status')" == "powered-on" ]] && STATUS=1
     fi
-    if [[ $STATUS -eq 1 ]]; then
-      nc -z -w 2 "$IP" 22 && break
+
+    if [[ ${STATUS} -eq 1 ]]; then
+      nc -z -w 2 "${IP_ADDRESS}" 22 && break
     fi
-    sleep 5
+    sleep 10
   done
-  
+
   DURATION=$(($(date +%s) - ${BEGIN_SECS}))
   if [[ ${STATUS} -eq 0 ]]; then
     echo "Failed to provision device ${ACTOR} after ${DURATION} seconds"
@@ -135,9 +137,9 @@ if [[ ${ACTION} == "delete-metal" ]]; then
   DEVICE_NAME=$5
 
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
-  echo "  DELETING: $name (ID: $id)"
-  curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
-
+  echo "Deleting Server ${DEVICE_NAME}"
+  curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID} >/dev/null
+  echo "STATUS_RESPONSE: ${STATUS_RESPONSE}"
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_NAME=${DEVICE_NAME}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_ID=${DEVICE_ID}" | tee -a ${OUTPUT_NAME}
