@@ -25,21 +25,40 @@ title () { echo; echo $1; }
 
 title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
+title "-- Waiting for APT to be Free --"
+BEGIN_SECS=$(date +%s)
+export DEBIAN_FRONTEND=noninteractive
+STATUS=0
+for i in {1..60}; do
+  if ! sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 && ! sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
+      && ! sudo fuser /var/lib/apt/lists/lock-frontend >/dev/null 2>&1; then
+    STATUS=1
+    break
+  fi
+  sleep 10
+done
+
+DURATION=$(($(date +%s) - ${BEGIN_SECS}))
+if [[ $STATUS -eq 0 ]]; then
+  echo "Failed to gain APT lock ${ACTOR} after ${DURATION} seconds"
+  exit 1
+fi
+
 title "-- Adding OS Applications --"
 UPDATED=$(sudo update-alternatives --list java | grep -i temurin; echo $?)
 if [[ ${UPDATED} != 0 ]]; then
   title "-- Adding Adoptium to APT registry --"
-  sudo apt -y install wget apt-transport-https gpg
+  sudo apt-get -y install wget apt-transport-https gpg
   sudo wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
   echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
-  sudo apt -y update
+  sudo apt-get -y update
 fi
 
 title "-- Installing JVMs --"
-sudo apt -y install temurin-17-jdk
+sudo apt-get -y install temurin-17-jdk
 
 title "-- Installing Maven --"
-sudo apt -y install maven
+sudo apt-get -y install maven
 
 title "-- Installing Docker --"
 command_exists() {
@@ -48,18 +67,17 @@ command_exists() {
 if command_exists docker; then
   echo "Docker already installed... skipping"
 else
-  sudo apt -y update
-  sudo apt -y install ca-certificates curl
+  sudo apt-get -y update
+  sudo apt-get -y install ca-certificates curl
   sudo install -m 0755 -d /etc/apt/keyrings
   sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   sudo chmod a+r /etc/apt/keyrings/docker.asc
 
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  sudo apt -y update
-  sudo apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get -y update
+  sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker ${USER}
   sudo systemctl restart docker
   exec sg docker bash
