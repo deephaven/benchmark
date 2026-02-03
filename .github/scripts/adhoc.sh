@@ -167,10 +167,10 @@ if [[ ${ACTION} == "purge-metal" ]]; then
     created_epoch=$(date -d "$created" +%s)
     age_seconds=$(( NOW - created_epoch ))
     age_hours=$(printf "%0.4f" "$(echo "$age_seconds / 3600" | bc -l)")
-    echo "Server: $name  Age: $age_hours hours"
+    echo "Found Server $name Aged $age_hours Hours"
 
     if [[ "$name" == "${SERVER_NAME_PREFIX}"* ]] && (( $(echo "$age_seconds > ${THRESHOLD}" | bc -l) )); then
-      echo "  DELETING: $name (ID: $id)"
+      echo "Deleting Server $name (ID: $id)"
       curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
     fi
   done

@@ -149,13 +149,6 @@ jobs:
         ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
         cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
 
-    - uses: actions/checkout@v4
-    - name: Purge Expired Bare Metal
-      id: purge-metal
-      run: |
-        ${SD}/adhoc.sh purge-metal ${METAL_API_KEY} ${METAL_PROJECT_ID}
-        cat adhoc-purge-metal.out >> "$GITHUB_OUTPUT"
-
     - name: Archive Teardown Logs
       uses: actions/upload-artifact@v4
       with:

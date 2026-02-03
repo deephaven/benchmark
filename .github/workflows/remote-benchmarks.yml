@@ -178,6 +178,12 @@ jobs:
         destination: deephaven-benchmark
         process_gcloudignore: false
         
+    - name: Purge Expired Bare Metal
+      id: purge-metal
+      run: |
+        ${SD}/adhoc.sh purge-metal ${METAL_API_KEY} ${METAL_PROJECT_ID}
+        cat adhoc-purge-metal.out >> "$GITHUB_OUTPUT"
+
     - name: Sync GCloud with Demo NFS
       if: ${{ env.RUN_TYPE != 'adhoc' }}
       run: |
