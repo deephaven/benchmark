@@ -20,6 +20,7 @@ GIT_BRANCH=$2
 RUN_TYPE=$3                     # ex. nightly | release | compare
 DOCKER_IMG=$4			# ex. edge | 0.32.0 (assumes location ghcr.io/deephaven/server)
 DEEPHAVEN_DIR=/${HOME}/deephaven
+export DEBIAN_FRONTEND=noninteractive
 
 title () { echo; echo $1; }
 
@@ -27,7 +28,6 @@ title "- Setting Up Remote Benchmark Testing on ${HOST} -"
 
 title "-- Waiting for APT to be Free --"
 BEGIN_SECS=$(date +%s)
-export DEBIAN_FRONTEND=noninteractive
 STATUS=0
 for i in {1..60}; do
   if ! sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 && ! sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
@@ -43,6 +43,29 @@ if [[ $STATUS -eq 0 ]]; then
   echo "Failed to gain APT lock ${ACTOR} after ${DURATION} seconds"
   exit 1
 fi
+
+title "-- Disabling Automatic Updates --"
+sudo systemctl stop unattended-upgrades.service 2>/dev/null || true
+sudo systemctl stop apt-daily.service 2>/dev/null || true
+sudo systemctl stop apt-daily-upgrade.service 2>/dev/null || true
+sudo systemctl disable --now apt-daily.timer 2>/dev/null || true
+sudo systemctl disable --now apt-daily-upgrade.timer 2>/dev/null || true
+sudo systemctl mask unattended-upgrades.service 2>/dev/null || true
+sudo systemctl mask apt-daily.service 2>/dev/null || true
+sudo systemctl mask apt-daily-upgrade.service 2>/dev/null || true
+sudo tee /etc/apt/apt.conf.d/10periodic >/dev/null <<EOF
+APT::Periodic::Enable "0";
+EOF
+sudo tee /etc/apt/apt.conf.d/20auto-upgrades >/dev/null <<EOF
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Unattended-Upgrade "0";
+EOF
+
+title "-- Disabling SSH Password Authentication --"
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?KbdInteractiveAuthentication.*/KbdInteractiveAuthentication no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
+sudo systemctl reload sshd
 
 title "-- Adding OS Applications --"
 UPDATED=$(sudo update-alternatives --list java | grep -i temurin; echo $?)
