@@ -65,7 +65,7 @@ title "-- Disabling SSH Password Authentication --"
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#\?KbdInteractiveAuthentication.*/KbdInteractiveAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
-sudo systemctl reload sshd
+sudo systemctl reload ssh.service
 
 title "-- Adding OS Applications --"
 UPDATED=$(sudo update-alternatives --list java | grep -i temurin; echo $?)
