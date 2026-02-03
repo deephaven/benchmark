@@ -68,11 +68,10 @@ sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentica
 sudo systemctl reload ssh.service
 
 title "-- Adding OS Applications --"
-UPDATED=$(sudo update-alternatives --list java | grep -i temurin; echo $?)
-if [[ ${UPDATED} != 0 ]]; then
+if ! sudo update-alternatives --list java 2>/dev/null | grep -qi temurin; then
   title "-- Adding Adoptium to APT registry --"
   sudo apt-get -y install wget apt-transport-https gpg
-  sudo wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+  sudo wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg >/dev/null
   echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list
   sudo apt-get -y update
 fi
