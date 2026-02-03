@@ -40,7 +40,7 @@ done
 
 DURATION=$(($(date +%s) - ${BEGIN_SECS}))
 if [[ $STATUS -eq 0 ]]; then
-  echo "Failed to gain APT lock ${ACTOR} after ${DURATION} seconds"
+  echo "Failed to gain APT lock after ${DURATION} seconds"
   exit 1
 fi
 
