@@ -82,7 +82,7 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3
   PLAN=$4
-  ACTOR=$(echo "${SERVER_NAME_PREFIX}-$5-"$(${SCRIPT_DIR}/base.sh $(date +%s%03N) 36) | tr '[:upper:]' '[:lower:]')
+  ACTOR=$(echo "${SERVER_NAME_PREFIX}$5-"$(${SCRIPT_DIR}/base.sh $(date +%s%03N) 36) | tr '[:upper:]' '[:lower:]')
   echo "Deploying Server: ${ACTOR}"
   BEGIN_SECS=$(date +%s)
   
