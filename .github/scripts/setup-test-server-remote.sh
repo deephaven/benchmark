@@ -73,14 +73,11 @@ else
   sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt-get -y update
   sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker ${USER}
-  sudo systemctl restart docker
-  exec sg docker bash
 fi
 
 title "-- Removing Git Benchmark Repositories --"
@@ -96,16 +93,16 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping Docker Containers --"
-docker ps -q | xargs --no-run-if-empty -n 1 docker kill
+sudo docker ps -q | xargs --no-run-if-empty -n 1 docker kill
 
 title "-- Removing Docker Containers --"
-docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
+sudo docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
 
 title "-- Removing Docker Images --"
-docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
+sudo docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
 
 title "-- Pruning Docker Volumes --"
-docker system prune --volumes --force
+sudo docker system prune --volumes --force
 sudo rm -rf ${DEEPHAVEN_DIR}
 
 title "-- Staging Docker Resources --"
