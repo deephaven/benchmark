@@ -141,7 +141,9 @@ jobs:
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
       RUN_LABEL: ${{inputs.run_label}}
-      ACTOR: "${{ inputs.run_type == 'adhoc' && github.actor || github.repository_owner }}" 
+      ACTOR: "${{ inputs.run_type == 'adhoc' && github.actor || github.repository_owner }}"
+      METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
     
     steps:
     - uses: actions/checkout@v4
