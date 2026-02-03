@@ -69,7 +69,7 @@ jobs:
       METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
       METAL_PLAN: "s2.c2.small"
       METAL_ACTOR: "${{ github.actor }}"
-      
+
     steps:
     - uses: actions/checkout@v4
     - name: Make Set Labels
@@ -84,13 +84,12 @@ jobs:
         ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
 
-    - uses: hashicorp/setup-terraform@v3
     - name: Deploy Bare Metal
       id: deploy-metal
       run: |
         ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}"
         cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
-    
+
     - name: Archive Setup Logs
       uses: actions/upload-artifact@v4
       with:
@@ -98,7 +97,7 @@ jobs:
         path: |
           *.out
           *.json
-  
+
   process-adhoc-benchmarks-1:
     needs: setup-benchmark-system
     uses: ./.github/workflows/remote-benchmarks.yml
@@ -114,7 +113,7 @@ jobs:
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
       config_options: "<default>"
     secrets: inherit
-    
+
   process-adhoc-benchmarks-2:
     needs: [setup-benchmark-system, process-adhoc-benchmarks-1] 
     uses: ./.github/workflows/remote-benchmarks.yml
@@ -141,7 +140,7 @@ jobs:
       METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
       METAL_DEVICE_ID: ${{ needs.setup-benchmark-system.outputs.metal_device_id }}
       METAL_DEVICE_NAME: ${{ needs.setup-benchmark-system.outputs.metal_device_name }}
-      
+
     steps:
     - uses: actions/checkout@v4
     - name: Delete Bare Metal
@@ -149,7 +148,14 @@ jobs:
       run: |
         ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
         cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
-        
+
+    - uses: actions/checkout@v4
+    - name: Purge Expired Bare Metal
+      id: purge-metal
+      run: |
+        ${SD}/adhoc.sh purge-metal ${METAL_API_KEY} ${METAL_PROJECT_ID}
+        cat adhoc-purge-metal.out >> "$GITHUB_OUTPUT"
+
     - name: Archive Teardown Logs
       uses: actions/upload-artifact@v4
       with:

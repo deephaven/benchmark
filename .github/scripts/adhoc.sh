@@ -20,6 +20,7 @@ fi
 ACTION=$1
 SCRIPT_DIR=$(dirname "$0")
 OUTPUT_NAME=adhoc-${ACTION}.out
+SERVER_NAME_PREFIX="adhoc-"
 
 rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
 
@@ -81,7 +82,7 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3
   PLAN=$4
-  ACTOR=$(echo "adhoc-$5-"$(${SCRIPT_DIR}/base.sh $(date +%s%03N) 36) | tr '[:upper:]' '[:lower:]')
+  ACTOR=$(echo "${SERVER_NAME_PREFIX}-$5-"$(${SCRIPT_DIR}/base.sh $(date +%s%03N) 36) | tr '[:upper:]' '[:lower:]')
   echo "Deploying Server: ${ACTOR}"
   BEGIN_SECS=$(date +%s)
   
@@ -154,11 +155,10 @@ if [[ ${ACTION} == "purge-metal" ]]; then
   echo "Starting Ephemeral Server Cleanup"
   echo "Max Hours to Expiration: ${EXPIRATION_HOURS}"
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
-  PREFIX="adhoc-test-server-"
   THRESHOLD=$(echo "${EXPIRATION_HOURS} * 3600" | bc)
   NOW=$(date +%s)
 
-  servers=$(curl -s -H "Authorization: Bearer $TOKEN" https://api.phoenixnap.com/bmc/v1/servers)
+  servers=$(curl -s -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers)
   echo "$servers" | jq -c '.[]' | while read server; do
     id=$(echo "$server" | jq -r '.id')
     name=$(echo "$server" | jq -r '.hostname')
@@ -169,7 +169,7 @@ if [[ ${ACTION} == "purge-metal" ]]; then
     age_hours=$(printf "%0.4f" "$(echo "$age_seconds / 3600" | bc -l)")
     echo "Server: $name  Age: $age_hours hours"
 
-    if [[ "$name" == "$PREFIX"* ]] && (( $(echo "$age_seconds > ${THRESHOLD}" | bc -l) )); then
+    if [[ "$name" == "${SERVER_NAME_PREFIX}"* ]] && (( $(echo "$age_seconds > ${THRESHOLD}" | bc -l) )); then
       echo "  DELETING: $name (ID: $id)"
       curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
     fi
