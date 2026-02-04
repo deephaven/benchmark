@@ -150,7 +150,7 @@ fi
 if [[ ${ACTION} == "purge-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3
-  EXPIRATION_HOURS=0.25
+  EXPIRATION_HOURS=24
   
   echo "Starting Ephemeral Server Cleanup"
   echo "Max Hours to Expiration: ${EXPIRATION_HOURS}"
