@@ -77,7 +77,7 @@ if [[ ${ACTION} == "scale-nums" ]]; then
   echo "TEST_ITERATIONS=${TEST_ITERATIONS}" | tee -a ${OUTPUT_NAME}
 fi
 
-# Deploy a bare metal server using tofu
+# Deploy a bare metal server with ReST API
 if [[ ${ACTION} == "deploy-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3
@@ -116,7 +116,6 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
       fi
     fi
     sleep 10
-  done
 
   DURATION=$(($(date +%s) - ${BEGIN_SECS}))
   if [[ ${STATUS} -eq 0 ]]; then
