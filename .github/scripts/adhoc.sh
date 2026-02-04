@@ -107,12 +107,13 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   STATUS=0
   for i in {1..60}; do
     STATUS_RESPONSE=$(curl -s -H "Authorization: Bearer ${TOKEN}" "https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID}")
-    if [[ ${STATUS} -eq 0 ]]; then
-      [[ "$(echo "${STATUS_RESPONSE}" | jq -r '.status')" == "powered-on" ]] && STATUS=1
-    fi
-
-    if [[ ${STATUS} -eq 1 ]]; then
-      nc -z -w 2 "${IP_ADDRESS}" 22 && break
+    SERVER_STATUS=$(echo "${STATUS_RESPONSE}" | jq -r '.status')
+    if [[ "${SERVER_STATUS}" == "powered-on" ]]; then
+      if nc -z -w 2 "${IP_ADDRESS}" 22 >/dev/null 2>&1; then
+        echo "Server is reachable"
+        STATUS=1
+        break
+      fi
     fi
     sleep 10
   done
