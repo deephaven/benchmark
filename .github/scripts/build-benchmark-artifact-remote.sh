@@ -10,9 +10,9 @@ set -o nounset
 # Assumes git branch is available and docker is running
 
 HOST=`hostname`
-GIT_DIR=/${HOME}/git/benchmark
-RUN_DIR=/${HOME}/run
-DEEPHAVEN_DIR=/${HOME}/deephaven
+GIT_DIR=${HOME}/git/benchmark
+RUN_DIR=${HOME}/run
+DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${GIT_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"

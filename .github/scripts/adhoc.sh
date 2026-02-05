@@ -9,7 +9,7 @@ set -o pipefail
 # ex. adhoc.sh make-labels "where" "0.36.0" "user123:branch-name-123"
 # ex. adhoc.sh scale-nums 10 5
 # ex. adhoc.sh deploy-metal api-key project-id s2.c2.small server-name
-# ex. adhoc.sh delete-metal api-key device-id service-name
+# ex. adhoc.sh delete-metal api-key project-id device-id server-name
 # ex. adhoc.sh purge-metal api-key project-id
 
 if [[ $# < 2 ]]; then
@@ -141,7 +141,6 @@ if [[ ${ACTION} == "delete-metal" ]]; then
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
   echo "Deleting Server ${DEVICE_NAME}"
   curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID} >/dev/null
-  echo "STATUS_RESPONSE: ${STATUS_RESPONSE}"
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_NAME=${DEVICE_NAME}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_ID=${DEVICE_ID}" | tee -a ${OUTPUT_NAME}

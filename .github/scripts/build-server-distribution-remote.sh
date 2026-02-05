@@ -15,8 +15,8 @@ if [[ $# != 1 ]]; then
 fi
 
 HOST=`hostname`
-GIT_DIR=/${HOME}/git
-DEEPHAVEN_DIR=/${HOME}/deephaven
+GIT_DIR=${HOME}/git
+DEEPHAVEN_DIR=${HOME}/deephaven
 DOCKER_IMG=$1
 BRANCH_DELIM=":"
 BUILD_JAVA=temurin-17-jdk-amd64

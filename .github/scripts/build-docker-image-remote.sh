@@ -9,8 +9,8 @@ set -o pipefail
 # Ensure the docker image is running in the Deephaven directory
 
 HOST=`hostname`
-GIT_DIR=/${HOME}/git
-DEEPHAVEN_DIR=/${HOME}/deephaven
+GIT_DIR=${HOME}/git
+DEEPHAVEN_DIR=${HOME}/deephaven
 DEEPHAVEN_VERSION_FILE=${GIT_DIR}/deephaven-core/build/version
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then

@@ -25,8 +25,8 @@ ROW_COUNT=$4
 DISTRIB=$5
 TAG_NAME=$6
 HOST=$(hostname)
-RUN_DIR=/${HOME}/run
-DEEPHAVEN_DIR=/${HOME}/deephaven
+RUN_DIR=${HOME}/run
+DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${RUN_DIR}" ]; then
   echo "$0: Missing the Benchmark run directory"

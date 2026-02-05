@@ -18,7 +18,7 @@ DIRECTIVE=$1
 DOCKER_IMG=$2
 CONFIG_OPTS="${@:3}"
 HOST=`hostname`
-DEEPHAVEN_DIR=/${HOME}/deephaven
+DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"
