@@ -72,7 +72,7 @@ jobs:
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
 
   process-adhoc-benchmarks:
-    needs: [setup-benchmark-system] 
+    needs: setup-benchmark-system
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: adhoc

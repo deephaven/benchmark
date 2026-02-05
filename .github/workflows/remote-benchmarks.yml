@@ -200,7 +200,7 @@ jobs:
 
   purge-expired-benchmark-systems:
     if: always()
-    needs: report-benchmarks
+    needs: [run-benchmarks, report-benchmarks]
     runs-on: ubuntu-24.04
     env:
       SD: .github/scripts

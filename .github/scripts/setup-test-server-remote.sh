@@ -61,12 +61,8 @@ APT::Periodic::Update-Package-Lists "0";
 APT::Periodic::Unattended-Upgrade "0";
 EOF
 
-title "-- Disabling ASLR --"
+title "-- Disabling ASLR for Current Session --"
 sudo sysctl -w kernel.randomize_va_space=0 >/dev/null
-sudo tee /etc/sysctl.d/01-disable-aslr.conf >/dev/null <<EOF
-kernel.randomize_va_space = 0
-EOF
-sudo sysctl --system >/dev/null
 
 title "-- Disabling SSH Password Authentication --"
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
