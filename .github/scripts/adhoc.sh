@@ -12,7 +12,7 @@ set -o pipefail
 # ex. adhoc.sh delete-metal api-key project-id device-id server-name
 # ex. adhoc.sh purge-metal api-key project-id
 
-if [[ $# < 2 ]]; then
+if [[ $# -lt 2 ]]; then
   echo "$0: Missing action or its arguments"
   exit 1
 fi
@@ -29,6 +29,7 @@ rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
 # ex. user123:1111-my-pull-request
 # ex. 0.36.0 or edge
 getSetLabel() {
+  PREFIX=$1
   SUFFIX=$2
   if [[ $2 == *"@sha"*":"* ]]; then
     SUFFIX=$(echo "$2" | sed 's/@sha.*:/_/g' | head -c 20)
