@@ -99,9 +99,14 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   RESPONSE=$(curl -s -X POST "https://api.phoenixnap.com/bmc/v1/servers" -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" -d @adhoc-server-deploy-final.json)
 
-  IP_ADDRESS=$(jq -r '.publicIpAddresses[0]' <<< "${RESPONSE}")
-  DEVICE_ID=$(jq -r '.id' <<< "${RESPONSE}")
-  echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
+  IP_ADDRESS=$(jq -r '.publicIpAddresses[0] // empty' <<< "${RESPONSE}")
+  DEVICE_ID=$(jq -r '.id // empty' <<< "${RESPONSE}")
+  if [[ -z "$IP_ADDRESS" || -z "$DEVICE_ID" ]]; then
+    echo "Failed Getting IP Address and Device ID"
+    exit 1
+  else
+    echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
+  fi
   popd
   
   echo "Waiting for Server Ready"
@@ -111,7 +116,6 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
     SERVER_STATUS=$(echo "${STATUS_RESPONSE}" | jq -r '.status')
     if [[ "${SERVER_STATUS}" == "powered-on" ]]; then
       if nc -z -w 2 "${IP_ADDRESS}" 22 >/dev/null 2>&1; then
-        echo "Server is reachable"
         STATUS=1
         break
       fi
@@ -122,6 +126,7 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   DURATION=$(($(date +%s) - ${BEGIN_SECS}))
   if [[ ${STATUS} -eq 0 ]]; then
     echo "Failed to provision device ${ACTOR} after ${DURATION} seconds"
+    echo "Last provision attempt status: ${SERVER_STATUS}"
     exit 1
   fi
 
@@ -156,7 +161,7 @@ if [[ ${ACTION} == "purge-metal" ]]; then
   echo "Starting Ephemeral Server Cleanup"
   echo "Max Hours to Expiration: ${EXPIRATION_HOURS}"
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
-  THRESHOLD=$(echo "${EXPIRATION_HOURS} * 3600" | bc)
+  THRESHOLD=$(( EXPIRATION_HOURS * 3600 ))
   NOW=$(date +%s)
 
   servers=$(curl -s -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers)
@@ -167,10 +172,9 @@ if [[ ${ACTION} == "purge-metal" ]]; then
     [ "$created" = "null" ] && continue
     created_epoch=$(date -d "$created" +%s)
     age_seconds=$(( NOW - created_epoch ))
-    age_hours=$(printf "%0.4f" "$(echo "$age_seconds / 3600" | bc -l)")
-    echo "Found Server $name Aged $age_hours Hours"
+    echo "Found Server $name Aged $(( age_seconds / 3600 )) Hours"
 
-    if [[ "$name" == "${SERVER_NAME_PREFIX}"* ]] && (( $(echo "$age_seconds > ${THRESHOLD}" | bc -l) )); then
+    if [[ "$name" == "${SERVER_NAME_PREFIX}"* ]] && (( age_seconds > THRESHOLD )); then
       echo "Deleting Server $name (ID: $id)"
       curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
     fi
