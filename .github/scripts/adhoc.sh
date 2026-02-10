@@ -29,8 +29,8 @@ rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
 # ex. user123:1111-my-pull-request
 # ex. 0.36.0 or edge
 getSetLabel() {
-  PREFIX=$1
-  SUFFIX=$2
+  PREFIX="$1"
+  SUFFIX="$2"
   if [[ $2 == *"@sha"*":"* ]]; then
     SUFFIX=$(echo "$2" | sed 's/@sha.*:/_/g' | head -c 20)
   elif [[ $2 == *":"* ]]; then
@@ -44,6 +44,25 @@ getApiToken() {
     -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=client_credentials" \
     --data-urlencode "client_id=$1" --data-urlencode "client_secret=$2" | jq -r '.access_token'
 }
+
+deleteMetal() {
+    TOKEN="$1"
+    DEVICE_ID="$2"
+    DEVICE_NAME="$3"
+    echo "Deleting server ${DEVICE_NAME}"
+    RESP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: Bearer ${TOKEN}" "https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID}")
+    CURL_EXIT=$?
+    if (( ${CURL_EXIT} != 0 )); then
+        echo "Failed deleting server ${DEVICE_NAME} with exit code ${CURL_EXIT}"
+        exit 1
+    fi
+    if (( ${RESP_CODE} != 404 && (${RESP_CODE} < 200 || ${RESP_CODE} >= 300) )); then
+        echo "Failed deleting server ${DEVICE_NAME} with http code ${RESP_CODE}"
+        exit 1
+    fi
+    echo "Successfully deleted server ${DEVICE_NAME}"
+}
+
 
 # Make set labels from a prefix and image/branch names
 if [[ ${ACTION} == "make-labels" ]]; then
@@ -146,7 +165,8 @@ if [[ ${ACTION} == "delete-metal" ]]; then
 
   TOKEN=$(getApiToken "${PROJECT_ID}" "${API_KEY}")
   echo "Deleting Server ${DEVICE_NAME}"
-  curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/${DEVICE_ID} >/dev/null
+  deleteMetal ${TOKEN} ${DEVICE_ID} ${DEVICE_NAME}
+  
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_NAME=${DEVICE_NAME}" | tee -a ${OUTPUT_NAME}
   echo "DEVICE_ID=${DEVICE_ID}" | tee -a ${OUTPUT_NAME}
@@ -175,8 +195,7 @@ if [[ ${ACTION} == "purge-metal" ]]; then
     echo "Found Server $name Aged $(( age_seconds / 3600 )) Hours"
 
     if [[ "$name" == "${SERVER_NAME_PREFIX}"* ]] && (( age_seconds > THRESHOLD )); then
-      echo "Deleting Server $name (ID: $id)"
-      curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://api.phoenixnap.com/bmc/v1/servers/$id >/dev/null
+      deleteMetal ${TOKEN} $id $name
     fi
   done
   echo "ACTION=${ACTION}" | tee -a ${OUTPUT_NAME}
