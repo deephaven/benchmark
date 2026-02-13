@@ -6,13 +6,13 @@
 name: Nightly Benchmark Test on Docker Deephaven
 
 on:
-  #schedule:
-  #  - cron: '0 6 * * *'
+  schedule:
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
   process-nightly-benchmarks:
-    # if: ${{github.repository_owner == 'deephaven'}} Temporarily disabled to allow running Nightly PNAP from fork.
+    if: ${{github.repository_owner == 'deephaven'}} Temporarily disabled to allow running Nightly PNAP from fork.
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: nightly
