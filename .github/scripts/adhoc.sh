@@ -97,7 +97,7 @@ if [[ ${ACTION} == "scale-nums" ]]; then
   echo "TEST_ITERATIONS=${TEST_ITERATIONS}" | tee -a ${OUTPUT_NAME}
 fi
 
-# Deploy a bare metal server using tofu
+# Deploy a bare metal server using the Phoenix NAP REST API
 if [[ ${ACTION} == "deploy-metal" ]]; then
   API_KEY=$2
   PROJECT_ID=$3

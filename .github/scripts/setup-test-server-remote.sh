@@ -118,13 +118,13 @@ title "-- Clone Git Benchmark Branch ${GIT_BRANCH} --"
 git checkout ${GIT_BRANCH}
 
 title "-- Stopping Docker Containers --"
-sudo docker ps -q | xargs --no-run-if-empty -n 1 docker kill
+sudo docker ps -q | xargs --no-run-if-empty -n 1 sudo docker kill
 
 title "-- Removing Docker Containers --"
-sudo docker ps -a -q | xargs --no-run-if-empty -n 1 docker rm --force
+sudo docker ps -a -q | xargs --no-run-if-empty -n 1 sudo docker rm --force
 
 title "-- Removing Docker Images --"
-sudo docker images -a -q | xargs --no-run-if-empty -n 1 docker rmi --force
+sudo docker images -a -q | xargs --no-run-if-empty -n 1 sudo docker rmi --force
 
 title "-- Pruning Docker Volumes --"
 sudo docker system prune --volumes --force
