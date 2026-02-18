@@ -64,6 +64,9 @@ EOF
 title "-- Disabling ASLR for Current Session --"
 sudo sysctl -w kernel.randomize_va_space=0 >/dev/null
 
+title "-- Setting Governor Mode --"
+sudo cpupower frequency-set -g powersave
+
 title "-- Disabling SSH Password Authentication --"
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sudo sed -i 's/^#\?KbdInteractiveAuthentication.*/KbdInteractiveAuthentication no/' /etc/ssh/sshd_config
