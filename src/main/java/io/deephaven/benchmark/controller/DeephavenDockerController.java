@@ -111,7 +111,7 @@ public class DeephavenDockerController implements Controller {
 
     void waitForEngineReady() {
         long beginTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - beginTime < 10000) {
+        while (System.currentTimeMillis() - beginTime < 60000) {
             if (getUrlStatus("http://" + httpHostPort + "/ide/"))
                 return;
             Threads.sleep(100);
