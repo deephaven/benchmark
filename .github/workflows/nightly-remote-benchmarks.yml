@@ -12,7 +12,7 @@ on:
 
 jobs:
   process-nightly-benchmarks:
-    if: ${{github.repository_owner == 'deephaven'}} Temporarily disabled to allow running Nightly PNAP from fork.
+    if: ${{github.repository_owner == 'deephaven'}}
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: nightly
