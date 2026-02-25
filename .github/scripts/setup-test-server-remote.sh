@@ -65,8 +65,8 @@ title "-- Disabling ASLR for Current Session --"
 sudo sysctl -w kernel.randomize_va_space=0 >/dev/null
 
 title "-- Setting Governor Mode --"
-echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost
-sudo cpupower frequency-set -g performance
+echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/boost
+sudo cpupower frequency-set -g schedutil
 
 title "-- Disabling SSH Password Authentication --"
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
