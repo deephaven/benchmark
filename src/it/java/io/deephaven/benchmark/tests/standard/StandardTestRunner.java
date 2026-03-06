@@ -373,7 +373,6 @@ final public class StandardTestRunner {
         from deephaven.parquet import read
         from numpy import typing as npt
         import numpy as np
-        import numba as nb
         """;
 
         this.api = Bench.create(testInst);
