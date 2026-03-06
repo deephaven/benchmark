@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Build, Run Unit tests, and make the Benchmark artifacts; jar and test-jar
 
@@ -13,7 +13,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v4
