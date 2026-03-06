@@ -31,7 +31,7 @@ on:
       test_class_list:
         description: 'Benchmark Test Classes'
         required: true
-        default: 'Where, Avg*'
+        default: 'Where,Avg*'
         type: string
       test_iterations:
         description: 'Benchmark Iterations'
@@ -56,7 +56,7 @@ on:
 
 jobs:
   setup-benchmark-system:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       test_row_count: ${{ steps.scale-nums.outputs.TEST_ROW_COUNT }}
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
@@ -72,7 +72,7 @@ jobs:
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
 
   process-adhoc-benchmarks:
-    needs: [setup-benchmark-system] 
+    needs: setup-benchmark-system
     uses: ./.github/workflows/remote-benchmarks.yml
     with:
       run_type: adhoc

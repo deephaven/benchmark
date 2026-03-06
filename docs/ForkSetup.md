@@ -10,7 +10,7 @@ In the [Github Main Benchmark Repository](https://github.com/deephaven/benchmark
 
 ### Required Secrets
 
-Not all secrets are required for each workflow. In the following list, each secret is listed, what it means, and what workflows it is relevant for. To populate these secrets, go to the "Actions secrets and variables" page under "Settings -> Secrets and variables -> Actions". Some of these values will need to be supplied by your administrator.
+Not all secrets are required for each workflow. In the following table, each secret is listed, what it means, and what workflows it is relevant for. To populate these secrets, go to the "Actions secrets and variables" page under "Settings -> Secrets and variables -> Actions". Some of these values will need to be supplied by your administrator.
 
 | Variable                   | Description                                                           | Shared (Ask Admin) | Optional |
 | -------------------------- | --------------------------------------------------------------------- | ------------------ | -------- |
@@ -18,9 +18,12 @@ Not all secrets are required for each workflow. In the following list, each secr
 | BENCHMARK_HOST             | The host ip for an existing (non-auto-provisioned) server             | No                 | No       |
 | BENCHMARK_USER             | The "run as" user for running benchmarks on the server                | No                 | No       |
 | BENCHMARK_KEY              | A private key used by SSH corresponding to a public key on the server | No                 | No       |
-| BENCHMARK_METAL_AUTH_TOKEN | The key required to access the bare metal provider API                | Yes                | No       |
-| BENCHMARK_METAL_PROJECT_ID | The project id from the bare metal provider for deployments           | Yes                | No       |
+| BENCHMARK_METAL_AUTH_TOKEN | The key/secret required to access the bare metal provider API         | Yes                | No       |
+| BENCHMARK_METAL_PROJECT_ID | The project/client id from the bare metal provider for deployments    | Yes                | No       |
 | BENCHMARK_SLACK_CHANNEL    | Slack channel to notify on workflow completion (ex. @your-slack-user) | No                 | Yes      |
 | BENCHMARK_SLACK_TOKEN      | Slack token for notification                                          | Yes                | Yes      |
 | BENCHMARK_SIGNING_KEY      | Use to GPG-sign published benchmark artifacts to maven central        | Yes                | Yes      |
 
+### Deephaven Users Only
+
+Since this is a public repository, secrets for use of Deephaven servers cannot be supplied here. You can find what you need in our vault under `Benchmark Community Fork Setup`.

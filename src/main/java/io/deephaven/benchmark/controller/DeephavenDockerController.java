@@ -50,10 +50,10 @@ public class DeephavenDockerController implements Controller {
             return false;
         var composeRunPath = getRunningComposePath();
         if (composeRunPath != null)
-            exec("sudo", "docker", "compose", "-f", composeRunPath, "down");
+            exec("docker", "compose", "-f", composeRunPath, "down");
         var availableServices = listAvailableServices(composePropPath);
         var services = Strings.startsWith(availableServices, servicePrefixes);
-        exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "up", "-d", services));
+        exec(Strings.toArray("docker", "compose", "-f", composePropPath, "up", "-d", services));
         if (services.contains("deephaven") || (services.isEmpty() && availableServices.contains("deephaven")))
             waitForEngineReady();
         System.out.println("Running Services after Start: " + listRunningServices(composePropPath));
@@ -76,7 +76,7 @@ public class DeephavenDockerController implements Controller {
             services = listAvailableServices(composePropPath);
             services.removeAll(Strings.startsWith(services, keepServicePrefixes));
         }
-        exec(Strings.toArray("sudo", "docker", "compose", "-f", composePropPath, "down", "--timeout", "0", services));
+        exec(Strings.toArray("docker", "compose", "-f", composePropPath, "down", "--timeout", "0", services));
         System.out.println("Running Services after stop: " + listRunningServices(composePropPath));
         return true;
     }
@@ -105,13 +105,13 @@ public class DeephavenDockerController implements Controller {
             return "";
         var composePath = getRunningComposePath();
         if (composePath != null)
-            return exec("sudo", "docker", "compose", "-f", composePath, "logs");
+            return exec("docker", "compose", "-f", composePath, "logs");
         return "";
     }
 
     void waitForEngineReady() {
         long beginTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - beginTime < 10000) {
+        while (System.currentTimeMillis() - beginTime < 20000) {
             if (getUrlStatus("http://" + httpHostPort + "/ide/"))
                 return;
             Threads.sleep(100);
@@ -151,22 +151,22 @@ public class DeephavenDockerController implements Controller {
     }
 
     List<String> getRunningContainerIds() {
-        var out = exec("sudo", "docker", "ps");
+        var out = exec("docker", "ps");
         return parseContainerIds(out);
     }
 
     ContainerInfo getContainerInfo(String containerId) {
-        var out = exec("sudo", "docker", "container", "inspect", containerId);
+        var out = exec("docker", "container", "inspect", containerId);
         return parseContainerInfo(out);
     }
 
     Set<String> listAvailableServices(String composePath) {
-        var out = exec("sudo", "docker", "compose", "-f", composePath, "config", "--services");
+        var out = exec("docker", "compose", "-f", composePath, "config", "--services");
         return parseServicesList(out);
     }
 
     Set<String> listRunningServices(String composePath) {
-        var out = exec("sudo", "docker", "compose", "-f", composePath, "ps", "--services");
+        var out = exec("docker", "compose", "-f", composePath, "ps", "--services");
         return parseServicesList(out);
     }
 

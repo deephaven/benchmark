@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Assemble the Deephaven server artifacts on the remote side if needed
 # The supplied argument can be an image name or <owner>::<branch>
@@ -15,8 +15,8 @@ if [[ $# != 1 ]]; then
 fi
 
 HOST=`hostname`
-GIT_DIR=/root/git
-DEEPHAVEN_DIR=/root/deephaven
+GIT_DIR=${HOME}/git
+DEEPHAVEN_DIR=${HOME}/deephaven
 DOCKER_IMG=$1
 BRANCH_DELIM=":"
 BUILD_JAVA=temurin-17-jdk-amd64

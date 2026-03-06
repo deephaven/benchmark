@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Start or Stop a Deephaven image based on the given directive and image/branch name
 # The directives argument can be start or stop
@@ -18,7 +18,7 @@ DIRECTIVE=$1
 DOCKER_IMG=$2
 CONFIG_OPTS="${@:3}"
 HOST=`hostname`
-DEEPHAVEN_DIR=/root/deephaven
+DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
   echo "$0: Missing one or more Benchmark setup directories"

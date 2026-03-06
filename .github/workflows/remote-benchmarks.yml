@@ -50,7 +50,7 @@ concurrency:
 
 jobs:
   setup-benchmarks:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix-iterations: ${{ steps.matrix-iterations.outputs.matrix-iterations }}
     env:
@@ -105,7 +105,7 @@ jobs:
 
   run-benchmarks:
     needs: setup-benchmarks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 1
       matrix:
@@ -130,22 +130,25 @@ jobs:
     - name: Run Remote Benchmarks
       run: |
         set -f
+        TEST_CLS=$(echo "${TEST_CLS}" | tr -d '[:space:]')
         ${SD}/run-ssh-local.sh ${HOST} ${USER} ${SD} run-benchmarks-remote ${RUN_TYPE} "${TEST_PKG}" "${TEST_CLS}" ${ROW_CNT} ${DISTRIB} ${{ matrix.tag }}
 
   report-benchmarks:
     needs: run-benchmarks
-    runs-on: ubuntu-22.04
-    env: 
+    runs-on: ubuntu-24.04
+    env:
       SD: .github/scripts
       USER: ${{secrets.BENCHMARK_USER}}
       RUN_TYPE: ${{inputs.run_type}}
       DOCKER_IMG: ${{inputs.docker_image}}
       RUN_LABEL: ${{inputs.run_label}}
-      ACTOR: "${{ inputs.run_type == 'adhoc' && github.actor || github.repository_owner }}" 
+      ACTOR: "${{ inputs.run_type == 'adhoc' && github.actor || github.repository_owner }}"
+      METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
     
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -177,7 +180,7 @@ jobs:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
         process_gcloudignore: false
-        
+
     - name: Sync GCloud with Demo NFS
       if: ${{ env.RUN_TYPE != 'adhoc' }}
       run: |
@@ -196,3 +199,19 @@ jobs:
           ${{env.RUN_TYPE}}/**/*
           logs/**/*
 
+  purge-expired-benchmark-systems:
+    if: always()
+    needs: [run-benchmarks, report-benchmarks]
+    runs-on: ubuntu-24.04
+    env:
+      SD: .github/scripts
+      METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Purge Expired Bare Metal
+      id: purge-metal
+      run: |
+        ${SD}/adhoc.sh purge-metal ${METAL_API_KEY} ${METAL_PROJECT_ID}
+        cat adhoc-purge-metal.out >> "$GITHUB_OUTPUT"

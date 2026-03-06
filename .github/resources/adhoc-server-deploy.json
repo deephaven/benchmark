@@ -1,0 +1,14 @@
+{
+  "hostname": "my-server",
+  "description": "Ephemeral adhoc benchmark server",
+  "os": "ubuntu/noble",
+  "type": "s2.c2.small",
+  "location": "CHI",
+  "installDefaultSshKeys": true,
+  "publicIpAddresses": [
+    {
+      "type": "PRIMARY"
+    }
+  ]
+}
+

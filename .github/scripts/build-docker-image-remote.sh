@@ -3,12 +3,14 @@
 set -o errexit
 set -o pipefail
 
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
+
 # Build a local docker image on the remote side
 # Ensure the docker image is running in the Deephaven directory
 
 HOST=`hostname`
-GIT_DIR=/root/git
-DEEPHAVEN_DIR=/root/deephaven
+GIT_DIR=${HOME}/git
+DEEPHAVEN_DIR=${HOME}/deephaven
 DEEPHAVEN_VERSION_FILE=${GIT_DIR}/deephaven-core/build/version
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then

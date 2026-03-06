@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Provision a server and run benchmarks on that system, cleaning up after
 # - Deploys a new server on the fly
@@ -29,7 +29,7 @@ on:
       test_class_list:
         description: 'Benchmark Test Classes'
         required: true
-        default: 'Where, Avg*'
+        default: 'Where,Avg*'
         type: string
       test_iterations:
         description: 'Benchmark Iterations'
@@ -54,7 +54,7 @@ on:
 
 jobs:
   setup-benchmark-system:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       set_label_1: ${{ steps.make-labels.outputs.SET_LABEL_1 }}
       set_label_2: ${{ steps.make-labels.outputs.SET_LABEL_2 }}
@@ -65,12 +65,11 @@ jobs:
       test_iterations: ${{ steps.scale-nums.outputs.TEST_ITERATIONS }}
     env:
       SD: .github/scripts
-      METAL_EXPIRE: "2 days"
       METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
       METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
-      METAL_PLAN: "c3.small.x86"
+      METAL_PLAN: "s2.c2.small"
       METAL_ACTOR: "${{ github.actor }}"
-      
+
     steps:
     - uses: actions/checkout@v4
     - name: Make Set Labels
@@ -84,13 +83,13 @@ jobs:
       run: |
         ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
-    
+
     - name: Deploy Bare Metal
       id: deploy-metal
       run: |
-        ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}" "${METAL_EXPIRE}"
+        ${SD}/adhoc.sh deploy-metal "${METAL_API_KEY}" "${METAL_PROJECT_ID}" "${METAL_PLAN}" "${METAL_ACTOR}"
         cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
-    
+
     - name: Archive Setup Logs
       uses: actions/upload-artifact@v4
       with:
@@ -98,7 +97,7 @@ jobs:
         path: |
           *.out
           *.json
-  
+
   process-adhoc-benchmarks-1:
     needs: setup-benchmark-system
     uses: ./.github/workflows/remote-benchmarks.yml
@@ -114,7 +113,7 @@ jobs:
       test_device_addr: ${{ needs.setup-benchmark-system.outputs.metal_ip_addr }}
       config_options: "<default>"
     secrets: inherit
-    
+
   process-adhoc-benchmarks-2:
     needs: [setup-benchmark-system, process-adhoc-benchmarks-1] 
     uses: ./.github/workflows/remote-benchmarks.yml
@@ -134,21 +133,22 @@ jobs:
   teardown-benchmark-system:
     if: ${{ always() && needs.setup-benchmark-system.outputs.metal_device_id }}
     needs: [setup-benchmark-system, process-adhoc-benchmarks-2]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env: 
       SD: .github/scripts
       METAL_API_KEY: ${{ secrets.BENCHMARK_METAL_AUTH_TOKEN }}
+      METAL_PROJECT_ID: ${{ secrets.BENCHMARK_METAL_PROJECT_ID }}
       METAL_DEVICE_ID: ${{ needs.setup-benchmark-system.outputs.metal_device_id }}
       METAL_DEVICE_NAME: ${{ needs.setup-benchmark-system.outputs.metal_device_name }}
-      
+
     steps:
     - uses: actions/checkout@v4
     - name: Delete Bare Metal
       id: delete-metal
       run: |
-        ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
+        ${SD}/adhoc.sh delete-metal ${METAL_API_KEY} ${METAL_PROJECT_ID} ${METAL_DEVICE_ID} ${METAL_DEVICE_NAME}
         cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
-        
+
     - name: Archive Teardown Logs
       uses: actions/upload-artifact@v4
       with:

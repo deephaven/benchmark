@@ -5,7 +5,7 @@ set -o pipefail
 set -o nounset
 set -f
 
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Run benchmarks on the remote side doing one iteration according to the following contract:
 # - If TAG_NAME is "Any", run all tests
@@ -25,8 +25,8 @@ ROW_COUNT=$4
 DISTRIB=$5
 TAG_NAME=$6
 HOST=$(hostname)
-RUN_DIR=/root/run
-DEEPHAVEN_DIR=/root/deephaven
+RUN_DIR=${HOME}/run
+DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${RUN_DIR}" ]; then
   echo "$0: Missing the Benchmark run directory"
@@ -42,7 +42,7 @@ cd ${DEEPHAVEN_DIR};
 title "-- Running Benchmarks --"
 set +f
 cd ${RUN_DIR}
-cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" > scale-benchmark.properties
+cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" | sed 's|${userHome}|'"${HOME}|g" > scale-benchmark.properties
 JAVA_OPTS=$(echo -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*-standalone.jar -cp standard-tests.jar)
 set -f
 

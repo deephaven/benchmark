@@ -22,7 +22,7 @@ RUN_TYPE=$4
 ACTOR=$5
 SET_LABEL=${6:-$(echo -n "set-"; ${SCRIPT_DIR}/base.sh $(date +%s%03N) 62)}
 DOCKER_IMG=$7
-RUN_DIR=/root/run
+RUN_DIR=/home/${USER}/run
 OUTPUT_NAME=fetch-results-local.out
 
 rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
