@@ -5,6 +5,7 @@ services:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
       - ./data:/data
+      - ./minio:/minio
     environment:
       - "START_OPTS=-Xmx24G -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
 
