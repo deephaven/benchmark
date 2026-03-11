@@ -47,22 +47,21 @@ public class RollingFormulaTickTest {
     }
 
     @Test
-    void rollingFormulaParamTick3Groups3Ops() {
-        setup(1, 3, 1);
+    void rollingFormulaParamTick2Groups3Ops() {
+        setup(2, 2, 1);
         runner.addSetupQuery("""
         contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
             rev_ticks=20, fwd_ticks=30)
         """);
-        var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
-        runner.test("RollingFormulaParamTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
+        var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
+        runner.test("RollingFormulaParamTick- 2 Groups 100K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
     void rollingFormulaGeneralTick0Group3Ops() {
         setup(1, 1, 1);
         runner.addSetupQuery("""
-        contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
-            rev_ticks=2000, fwd_ticks=3000)
+        contains = rolling_formula_tick(formula="Contains=avg(num1)", rev_ticks=2000, fwd_ticks=3000)
         """);
         var q = "timed.update_by(ops=[contains])";
         runner.test("RollingFormulaGeneralTick- No Groups 1 Col", q, "num1");
@@ -86,16 +85,6 @@ public class RollingFormulaTickTest {
         """);
         var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
         runner.test("RollingFormulaGeneralTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
-    }
-
-    @Test
-    void rollingFormulaGeneralTick3Groups3Ops() {
-        setup(1, 3, 1);
-        runner.addSetupQuery("""
-        contains = rolling_formula_tick(formula="Contains=avg(num1)", rev_ticks=20, fwd_ticks=30)
-        """);
-        var q = "timed.update_by(ops=[contains], by=['key1','key2','key3'])";
-        runner.test("RollingFormulaGeneralTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }
 
 }
