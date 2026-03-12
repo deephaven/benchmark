@@ -180,7 +180,6 @@ jobs:
         path: ${{env.RUN_TYPE}}
         destination: deephaven-benchmark
         process_gcloudignore: false
-        
     - name: Publish Slack Notification Tables
       run: |
         ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.BENCHMARK_SLACK_CHANNEL}}" "${{secrets.BENCHMARK_SLACK_TOKEN}}" 
