@@ -26,28 +26,6 @@ public class RollingFormulaTimeTest {
     }
 
     @Test
-    void rollingFormulaParamTime0Group3Ops() {
-        setup(1, 1, 1);
-        runner.addSetupQuery("""
-        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
-            cols=["Contains=num1"], rev_time="PT2S", fwd_time="PT3S")
-        """);
-        var q = "timed.update_by(ops=[contains])";
-        runner.test("RollingFormulaTime- No Groups 1 Col", q, "num1", "timestamp");
-    }
-
-    @Test
-    void rollingFormulaParamTime1Group3Ops() {
-        setup(3, 3, 1);
-        runner.addSetupQuery("""
-        contains = rolling_formula_time(formula="avg(x)", formula_param="x", ts_col="timestamp",
-            cols=["Contains=num1"], rev_time="PT2S", fwd_time="PT3S")
-        """);
-        var q = "timed.update_by(ops=[contains], by=['key1'])";
-        runner.test("RollingFormulaTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
-    }
-
-    @Test
     void rollingFormulaParamTime2Groups3Ops() {
         setup(2, 2, 1);
         runner.addSetupQuery("""

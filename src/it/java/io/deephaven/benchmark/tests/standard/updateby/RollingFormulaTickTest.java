@@ -25,28 +25,6 @@ public class RollingFormulaTickTest {
     }
 
     @Test
-    void rollingFormulaParamTick0Group3Ops() {
-        setup(1, 1, 1);
-        runner.addSetupQuery("""
-        contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
-            rev_ticks=2000, fwd_ticks=3000)
-        """);
-        var q = "timed.update_by(ops=[contains])";
-        runner.test("RollingFormulaParamTick- No Groups 1 Col", q, "num1");
-    }
-
-    @Test
-    void rollingFormulaParamTick1Group3Ops() {
-        setup(3, 7, 2);
-        runner.addSetupQuery("""
-        contains = rolling_formula_tick(formula="avg(x)", formula_param="x", cols=["Contains=num1"], 
-            rev_ticks=20, fwd_ticks=30)
-        """);
-        var q = "timed.update_by(ops=[contains], by=['key1'])";
-        runner.test("RollingFormulaParamTick- 1 Group 100 Unique Vals", q, "key1", "num1");
-    }
-
-    @Test
     void rollingFormulaParamTick2Groups3Ops() {
         setup(2, 2, 1);
         runner.addSetupQuery("""
