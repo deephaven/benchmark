@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard.updateby;
 
 import org.junit.jupiter.api.*;
@@ -33,7 +33,7 @@ public class RollingFormulaTimeTest {
             cols=["Contains=num1"], rev_time="PT4M", fwd_time="PT5M")
         """);
         var q = "timed.update_by(ops=[contains], by=['key1','key2'])";
-        runner.test("RollingFormulaTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
+        runner.test("RollingFormulaParamTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
     }
 
     @Test
