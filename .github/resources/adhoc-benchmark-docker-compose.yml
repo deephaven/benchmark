@@ -7,7 +7,7 @@ services:
       - ./data:/data
       - ./minio:/minio
     environment:
-      - "START_OPTS=-DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler -DBarrageUtil.ree.samplingEnabled=false ${CONFIG_OPTS}"
+      - "START_OPTS=-DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler ${CONFIG_OPTS}"
 
   redpanda:
     command:
