@@ -1,4 +1,4 @@
-# Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending 
 #
 # Deephaven python functions to support Benchmark Dashboards. These functions produce basic tables, 
 # format strings, and do calculations. The data for creating tables is downloaded and cached from 
@@ -6,11 +6,9 @@
 #
 # Requirements: Deephaven 0.36.1 or greater
 
-import os, re, glob, jpy
-import deephaven.dtypes as dht
+import os, re, jpy
 from deephaven import read_csv, merge, agg, empty_table, input_table, dtypes as dht
 from urllib.request import urlopen, urlretrieve
-from numpy import typing as npt
 
 # Convert the given name to a name suitable for a DH column name
 def normalize_name(name):
@@ -123,9 +121,12 @@ def convert_result(table):
         
 # Do any conversions of type or column name needed from benchmark-metrics.csv
 def convert_metric(table):
-    return table.view(['benchmark_name','origin','timestamp=(long)timestamp','name',
-        'value=(double)value','note'])
+    return table.view(['benchmark_name','origin','timestamp=(long)timestamp','name','value=(double)value','note'])
         
+# Do any conversions of type or column name needed from benchmark-events.csv
+def convert_event(table):
+    return table.view(['benchmark_name','origin','type','start','duration','name','value=(double)value'])
+
 # Do any conversions of type or column name needed from benchmark-platform.csv
 def convert_platform(table):
     return table.view(['origin','name','value'])
@@ -171,6 +172,11 @@ def load_bench_results(storage_uri, category='adhoc', actor_filter=None, set_fil
 def load_bench_metrics(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
     run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, 100)
     return merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv', convert_metric)
+    
+# Load all benchmark-events.csv data collected from the given storage, category, and filters
+def load_bench_events(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
+    run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, 100)
+    return merge_run_tables(storage_uri, run_ids, category, 'benchmark-events.csv', convert_event)
 
 # Load all benchmark-platform.csv data collected from the given storage, category, and filters
 def load_bench_platform(storage_uri, category='adhoc', actor_filter=None, set_filter=None):
@@ -201,7 +207,9 @@ def load_table_or_empty(table_name, storage_uri, category='adhoc', actor_filter=
     return globals()[f'empty_bench_{table_name}']()
 
 # Add columns for the specified platform properties
-def add_platform_values(table, pnames=[], cnames = []):
+def add_platform_values(table, pnames=None, cnames=None):
+    pnames = pnames if pnames is not None else []
+    cnames = cnames if cnames is not None else []
     pnames = list(dict.fromkeys(pnames))
     for pname in pnames:
         new_pname = normalize_name(pname)
@@ -213,14 +221,16 @@ def add_platform_values(table, pnames=[], cnames = []):
     return table
 
 # Add columns for the specified metric properties
-def add_metric_values(table, pnames=[], cnames=[]):
+def add_metric_values(table, pnames=None, cnames=None):
+    pnames = pnames if pnames is not None else []
+    cnames = cnames if cnames is not None else []
     pnames = list(dict.fromkeys(pnames))
     for pname in pnames:
         new_pname = normalize_name(pname)
         cnames.append(new_pname)
-        single_metrtics = bench_metrics.where(['name=pname']).first_by(['benchmark_name','set_id','run_id','origin'])
+        single_metrics = bench_metrics.where(['name=pname']).first_by(['benchmark_name','set_id','run_id','origin'])
         table = table.natural_join(
-            single_metrtics, on=['benchmark_name','set_id','run_id','origin'], joins=[new_pname+'=value']
+            single_metrics, on=['benchmark_name','set_id','run_id','origin'], joins=[new_pname+'=value']
         )
     return table
 
@@ -239,12 +249,14 @@ import statistics
 # Get a percentage standard deviation for the given list of rates
 def rstd(rates) -> float:
     rates = [i for i in rates if i >= 0]
+    if not rates: return 0.0
     mean = statistics.mean(rates)
     return (statistics.pstdev(rates) / mean) if mean != 0 else 0.0
 
 # Get the zscore of one rate against a list of rates
 def zscore(rate, rates) -> float:
     rates = [i for i in rates if i >= 0]
+    if not rates: return 0.0
     std = statistics.pstdev(rates)
     return ((rate - statistics.mean(rates)) / std) if std != 0 else 0.0
 
@@ -260,11 +272,11 @@ def rchange(rates) -> float:
     rates = array('l', rates)
     if(len(rates) < 2): return 0.0
     m = statistics.mean(rates[:-1])
-    return (rates[-1] - m) / m
+    return ((rates[-1] - m) / m) if m != 0 else 0.0
 
 # Get the percentage gain between two values
 def gain(start, end) -> float:
-    return (end - start) / start
+    return ((end - start) / start) if start != 0 else 0.0
 
 # Format a list of rates to make them easier to read in a DHC table
 def format_rates(rates):

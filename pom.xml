@@ -178,7 +178,7 @@
 							<file>${project.basedir}/eclipse-java-google-style.xml</file>
 						</eclipse>
 						<licenseHeader>
-							<content>/* Copyright (c) 2022-$YEAR Deephaven Data Labs and Patent Pending */</content>
+							<content>/* Copyright (c) $YEAR Deephaven Data Labs and Patent Pending */</content>
 						</licenseHeader>
 					</java>
 				</configuration>
@@ -271,6 +271,11 @@
 			<artifactId>kafka-protobuf-serializer</artifactId>
 			<version>8.1.1</version>
 		</dependency>
+        <dependency>
+            <groupId>blue.strategic.parquet</groupId>
+            <artifactId>parquet-floor</artifactId>
+            <version>1.64</version>
+        </dependency>
 		<dependency>
 			<groupId>io.deephaven</groupId>
 			<artifactId>deephaven-java-client-barrage-dagger</artifactId>

@@ -19,6 +19,9 @@ import io.deephaven.benchmark.util.Timer;
  * append/blink table types. Results are checked to ensure the correct number of rows has been processed.
  */
 class KafkaTestRunner {
+    static {
+        System.setProperty("root.test.package", "io.deephaven.benchmark.tests");
+    }
     final Object testInst;
     final Bench api;
     final Controller controller;

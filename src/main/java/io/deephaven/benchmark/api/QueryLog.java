@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -30,7 +30,7 @@ class QueryLog implements Closeable {
     QueryLog(Path parent, Class<?> testClass) {
         this.testClass = testClass;
         this.parent = parent;
-        this.logFile = getLogFile(parent, testClass);
+        this.logFile = parent.resolve("query.md");
     }
 
     /**
@@ -51,9 +51,9 @@ class QueryLog implements Closeable {
         write("## " + label + " - " + name, 2);
         for (int i = 0, n = queries.size(); i < n; i++) {
             write("### Query " + (i + 1), 1);
-            write("````", 1);
+            write("```", 1);
             write(queries.get(i), 0);
-            write("````", 2);
+            write("```", 2);
         }
     }
 
@@ -90,16 +90,6 @@ class QueryLog implements Closeable {
                 out.newLine();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to write to query log: " + logFile, ex);
-        }
-    }
-
-    static Path getLogFile(Path parent, Class<?> testClass) {
-        Path logFile = parent.resolve("test-logs/" + testClass.getName() + ".query.md");
-        try {
-            Files.createDirectories(logFile.getParent());
-            return logFile;
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create query log directory" + logFile.getParent(), ex);
         }
     }
 

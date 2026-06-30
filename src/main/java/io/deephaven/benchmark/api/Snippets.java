@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 /**
@@ -75,14 +75,26 @@ class Snippets {
 
     /**
      * Initialize the container for storing benchmark metrics. Define functions for getting some MX Bean data for gc,
-     * jit and heap
+     * jit and heap.
      * <p>
      * ex. bench_api_metrics_init()
      */
     static String bench_api_metrics_init = """
+        import jpy
+        from deephaven import new_table
+        from deephaven.column import string_col, long_col, double_col
+        System = jpy.get_type('java.lang.System')
         def bench_api_metrics_init():
-            global bench_api_metrics
+            global bench_api_metrics, standard_events
             bench_api_metrics = []
+            standard_events = new_table([
+                string_col("origin", []),
+                string_col("type", []),
+                long_col("start_ns", []),
+                long_col("duration_ns", []),
+                string_col("name", []),
+                double_col("value", []),
+            ])
         """;
 
     /**
@@ -175,7 +187,8 @@ class Snippets {
      * ex. bench_api_metrics_table = bench_api_metrics_collect()
      */
     static String bench_api_metrics_collect = """
-        from deephaven import input_table, empty_table, dtypes as dht
+        from deephaven import input_table, empty_table, new_table, dtypes as dht
+        from deephaven.column import string_col, long_col, double_col
         def bench_api_metrics_collect():
             s = dht.string
             t = input_table({'timestamp':s,'origin':s,'category':s,'name':s,'value':s,'note':s})
@@ -184,6 +197,47 @@ class Snippets {
                     'name=``+m[3]','value=``+m[4]','note=``+m[5]'])    
                 t.add(m1)
             return t
+        """;
+
+    /**
+     * Make a file containing a one line reference to another file. Note: This is to get around the fact that
+     * Deephaven's parquet can't read from symbolic links that are directories.
+     * <p>
+     * ex. bench_api_link('my_parquet_dir_or_file', 'my_link_name')
+     * 
+     * @param target the table to link
+     * @param link_name the name to link the table to for retrieval
+     */
+    static String bench_api_link = """
+        import os, glob
+        def bench_api_link(target, link_name):
+            for f in glob.glob(link_name + '*'):
+                os.remove(f)
+            if target.endswith('.dataset'):
+                with open(link_name + '.link', 'w') as f:
+                    f.write(target)
+            else:
+                os.link(target, link_name)
+        """;
+
+    /**
+     * Read a parquet file or dataset into a Deephaven table. If the filename is a link (e.g. ".link") grab the file
+     * reference within it.
+     * <p>
+     * ex. source = bench_api_read('/data/timed.parquet')
+     * 
+     * @param file_name the name of the file containing the link reference
+     * @return a table containing the contents of the linked parquet file or dataset
+     */
+    static String bench_api_read = """
+        import os
+        from deephaven.parquet import read
+        def bench_api_read(file_name):
+            link_path = file_name + '.link'
+            if os.path.exists(link_path):
+                with open(link_path, 'r') as f:
+                    file_name = f.read().strip()
+            return read(file_name)
         """;
 
     /**
@@ -206,6 +260,8 @@ class Snippets {
         defs += getFunc("bench_api_metrics_add", bench_api_metrics_add, query, defs);
         defs += getFunc("bench_api_metrics_collect", bench_api_metrics_collect, query, defs);
         defs += getFunc("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query, defs);
+        defs += getFunc("bench_api_link", bench_api_link, query, defs);
+        defs += getFunc("bench_api_read", bench_api_read, query, defs);
         return defs;
     }
 

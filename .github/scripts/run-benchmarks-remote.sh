@@ -43,7 +43,7 @@ title "-- Running Benchmarks --"
 set +f
 cd ${RUN_DIR}
 cat ${RUN_TYPE}-scale-benchmark.properties | sed 's|${baseRowCount}|'"${ROW_COUNT}|g" | sed 's|${baseDistrib}|'"${DISTRIB}|g" | sed 's|${userHome}|'"${HOME}|g" > scale-benchmark.properties
-JAVA_OPTS=$(echo -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*-standalone.jar -cp standard-tests.jar)
+JAVA_OPTS=$(echo -Xmx4g -Dbenchmark.profile=scale-benchmark.properties -jar deephaven-benchmark-*-standalone.jar -cp standard-tests.jar)
 set -f
 
 if [ "${TAG_NAME}" = "Any" ]; then

@@ -1,8 +1,7 @@
-/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -11,9 +10,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Filer;
-import io.deephaven.benchmark.util.Ids;
-import io.deephaven.benchmark.util.Timer;
+import io.deephaven.benchmark.util.*;
 
 /**
  * The root accessor class for the API. Use <code>Bench.create(this)</code> in a typical JUnit test to start things off
@@ -27,6 +24,7 @@ final public class Bench {
      * The root benchmark result directory
      */
     static final public Path rootOutputDir = Paths.get("results");
+
     /**
      * The name of the benchmark results csv file
      */
@@ -35,6 +33,10 @@ final public class Bench {
      * The name of the benchmark metrics csv file
      */
     static final public String metricsFileName = "benchmark-metrics.csv";
+    /**
+     * The name of the benchmark events csv file
+     */
+    static final public String eventsFileName = "benchmark-events.csv";
     /**
      * The name of the benchmark platform csv file
      */
@@ -61,9 +63,9 @@ final public class Bench {
         return v;
     }
 
-    final Object testInst;
     final BenchResult result;
     final BenchMetrics metrics;
+    final BenchEvents events;
     final BenchPlatform platform;
     final QueryLog queryLog;
     final BenchLog runLog;
@@ -72,13 +74,13 @@ final public class Bench {
     final Session session = new Session();
     private boolean isClosed = false;
 
-    Bench(Class<?> testInst) {
-        this.testInst = testInst;
+    Bench(Class<?> testClass) {
         this.result = new BenchResult(outputDir);
         this.metrics = new BenchMetrics(outputDir);
+        this.events = new BenchEvents(outputDir);
         this.platform = new BenchPlatform(this, outputDir);
-        this.queryLog = new QueryLog(outputDir, testInst);
-        this.runLog = new BenchLog(outputDir, testInst);
+        this.queryLog = new QueryLog(getLogDir(testClass), testClass);
+        this.runLog = new BenchLog(getLogDir(testClass), testClass);
     }
 
     /**
@@ -91,6 +93,7 @@ final public class Bench {
             throw new RuntimeException("No blank Benchmark names allowed");
         this.result.setName(name);
         this.metrics.setName(name);
+        this.events.setName(name);
         this.queryLog.setName(name);
         this.runLog.setName(name);
     }
@@ -200,6 +203,15 @@ final public class Bench {
     }
 
     /**
+     * Get the events for this Benchmark instance (e.g. test) used for collecting event values
+     * 
+     * @return the events instance
+     */
+    public BenchEvents events() {
+        return events;
+    }
+
+    /**
      * Get the platform for this Benchmark instance (e.g. test) used for collecting platform properties
      * 
      * @return the platform instance
@@ -209,9 +221,9 @@ final public class Bench {
     }
 
     /**
-     * Get the metrics for this Benchmark instance (e.g. test) used for collecting metric values
+     * Get the query log for this Benchmark instance (e.g. test) used for recording queries
      * 
-     * @return the metrics instance
+     * @return the query log instance
      */
     public BenchLog log() {
         return runLog;
@@ -243,6 +255,7 @@ final public class Bench {
         closeables.clear();
         result.commit();
         metrics.commit();
+        events.commit();
         platform.commit();
         runLog.close();
         queryLog.close();
@@ -270,6 +283,12 @@ final public class Bench {
         return future;
     }
 
+    static private Path getLogDir(Class<?> testClass) {
+        var pkgRoot = profile.property("root.test.package", Bench.class.getPackageName().replaceAll("[.][^.]+$", ""));
+        var name = testClass.getPackageName().replaceAll(pkgRoot + '.', "") + '.' + testClass.getSimpleName();
+        return Filer.createDirectory(outputDir.resolve("test-logs").resolve(name).toString());
+    }
+
     static private Path initializeOutputDirectory() {
         setSystemProperties();
         boolean isTimestamped = profile.propertyAsBoolean("timestamp.test.results", "false");
@@ -277,11 +296,7 @@ final public class Bench {
         if (isTimestamped)
             dir = dir.resolve(Ids.runId());
         Filer.delete(dir);
-        try {
-            return Files.createDirectories(dir);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed initialize benchmark result directory: " + dir, ex);
-        }
+        return Filer.createDirectory(dir.toString());
     }
 
     static private void setSystemProperties() {

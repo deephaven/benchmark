@@ -1,13 +1,15 @@
 services:
   deephaven:
-    image: ${DOCKER_IMG}
+    image: ghcr.io/stanbrub/server:jvm25
     ports:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
       - ./data:/data
       - ./minio:/minio
     environment:
+      - "JAVA_OPTS=-XX:+UseG1GC"
       - "START_OPTS=-DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler ${CONFIG_OPTS}"
+      - "DEEPHAVEN_HOST_OS_DIR=${ENV_DEEPHAVEN_HOST_OS_DIR}"
 
   redpanda:
     command:

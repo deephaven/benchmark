@@ -28,6 +28,9 @@ import io.deephaven.benchmark.util.Timer;
  * practical purposes, though it is not ideal.
  */
 public class CompareTestRunner {
+    static {
+        System.setProperty("root.test.package", "io.deephaven.benchmark.tests");
+    }
     final Object testInst;
     final Set<String> requiredPackages = new LinkedHashSet<>();
     final Map<String, String> downloadFiles = new LinkedHashMap<>();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.connect;
 
 import java.util.*;
@@ -35,7 +35,8 @@ class BarrageConnector implements Connector {
     static {
         System.setProperty("thread.initialization", ""); // Remove server side initializers (e.g. DebuggingInitializer)
     }
-    static final int maxFetchCount = 1000;
+    static final int maxFetchCount = 100000;
+    static final int inboundMessageMB = 64;
     final private BarrageSession session;
     final private ConsoleSession console;
     final private ManagedChannel channel;
@@ -181,12 +182,8 @@ class BarrageConnector implements Connector {
         if (isClosed.get())
             return;
         isClosed.set(true);
-        subscriptions.keySet().forEach(t -> {
-            closeSubscription(t);
-        });
-        snapshots.keySet().forEach(t -> {
-            closeSubscription(t);
-        });
+        new ArrayList<>(subscriptions.keySet()).forEach(this::closeSubscription);
+        new ArrayList<>(snapshots.keySet()).forEach(this::closeSnapshot);
         variableNames.clear();
 
         try {
@@ -226,6 +223,16 @@ class BarrageConnector implements Connector {
         }
     }
 
+    private void closeSnapshot(String tableName) {
+        try {
+            var snapshot = snapshots.remove(tableName);
+            if (snapshot != null)
+                snapshot.handle.close();
+        } catch (Exception ex) {
+            Log.info("Failed to close handle for snapshot: %s", tableName);
+        }
+    }
+
     private FieldInfo findTable(String table) {
         Optional<FieldInfo> found =
                 changes.changes().created().stream().filter(f -> f.name().equals(table)).findFirst();
@@ -243,6 +250,9 @@ class BarrageConnector implements Connector {
         final ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(host, port);
         channelBuilder.usePlaintext();
         // channelBuilder.useTransportSecurity(); If eventually security is needed
+        // Increase the maximum inbound message size so large Barrage snapshots (e.g. standard_events)
+        // do not trip the default 4 MiB gRPC limit while prototyping benchmarks.
+        channelBuilder.maxInboundMessageSize(inboundMessageMB * 1024 * 1024); // 32 MiB
 
         return channelBuilder.build();
     }

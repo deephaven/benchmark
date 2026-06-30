@@ -135,7 +135,8 @@ sudo docker system prune --volumes --force
 sudo rm -rf ${DEEPHAVEN_DIR}
 
 title "-- Staging Docker Resources --"
-mkdir -p ${DEEPHAVEN_DIR}
+mkdir -p ${DEEPHAVEN_DIR}/data
+chmod 777 ${DEEPHAVEN_DIR}/data
 cd ${DEEPHAVEN_DIR}
 cp ${GIT_DIR}/benchmark/.github/resources/${RUN_TYPE}-benchmark-docker-compose.yml docker-compose.yml
 

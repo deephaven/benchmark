@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.controller;
 
 import java.net.HttpURLConnection;
@@ -111,7 +111,7 @@ public class DeephavenDockerController implements Controller {
 
     void waitForEngineReady() {
         long beginTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - beginTime < 20000) {
+        while (System.currentTimeMillis() - beginTime < 30000) {
             if (getUrlStatus("http://" + httpHostPort + "/ide/"))
                 return;
             Threads.sleep(100);

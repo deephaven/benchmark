@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,7 +11,7 @@ public class QueryLogTest {
     @Test
     public void logQuery() throws Exception {
         Path outParent = Paths.get(getClass().getResource("test-profile.properties").toURI()).getParent();
-        Files.deleteIfExists(QueryLog.getLogFile(outParent, QueryLogTest.class));
+        Files.deleteIfExists(outParent.resolve("query.md"));
 
         var qlog = new QueryLog(outParent, QueryLogTest.class);
         qlog.setName(getClass().getSimpleName());
@@ -37,21 +37,21 @@ public class QueryLogTest {
                 ## Test - 1st Test
 
                 ### Query 1
-                ````
+                ```
                 setup test
-                ````
+                ```
 
                 ### Query 2
-                ````
+                ```
                 query1
                 query line
-                ````
+                ```
 
                 ### Query 3
-                ````
+                ```
                 query2
                 query line
-                ````
+                ```
                 """.replace("\r", "").trim();
 
         var text = Filer.getFileText(qlog.logFile);

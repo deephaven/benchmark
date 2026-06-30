@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
 import java.util.*;
@@ -12,16 +12,16 @@ import io.deephaven.benchmark.util.Numbers;
  * Note: All possible data values are loaded up front to prevent object-creation during production. This can take a
  * considerable amount of memory for larger scales, especially for generated strings.
  */
-public class ColumnDefs {
+final public class ColumnDefs {
     final int valueCacheSize;
     final List<ColumnDef> columns = new ArrayList<>();
     private String defaultDistribution = "random";
 
     /**
-     * Initialize the instance with a default cache size of 1024
+     * Initialize the instance with a default cache size large enough to cover typical column value ranges
      */
     public ColumnDefs() {
-        this(1024);
+        this(2_000_000);
     }
 
     ColumnDefs(int valueCacheSize) {
@@ -103,6 +103,21 @@ public class ColumnDefs {
      */
     public ColumnDefs add(String name, String type, String valueDef) {
         return add(name, type, valueDef, null);
+    }
+
+    /**
+     * Create an independent copy of this column definitions instance. Each copy has its own Maker objects, value
+     * caches, and distribution functions, making it safe to use from a separate thread without contention.
+     * 
+     * @return a new independent ColumnDefs with the same column definitions
+     */
+    public ColumnDefs copy() {
+        var c = new ColumnDefs(valueCacheSize);
+        c.defaultDistribution = defaultDistribution;
+        for (ColumnDef col : columns) {
+            c.add(col.name(), col.type(), col.valueDef(), col.maker().distributionName);
+        }
+        return c;
     }
 
     /**

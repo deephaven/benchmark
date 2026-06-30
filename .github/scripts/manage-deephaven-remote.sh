@@ -35,6 +35,7 @@ if [[ ${CONFIG_OPTS} == "<default>" ]]; then
   CONFIG_OPTS="-Xmx24g"
 fi
 echo "CONFIG_OPTS=${CONFIG_OPTS}" > .env
+echo "ENV_DEEPHAVEN_HOST_OS_DIR=${DEEPHAVEN_DIR}" >> .env
 
 IS_BRANCH="false"
 if [[ ${DOCKER_IMG} == *"@sha"*":"* ]]; then

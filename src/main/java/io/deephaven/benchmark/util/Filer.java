@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
 import static java.nio.file.StandardOpenOption.*;
@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,53 @@ public class Filer {
             }
         } catch (Exception ex) {
             throw new RuntimeException("Failed to delete path: " + path);
+        }
+    }
+
+    /**
+     * Create a file with the given name in the given parent directory. Create the parent directory if it does not
+     * exist. Permissions are 755 for directories and 644 for files.
+     * 
+     * @param parentDir the parent directory to contain the file
+     * @param fileName the name of the file to create
+     * @return the path of the created file
+     */
+    static public Path createFile(String parentDir, String fileName) {
+        try {
+            return Files.createFile(createDirectory(parentDir).resolve(fileName),
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-r--r--")));
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to create file: " + fileName, ex);
+        }
+    }
+
+    /**
+     * Create a directory with the given name. Create parent directories if they do not exist. Permissions are 755.
+     * 
+     * @param dir the directory to create
+     * @return the path of the created directories
+     */
+    static public Path createDirectory(String dir) {
+        try {
+            return Files.createDirectories(Paths.get(dir), PosixFilePermissions.asFileAttribute(
+                    PosixFilePermissions.fromString("rwxr-xr-x")));
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to create temp directory: " + dir, ex);
+        }
+    }
+
+    /**
+     * Get the size of a file or directory in bytes. Directory sizes are calculated recursively by summing the sizes of
+     * all regular files contained within.
+     * 
+     * @param file the file or directory to get the size of
+     * @return the size of the file or directory in bytes
+     */
+    static public long getByteSize(String path) {
+        try {
+            return Files.walk(Paths.get(path)).filter(Files::isRegularFile).mapToLong(f -> f.toFile().length()).sum();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to get size of file: " + path, ex);
         }
     }
 

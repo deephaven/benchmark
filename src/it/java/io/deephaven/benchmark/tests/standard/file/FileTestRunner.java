@@ -14,6 +14,9 @@ import io.deephaven.benchmark.util.Timer;
  * Test reading and writing parquet files with various data types and compression codecs.
  */
 class FileTestRunner {
+    static {
+        System.setProperty("root.test.package", "io.deephaven.benchmark.tests");
+    }
     final String parquetCfg = "max_dictionary_keys=1048576, max_dictionary_size=1048576, target_page_size=65536";
     final Object testInst;
     final Set<String> requiredServices = new TreeSet<>(List.of("deephaven"));

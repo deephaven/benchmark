@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.generator;
 
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
@@ -128,11 +128,13 @@ public class AvroKafkaGenerator implements Generator {
         props.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
         props.put("schema.registry.url", schemaRegistryUrl);
-        props.put(ACKS_CONFIG, "0");
+        props.put(ENABLE_IDEMPOTENCE_CONFIG, "true");
+        props.put(MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, "1");
+        props.put(ACKS_CONFIG, "all");
         props.put(COMPRESSION_TYPE_CONFIG, getCompression(compression));
-        props.put(BATCH_SIZE_CONFIG, 16384);
-        props.put(BUFFER_MEMORY_CONFIG, 16384 * 4);
-        props.put(LINGER_MS_CONFIG, 50);
+        props.put(BATCH_SIZE_CONFIG, "512000");
+        props.put(BUFFER_MEMORY_CONFIG, "67108864");
+        props.put(LINGER_MS_CONFIG, 10);
         return new KafkaProducer<>(props);
     }
 

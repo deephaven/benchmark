@@ -1,17 +1,17 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.api;
 
 import java.io.Closeable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import io.deephaven.benchmark.generator.*;
 import io.deephaven.benchmark.metric.Metrics;
-import io.deephaven.benchmark.util.Ids;
-import io.deephaven.benchmark.util.Log;
-import io.deephaven.benchmark.util.Numbers;
-import io.deephaven.benchmark.util.Timer;
+import io.deephaven.benchmark.util.*;
 
 /**
  * Represents the configuration of table name and columns.
@@ -24,7 +24,7 @@ final public class BenchTable implements Closeable {
     private int durationSecs = -1;
     private int rowPauseMillis = -1;
     private String compression = null;
-    private Generator generator = null;
+    private List<Generator> generators = new ArrayList<>();
     private boolean isFixed = false;
     private String defaultDistro = null;
     private String[] columnGrouping = null;
@@ -188,6 +188,51 @@ final public class BenchTable implements Closeable {
         }).execute();
 
         if (usedExistingParquet.get()) {
+            Log.info("\nUsing existing table '%s' with %s rows", tableName, getRowCount());
+            return false;
+        }
+        Log.info("Generating table '%s' with %s rows", tableName, getRowCount());
+        var timer = Timer.start();
+
+        if (rowPauseMillis < 0)
+            withRowPause(0, ChronoUnit.MILLIS);
+
+        var m = bench.awaitCompletion(generateWithAvro());
+        Log.info("Produce Send Rate: %.2f recs/sec", m.getValue("send.rate"));
+        Log.info("Produce Data Duration: %d secs", timer.duration().toSeconds());
+        timer = Timer.start();
+
+        q = replaceTableAndGeneratorFields(kafkaToParquetQuery);
+        bench.query(q).execute();
+
+        Log.info("DH Write Table Duration: %d secs", timer.duration().toSeconds());
+        return true;
+    }
+
+    /**
+     * Generate the table synchronously to a parquet file in the engine's data directory. If a parquet file already
+     * exists in the Deephaven data directory that matches this table definition, use it and skip generation.
+     * <p>
+     * Note: This is the same as <code>generateParquet()</code> except it generates the parquet file directly to the
+     * engine's data directory without going through kafka. As such, it will not work when the test runner and the
+     * engine are not co-located.
+     * 
+     * @return true if file was generated, otherwise false
+     */
+    public boolean generateLocalParquet() {
+        columns.setDefaultDistribution(getDefaultDistro());
+        var q = replaceTableAndGeneratorFields(useExistingParquetQuery);
+
+        var usedExistingParquet = new AtomicBoolean(false);
+        var tableGenParquet = new AtomicReference<String>("");
+        var dhHostOsDir = new AtomicReference<String>("");
+        bench.query(q).fetchAfter("used_existing_parquet_" + tableName, table -> {
+            usedExistingParquet.set(table.getValue(0, "UsedExistingParquet").toString().equalsIgnoreCase("true"));
+            tableGenParquet.set(table.getValue(0, "TableGenParquet").toString());
+            dhHostOsDir.set(table.getValue(0, "DhHostOsDir").toString());
+        }).execute();
+
+        if (usedExistingParquet.get()) {
             Log.info("Using existing table '%s' with %s rows", tableName, getRowCount());
             return false;
         }
@@ -197,14 +242,26 @@ final public class BenchTable implements Closeable {
         if (rowPauseMillis < 0)
             withRowPause(0, ChronoUnit.MILLIS);
 
-        bench.awaitCompletion(generateWithAvro());
-        Log.info("Produce Data Duration: " + timer.duration().toMillis());
-        timer = Timer.start();
+        if (dhHostOsDir.get().isEmpty())
+            throw new RuntimeException("DEEPHAVEN_HOST_OS_DIR env must be set to use local parquet generation");
 
-        q = replaceTableAndGeneratorFields(kafkaToParquetQuery);
-        bench.query(q).execute();
+        var parquetPath = (dhHostOsDir.get() + "/" + tableGenParquet.get()).replace(".parquet", ".dataset");
+        var threadCount = 8;
+        var rowsPerThread = getRowCount() / threadCount;
+        var futures = new ArrayList<Future<Metrics>>(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            long rows = (i < threadCount - 1) ? rowsPerThread : (getRowCount() - (rowsPerThread * i));
+            var future = generateWithLocalParquet(parquetPath, String.format("%04d.parquet", i), i, rows);
+            futures.add(future);
+        }
+        futures.stream().forEach(future -> bench.awaitCompletion(future));
+        close(); // Needed for the final parquet flushes
 
-        Log.info("DH Write Table Duration: " + timer.duration().toMillis());
+        bench.query(localToParquetQuery).execute();
+        var durMillis = timer.duration().toMillis();
+        Log.info("Produce Send Rate: %.2f recs/sec", getRowCount() / (durMillis / 1000.0));
+        Log.info("Produce Data Duration: %.2f secs", durMillis / 1000.0);
+        Log.info("Produce Write Rate: %.2f MB/sec", Filer.getByteSize(parquetPath) * 1000.0 / durMillis / 1024 / 1024);
         return true;
     }
 
@@ -212,29 +269,41 @@ final public class BenchTable implements Closeable {
      * Shutdown and cleanup any running generator
      */
     public void close() {
-        if (generator != null)
+        for (Generator generator : generators)
             generator.close();
+        generators.clear();
     }
 
     private Future<Metrics> generateWithAvro() {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
-        generator = new AvroKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
-        return generator.produce(getRowPause(), getRowCount(), getRunDuration());
+        var gen = new AvroKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
+        generators.add(gen);
+        return gen.produce(getRowPause(), getRowCount(), getRunDuration());
     }
 
     private Future<Metrics> generateWithJson() {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
-        generator = new JsonKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
-        return generator.produce(getRowPause(), getRowCount(), getRunDuration());
+        var gen = new JsonKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
+        generators.add(gen);
+        return gen.produce(getRowPause(), getRowCount(), getRunDuration());
     }
 
     private Future<Metrics> generateWithProtobuf() {
         String bootstrapServer = bench.property("client.redpanda.addr", "localhost:9092");
         String schemaRegistry = "http://" + bench.property("client.schema.registry.addr", "localhost:8081");
-        generator = new ProtobufKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
-        return generator.produce(getRowPause(), getRowCount(), getRunDuration());
+        var gen = new ProtobufKafkaGenerator(bootstrapServer, schemaRegistry, tableName, columns, getCompression());
+        generators.add(gen);
+        return gen.produce(getRowPause(), getRowCount(), getRunDuration());
+    }
+
+    private Future<Metrics> generateWithLocalParquet(String parquetPath, String parquetPart, long startRow,
+            long rowCount) {
+        var parquetFile = Filer.createFile(parquetPath, parquetPart).toString();
+        var gen = new LocalParquetGenerator(parquetFile, tableName, columns.copy(), startRow);
+        generators.add(gen);
+        return gen.produce(getRowPause(), rowCount, getRunDuration());
     }
 
     private int getRowPause() {
@@ -342,11 +411,18 @@ final public class BenchTable implements Closeable {
 
         usedExisting = False
         matching_gen_parquet = findMatchingGenParquet(table_gen_def_text)
-        if matching_gen_parquet is not None and os.path.exists(str(matching_gen_parquet) + '.gen.parquet'):
-            os.link(str(matching_gen_parquet) + '.gen.parquet', table_parquet)
+        if matching_gen_parquet and os.path.exists(f"{matching_gen_parquet}.gen.parquet"):
+            bench_api_link(str(matching_gen_parquet) + '.gen.parquet', table_parquet)
+            usedExisting = True
+        if matching_gen_parquet and os.path.exists(f"{matching_gen_parquet}.gen.dataset"):
+            bench_api_link(str(matching_gen_parquet) + '.gen.dataset', table_parquet)
             usedExisting = True
 
-        used_existing_parquet_${table.name} = new_table([string_col("UsedExistingParquet", [str(usedExisting)])])
+        used_existing_parquet_${table.name} = new_table([
+            string_col("UsedExistingParquet", [str(usedExisting)]),
+            string_col("TableGenParquet", [table_gen_parquet]),
+            string_col("DhHostOsDir", [os.getenv("DEEPHAVEN_HOST_OS_DIR","")])
+        ])
         """;
 
     static final String kafkaToParquetQuery = """
@@ -379,9 +455,25 @@ final public class BenchTable implements Closeable {
         column_grouping=${column.grouping}
         if column_grouping: ${table.name} = ${table.name}.sort([${column.grouping}])
         write(${table.name}, table_gen_parquet ${compression.codec} ${max.dict.keys} ${max.dict.bytes} ${target.page.bytes})
-        os.link(table_gen_parquet, table_parquet)
+        bench_api_link(table_gen_parquet, table_parquet)
 
         del ${table.name}
+
+        from deephaven import garbage_collect
+        garbage_collect()
+        """;
+
+    static final String localToParquetQuery = """
+        # Link an already created parquet dataset directory
+        import jpy, os
+
+        if os.path.exists(table_parquet):
+            os.remove(table_parquet)
+
+        with open(table_gen_def_file, 'w') as f:
+            f.write(table_gen_def_text)
+        
+        bench_api_link(table_gen_parquet.replace(".parquet", ".dataset"), table_parquet)
 
         from deephaven import garbage_collect
         garbage_collect()

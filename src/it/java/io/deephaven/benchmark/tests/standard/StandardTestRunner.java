@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.standard;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,6 +10,7 @@ import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.controller.Controller;
 import io.deephaven.benchmark.controller.DeephavenDockerController;
 import io.deephaven.benchmark.metric.Metrics;
+import io.deephaven.benchmark.util.Log;
 import io.deephaven.benchmark.util.Timer;
 
 /**
@@ -21,17 +22,25 @@ import io.deephaven.benchmark.util.Timer;
  * conventions are followed (ex. main file is "source")
  */
 final public class StandardTestRunner {
+    static {
+        System.setProperty("root.test.package", "io.deephaven.benchmark.tests");
+    }
     final Object testInst;
     final List<String> supportTables = new ArrayList<>();
     final List<String> setupQueries = new ArrayList<>();
     final List<String> preOpQueries = new ArrayList<>();
+    final List<String> teardownQueries = new ArrayList<>();
     final Set<String> requiredServices = new TreeSet<>(List.of("deephaven"));
     private String mainTable = "source";
     private Bench api;
     private Controller controller;
+    private int rowCountFactor = 1;
     private int staticFactor = 1;
     private int incFactor = 1;
-    private int rowCountFactor = 1;
+    private boolean useCachedSource = true;
+    private boolean useLocalParquet = false;
+    private float incCycleFactor = 1.0f;
+    private long incReleaseRowCount = 1000000;
 
     public StandardTestRunner(Object testInst) {
         this.testInst = testInst;
@@ -97,6 +106,25 @@ final public class StandardTestRunner {
     }
 
     /**
+     * Set if the generated tables are loaded into memory before running the test queries.
+     * 
+     * @return true if in memory source, otherwise false
+     */
+    public void useCachedSource(boolean useMemorySource) {
+        this.useCachedSource = useMemorySource;
+    }
+
+    /**
+     * Set if the generated tables are created through Deephaven (i.e. real client-server) or through the local file
+     * system (i.e. a local copy). The default of "false" is preferred.
+     * 
+     * @param useLocalParquet false to generate tables through Deephaven, otherwise false
+     */
+    public void useLocalParquet(boolean useLocalParquet) {
+        this.useLocalParquet = useLocalParquet;
+    }
+
+    /**
      * Add a query to be run directly after the main table is loaded. It is not measured. This query can transform the
      * main table or supporting table, set up aggregations or updateby operations, etc.
      * 
@@ -115,6 +143,16 @@ final public class StandardTestRunner {
      */
     public void addPreOpQuery(String query) {
         preOpQueries.add(query);
+    }
+
+    /**
+     * Add a query to be run after everything else is done. This is useful for teardown of any resources after the test
+     * is run like logging, temporary files, perf table retrieval, etc.
+     * 
+     * @param query the query to run after the measured operation
+     */
+    public void addTeardownQuery(String query) {
+        teardownQueries.add(query);
     }
 
     /**
@@ -141,6 +179,18 @@ final public class StandardTestRunner {
     public void setScaleFactors(int staticFactor, int incFactor) {
         this.staticFactor = staticFactor;
         this.incFactor = incFactor;
+    }
+
+    /**
+     * Set the incremental release filter to use for the incremental test. By default, this is an auto-tuning release
+     * filter with a target cycle factor of 1.0f.
+     * 
+     * @param cycleFactor if isAutoTune is true, the target cycle factor, otherwise ignored
+     * @param releaseRowsCount if isAutoTune is true, ignored, otherwise the number of rows to release per cycle
+     */
+    public void setIncReleaseFilter(float cycleFactor, long releaseRowCount) {
+        this.incCycleFactor = cycleFactor;
+        this.incReleaseRowCount = releaseRowCount;
     }
 
     /**
@@ -193,12 +243,12 @@ final public class StandardTestRunner {
         }
     }
 
-    long getWarmupRowCount() {
-        return (long) (api.propertyAsIntegral("warmup.row.count", "0") * rowCountFactor);
+    public long getGeneratedRowCount() {
+        return (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
     }
 
-    long getGeneratedRowCount() {
-        return (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+    long getWarmupRowCount() {
+        return (long) (api.propertyAsIntegral("warmup.row.count", "0") * rowCountFactor);
     }
 
     long getMaxExpectedRowCount(long expectedRowCount, long scaleFactor) {
@@ -206,27 +256,29 @@ final public class StandardTestRunner {
     }
 
     String getReadOperation(int scaleFactor, long rowCount, String... loadColumns) {
-        var headRows = (rowCount >= getGeneratedRowCount())?"":".head(${rows})";
+        var headRows = (rowCount >= getGeneratedRowCount()) ? "" : ".head(${rows})";
+        var selectStr = useCachedSource ? "select" : "view";
         if (scaleFactor > 1 && mainTable.equals("timed") && Arrays.asList(loadColumns).contains("timestamp")) {
             var read = """
             merge([
-                read('/data/timed.parquet').view(formulas=[${loadColumns}])${headRows}
+                bench_api_read('/data/timed.parquet').view(formulas=[${loadColumns}])${headRows}
             ] * ${scaleFactor}).update_view([
                 'timestamp=timestamp.plusMillis((long)(ii / ${rows}) * ${rows})'
-            ]).select()
+            ]).${selectStr}()
             """;
-            read = read.replace("${headRows}",headRows);
+            read = read.replace("${headRows}", headRows).replace("${selectStr}", selectStr);
             return read.replace("${scaleFactor}", "" + scaleFactor).replace("${rows}", "" + rowCount);
         }
 
-        var read = "read('/data/${mainTable}.parquet')${headRows}.select(formulas=[${loadColumns}])";
+        var read = "bench_api_read('/data/${mainTable}.parquet')${headRows}.${selectStr}(formulas=[${loadColumns}])";
         read = (loadColumns.length == 0) ? ("empty_table(${rows})") : read;
 
         if (scaleFactor > 1) {
             read = "merge([${readTable}] * ${scaleFactor})".replace("${readTable}", read);
             read = read.replace("${scaleFactor}", "" + scaleFactor);
         }
-        return read.replace("${headRows}",headRows).replace("${rows}", "" + rowCount);
+        read = read.replace("${headRows}", headRows).replace("${rows}", "" + rowCount);
+        return read.replace("${selectStr}", selectStr);
     }
 
     String getStaticQuery(String name, String operation, long rowCount, String... loadColumns) {
@@ -241,9 +293,11 @@ final public class StandardTestRunner {
         bench_api_metrics_start()
         print('${logOperationBegin}')
 
+        begin_clock = time.time_ns()
         begin_time = time.perf_counter_ns()
         result = ${operation}
         end_time = time.perf_counter_ns()
+        end_clock = time.time_ns()
         
         print('${logOperationEnd}')
         bench_api_metrics_end()
@@ -253,7 +307,10 @@ final public class StandardTestRunner {
             double_col("elapsed_nanos", [end_time - begin_time]),
             long_col("processed_row_count", [loaded_tbl_size]),
             long_col("result_row_count", [result.size]),
+            long_col("begin_clock_nanos", [begin_clock]),
+            long_col("end_clock_nanos", [end_clock]),
         ])
+        ${teardownQueries}
         """;
         var read = getReadOperation(staticFactor, rowCount, loadColumns);
         return populateQuery(name, staticQuery, operation, read, loadColumns);
@@ -268,16 +325,21 @@ final public class StandardTestRunner {
         loaded_tbl_size = ${mainTable}.size
         ${setupQueries}
         
-        autotune = jpy.get_type('io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
-        source_filter = autotune(0, 1000000, 1.0, True)
+        isat = System.getProperty('train.autotune', 'true').lower() == 'true' or ${incReleaseRowCount} <= 0
+        filter_name = 'AutoTuningIncrementalReleaseFilter' if isat else 'IncrementalReleaseFilter'
+        autotune = jpy.get_type(f'io.deephaven.engine.table.impl.select.{filter_name}')
+        print("******* ISAT:",isat, "FILTER:", filter_name)
+        
+        source_filter = autotune(0,1000000,${incCycleFactor},True) if isat else autotune(0,${incReleaseRowCount})
         ${mainTable} = ${mainTable}.where(source_filter)
         if right: 
-            right_filter = autotune(0, 1010000, 1.0, True)
+            right_filter = autotune(0,1010000,${incCycleFactor},True) if isat else autotune(0,${incReleaseRowCount})
             right = right.where(right_filter)
         
         ${preOpQueries}
         bench_api_metrics_start()
         print('${logOperationBegin}')
+        begin_clock = time.time_ns()
         begin_time = time.perf_counter_ns()
         result = ${operation}
         
@@ -291,6 +353,7 @@ final public class StandardTestRunner {
         source_filter.waitForCompletion()
         
         end_time = time.perf_counter_ns()
+        end_clock = time.time_ns()
         print('${logOperationEnd}')
         bench_api_metrics_end()
         standard_metrics = bench_api_metrics_collect()
@@ -298,8 +361,13 @@ final public class StandardTestRunner {
         stats = new_table([
             double_col("elapsed_nanos", [end_time - begin_time]),
             long_col("processed_row_count", [loaded_tbl_size]),
-            long_col("result_row_count", [result.size])
+            long_col("result_row_count", [result.size]),
+            long_col("begin_clock_nanos", [begin_clock]),
+            long_col("end_clock_nanos", [end_clock]),
         ])
+        ${teardownQueries}
+        print("STANDARD EVENTS: ", f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L')
+        standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(incFactor, rowCount, loadColumns);
         return populateQuery(name, incQuery, operation, read, loadColumns);
@@ -307,14 +375,17 @@ final public class StandardTestRunner {
 
     String populateQuery(String name, String query, String operation, String read, String... loadColumns) {
         query = query.replace("${readTable}", read);
-        query = query.replace("${mainTable}", mainTable);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
         query = query.replace("${setupQueries}", String.join("\n", setupQueries));
         query = query.replace("${preOpQueries}", String.join("\n", preOpQueries));
         query = query.replace("${operation}", operation);
+        query = query.replace("${teardownQueries}", String.join("\n", teardownQueries));
         query = query.replace("${logOperationBegin}", getLogSnippet("Begin", name));
         query = query.replace("${logOperationEnd}", getLogSnippet("End", name));
+        query = query.replace("${incCycleFactor}", "" + incCycleFactor);
+        query = query.replace("${incReleaseRowCount}", "" + incReleaseRowCount);
+        query = query.replace("${mainTable}", mainTable);
         return query;
     }
 
@@ -326,6 +397,7 @@ final public class StandardTestRunner {
         stopUnusedServices(requiredServices);
 
         try {
+            Log.info("Running Test: %s", name);
             if (getWarmupRowCount() > 0)
                 api.query(warmupQuery).execute();
             var result = new AtomicReference<Result>();
@@ -342,6 +414,8 @@ final public class StandardTestRunner {
                 metrics.set("inc.factor", incFactor);
                 metrics.set("row.factor", rowCountFactor);
                 api.metrics().add(metrics);
+            }).fetchAfter("standard_events", table -> {
+                api.events().add(table);
             }).execute();
             api.result().test("deephaven-engine", result.get().elapsedTime(), result.get().loadedRowCount());
             return result.get();
@@ -356,7 +430,7 @@ final public class StandardTestRunner {
     }
 
     String loadSupportTables() {
-        return supportTables.stream().map(t -> t + " = read('/data/" + t + ".parquet').select()\n")
+        return supportTables.stream().map(t -> t + " = bench_api_read('/data/" + t + ".parquet').select()\n")
                 .collect(Collectors.joining(""));
     }
 
@@ -435,7 +509,7 @@ final public class StandardTestRunner {
     }
 
     boolean generateSourceTable(String distribution, String[] groups) {
-        return api.table("source")
+        var t = api.table("source")
                 .add("num1", "double", "[0-4]", distribution)
                 .add("num2", "double", "[1-10]", distribution)
                 .add("key1", "string", "[1-100]", distribution)
@@ -444,8 +518,8 @@ final public class StandardTestRunner {
                 .add("key4", "int", "[0-98]", distribution)
                 .add("key5", "string", "[1-1000000]", distribution)
                 .withRowCount(getGeneratedRowCount())
-                .withColumnGrouping(groups)
-                .generateParquet();
+                .withColumnGrouping(groups);
+        return useLocalParquet ? t.generateLocalParquet() : t.generateParquet();
     }
 
     boolean generateRightTable(String distribution, String[] groups) {
@@ -469,7 +543,7 @@ final public class StandardTestRunner {
     boolean generateTimedTable(String distribution, String[] groups) {
         long minTime = 1676557157537L;
         long maxTime = minTime + getGeneratedRowCount() - 1;
-        return api.table("timed")
+        var t = api.table("timed")
                 .add("timestamp", "timestamp-millis", "[" + minTime + "-" + maxTime + "]", "ascending")
                 .add("num1", "double", "[0-4]", distribution)
                 .add("num2", "double", "[1-10]", distribution)
@@ -478,8 +552,8 @@ final public class StandardTestRunner {
                 .add("key3", "int", "[0-8]", distribution)
                 .add("key4", "int", "[0-98]", distribution)
                 .withFixedRowCount(true)
-                .withColumnGrouping(groups)
-                .generateParquet();
+                .withColumnGrouping(groups);
+        return useLocalParquet ? t.generateLocalParquet() : t.generateParquet();
     }
 
     record Result(long loadedRowCount, Duration elapsedTime, long resultRowCount) {

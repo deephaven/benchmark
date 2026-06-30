@@ -25,6 +25,7 @@ title "- Building Remote Benchmark Artifact on ${HOST} -"
 
 title "-- Building and Verifying --"
 cd ${GIT_DIR}
+sleep 10  # Some JVM command lines start DH slower than others
 mvn verify
 
 title "-- Cleanup After Build  --"

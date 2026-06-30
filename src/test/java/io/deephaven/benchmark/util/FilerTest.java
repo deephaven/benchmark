@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2023 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.util;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,4 +48,11 @@ public class FilerTest {
         assertEquals("One Two Three\nFour Five Six", Filer.getURLText(url), "Wrong file text");
     }
 
+    @Test
+    public void getByteSize() throws Exception {
+        var p = Paths.get(getClass().getResource("filerfolder").toURI()).toFile().toString();
+        assertEquals(46, Filer.getByteSize(p), "Wrong byte size");
+        p = Paths.get(getClass().getResource("filertest.txt").toURI()).toFile().toString();
+        assertEquals(27, Filer.getByteSize(p), "Wrong byte size");
+    }
 }
