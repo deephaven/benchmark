@@ -1,0 +1,60 @@
+# Copyright (c) 2026-2026 Deephaven Data Labs and Patent Pending
+
+# Run benchmark combinations on an already provisioned system using a matrix config file
+# - Reads a .props config from .github/matrix/ that defines common values and matrix axes
+# - Generates all combinations and calls remote-benchmarks.yml for each
+# - Continues on failure (fail-fast: false)
+#
+# NOTE: This workflow must be merged to the default branch (main) before it will
+# appear in the GitHub Actions UI under "Run workflow".
+
+name: Matrix Benchmarks (Existing Server)
+
+on:
+  workflow_dispatch:
+    inputs:
+      matrix_file:
+        description: 'Matrix config file name from .github/matrix/ (e.g. gc-comparison.props)'
+        required: true
+        type: string
+      max_combinations:
+        description: 'Max allowed combinations (safety limit)'
+        required: true
+        default: '50'
+        type: string
+
+jobs:
+  generate-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Matrix Combinations
+      id: build-matrix
+      run: |
+        .github/scripts/build-matrix.sh \
+          ".github/matrix/${{ inputs.matrix_file }}" \
+          "${{ inputs.max_combinations }}"
+
+  run-benchmarks:
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    uses: ./.github/workflows/remote-benchmarks.yml
+    with:
+      run_type: adhoc
+      docker_image: ${{ matrix.docker_image }}
+      run_label: ${{ matrix.run_label }}
+      test_package: ${{ matrix.test_package }}
+      test_class_list: ${{ matrix.test_class_list }}
+      test_iterations: ${{ matrix.test_iterations }}
+      scale_row_count: ${{ matrix.scale_row_count }}
+      distribution: ${{ matrix.distribution }}
+      test_device_addr: "<default>"
+      config_options: ${{ matrix.config_options }}
+    secrets: inherit
