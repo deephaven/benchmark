@@ -187,7 +187,7 @@ jobs:
         ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.BENCHMARK_SLACK_CHANNEL}}" "${{secrets.BENCHMARK_SLACK_TOKEN}}" 
 
     - name: Sync GCloud with Demo NFS
-      if: ${{ env.RUN_TYPE != 'adhoc' }}
+      if: ${{ env.RUN_TYPE == 'adhoc' }}
       run: |
         ACCESS_TOKEN=$(gcloud auth print-access-token)
         gcloud compute ssh --quiet --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
