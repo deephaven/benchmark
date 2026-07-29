@@ -190,9 +190,9 @@ jobs:
       if: ${{ env.RUN_TYPE == 'adhoc' }}
       run: |
         ACCESS_TOKEN=$(gcloud auth print-access-token)
-        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
+        gcloud compute ssh --quiet --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
           --command="sudo env CLOUDSDK_AUTH_ACCESS_TOKEN=${ACCESS_TOKEN} gcloud storage rsync --delete-unmatched-destination-objects --recursive gs://deephaven-benchmark /nfs/deephaven-benchmark"
-        gcloud compute ssh --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
+        gcloud compute ssh --quiet --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
           --command="sudo find /nfs/deephaven-benchmark -mindepth 1 -type d -empty -delete"
 
     - name: Archive Results
