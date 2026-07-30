@@ -62,8 +62,7 @@ APT::Periodic::Unattended-Upgrade "0";
 EOF
 
 title "-- Disable AppArmor --"
-sudo systemctl stop apparmor 2>/dev/null || true
-sudo systemctl disable apparmor 2>/dev/null || true
+sudo systemctl disable --now apparmor 2>/dev/null || true
 sudo systemctl mask apparmor 2>/dev/null || true
 sudo aa-teardown 2>/dev/null || true
 
