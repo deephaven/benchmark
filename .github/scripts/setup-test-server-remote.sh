@@ -116,9 +116,9 @@ else
 fi
 
 title "-- Disabling AppArmor for Docker --"
-if ! jq -e '.["apparmor-profile"] == "unconfined"' /etc/docker/daemon.json >/dev/null 2>&1; then
+if ! jq -e '."default-security-opt" // [] | any(. == "apparmor=unconfined")' /etc/docker/daemon.json >/dev/null 2>&1; then
   EXISTING=$(cat /etc/docker/daemon.json 2>/dev/null || echo '{}')
-  echo "${EXISTING}" | jq '. + {"apparmor-profile": "unconfined"}' | sudo tee /etc/docker/daemon.json >/dev/null
+  echo "${EXISTING}" | jq '."default-security-opt" = ((."default-security-opt" // []) | map(select(startswith("apparmor=") | not))) + ["apparmor=unconfined"]' | sudo tee /etc/docker/daemon.json >/dev/null
   sudo systemctl restart docker
 fi
 
