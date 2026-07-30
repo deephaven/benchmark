@@ -61,6 +61,12 @@ APT::Periodic::Update-Package-Lists "0";
 APT::Periodic::Unattended-Upgrade "0";
 EOF
 
+title "-- Disable AppArmor --"
+sudo systemctl stop apparmor 2>/dev/null || true
+sudo systemctl disable apparmor 2>/dev/null || true
+sudo systemctl mask apparmor 2>/dev/null || true
+sudo aa-teardown 2>/dev/null || true
+
 title "-- Disabling ASLR for Current Session --"
 sudo sysctl -w kernel.randomize_va_space=0 >/dev/null
 
