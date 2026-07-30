@@ -11,6 +11,8 @@ services:
       - "START_OPTS=-Xmx4g -DAuthHandlers=io.deephaven.auth.AnonymousAuthenticationHandler"
 
   redpanda:
+    security_opt:
+    - apparmor:unconfined
     command:
     - redpanda
     - start
