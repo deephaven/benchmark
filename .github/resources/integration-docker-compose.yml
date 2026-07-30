@@ -1,6 +1,8 @@
 services:
   deephaven:
     image: ghcr.io/deephaven/server:edge
+    security_opt:
+      - apparmor:unconfined
     ports:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:

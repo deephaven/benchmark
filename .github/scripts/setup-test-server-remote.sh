@@ -115,13 +115,6 @@ else
   sudo usermod -aG docker ${USER}
 fi
 
-title "-- Disabling AppArmor for Docker --"
-if ! jq -e '."default-security-opt" // [] | any(. == "apparmor=unconfined")' /etc/docker/daemon.json >/dev/null 2>&1; then
-  EXISTING=$(cat /etc/docker/daemon.json 2>/dev/null || echo '{}')
-  echo "${EXISTING}" | jq '."default-security-opt" = ((."default-security-opt" // []) | map(select(startswith("apparmor=") | not))) + ["apparmor=unconfined"]' | sudo tee /etc/docker/daemon.json >/dev/null
-  sudo systemctl restart docker
-fi
-
 title "-- Removing Git Benchmark Repositories --"
 sudo rm -rf ${GIT_DIR}
 mkdir -p ${GIT_DIR}

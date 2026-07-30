@@ -1,6 +1,8 @@
 services:
   deephaven:
     image: ${DOCKER_IMG}
+    security_opt:
+      - apparmor:unconfined
     ports:
       - "${DEEPHAVEN_PORT:-10000}:10000"
     volumes:
