@@ -1,10 +1,13 @@
 # Overview
 
-We previously documented what GC types had the fastest throughput for both Static and Incremental for the "training" benchmarks. G1 failed very well in these tests. Even Shenandoah fared well for 100ms cycles. However, these benchmarks were all run at high max Java heap (e.g. 48G).
+We [previously documented](../gc/gc-report.md) what GC types had the fastest throughput for both Static and Incremental for the "training" benchmarks. G1 fared very well in these tests. Even Shenandoah fared well for 100ms cycles. However, these benchmarks were all run at high max Java heap (e.g. 48G).
 
-This study attempts to understand how well each GC uses heap for each operational category. The results are surprising and may necessitate changes in some of our operations. For example, G1 gets an extremely fragmented heap during Filter operations. So while it is very fast, it takes a large amount of memory compared to ZGC, which uses little memory but is much slower. These trade-offs need to be understood so that customers, for example, could run some PQs on slower, smaller-memory workers, and others on faster, larger-memory workers.
+This study attempts to understand how well each GC uses heap for each operational category. The results are surprising and may necessitate changes in some of our operations. For example, G1 gets an extremely fragmented heap during Filter operations. So while it is very fast, it takes a large amount of memory compared to ZGC, which uses little memory but is slower. These trade-offs need to be understood so that customers, for example, could run some PQs on slower, smaller-memory workers, and others on faster, larger-memory workers.
 
-Note: Much of the analysis that follows comes from AI parsing through JFR profiling data that was collected from Static runs for each operational category.
+Notes about this analysis:
+- Much of it comes from AI parsing through JFR profiling data that was collected from Static runs for each operational category.
+- The tests are looking at heap pressure, meaning we run each benchmark in nearly as small a heap as possible without crashing.
+- All benchmarks read from a parquet file, so it is a factor in the heap beyond what the benchmark operations do.
 
 ## Filter Operations
 
@@ -25,21 +28,21 @@ For ticking data the problem is the same, except that the bursts are smaller and
 
 ### Filter GC Handling
 
-- G1: region fragmentation + mixed GC strategy leaves garbage in uncollected old-gen regions + evacuation headroom. It can't reclaim memory fast enough without massive overhead.
-- Shenandoah: concurrent compaction but still has region overhead and forwarding pointers.
-- Parallel: STW full compaction leaves zero fragmentation. Very efficient.
-- ZGC: concurrent compaction with colored pointers, immediate memory reuse. Almost no overhead.
+- G1 (21G Xmx): region fragmentation + mixed GC strategy leaves garbage in uncollected old-gen regions + evacuation headroom. It can't reclaim memory fast enough without massive overhead.
+- Shenandoah (15G Xmx): concurrent compaction but still has region overhead and forwarding pointers.
+- Parallel (4G Xmx): STW full compaction leaves zero fragmentation. Very efficient.
+- ZGC (2G Xmx): concurrent compaction with colored pointers, immediate memory reuse. Almost no overhead.
 
 ### Filter Results
 
 ![Filter Memory Usage](./filter-heap.png)
 
 - Throughput (op_rate): G1 wins when it has enough heap
-  - G1 at 32M rows/sec is ~60% faster than ZGC at 20M. This is the classic G1 tradeoff if you give it enough memory, it's fast. But "enough" is 10x more than ZGC for this workload.
+  - G1 at 32M is ~60% faster than ZGC at 20M. This is the classic G1 tradeoff if you give it enough memory, it's fast. But "enough" is 10x more than ZGC for this workload.
 - RSS gain: ZGC grows the most
   - ZGC's 54% rss_gain vs G1's 10.5% is likely ZGC's multi-mapped colored pointer overhead. At 2GB heap → 3.1GB RSS, that's ~50% native/mapping overhead. G1's RSS is only 10% over heap because its overhead is inside the heap (wasted regions), not outside.
 - Incremental (ticking) behavior
-  - inc_rss_diff — all negative (~3-4 GB less RSS for ticking). Makes sense — ticking processes data incrementally, avoids the spike of materializing the full static table at once.
+  - inc_rss_diff — all negative (~3-4 GB less RSS for ticking). Consistent with ticking data processed incrementally, which avoids the spike of materializing the full static table at once.
   - inc_rate_diff — G1 (+85%) and Shenandoah (+73%) are much faster ticking than static. This suggests their static runs are hitting severe GC pressure (full GCs, long pauses) that tanks throughput. Ticking avoids the memory spike, so they perform better. Parallel and ZGC show negligible difference because they're not memory-stressed.
 
 ### Bottom Line for Filters
@@ -65,8 +68,8 @@ These are allocated in bursts during each aggregation pass, used briefly, then d
 
 - G1 (1G Xmx): generational collection excels — 555 young GCs at 3.3ms avg handle the churn. Old-gen still stressed (70 full GCs, 1182 evacuation failures, 39 concurrent mode failures), but young-gen absorbs enough that throughput remains high. GC consumes ~13% of wall time, with 4.3% in STW pauses.
 - Parallel (17G Xmx): only 24 collections total, each expensive (avg 214ms STW). Needs massive heap to avoid frequent collection. GC consumes only ~3% of wall time, but 100% of that is STW.
-- Shenandoah (4G Xmx): concurrent collection handles churn well (806 concurrent GCs), but heap stays ~89% full (3.6GB/4GB). GC consumes ~9% of wall time, with only 0.4% in STW pauses.
-- ZGC (1G Xmx): concurrent but non-generational (in this JDK version). At 1G the heap is perpetually saturated (avg 930MB/1024MB). 371 allocation stalls totaling 2.4% of wall time where application threads block completely. Total GC overhead is ~19% of wall time despite near-zero STW.
+- Shenandoah (4G Xmx): concurrent collection handles churn well (806 concurrent GCs), but heap stays \~89% full (3.6GB/4GB). GC consumes ~9% of wall time, with only 0.4% in STW pauses.
+- ZGC (1G Xmx): generational and concurrent. At 1G the heap is perpetually saturated (avg 930MB/1024MB). 371 allocation stalls totaling 2.4% of wall time where application threads block completely. Total GC overhead is ~19% of wall time despite near-zero STW.
 
 ### AggBy Results
 
@@ -77,8 +80,8 @@ These are allocated in bursts during each aggregation pass, used briefly, then d
 - RSS gain: ZGC has the most overhead relative to heap, Parallel the least
   - ZGC's 76.7% rss_gain at 1G heap (→ 1.77GB RSS) is its multi-mapped colored pointer overhead. G1's 65.3% gain is internal fragmentation from evacuation failures and humongous regions. Parallel at 4.3% is nearly flat because its huge heap dwarfs native overhead.
 - Incremental (ticking) behavior
-  - inc_rate_diff — all GCs lose 44-50% throughput when ticking (G1 -45%, Parallel -51%, Shenandoah -46%, ZGC -44%). This is the **opposite** of Filter. The uniformity across GCs and heap sizes indicates inherent aggregation update overhead (state maintenance, partial re-computation), not GC pressure.
-  - inc_rss_diff — negligible (0.7-6.8% less RSS). AggBy's memory is dominated by aggregation state, not input materialization, so ticking doesn't reduce the footprint. Unlike Filter, ticking does not rescue a struggling GC here.
+  - inc_rate_diff — all GCs lose 44-50% throughput when ticking (G1 -45%, Parallel -51%, Shenandoah -46%, ZGC -44%). In Filter, ticking was *faster* than static because it avoided the memory spike that crushed GC. Here, ticking is uniformly slower — the overhead is inherent aggregation update cost (state maintenance, partial re-computation), not GC pressure.
+  - inc_rss_diff — negligible (0.7-6.8% less RSS). Unlike Filter, where ticking avoided a large memory spike from processing the entire table at once, AggBy's memory footprint comes from the output accumulators and group keys — which exist regardless of whether input arrives in bulk or incrementally.
 
 ### Bottom Line for AggBy
 
@@ -90,7 +93,7 @@ This category encompasses user-defined formulas (e.g. `update("X = A * B + C")`)
 
 ### Formula Allocation Behavior
 
-Formula operations allocate dramatically less than AggBy or Filter — only ~2.8GB total per run (vs ~40GB for AggBy). The top allocators are:
+Formula operations allocate dramatically less than AggBy or Filter — only \~2.8GB total per run (vs ~40GB for AggBy). The top allocators are:
 
 - **`int[]` (42-62%)** — chunk index arrays
 - **`double[]` (8-46%)** — result column buffers
@@ -102,7 +105,7 @@ The low total allocation volume means GC barely has work to do. Formula compute 
 
 - G1 (1G Xmx): only 54 collections total (37 young, 14 old, 3 full). GC consumes 0.4% of wall time with 0.2% in STW. 25 evacuation failures, but so few collections that the impact is negligible. Max STW is 30ms.
 - Parallel (1G Xmx): 27 collections (17 ParallelOld, 10 ParallelScavenge). GC consumes 0.6% of wall time, all STW. Max STW is 90ms. Comfortable at 1G — unlike AggBy where it needed 17G.
-- Shenandoah (4G Xmx): only 9 collections. GC consumes 0.2% of wall time. Heap only commits 2.4GB of its 4G reservation — the workload doesn't need this much memory.
+- Shenandoah (4G Xmx): only 9 collections. GC consumes 0.2% of wall time. Heap only commits 2.4GB of its 4G reservation, but Shenandoah needs the extra headroom for concurrent marking and evacuation.
 - ZGC (1G Xmx): 33 collections with 1.4% of wall time in concurrent GC. Only 10 allocation stalls totaling 0.2% of wall time. Effectively no GC pressure.
 
 ### Formula Results
@@ -112,7 +115,7 @@ The low total allocation volume means GC barely has work to do. Formula compute 
 - Throughput (op_rate): all GCs within 8% of each other
   - ZGC leads at 810K, G1 at 808K, Parallel at 790K, Shenandoah at 748K. The ~8% spread across GCs that are all spending <1% of time in GC confirms this workload is entirely compute-bound.
 - RSS gain: ZGC highest (74.6%), Shenandoah lowest relative to heap (18.5%)
-  - ZGC and G1 at 1G both show ~63-75% RSS inflation due to multi-mapping and internal fragmentation respectively. Parallel at 1G has only 58.5% gain — the most efficient absolute RSS at 1.59GB. Shenandoah's 18.5% gain on 4G reflects that it only commits what it needs (~2.4GB of the 4G reservation).
+  - ZGC and G1 at 1G both show \~63-75% RSS inflation due to multi-mapping and internal fragmentation respectively. Parallel at 1G has only 58.5% gain — the most efficient absolute RSS at 1.59GB. Shenandoah's 18.5% gain on 4G reflects that it only commits what it needs (~2.4GB of the 4G reservation).
 - Incremental (ticking) behavior
   - inc_rate_diff — uniform 5-6% loss across all GCs. Minimal ticking penalty because formula evaluation cost is inherently per-row regardless of batch vs incremental.
   - inc_rss_diff — negligible (0-4%). Formula state is tiny; ticking doesn't change the memory profile.
@@ -140,7 +143,7 @@ The `long[]` dominance is the signature of join operations. The join hash table 
 
 - G1 (17G Xmx): 68 collections (52 young, 11 old, 5 full). GC consumes 7.4% of wall time with 4.0% in STW. Max STW is 292ms. 27 evacuation failures but no concurrent mode failures — G1 handles the large live set reasonably at 17G. Avg heap before GC is 6.6GB, reclaiming ~600MB per collection.
 - Parallel (20G Xmx): 43 collections (23 ParallelOld, 20 ParallelScavenge). GC consumes 9.3% of wall time, all STW. Max STW is 1428ms. Needs the most heap (20G) and still has expensive full-heap compactions.
-- Shenandoah (18G Xmx): 316 concurrent collections but heap stays ~90% full (16.2GB/18GB), reclaiming only 114MB per collection. GC consumes 2.7% of wall time with 0.2% in STW, but has a single 1290ms STW spike from allocation failure. Shenandoah is struggling to keep up with the live set.
+- Shenandoah (18G Xmx): 316 concurrent collections but heap stays ~90% full (16.2GB/18GB), reclaiming only 114MB per collection. GC consumes 2.7% of wall time with 0.2% in STW but has a single 1290ms STW spike from allocation failure. Shenandoah is struggling to keep up with the live set.
 - ZGC (16G Xmx): 41 collections with 30% of wall time in concurrent GC. Near-zero STW, but 12 allocation stalls averaging 243ms (max 846ms) — the longest per-stall duration of any workload. The smallest heap (16G) leaves ZGC's concurrent collection barely ahead of allocation.
 
 ### Natural Join Results
@@ -161,7 +164,7 @@ Natural Join is memory-hungry but GC-differentiated. All GCs need 16-20G heap fo
 
 ## AggBy Ordered Operations
 
-This category encompasses the ordered aggregation operations — AggBy variants that must maintain output in key order. The ordered constraint forces additional bookkeeping compared to unordered AggBy, creating a distinctive allocation pattern dominated by `MutableInt` wrapper objects alongside the usual chunk arrays.
+This category encompasses aggregation operations that require ordered access to data like median, percentile and sorted_first. These operations must internally sort or scan data in order to compute their results, which forces additional bookkeeping compared to simple reductive aggregations (avg, std), creating a distinctive allocation pattern dominated by `MutableInt` wrapper objects alongside the usual chunk arrays.
 
 ### Ordered Allocation Behavior
 
@@ -236,4 +239,52 @@ The `short[]` and RSP lambda dominance is the signature of UpdateBy. Each window
 
 UpdateBy is the stress test for GC. At ~135GB allocation with 15-20G heaps at 92-97% occupancy, no collector is comfortable. Shenandoah delivers the best throughput by keeping application threads alive concurrently despite 58% of wall time in GC. G1's generational advantage is neutralized by the massive live set — 90 Full GCs and 7642 evacuation failures show old-gen is perpetually overwhelmed. Parallel is catastrophic at 54% wall time stopped. For UpdateBy workloads, concurrent collectors (Shenandoah, ZGC) are essential, and more heap would benefit all collectors.
 
+## Summary
+
+1. **There is no best GC.** The rankings literally reverse depending on the workload:
+   - G1 is the best for AggBy (1G heap, 85% of top throughput) but the worst for Filter (needs 21G, 10x more than ZGC)
+   - Shenandoah leads UpdateBy throughput but trails by 25% on Ordered AggBy
+   - Parallel is catastrophic for UpdateBy (54% of wall time stopped) but the most memory-efficient for Filter (4G)
+   - ZGC is the most compact for Filter (2G) but suffers 3,073 allocation stalls on UpdateBy
+
+2. **The allocation profile predicts which GC wins.** This is the unifying pattern across all six categories:
+   - **Short-lived, uniform objects** (AggBy chunks, Ordered MutableInts) — G1 wins because its generational young-gen handles them cheaply
+   - **Large, long-lived retained state** (UpdateBy windows, Natural Join hash tables) — concurrent collectors win because G1's evacuation has nowhere to copy to
+   - **Fragmentation-prone RowSet copies** (Filter) — compacting collectors (ZGC, Parallel) win because they defrag; G1's region model traps garbage
+
+3. **Heap requirements vary 20x across categories for the same collector.** G1 needs 1G for AggBy but 21G for Filter. You can't set one Xmx and have it work well for everything.
+
+4. **Ticking penalty correlates with state maintenance cost.** The ticking throughput change across all GCs:
+   - Filter: **+73% to +85%** (ticking is *faster* — avoids the memory spike that crushes static GC)
+   - Formula: -5% (almost no state)
+   - AggBy: -45% (accumulator updates)
+   - UpdateBy: -58% (window recalculation)
+   - Natural Join: -77% (hash table re-probing)
+   - Ordered AggBy: -83% (reshuffling ordered positions)
+
+   These are uniform across GCs within each category, which proves the cost is algorithmic, not GC-related. Filter is the exception — the static run's problem is a massive simultaneous allocation burst that overwhelms GC, and ticking avoids that burst entirely.
+
+5. **ZGC's near-zero STW numbers hide real application impact.** ZGC reports almost no stop-the-world time, but allocation stalls (where individual threads block waiting for memory) can be severe — 48% of wall time on UpdateBy. The JFR STW metrics understate ZGC's actual pause impact.
+
+6. **Operation ordering in a query chain may matter as much as GC choice.** A filter that reduces rows early can shrink a downstream join's hash table from 17G to something much smaller. Conversely, a join that expands the working set before an updateby amplifies the worst allocation pattern in the study. Per-operation optimizations are most valuable when they address the bottleneck operation in a given query chain, or when they reduce pressure broadly enough to benefit the chain as a whole.
+
+## Recommendations
+
+### Filter: Reduce Fragmentation Without Losing Parallelism
+
+Filter's heap problem is not allocation volume — it allocates far less than AggBy or UpdateBy. The problem is **fragmentation**: `InitialFilterExecution.doFilterParallel()` splits the input into N segments (one per parallelism factor), and each segment simultaneously allocates a subset RowSet via `subSetByPositionRange()` plus a result RowSet from the filter. These objects are different sizes, allocated across threads, interleaved with long-lived results, and then all die at once. G1's region model traps this garbage alongside survivors, driving the 21G heap requirement.
+
+Three approaches could reduce this without destroying throughput:
+
+1. **Use RowSequence views instead of RowSet subsets.** Currently each segment calls `inputCopy.subSetByPositionRange()`, which allocates new RSP span arrays. The `RowSequence.getRowSequenceByPosition()` API creates lightweight views — just indices into the parent — with no data allocation. This would eliminate half the per-segment allocations. The obstacle is that `WhereFilter.filter()` takes `RowSet`, not `RowSequence`, so the filter interface would need to be widened. The result RowSet from each filter still needs to be built, but the input-side allocations (N subsets, each with their own span arrays) would disappear.
+
+2. **Batch segments in waves.** Instead of launching all N segments simultaneously, process them in waves of K (e.g. 4 at a time). Each wave's allocations die before the next wave starts, limiting peak simultaneous live objects. This reduces the interleaving that causes fragmentation while preserving parallelism within each wave. The tradeoff is slightly higher latency per filter (more waves), but the reduced GC pressure may more than compensate.
+
+### UpdateBy / Natural Join: Reduce Retained State
+
+These categories are the opposite problem — not fragmentation but sheer live-set size. UpdateBy retains 15-20G of window state, Natural Join retains 16G+ of hash tables. No GC tuning can fix "the data structure is too big." Reducing heap requirements here means reducing the retained state itself — smaller hash table representations, off-heap storage for window state, or lazier materialization of intermediate results. These are significant architectural changes.
+
+### General: GC Selection Should Match the Dominant Operation
+
+Since no single GC works well for all categories, deployments that run mixed workloads need to choose a GC based on which operation dominates their query chain. Deployments that primarily filter should favor ZGC or Parallel (compact heaps). Deployments that primarily aggregate should favor G1 (efficient generational collection). Deployments dominated by joins or updateby should favor Shenandoah or ZGC (concurrent collection under pressure) with generous heap.
 
