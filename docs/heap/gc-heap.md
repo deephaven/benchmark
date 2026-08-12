@@ -7,7 +7,7 @@ This study attempts to understand how well each GC uses heap for each operationa
 Notes about this analysis:
 - Much of it comes from AI parsing through JFR profiling data that was collected from Static runs for each operational category.
 - The tests are looking at heap pressure, meaning we run each benchmark in nearly as small a heap as possible without crashing.
-- All benchmarks read from a parquet file, so it is a factor in the heap beyond what the benchmark operations do.
+- All benchmarks read from a parquet file, so it is a factor in the heap in addition to what the benchmark operations do.
 
 ## Filter Operations
 
