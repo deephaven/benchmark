@@ -2,7 +2,7 @@
 # TSV columns: run_label, docker_image, test_package, test_class_list,
 #              test_iterations, scale_row_count, distribution, config_options
 
-IMG=ghcr.io/deephaven/server:edge
+IMG=ghcr.io/stanbrub/server:jvm25
 PKG=io.deephaven.benchmark.tests.train
 ITERS=1
 ROWSM=10
