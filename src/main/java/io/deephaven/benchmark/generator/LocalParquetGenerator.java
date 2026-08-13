@@ -24,6 +24,7 @@ public class LocalParquetGenerator implements Generator {
     final private ColumnDefs columnDefs;
     final private String topic;
     final private long startSeed;
+    final private long totalRowCount;
     final private MessageType schema;
     final private File parquetFile;
     final private AtomicBoolean isClosed = new AtomicBoolean(false);
@@ -36,12 +37,15 @@ public class LocalParquetGenerator implements Generator {
      * @param parquetFile output Parquet file path
      * @param topic topic name (used for logging and schema generation)
      * @param columnDefs column definitions that determine the schema and generated data
-     * @param startSeed starting seed for data generation
+     * @param startSeed starting seed (global row offset) for data generation
+     * @param totalRowCount total number of rows across all partitions
      */
-    public LocalParquetGenerator(String parquetFile, String topic, ColumnDefs columnDefs, long startSeed) {
+    public LocalParquetGenerator(String parquetFile, String topic, ColumnDefs columnDefs, long startSeed,
+            long totalRowCount) {
         this.topic = topic;
         this.columnDefs = columnDefs;
         this.startSeed = startSeed;
+        this.totalRowCount = totalRowCount;
         this.parquetFile = new File(parquetFile);
         this.schema = MessageTypeParser.parseMessageType(getSchemaMessage(topic, columnDefs));
         try {
@@ -66,13 +70,14 @@ public class LocalParquetGenerator implements Generator {
             final int colCount = columnDefs.getCount();
 
             long recCount = startSeed;
+            long endSeed = startSeed + maxRecordCount;
             long totalWritten = 0;
             long duration = 0;
             Object[] row = new Object[colCount];
 
-            while (!isClosed.get() && recCount < maxRecordCount) {
+            while (!isClosed.get() && recCount < endSeed) {
                 for (int i = 0; i < colCount; i++) {
-                    row[i] = columnDefs.nextValue(i, recCount, maxRecordCount);
+                    row[i] = columnDefs.nextValue(i, recCount, totalRowCount);
                 }
                 writer.write(row);
                 recCount++;

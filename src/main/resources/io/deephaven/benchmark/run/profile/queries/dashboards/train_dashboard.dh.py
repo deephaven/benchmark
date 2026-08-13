@@ -107,9 +107,9 @@ def get_throughput_table():
 def get_jitter_table():
     gc_events = bench_result_sets.join(bench_events, ['benchmark_name','origin','set_id'],
         ['type','start','duration','name','value']).sort(['set_id'])
-    jitter = gc_events.where(["type=`server_state_log`", "name=`ugp.cycle.time`"]) \
+    jitter = gc_events.where(["type=`ugp.cycle.cost`"]) \
         .group_by(['benchmark_name','set_id']) \
-        .update(['jitter=sqrt(avg(value * value - avg(value) * avg(value)))/avg(value)'])
+        .update(['jitter=sqrt(avg(duration * duration - avg(duration) * avg(duration)))/avg(duration)'])
     setids = bench_result_sets.select_distinct(['set_id'])
     benchmarks = jitter.select_distinct(['benchmark_name'])
     all_combos = benchmarks.join(setids)
@@ -131,11 +131,11 @@ def get_cycle_onbudget_table():
     budget_nanos = cycle_budget_ms * 1_000_000
     gc_events = bench_result_sets.join(bench_events, ['benchmark_name','origin','set_id'],
         ['type','start','duration','name','value']).sort(['set_id'])
-    cycle_events = gc_events.where(["type=`server_state_log`", "name=`ugp.cycle.time`"])
+    cycle_events = gc_events.where(["type=`ugp.cycle.cost`"])
     total = cycle_events.count_by('total', ['benchmark_name','set_id'])
-    under = cycle_events.where(f"value <= {budget_nanos}L").count_by('under', ['benchmark_name','set_id'])
-    cycles = total.join(under, ['benchmark_name','set_id'], ['under']) \
-        .update(['pct_under_budget = 100.0 * under / total'])
+    under = cycle_events.where(f"duration <= {budget_nanos}L").count_by('under', ['benchmark_name','set_id'])
+    cycles = total.natural_join(under, ['benchmark_name','set_id'], ['under']) \
+        .update(['under = isNull(under) ? 0L : under', 'pct_under_budget = 100.0 * under / total'])
     setids = bench_result_sets.select_distinct(['set_id'])
     benchmarks = cycles.select_distinct(['benchmark_name'])
     all_combos = benchmarks.join(setids)
@@ -496,8 +496,8 @@ def gc_throughput_dashboard():
 
             # --- CDF/CCDF ---
             events = _raw_be \
-                .where(['name = `ugp.cycle.time`']) \
-                .view(['benchmark_name', 'start', 'cycleCost=value',
+                .where(['type = `ugp.cycle.cost`']) \
+                .view(['benchmark_name', 'start', 'cycleCost=duration',
                        f'gc_type=set_id.replace("{actor}" + "/" + "{prefix}","")'])
             events = events.where([
                 f'benchmark_name = `{effective_bench}`',

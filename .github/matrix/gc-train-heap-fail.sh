@@ -7,10 +7,10 @@ PKG=io.deephaven.benchmark.tests.train
 ITERS=1
 ROWSM=10
 DIST=random
-STEP=4
+STEP=1
 
 BASE="-XX:+AlwaysPreTouch -XX:+UseTransparentHugePages -XX:+UseStringDeduplication -XX:+UseCompactObjectHeaders -DServerStateTracker.reportIntervalMillis=1000"
-CYCLE="-DPeriodicUpdateGraph.targetCycleDurationMillis=1000 -Dtrain.incLoadTarget=1.00"
+CYCLE="-DPeriodicUpdateGraph.targetCycleDurationMillis=1000 -Dbench.incLoadTarget=1.00"
 
 declare -A GCS=(
   [g1gc]="-XX:+UseG1GC"

@@ -250,8 +250,10 @@ final public class BenchTable implements Closeable {
         var rowsPerThread = getRowCount() / threadCount;
         var futures = new ArrayList<Future<Metrics>>(threadCount);
         for (int i = 0; i < threadCount; i++) {
-            long rows = (i < threadCount - 1) ? rowsPerThread : (getRowCount() - (rowsPerThread * i));
-            var future = generateWithLocalParquet(parquetPath, String.format("%04d.parquet", i), i, rows);
+            long startRow = (long) i * rowsPerThread;
+            long rows = (i < threadCount - 1) ? rowsPerThread : (getRowCount() - startRow);
+            var future = generateWithLocalParquet(parquetPath, String.format("%04d.parquet", i), startRow, rows,
+                    getRowCount());
             futures.add(future);
         }
         futures.stream().forEach(future -> bench.awaitCompletion(future));
@@ -299,9 +301,9 @@ final public class BenchTable implements Closeable {
     }
 
     private Future<Metrics> generateWithLocalParquet(String parquetPath, String parquetPart, long startRow,
-            long rowCount) {
+            long rowCount, long totalRowCount) {
         var parquetFile = Filer.createFile(parquetPath, parquetPart).toString();
-        var gen = new LocalParquetGenerator(parquetFile, tableName, columns.copy(), startRow);
+        var gen = new LocalParquetGenerator(parquetFile, tableName, columns.copy(), startRow, totalRowCount);
         generators.add(gen);
         return gen.produce(getRowPause(), rowCount, getRunDuration());
     }
