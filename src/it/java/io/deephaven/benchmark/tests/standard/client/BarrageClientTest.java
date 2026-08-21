@@ -5,8 +5,7 @@ import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 
 /**
- * Standard tests for the ascending sort table operation. Sorts rows of data from the source table according to the
- * defined columns
+ * Standard benchmark for Barrage client snapshot throughput. Snapshots a two-column table from the source server.
  */
 public class BarrageClientTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
