@@ -252,7 +252,7 @@ class BarrageConnector implements Connector {
         // channelBuilder.useTransportSecurity(); If eventually security is needed
         // Increase the maximum inbound message size so large Barrage snapshots (e.g. standard_events)
         // do not trip the default 4 MiB gRPC limit while prototyping benchmarks.
-        channelBuilder.maxInboundMessageSize(inboundMessageMB * 1024 * 1024); // 32 MiB
+        channelBuilder.maxInboundMessageSize(inboundMessageMB * 1024 * 1024); // 64 MiB
 
         return channelBuilder.build();
     }

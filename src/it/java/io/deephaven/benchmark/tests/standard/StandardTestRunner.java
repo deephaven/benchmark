@@ -297,6 +297,7 @@ final public class StandardTestRunner {
             long_col("end_clock_nanos", [end_clock]),
         ])
         ${teardownQueries}
+        standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(staticFactor, rowCount, loadColumns);
         return populateQuery(name, staticQuery, operation, read, loadColumns);
@@ -348,7 +349,6 @@ final public class StandardTestRunner {
             long_col("end_clock_nanos", [end_clock]),
         ])
         ${teardownQueries}
-        print("STANDARD EVENTS: ", f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L')
         standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(incFactor, rowCount, loadColumns);

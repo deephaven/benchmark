@@ -76,8 +76,8 @@ public class Filer {
      * @return the size of the file or directory in bytes
      */
     static public long getByteSize(String path) {
-        try {
-            return Files.walk(Paths.get(path)).filter(Files::isRegularFile).mapToLong(f -> f.toFile().length()).sum();
+        try (var files = Files.walk(Paths.get(path))) {
+            return files.filter(Files::isRegularFile).mapToLong(f -> f.toFile().length()).sum();
         } catch (Exception ex) {
             throw new RuntimeException("Failed to get size of file: " + path, ex);
         }
