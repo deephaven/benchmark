@@ -205,6 +205,8 @@ public class BenchPlatform {
         python_version = '.'.join([str(sys.version_info.major), str(sys.version_info.minor),
             str(sys.version_info.micro)])
         bench_api_add_platform('python.version', python_version)
+        bench_api_add_platform('python.build', ' '.join(sys.version.split()))
+        bench_api_add_platform('libc.version', os.popen('ldd --version 2>/dev/null').readline().strip())
         
         # Java Dependency Versions
         classpath = bench_api_get_proc_info('runtime-mx.sys-props','java.class.path')
