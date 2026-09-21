@@ -35,9 +35,36 @@ fi
 
 title () { echo; echo $1; }
 
+# Save the image digest and revision where the engine can read them, since it cannot inspect its own image
+write_image_props () {
+  local props=${DEEPHAVEN_DIR}/data/deephaven-image.properties
+  local ref="" digest="" revision=""
+  mkdir -p ${DEEPHAVEN_DIR}/data
+  rm -f ${props}
+  ref=$(docker compose config --images deephaven 2>/dev/null | head -1) || true
+  if [[ -z ${ref} ]]; then
+    echo "$0: Warning: No deephaven service image configured. Skipping image properties"
+    return 0
+  fi
+  digest=$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "${ref}" 2>/dev/null) || true
+  revision=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "${ref}" 2>/dev/null) || true
+  if [[ ${digest} == *"@"* ]]; then
+    echo "docker.image.digest=${ref%@*}@${digest#*@}" > ${props}
+  else
+    echo "docker.image.digest=${ref}" > ${props}
+  fi
+  if [[ -n ${revision} && ${revision} != "<no value>" ]]; then
+    echo "docker.image.revision=${revision}" >> ${props}
+  fi
+  cat ${props}
+}
+
 title "- Running Remote Benchmark Artifact on ${HOST} -"
 
 cd ${DEEPHAVEN_DIR};
+
+title "-- Recording Deephaven Image Identity --"
+write_image_props
 
 title "-- Running Benchmarks --"
 set +f
