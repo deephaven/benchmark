@@ -62,6 +62,8 @@ Properties defined in the file are:
 - java.max.memory: Maximum amount of memory the application is allowed to use 
 - python.version: The version of python used in the Deephaven Engine
 - deephaven.version: The version of Deephaven tested against (client and server may be different)
+- docker.image.digest: The docker image sha Deephaven tested against
+- docker.image.revision: The deephaven-core source commit tested against
 
 
 ### Example benchmark-platform.csv
