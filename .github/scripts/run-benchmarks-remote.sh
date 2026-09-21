@@ -42,20 +42,18 @@ write_image_props () {
   mkdir -p ${DEEPHAVEN_DIR}/data
   rm -f ${props}
   ref=$(docker compose config --images deephaven 2>/dev/null | head -1) || true
-  if [[ -z ${ref} ]]; then
-    echo "$0: Warning: No deephaven service image configured. Skipping image properties"
-    return 0
+  if [[ -n ${ref} ]]; then
+    digest=$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "${ref}" 2>/dev/null) || true
+    revision=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "${ref}" 2>/dev/null) || true
   fi
-  digest=$(docker image inspect --format '{{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' "${ref}" 2>/dev/null) || true
-  revision=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "${ref}" 2>/dev/null) || true
   if [[ ${digest} == *"@"* ]]; then
-    echo "docker.image.digest=${ref%@*}@${digest#*@}" > ${props}
-  else
-    echo "docker.image.digest=${ref}" > ${props}
+    ref=${ref%@*}@${digest#*@}
   fi
-  if [[ -n ${revision} && ${revision} != "<no value>" ]]; then
-    echo "docker.image.revision=${revision}" >> ${props}
+  if [[ ${revision} == "<no value>" ]]; then
+    revision=""
   fi
+  echo "docker.image.digest=${ref}" > ${props}
+  echo "docker.image.revision=${revision}" >> ${props}
   cat ${props}
 }
 

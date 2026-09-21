@@ -213,7 +213,7 @@ public class BenchPlatform {
         if os.path.exists(image_props):
             for line in open(image_props):
                 name, sep, value = line.partition('=')
-                if sep and value.strip():
+                if sep:
                     bench_api_add_platform(name, value)
         
         # Java Dependency Versions
