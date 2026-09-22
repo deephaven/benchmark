@@ -28,15 +28,11 @@ public class DeephavenDockerController implements Controller {
 
     /**
      * Make a Deephaven <code>Controller</code> instance for starting/stopping a local instance of Deephaven.
-     * <p>
-     * The stop timeout is the number of seconds docker waits after SIGTERM before it resorts to SIGKILL. It is a
-     * maximum, not a fixed delay, so a service that exits promptly costs nothing extra. Zero means the engine is killed
-     * outright, which is the fastest teardown but discards anything the JVM writes during shutdown, such as a Flight
-     * Recorder dump. Give it a non-zero value when a run needs those artifacts.
      * 
      * @param composePath the path to the <code>docker-compose.yml</code> file or null
      * @param httpHostPort HTTP host and port for checking availability or null (ex deephaven.addr=localhost:10000)
-     * @param stopTimeoutSecs seconds to allow services to shut down cleanly before killing them
+     * @param stopTimeoutSecs max seconds docker waits for a clean shutdown before SIGKILL; 0 kills immediately and
+     *        discards on-exit artifacts like JFR dumps
      */
     public DeephavenDockerController(String composePath, String httpHostPort, long stopTimeoutSecs) {
         this.composePropPath = (composePath == null) ? "" : composePath.trim();
