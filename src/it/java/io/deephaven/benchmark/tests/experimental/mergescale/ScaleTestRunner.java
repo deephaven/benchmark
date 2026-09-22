@@ -82,7 +82,8 @@ class ScaleTestRunner {
 
     void restartDocker(Bench api) {
         var timer = api.timer();
-        var controller = new DeephavenDockerController(api.property("docker.compose.file", ""), api.property("deephaven.addr", ""));
+        var controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""), api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
         if (!controller.restartService())
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.docker");

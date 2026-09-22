@@ -363,7 +363,7 @@ public class CompareTestRunner {
         try {
             api.setName("# Services Restart");
             var c = new DeephavenDockerController(api.property("docker.compose.file", ""),
-                    api.property("deephaven.addr", ""));
+                    api.property("deephaven.addr", ""), api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
             c.restartService();
         } finally {
             api.close();
@@ -379,7 +379,8 @@ public class CompareTestRunner {
             if (dockerComposeFile.isBlank() || deephavenHostPort.isBlank())
                 return;
             dockerComposeFile = makeHeapAdjustedDockerCompose(dockerComposeFile, heapGigs);
-            var controller = new DeephavenDockerController(dockerComposeFile, deephavenHostPort);
+            var controller = new DeephavenDockerController(dockerComposeFile, deephavenHostPort,
+                    api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
             controller.restartService();
         } finally {
             api.close();
@@ -388,7 +389,8 @@ public class CompareTestRunner {
 
     void stopUnusedServices() {
         var timer = api.timer();
-        var c = new DeephavenDockerController(api.property("docker.compose.file", ""), api.property("deephaven.addr", ""));
+        var c = new DeephavenDockerController(api.property("docker.compose.file", ""),
+                api.property("deephaven.addr", ""), api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
         if (!c.stopService(Set.of("deephaven")))
             return;
         var metrics = new Metrics(Timer.now(), "test-runner", "setup.services");

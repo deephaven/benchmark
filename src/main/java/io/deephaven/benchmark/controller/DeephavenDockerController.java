@@ -23,17 +23,25 @@ import io.deephaven.benchmark.util.Threads;
 public class DeephavenDockerController implements Controller {
     final String composePropPath;
     final String httpHostPort;
+    final long stopTimeoutSecs;
     final Path workDir;
 
     /**
      * Make a Deephaven <code>Controller</code> instance for starting/stopping a local instance of Deephaven.
+     * <p>
+     * The stop timeout is the number of seconds docker waits after SIGTERM before it resorts to SIGKILL. It is a
+     * maximum, not a fixed delay, so a service that exits promptly costs nothing extra. Zero means the engine is killed
+     * outright, which is the fastest teardown but discards anything the JVM writes during shutdown, such as a Flight
+     * Recorder dump. Give it a non-zero value when a run needs those artifacts.
      * 
      * @param composePath the path to the <code>docker-compose.yml</code> file or null
      * @param httpHostPort HTTP host and port for checking availability or null (ex deephaven.addr=localhost:10000)
+     * @param stopTimeoutSecs seconds to allow services to shut down cleanly before killing them
      */
-    public DeephavenDockerController(String composePath, String httpHostPort) {
+    public DeephavenDockerController(String composePath, String httpHostPort, long stopTimeoutSecs) {
         this.composePropPath = (composePath == null) ? "" : composePath.trim();
         this.httpHostPort = (httpHostPort == null) ? "" : httpHostPort.trim();
+        this.stopTimeoutSecs = Math.max(0, stopTimeoutSecs);
         this.workDir = composePropPath.isBlank() ? Paths.get(".") : Paths.get(composePropPath).getParent();
     }
 
@@ -76,7 +84,8 @@ public class DeephavenDockerController implements Controller {
             services = listAvailableServices(composePropPath);
             services.removeAll(Strings.startsWith(services, keepServicePrefixes));
         }
-        exec(Strings.toArray("docker", "compose", "-f", composePropPath, "down", "--timeout", "0", services));
+        exec(Strings.toArray("docker", "compose", "-f", composePropPath, "down", "--timeout",
+                Long.toString(stopTimeoutSecs), services));
         System.out.println("Running Services after stop: " + listRunningServices(composePropPath));
         return true;
     }

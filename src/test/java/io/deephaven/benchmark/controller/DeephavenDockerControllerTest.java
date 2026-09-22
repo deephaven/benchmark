@@ -14,7 +14,7 @@ public class DeephavenDockerControllerTest {
         e751ca90644e   docker.redpanda.com/vectorized/redpanda:v22.2.5   "/entrypoint.sh redp…"   2 hours ago   Up 2
 
         """;
-        var c = new DeephavenDockerController(null, null);
+        var c = new DeephavenDockerController(null, null, 0);
         var ids = c.parseContainerIds(dockerPsStr);
         assertEquals("[34e3c5866046]", ids.toString(), "Wrong deephaven container ids");
         ids = c.parseContainerIds("Nothing");
@@ -33,7 +33,7 @@ public class DeephavenDockerControllerTest {
         "Driver": "overlay2",
         "com.docker.compose.project.config_files": "/home/stan/Deephaven/deephaven-edge/docker-compose.yml",
         """;
-        var c = new DeephavenDockerController(null, null);
+        var c = new DeephavenDockerController(null, null, 0);
         var info = c.parseContainerInfo(dockerInspectStr);
         assertEquals("/deephaven-edge-deephaven-1", info.name(), "Wrong deephaven container name");
         assertEquals("/home/stan/Deephaven/deephaven-edge/docker-compose.yml", info.composePath(),
@@ -49,7 +49,7 @@ public class DeephavenDockerControllerTest {
             redpanda
 
         """;
-        var c = new DeephavenDockerController(null, null);
+        var c = new DeephavenDockerController(null, null, 0);
         var services = c.parseServicesList(dockerServicesStr);
         assertEquals("[deephaven, minio, minio-bucket, redpanda]", services.toString(), "Bad services list");
     }
