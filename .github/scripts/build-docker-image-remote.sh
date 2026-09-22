@@ -41,12 +41,14 @@ title "- Setting up Remote Docker Image on ${HOST} -"
 title "-- Building Deephaven Docker Image --"
 export DEEPHAVEN_VERSION=$(cat ${DEEPHAVEN_VERSION_FILE})
 cd ${GIT_DIR}/deephaven-server-docker
+# Clear the previous ref's copies, since a differing version leaves a second wheel behind
+rm -f contexts/server/server-jetty-*.tar contexts/server-slim/server-jetty-*.tar contexts/server/deephaven_core-*.whl
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server/
 cp ${GIT_DIR}/deephaven-core/server/jetty-app/build/distributions/server-jetty-*.tar contexts/server-slim/
 cp ${GIT_DIR}/deephaven-core/py/server/build/wheel/deephaven_core-*-py3-none-any.whl contexts/server/
 
 export DEEPHAVEN_SOURCES=custom
-export DEEPHAVEN_CORE_WHEEL=$(find . -type f -name "*.whl" | xargs -n 1 basename)
+export DEEPHAVEN_CORE_WHEEL=$(find contexts/server -type f -name "*.whl" | xargs -n 1 basename)
 export TAG=${DOCKER_TAG}
 
 # Let server.hcl label the image with the commit, since local images have no digest to identify them

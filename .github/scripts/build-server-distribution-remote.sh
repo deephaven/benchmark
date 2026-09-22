@@ -34,10 +34,10 @@ BRANCH_NAME=$(sed 's/.*'"${BRANCH_DELIM}"'//g' <<< "${DOCKER_IMG}")
 echo "OWNER: ${OWNER}"
 echo "BRANCH: ${BRANCH_NAME}"
 
-# Tag local images per owner/ref so each ref builds once and is reused. A constant tag made every
-# matrix row after the first reuse the first row's image.
-REF_SLUG=$(echo "${OWNER}-${BRANCH_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g' | cut -c1-100)
-DOCKER_TAG=benchmark-${REF_SLUG}
+# Tag per owner/ref so each ref builds once. Slug is for reading, hash is the key
+REF_SLUG=$(echo "${OWNER}-${BRANCH_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g' | cut -c1-80)
+REF_HASH=$(echo -n "${OWNER}${BRANCH_DELIM}${BRANCH_NAME}" | sha256sum | cut -c1-8)
+DOCKER_TAG=benchmark-${REF_SLUG}-${REF_HASH}
 echo "DOCKER TAG: ${DOCKER_TAG}"
 
 # Later steps read the tag from here. Written before any exit below.
