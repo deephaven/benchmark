@@ -43,7 +43,11 @@ export DEEPHAVEN_SOURCES=custom
 export DEEPHAVEN_CORE_WHEEL=$(find . -type f -name "*.whl" | xargs -n 1 basename)
 export TAG=benchmark-local
 
+# Let server.hcl label the image with the commit, since local images have no digest to identify them
+export GIT_REVISION=$(git -C ${GIT_DIR}/deephaven-core rev-parse HEAD)
+
 echo "DEEPHAVEN_VERSION: ${DEEPHAVEN_VERSION}"
 echo "DEEPHAVEN_CORE_WHEEL: ${DEEPHAVEN_CORE_WHEEL}"
+echo "GIT_REVISION: ${GIT_REVISION}"
 docker buildx bake -f server.hcl
 

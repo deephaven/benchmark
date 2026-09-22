@@ -208,6 +208,14 @@ public class BenchPlatform {
         bench_api_add_platform('python.build', ' '.join(sys.version.split()))
         bench_api_add_platform('libc.version', os.popen('ldd --version 2>/dev/null').readline().strip())
         
+        # Docker image identity saved to the mounted data dir before the engine started
+        image_props = '/data/deephaven-image.properties'
+        if os.path.exists(image_props):
+            for line in open(image_props):
+                name, sep, value = line.partition('=')
+                if sep:
+                    bench_api_add_platform(name, value)
+        
         # Java Dependency Versions
         classpath = bench_api_get_proc_info('runtime-mx.sys-props','java.class.path')
         from collections import defaultdict
