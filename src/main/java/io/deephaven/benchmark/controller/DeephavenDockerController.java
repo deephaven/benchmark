@@ -58,7 +58,7 @@ public class DeephavenDockerController implements Controller {
             return false;
         var composeRunPath = getRunningComposePath();
         if (composeRunPath != null)
-            exec("docker", "compose", "-f", composeRunPath, "down");
+            exec("docker", "compose", "-f", composeRunPath, "down", "--timeout", Long.toString(stopTimeoutSecs));
         var availableServices = listAvailableServices(composePropPath);
         var services = Strings.startsWith(availableServices, servicePrefixes);
         exec(Strings.toArray("docker", "compose", "-f", composePropPath, "up", "-d", services));
