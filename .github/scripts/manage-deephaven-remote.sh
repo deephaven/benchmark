@@ -18,6 +18,7 @@ DIRECTIVE=$1
 DOCKER_IMG=$2
 CONFIG_OPTS="${@:3}"
 HOST=`hostname`
+GIT_DIR=${HOME}/git
 DEEPHAVEN_DIR=${HOME}/deephaven
 
 if [ ! -d "${DEEPHAVEN_DIR}" ]; then
@@ -41,7 +42,9 @@ if [[ ${DOCKER_IMG} == ghcr.io/* ]]; then
   echo "DOCKER_IMG=${DOCKER_IMG}" >> .env
   docker compose pull
 elif [[ ${DOCKER_IMG} == *":"* ]]; then
-  echo "DOCKER_IMG=deephaven/server:benchmark-local" >> .env
+  # Locally built from <owner>:<ref>, under the per-ref tag recorded by the distribution build.
+  LOCAL_TAG=$(cat ${GIT_DIR}/benchmark-tag)
+  echo "DOCKER_IMG=deephaven/server:${LOCAL_TAG}" >> .env
 else
   echo "DOCKER_IMG=ghcr.io/deephaven/server:${DOCKER_IMG}" >> .env
   docker compose pull

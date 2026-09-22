@@ -17,6 +17,7 @@ fi
 HOST=`hostname`
 GIT_DIR=${HOME}/git
 DEEPHAVEN_DIR=${HOME}/deephaven
+DEEPHAVEN_TAG_FILE=${GIT_DIR}/benchmark-tag
 DOCKER_IMG=$1
 BRANCH_DELIM=":"
 BUILD_JAVA=temurin-17-jdk-amd64
@@ -28,16 +29,25 @@ fi
 
 title () { echo; echo $1; }
 
-DEEPHAVEN_VERSION_FILE=${GIT_DIR}/deephaven-core/build/version
-if [ -f "${DEEPHAVEN_VERSION_FILE}" ]; then
-  echo "Server distribution already built. Skipping."
-  exit 0
-fi
-
 OWNER=$(sed 's/'"${BRANCH_DELIM}"'.*//g' <<< "${DOCKER_IMG}")
 BRANCH_NAME=$(sed 's/.*'"${BRANCH_DELIM}"'//g' <<< "${DOCKER_IMG}")
 echo "OWNER: ${OWNER}"
 echo "BRANCH: ${BRANCH_NAME}"
+
+# Tag local images per owner/ref so each ref builds once and is reused. A constant tag made every
+# matrix row after the first reuse the first row's image.
+REF_SLUG=$(echo "${OWNER}-${BRANCH_NAME}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]/-/g' | cut -c1-100)
+DOCKER_TAG=benchmark-${REF_SLUG}
+echo "DOCKER TAG: ${DOCKER_TAG}"
+
+# Later steps read the tag from here. Written before any exit below.
+echo "${DOCKER_TAG}" > ${DEEPHAVEN_TAG_FILE}
+
+# Check the image, not build/version, so a new ref always rebuilds.
+if docker image inspect deephaven/server:${DOCKER_TAG} &>/dev/null 2>&1; then
+  echo "Image deephaven/server:${DOCKER_TAG} already present. Skipping assemble."
+  exit 0
+fi
 
 title "-- Cloning deephaven-core --"
 cd ${GIT_DIR}
@@ -59,8 +69,13 @@ title "-- Assembling Python Deephaven Core Server --"
 cd ${GIT_DIR}/deephaven-core
 export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 
+# The image build copies these with globs, so a leftover from another ref could be picked up.
+rm -rf server/jetty-app/build/distributions py/server/build/wheel
+
 echo "org.gradle.daemon=false" >> gradle.properties
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
+
+echo "Assembled ${OWNER}${BRANCH_DELIM}${BRANCH_NAME} -> $(git rev-parse HEAD) for tag ${DOCKER_TAG}"
 
 
 
