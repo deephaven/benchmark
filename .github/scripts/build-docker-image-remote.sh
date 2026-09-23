@@ -57,5 +57,24 @@ export GIT_REVISION=$(git -C ${GIT_DIR}/deephaven-core rev-parse HEAD)
 echo "DEEPHAVEN_VERSION: ${DEEPHAVEN_VERSION}"
 echo "DEEPHAVEN_CORE_WHEEL: ${DEEPHAVEN_CORE_WHEEL}"
 echo "GIT_REVISION: ${GIT_REVISION}"
+
+# Pull once so bakes resolve locally instead of from Docker Hub, which intermittently 502s
+for image in docker/dockerfile:1.4 busybox:latest ubuntu:24.04 eclipse-temurin:21; do
+  if docker image inspect ${image} &>/dev/null; then
+    continue
+  fi
+  for attempt in 1 2 3; do
+    if docker pull ${image}; then
+      break
+    fi
+    if [ ${attempt} -eq 3 ]; then
+      echo "$0: Failed to pull ${image} after ${attempt} attempts"
+      exit 1
+    fi
+    echo "Pull of ${image} failed (attempt ${attempt}); retrying in 30s"
+    sleep 30
+  done
+done
+
 docker buildx bake -f server.hcl
 
