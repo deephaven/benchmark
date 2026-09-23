@@ -59,7 +59,7 @@ cd deephaven-core
 # The clone may be from an earlier row's owner, so repoint origin and discard that row's tree
 git remote set-url origin https://github.com/${OWNER}/deephaven-core.git
 git reset --hard
-git fetch --prune origin
+git fetch --prune --prune-tags origin
 # Prefer this owner's branch over a local one of the same name; tags and hashes resolve directly
 if git rev-parse --verify --quiet "origin/${BRANCH_NAME}" >/dev/null; then
   git checkout --detach "origin/${BRANCH_NAME}"
