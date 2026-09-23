@@ -112,7 +112,20 @@ fi
 # Containers without apparmor:unconfined fail to start unless dockerd has its profile available
 title "-- Restarting Docker --"
 sudo systemctl restart docker
-docker run --rm busybox:latest true && echo "container start ok"
+
+# Fail here rather than in a later bake, which reports it only as "exit code: 1"
+for attempt in 1 2 3; do
+  if sudo docker run --rm busybox:latest true; then
+    echo "Container start ok"
+    break
+  fi
+  if [ ${attempt} -eq 3 ]; then
+    echo "$0: Cannot start a container after ${attempt} attempts"
+    exit 1
+  fi
+  echo "Container start failed (attempt ${attempt}); retrying in 30s"
+  sleep 30
+done
 
 title "-- Setting Up Git Benchmark Repository --"
 if [ ! -d "${GIT_DIR}/benchmark" ]; then
