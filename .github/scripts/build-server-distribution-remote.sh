@@ -56,8 +56,16 @@ if [ ! -d "deephaven-core" ]; then
   git clone https://github.com/${OWNER}/deephaven-core.git
 fi
 cd deephaven-core
-git fetch origin
-git checkout ${BRANCH_NAME}
+# The clone may be from an earlier row's owner, so repoint origin and discard that row's tree
+git remote set-url origin https://github.com/${OWNER}/deephaven-core.git
+git reset --hard
+git fetch --prune origin
+# Prefer the fetched remote ref, since a local branch of the same name may be another owner's
+if git rev-parse --verify --quiet "origin/${BRANCH_NAME}" >/dev/null; then
+  git checkout --detach "origin/${BRANCH_NAME}"
+else
+  git checkout --detach "${BRANCH_NAME}"
+fi
 
 title "-- Cloning deephaven-server-docker --"
 cd ${GIT_DIR}
