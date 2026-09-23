@@ -60,7 +60,7 @@ cd deephaven-core
 git remote set-url origin https://github.com/${OWNER}/deephaven-core.git
 git reset --hard
 git fetch --prune origin
-# Prefer the fetched remote ref, since a local branch of the same name may be another owner's
+# Prefer this owner's branch over a local one of the same name; tags and hashes resolve directly
 if git rev-parse --verify --quiet "origin/${BRANCH_NAME}" >/dev/null; then
   git checkout --detach "origin/${BRANCH_NAME}"
 else
