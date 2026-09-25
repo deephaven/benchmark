@@ -40,7 +40,7 @@ class KafkaTestRunner {
         this.testInst = testInst;
         this.api = Bench.create(testInst);
         this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
-                api.property("deephaven.addr", ""));
+                api.property("deephaven.addr", ""), api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
     }
 
     /**

@@ -61,11 +61,6 @@ APT::Periodic::Update-Package-Lists "0";
 APT::Periodic::Unattended-Upgrade "0";
 EOF
 
-title "-- Disable AppArmor --"
-sudo systemctl disable --now apparmor 2>/dev/null || true
-sudo systemctl mask apparmor 2>/dev/null || true
-sudo aa-teardown 2>/dev/null || true
-
 title "-- Disabling ASLR for Current Session --"
 sudo sysctl -w kernel.randomize_va_space=0 >/dev/null
 
@@ -113,6 +108,24 @@ else
   sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   sudo usermod -aG docker ${USER}
 fi
+
+# Containers without apparmor:unconfined fail to start unless dockerd has its profile available
+title "-- Restarting Docker --"
+sudo systemctl restart docker
+
+# Fail here rather than in a later bake, which reports it only as "exit code: 1"
+for attempt in 1 2 3; do
+  if sudo docker run --rm busybox:latest true; then
+    echo "Container start ok"
+    break
+  fi
+  if [ ${attempt} -eq 3 ]; then
+    echo "$0: Cannot start a container after ${attempt} attempts"
+    exit 1
+  fi
+  echo "Container start failed (attempt ${attempt}); retrying in 30s"
+  sleep 30
+done
 
 title "-- Setting Up Git Benchmark Repository --"
 if [ ! -d "${GIT_DIR}/benchmark" ]; then

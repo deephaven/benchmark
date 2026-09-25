@@ -222,7 +222,7 @@ public class ExperimentalTestRunner {
 
         this.api = Bench.create(testInst);
         this.controller = new DeephavenDockerController(api.property("docker.compose.file", ""),
-                api.property("deephaven.addr", ""));
+                api.property("deephaven.addr", ""), api.propertyAsIntegral("docker.compose.stop.timeout", "0"));
         this.scaleRowCount = api.propertyAsIntegral("scale.row.count", "100000");
         controller.restartService();
         api.query(query).execute();
