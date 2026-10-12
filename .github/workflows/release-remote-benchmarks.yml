@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
      docker_image:
-       description: 'Docker Image (release version or edge for pre-release)'
+       description: 'Docker Image (release version or "edge" for pre-release)'
        required: true
        default: '42.0'
        type: string
