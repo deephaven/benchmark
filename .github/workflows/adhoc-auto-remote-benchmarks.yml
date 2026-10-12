@@ -14,12 +14,12 @@ on:
       docker_image_1:
         description: 'Deephaven Image or Core Branch'
         required: true
-        default: '0.35.0'
+        default: '42.0'
         type: string
       docker_image_2:
         description: 'Deephaven Image or Core Branch'
         required: true
-        default: '0.36.0'
+        default: 'edge'
         type: string
       set_label_prefix:
         description: 'Set Label Prefix'
