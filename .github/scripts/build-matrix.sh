@@ -34,6 +34,15 @@ if [[ -n "${BAD_FIELDS}" ]]; then
   echo "::error::Every row needs 9 tab-separated fields in ${FILE}"; echo "${BAD_FIELDS}"; exit 1
 fi
 
+# An empty field still counts toward the 9. Worst case is config_options: blank is not <default>,
+# so the engine silently starts without -Xmx24g and reports numbers at the wrong heap.
+FIELDS="run_type run_label docker_image test_package test_class_list test_iterations scale_row_count distribution config_options"
+BAD_EMPTY=$(echo "$TSV" | awk -F'\t' -v names="${FIELDS}" 'BEGIN {split(names, n, " ")}
+  NF>0 {for (i=1; i<=NF; i++) if ($i ~ /^[[:space:]]*$/) print "  line "NR": "n[i]" is empty"}')
+if [[ -n "${BAD_EMPTY}" ]]; then
+  echo "::error::Every field needs a value in ${FILE}. Use <default> for config_options."; echo "${BAD_EMPTY}"; exit 1
+fi
+
 # Nightly is excluded on purpose, since a matrix run would collide with that day's real nightly set
 BAD_TYPES=$(echo "$TSV" | awk -F'\t' 'NF>0 && $1 !~ /^(adhoc|release|compare)$/ {print "  line "NR": "$1}')
 if [[ -n "${BAD_TYPES}" ]]; then
