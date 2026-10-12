@@ -67,13 +67,14 @@ deleteMetal() {
 
 # Make set labels from a prefix and image/branch names
 if [[ ${ACTION} == "make-labels" ]]; then
-  PREFIX=$2
-  IMAGE1=$3
-  IMAGE2=$4
+  PREFIX="$2"
+  IMAGE1="$3"
+  IMAGE2="$4"
   echo "Making Labels: ${PREFIX}"
 
-  LABEL1=$(getSetLabel ${PREFIX} ${IMAGE1})
-  LABEL2=$(getSetLabel ${PREFIX} ${IMAGE2})
+  # Quoted so an empty prefix stays in position instead of shifting the image names left
+  LABEL1=$(getSetLabel "${PREFIX}" "${IMAGE1}")
+  LABEL2=$(getSetLabel "${PREFIX}" "${IMAGE2}")
 
   echo "PREFIX=${PREFIX}" | tee -a ${OUTPUT_NAME}
   echo "SET_LABEL_1=${LABEL1}" | tee -a ${OUTPUT_NAME}

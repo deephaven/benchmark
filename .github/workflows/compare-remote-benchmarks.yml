@@ -20,8 +20,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Validate Docker Image Version
+      env:
+        IMG: ${{ inputs.docker_image }}
       run: |
-        IMG="${{ inputs.docker_image }}"
         if [[ "${IMG}" == "edge" ]]; then
           echo "Pre-release run. The set label comes from the version the engine reports"
         elif ! [[ "${IMG}" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then

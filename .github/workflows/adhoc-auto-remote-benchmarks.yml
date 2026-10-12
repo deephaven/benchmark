@@ -74,14 +74,21 @@ jobs:
     - uses: actions/checkout@v4
     - name: Make Set Labels
       id: make-labels 
+      env:
+        LABEL_PREFIX: ${{ inputs.set_label_prefix }}
+        IMAGE_1: ${{ inputs.docker_image_1 }}
+        IMAGE_2: ${{ inputs.docker_image_2 }}
       run: |
-        ${SD}/adhoc.sh make-labels ${{ inputs.set_label_prefix }} ${{ inputs.docker_image_1 }} ${{ inputs.docker_image_2 }}
+        ${SD}/adhoc.sh make-labels "${LABEL_PREFIX}" "${IMAGE_1}" "${IMAGE_2}"
         cat adhoc-make-labels.out >> "$GITHUB_OUTPUT"
 
     - name: Scale Input Numbers
       id: scale-nums
+      env:
+        ROW_COUNT: ${{ inputs.scale_row_count }}
+        ITERATIONS: ${{ inputs.test_iterations }}
       run: |
-        ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
+        ${SD}/adhoc.sh scale-nums "${ROW_COUNT}" "${ITERATIONS}"
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
 
     - name: Deploy Bare Metal
