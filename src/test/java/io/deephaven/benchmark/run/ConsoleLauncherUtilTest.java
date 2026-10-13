@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2025 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.run;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +38,21 @@ class ConsoleLauncherUtilTest {
         args = getArgs("my.test.package", "*", "");
         formatted = ConsoleLauncherUtil.formatConsoleWildcards(args);
         assertArrayEquals(expected, formatted, "Wrong formatted args");
+    }
+
+    /**
+     * Test that the execute subcommand is prepended only when no subcommand is given
+     */
+    @Test
+    void addDefaultCommand() {
+        var args = new String[] {"-cp", "s-t.jar", "-p", "my.test.package"};
+        var expected = new String[] {"execute", "-cp", "s-t.jar", "-p", "my.test.package"};
+        assertArrayEquals(expected, ConsoleLauncherUtil.addDefaultCommand(args), "Wrong default command");
+
+        assertArrayEquals(new String[] {"execute"}, ConsoleLauncherUtil.addDefaultCommand(new String[0]));
+
+        args = new String[] {"discover", "-p", "my.test.package"};
+        assertArrayEquals(args, ConsoleLauncherUtil.addDefaultCommand(args), "Wrong explicit command");
     }
 
     private String[] getArgs(String testPackage, String testPattern, String tagName) {

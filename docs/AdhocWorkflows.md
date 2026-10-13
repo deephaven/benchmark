@@ -31,8 +31,8 @@ The ui fields used for both Adhoc workflows that are common are defined below:
   - The [Deephaven Core](https://github.com/deephaven/deephaven-core) branch, commit hash, tag, or docker image/sha
   - ex. Branch: `deephaven:main or myuser:mybranch`
   - ex. Commit: `efad062e5488db50221647b63bd9b38e2eb2dc5a`
-  - ex. Tag: `v0.37.0`
-  - ex. Docker Image: `0.37.0`
+  - ex. Tag: `v42.0`
+  - ex. Docker Image: `42.0`
   - ex. Docker Sha: `edge@sha256:bba0344347063baff39c1b5c975573fb9773190458d878bea58dfab041e09976`
 - Benchmark Test Classes
   - Wildcard names of available test classes. For example, `Avg*` will match the AvgByTest
@@ -58,8 +58,8 @@ The auto-provisioned adhoc workflow allows developers to run workflows on bare m
 Workflow fields not shared with the Existing Server workflow:
 - Set Label Prefix
   - The prefix used to make the Set Label for each side of the benchmark comparison
-  - ex. Setting `myprefix` with the images `0.36.0` and `0.37.0` for Deephaven Image or Core Branch cause two directories in the GCloud benchmark bucket
-    - `adhoc/githubuser/myprefix_0_36_0` and `adhoc/githubuser/myprefix_0_37_0`
+  - ex. Setting `myprefix` with the images `41.0` and `42.0` for Deephaven Image or Core Branch cause two directories in the GCloud benchmark bucket
+    - `adhoc/githubuser/myprefix_41_0` and `adhoc/githubuser/myprefix_42_0`
     - Because of naming rules, non-alpha-nums will be replaced with underscores
 
 ### Adhoc Benchmarks (Existing Server)

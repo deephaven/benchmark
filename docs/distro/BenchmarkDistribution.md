@@ -22,8 +22,8 @@ Notes
 
 Each Benchmark release includes a tar asset in the [Github Releases](https://github.com/deephaven/benchmark/releases).  This can be downloaded, unpacked into a directory, and run with the provided script.
 
-- Download the Benchmark distribution tar into an empty directory.  ex. `wget https://github.com/deephaven/benchmark/releases/download/v0.33.4/deephaven-benchmark-0.33.4.tar`
-- From that directory, unpack the tar file. ex. `tar xvf deephaven-benchmark-0.33.4.tar`
+- Download the Benchmark distribution tar into an empty directory.  ex. `wget https://github.com/deephaven/benchmark/releases/download/v41.0/deephaven-benchmark-41.0.tar`
+- From that directory, unpack the tar file. ex. `tar xvf deephaven-benchmark-41.0.tar`
 - Test to make sure things work. ex. `./benchmark.sh 1 "Avg*"`
 - When the tests are finished, check the results. ex. `cat results/benchmark-summary-results.csv`
 - Try running the same set as before at higher scale and more iterations

@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2024-2026 Deephaven Data Labs and Patent Pending
 
 # Run the Benchmark release process that results in publishing a 
 # deephaven-benchmark jar to maven central and a distro tar file to 
@@ -45,19 +45,19 @@ jobs:
 
     steps:
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         java-version: '17'
         distribution: 'temurin'
 
     - name: Checkout Latest
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
         fetch-tags: true
 
     - name: Checkout Release
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         path: release
         fetch-depth: 0
@@ -95,7 +95,7 @@ jobs:
       run: .github/scripts/make-release-notes.sh ${VERSION} ${COMMIT} ${PREV_VERSION}
       
     - name: Archive Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Deephaven Benchmark Release ${{env.VERSION}}
         path: |

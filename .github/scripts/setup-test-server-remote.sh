@@ -18,7 +18,7 @@ GIT_DIR=${HOME}/git
 GIT_REPO=$1
 GIT_BRANCH=$2
 RUN_TYPE=$3                     # ex. nightly | release | compare
-DOCKER_IMG=$4			# ex. edge | 0.32.0 (assumes location ghcr.io/deephaven/server)
+DOCKER_IMG=$4			# ex. edge | 42.0 (assumes location ghcr.io/deephaven/server)
 DEEPHAVEN_DIR=${HOME}/deephaven
 export DEBIAN_FRONTEND=noninteractive
 

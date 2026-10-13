@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Run Integration Tests against a Docker install on Github
 
@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -42,7 +42,7 @@ jobs:
         docker compose down
 
     - name: Archive Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Integration Benchmarks and Logs
         path: |

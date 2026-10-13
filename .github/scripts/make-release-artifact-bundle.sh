@@ -4,13 +4,13 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Copyright (c) 2024-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2024-2026 Deephaven Data Labs and Patent Pending
 
 # Create a bundle suitable for uploading artifacts to oss.sonatype including pom, sources, javadoc, 
 # artifact and signatures for each. This script expects to run in the directory where the 
 # release branch has been checked out
 #
-# ex. .github/scripts/make-release-artifact-bundle.sh 0.33.4 keyfile.asc
+# ex. .github/scripts/make-release-artifact-bundle.sh 41.0 keyfile.asc
 
 if [[ $# != 2 ]]; then
     echo "$0: Missing release version or signature file argument"

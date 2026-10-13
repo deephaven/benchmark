@@ -4,12 +4,12 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-# Copyright (c) 2024-2024 Deephaven Data Labs and Patent Pending
+# Copyright (c) 2024-2026 Deephaven Data Labs and Patent Pending
 
 # Create a tar file with the given version using the git project located in the 
 # working directory.
 #
-# ex. .github/scripts/make-release-distro.sh 0.33.4 .github/distro
+# ex. .github/scripts/make-release-distro.sh 41.0 .github/distro
 
 if [[ $# != 2 ]]; then
     echo "$0: Missing release version or distro source argument"

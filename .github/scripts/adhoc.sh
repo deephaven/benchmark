@@ -6,7 +6,7 @@ set -o pipefail
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Provides what is needed to set up an adhoc benchmark run, including bare metal and labels
-# ex. adhoc.sh make-labels "where" "0.36.0" "user123:branch-name-123"
+# ex. adhoc.sh make-labels "where" "42.0" "user123:branch-name-123"
 # ex. adhoc.sh scale-nums 10 5
 # ex. adhoc.sh deploy-metal api-key project-id s2.c2.small server-name
 # ex. adhoc.sh delete-metal api-key project-id device-id server-name
@@ -28,7 +28,7 @@ rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
 # ex. edge@sha256:15ab331629805076cdf5ed6666186c6b578298ab493a980779338d153214640e
 # ex. user123:1111-my-pull-request
 # ex. ghcr.io/stanbrub/server:jvm25
-# ex. 0.36.0 or edge
+# ex. 42.0 or edge
 getSetLabel() {
   PREFIX="$1"
   SUFFIX="$2"
