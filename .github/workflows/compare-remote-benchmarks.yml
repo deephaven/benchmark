@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
      docker_image:
-       description: 'Docker Image Name (a release version, or edge for a pre-release run)'
+       description: 'Docker Image (release version or "edge" for pre-release)'
        required: true
        default: '42.0'
        type: string
@@ -20,12 +20,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Validate Docker Image Version
+      env:
+        IMG: ${{ inputs.docker_image }}
       run: |
-        IMG="${{ inputs.docker_image }}"
         if [[ "${IMG}" == "edge" ]]; then
           echo "Pre-release run. The set label comes from the version the engine reports"
         elif ! [[ "${IMG}" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
-          echo "::error::docker_image '${IMG}' is not a release version (expected numeric format like 0.36.0 or 42.4) or 'edge'"
+          echo "::error::docker_image '${IMG}' is not a release version (expected numeric format like 42.4 or 42.4.1) or 'edge'"
           exit 1
         fi
 

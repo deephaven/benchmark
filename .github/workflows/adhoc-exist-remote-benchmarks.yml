@@ -67,8 +67,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: Scale Input Numbers
       id: scale-nums
+      env:
+        ROW_COUNT: ${{ inputs.scale_row_count }}
+        ITERATIONS: ${{ inputs.test_iterations }}
       run: |
-        ${SD}/adhoc.sh scale-nums ${{ inputs.scale_row_count }} ${{ inputs.test_iterations }}
+        ${SD}/adhoc.sh scale-nums "${ROW_COUNT}" "${ITERATIONS}"
         cat adhoc-scale-nums.out >> "$GITHUB_OUTPUT"
 
   process-adhoc-benchmarks:

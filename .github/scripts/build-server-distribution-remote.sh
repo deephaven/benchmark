@@ -81,6 +81,17 @@ export JAVA_HOME=/usr/lib/jvm/${BUILD_JAVA}
 rm -rf server/jetty-app/build/distributions py/server/build/wheel
 
 echo "org.gradle.daemon=false" >> gradle.properties
+
+# The wheel build lints with mypy and ruff, both unpinned, so an older commit fails on rules newer than
+# its code. The gates only inspect: the wheel is built from unmodified source, and CI still enforces them.
+WHEEL_GRADLE=buildSrc/src/main/groovy/io.deephaven.python-wheel.gradle
+if [ -f "${WHEEL_GRADLE}" ]; then
+  sed -i -E 's/(mypy --install-types[^;]*|ruff check|ruff format --check);/true;/' ${WHEEL_GRADLE}
+  if grep -qE '^\s*(mypy|ruff)\b' ${WHEEL_GRADLE}; then
+    echo "::warning::A mypy or ruff gate survived in ${WHEEL_GRADLE}, so its layout has changed"
+  fi
+fi
+
 ./gradlew outputVersion server-jetty-app:assemble py-server:assemble
 
 echo "Assembled ${OWNER}${BRANCH_DELIM}${BRANCH_NAME} -> $(git rev-parse HEAD) for tag ${DOCKER_TAG}"

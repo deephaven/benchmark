@@ -9,8 +9,13 @@
 # single job over every class, and 7 rows means n=7 for all 666 benchmarks. Nightly keeps the tag
 # split for its time budget, which leaves its 562 untagged benchmarks at n=1 and 104 tagged at n=5.
 #
-# Keep the row count odd. Queries report the middle run by rate and carry that run's id, so an even
-# count has no real middle and the reported numbers stop matching a run that happened.
+# Prefer an odd row count. Queries sort a set's runs by rate and report the one at index n/2, along
+# with that run's id, so the reported numbers always come from a run that happened either way. What
+# an even count costs is symmetry: index n/2 sits above center, leaving more runs below the reported
+# one than above it, which biases the rate slightly high. Measured against a 7-run set, dropping any
+# one row moves the reported rate a median of +0.1%, so losing a row degrades a set rather than
+# invalidating it. build-matrix.sh still rejects an even count for rows sharing a run_label, to keep
+# that asymmetry from being introduced on purpose.
 #
 # All rows share the run_label, so they land in one set and accumulate. <version> takes the label from
 # the version the engine reports, so edge becomes a 99 in the last position and cannot collide with

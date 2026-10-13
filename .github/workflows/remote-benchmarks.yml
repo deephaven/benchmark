@@ -151,6 +151,13 @@ jobs:
   report-benchmarks:
     needs: run-benchmarks
     runs-on: ubuntu-24.04
+
+    # The NFS sync below is shared by both hosts, so it needs its own lock: two runs mirroring the
+    # whole bucket at once can delete each other's files. Adhoc never syncs, so it opts out.
+    concurrency:
+      group: ${{ inputs.run_type == 'adhoc' && format('nfs-publish-adhoc-{0}', github.run_id) || 'nfs-publish' }}
+      cancel-in-progress: false
+
     env:
       SD: .github/scripts
       USER: ${{secrets.BENCHMARK_USER}}

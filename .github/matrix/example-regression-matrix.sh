@@ -1,8 +1,9 @@
-# Example matrix: a commit bisect with a pinned image as an in-run reference
+# Example matrix: a pinned image as an in-run reference, alongside a ref built from source
 #
-# Kept as the worked example of what a matrix can do. This one attributed a 17% UDF regression to an
-# OS library update rather than any Deephaven commit; see the studies under
-# 2026-09-03_regression-vs-42/udf4 for the result.
+# Kept to one iteration over three rows so it doubles as a quick end-to-end test of every row form.
+# For a real investigation, add a source row per commit and raise ITERS to an odd count. It was cut
+# down from a bisect that attributed a 17% UDF regression to an OS library update rather than any
+# Deephaven commit; see the studies under 2026-09-03_regression-vs-42/udf4.
 #
 # Two row forms can be mixed in one matrix:
 #
@@ -31,14 +32,14 @@
 #
 # TSV columns: run_type, run_label, docker_image, test_package, test_class_list,
 #              test_iterations, scale_row_count, distribution, config_options
-EXPECTED_COMBOS=5
+EXPECTED_COMBOS=3
 
 RTYP='adhoc'
 PKG=io.deephaven.benchmark.tests.standard
 CLASSES='UserFormula'
 DIST=random
 ROWSM=10
-ITERS=3
+ITERS=1
 PLAIN='<default>'
 
 ANCHOR=ghcr.io/deephaven/server@sha256:2672b50205bd7ecef5d9fcc7016bd4345f75ff5333da3d77b9f05ebc50d2638b
@@ -53,7 +54,5 @@ TOP=deephaven:c50cd7f2fc02b819376a80e8767dff76c0624aa2
 row() { echo -e "$RTYP\t$1\t$2\t$PKG\t$CLASSES\t$ITERS\t$ROWSM\t$DIST\t${3:-$(jfr_opts "$1")}"; }
 
 row anchor_img_0911 "$ANCHOR"
-row src_base deephaven:9fa9e83c55ccb2e9ddedd61d1ba59d2d8da68c85
-row src_dh23630 deephaven:5e417cbd1bb3d8f9e3fbd9233f2034027c5319f3
 row src_top "$TOP"
 row src_top_nojfr "$TOP" "$PLAIN"

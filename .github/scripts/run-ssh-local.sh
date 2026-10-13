@@ -41,7 +41,7 @@ for ((attempt=1; attempt<=MAX_RETRIES; attempt++)); do
   fi
 done
 
-# Redact the host from the log file, since artifacts are public and Github masks only the live log
+# Redact the host from the log file, since artifacts are public and GitHub masks only the live log
 HOST_PATTERN=$(printf '%s' "${HOST}" | sed 's/[^a-zA-Z0-9-]/\\&/g')
 
 ssh -o 'ConnectTimeout 10' -o 'ServerAliveInterval 60' ${USER}@${HOST} 'bash -s' -- "${args[@]}" < ${SCRIPT_DIR}/${SCRIPT_NAME}.sh |& sed -u "s/${HOST_PATTERN}/<redacted-host>/g" | tee logs/${SCRIPT_NAME}.log
