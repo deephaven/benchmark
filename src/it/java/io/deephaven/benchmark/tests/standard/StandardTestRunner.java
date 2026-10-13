@@ -244,9 +244,9 @@ final public class StandardTestRunner {
         return (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
     }
 
-    long getInitialRowCount() {
-        var initialRows = (long) (getGeneratedRowCount() * initialFactor);
-        return Math.min(initialRows, getGeneratedRowCount() - 1);
+    long getInitialRowCount(long rowCount) {
+        var initialRows = (long) (rowCount * initialFactor);
+        return Math.max(0, Math.min(initialRows, rowCount - 1));
     }
 
     long getWarmupRowCount() {
@@ -316,7 +316,7 @@ final public class StandardTestRunner {
         standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(staticFactor, rowCount, loadColumns);
-        return populateQuery(name, staticQuery, operation, read, loadColumns);
+        return populateQuery(name, staticQuery, operation, read, rowCount, loadColumns);
     }
 
     String getIncQuery(String name, String operation, long rowCount, String... loadColumns) {
@@ -368,10 +368,11 @@ final public class StandardTestRunner {
         standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(incFactor, rowCount, loadColumns);
-        return populateQuery(name, incQuery, operation, read, loadColumns);
+        return populateQuery(name, incQuery, operation, read, rowCount, loadColumns);
     }
 
-    String populateQuery(String name, String query, String operation, String read, String... loadColumns) {
+    String populateQuery(String name, String query, String operation, String read, long rowCount,
+            String... loadColumns) {
         query = query.replace("${readTable}", read);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
@@ -382,7 +383,7 @@ final public class StandardTestRunner {
         query = query.replace("${logOperationBegin}", getLogSnippet("Begin", name));
         query = query.replace("${logOperationEnd}", getLogSnippet("End", name));
         query = query.replace("${mainTable}", mainTable);
-        query = query.replace("${initialSize}", "" + getInitialRowCount());
+        query = query.replace("${initialSize}", "" + getInitialRowCount(rowCount));
         return query;
     }
 
