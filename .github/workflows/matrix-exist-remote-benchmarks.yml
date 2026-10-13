@@ -18,7 +18,6 @@ on:
         - gc-train-1000-100.sh
         - gc-train-heap-fail.sh
         - example-regression-matrix.sh
-        - redirection-sort.sh
 
 jobs:
   generate-matrix:
