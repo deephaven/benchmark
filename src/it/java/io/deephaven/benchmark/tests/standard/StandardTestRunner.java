@@ -37,7 +37,7 @@ final public class StandardTestRunner {
     private int rowCountFactor = 1;
     private int staticFactor = 1;
     private int incFactor = 1;
-    private long initialSize = 0;
+    private double initialFactor = 0;
     private boolean useCachedSource = true;
     private boolean useLocalParquet = false;
 
@@ -184,10 +184,10 @@ final public class StandardTestRunner {
      * Set how many main-table rows are released before the incremental operation is built (default 0). Useful when an
      * operation makes choices at construction from its input. The initial rows are included in the measured time.
      * 
-     * @param initialSize the number of main-table rows released before the operation is built
+     * @param initialFactor the fraction of generated rows to release before the operation is built
      */
-    public void setInitialSize(long initialSize) {
-        this.initialSize = initialSize;
+    public void setInitialFactor(double initialFactor) {
+        this.initialFactor = initialFactor;
     }
 
     /**
@@ -242,6 +242,11 @@ final public class StandardTestRunner {
 
     public long getGeneratedRowCount() {
         return (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+    }
+
+    long getInitialRowCount() {
+        var initialRows = (long) (getGeneratedRowCount() * initialFactor);
+        return Math.min(initialRows, getGeneratedRowCount() - 1);
     }
 
     long getWarmupRowCount() {
@@ -377,7 +382,7 @@ final public class StandardTestRunner {
         query = query.replace("${logOperationBegin}", getLogSnippet("Begin", name));
         query = query.replace("${logOperationEnd}", getLogSnippet("End", name));
         query = query.replace("${mainTable}", mainTable);
-        query = query.replace("${initialSize}", "" + initialSize);
+        query = query.replace("${initialSize}", "" + getInitialRowCount());
         return query;
     }
 

@@ -45,7 +45,7 @@ public class NaturalJoinTest {
     void NaturalJoinSelectFlatLeft() {
         setup(6);
         runner.addSetupQuery("source = source.where(['" + STRIDE_FILTER + "']).select()");
-        runner.setInitialSize(INITIAL_ROWS);
+        runner.setInitialFactor(INITIAL_FACTOR);
         runner.test("NaturalJoin- Select Right Col Flat Left", JOIN_SELECT_RIGHT_COL, "key5");
     }
 
@@ -57,15 +57,15 @@ public class NaturalJoinTest {
     void NaturalJoinSelectStridedLeft() {
         setup(6);
         runner.addSetupQuery("source = source.where(['" + STRIDE_FILTER + "'])");
-        runner.setInitialSize(INITIAL_ROWS);
+        runner.setInitialFactor(INITIAL_FACTOR);
         runner.test("NaturalJoin- Select Right Col Strided Left", JOIN_SELECT_RIGHT_COL, "key5");
     }
 
     // 5x sparse overhead; the hash redirection needs more than 4x
     static final String STRIDE_FILTER = "(int)(ii / 128) % 5 == 0";
 
-    // Enough strided rows (over ~1K) for the join to see the stride when built
-    static final long INITIAL_ROWS = 1000000;
+    // Enough strided rows (over ~1K) for the join to see the stride when built; 1.2M at a 10M scale
+    static final double INITIAL_FACTOR = 0.02;
 
     // Reads one non-key right column through the join's redirection
     static final String JOIN_SELECT_RIGHT_COL =
