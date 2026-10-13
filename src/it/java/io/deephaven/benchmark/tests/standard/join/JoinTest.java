@@ -45,7 +45,7 @@ public class JoinTest {
     void joinOn2ColsAfterFirstBy() {
         setup(3);
         var q = "source.first_by(by=['key5'])" + JOIN_SELECT_RIGHT_COL;
-        runner.test("Join-Select- On 2 Cols After FirstBy", q, "key5", "key1", "key2", "num1");
+        runner.test("Join- Select Right Col After FirstBy", q, "key5", "key1", "key2", "num1");
     }
 
     /** Twin of {@link #joinOn2ColsAfterFirstBy()}. last_by sends the join modifies, including join key changes. */
@@ -53,7 +53,7 @@ public class JoinTest {
     void joinOn2ColsAfterLastBy() {
         setup(3);
         var q = "source.last_by(by=['key5'])" + JOIN_SELECT_RIGHT_COL;
-        runner.test("Join-Select- On 2 Cols After LastBy", q, "key5", "key1", "key2", "num1");
+        runner.test("Join- Select Right Col After LastBy", q, "key5", "key1", "key2", "num1");
     }
 
     // Reads one right column through the join's row-to-slot lookup. One int column: a ticking select stores a

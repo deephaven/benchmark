@@ -46,7 +46,7 @@ public class NaturalJoinTest {
         setup(6);
         runner.addSetupQuery("source = source.where(['" + STRIDE_FILTER + "']).select()");
         runner.setInitialSize(INITIAL_ROWS);
-        runner.test("NaturalJoin-Select- Right Col Flat Left", JOIN_SELECT_RIGHT_COL, "key5");
+        runner.test("NaturalJoin- Select Right Col Flat Left", JOIN_SELECT_RIGHT_COL, "key5");
     }
 
     /**
@@ -58,7 +58,7 @@ public class NaturalJoinTest {
         setup(6);
         runner.addSetupQuery("source = source.where(['" + STRIDE_FILTER + "'])");
         runner.setInitialSize(INITIAL_ROWS);
-        runner.test("NaturalJoin-Select- Right Col Strided Left", JOIN_SELECT_RIGHT_COL, "key5");
+        runner.test("NaturalJoin- Select Right Col Strided Left", JOIN_SELECT_RIGHT_COL, "key5");
     }
 
     // 5x sparse overhead; the hash redirection needs more than 4x
