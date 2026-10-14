@@ -71,7 +71,7 @@ jobs:
       METAL_ACTOR: "${{ github.actor }}"
 
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Make Set Labels
       id: make-labels 
       env:
@@ -98,7 +98,7 @@ jobs:
         cat adhoc-deploy-metal.out >> "$GITHUB_OUTPUT"
 
     - name: Archive Setup Logs
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: Provisioning Setup Logs
         path: |
@@ -151,7 +151,7 @@ jobs:
       METAL_DEVICE_NAME: ${{ needs.setup-benchmark-system.outputs.metal_device_name }}
 
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Delete Bare Metal
       id: delete-metal
       run: |
@@ -159,7 +159,7 @@ jobs:
         cat adhoc-delete-metal.out >> "$GITHUB_OUTPUT"
 
     - name: Archive Teardown Logs
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: Provisioning Teardown Logs
         path: |
