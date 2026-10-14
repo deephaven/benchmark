@@ -91,7 +91,8 @@ if ! sudo update-alternatives --list java 2>/dev/null | grep -qi temurin; then
 fi
 
 title "-- Installing JVMs --"
-sudo apt-get -y install temurin-17-jdk
+sudo apt-get -y install temurin-17-jdk temurin-21-jdk
+sudo update-alternatives --set java /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
 
 title "-- Installing Maven --"
 sudo apt-get -y install maven
