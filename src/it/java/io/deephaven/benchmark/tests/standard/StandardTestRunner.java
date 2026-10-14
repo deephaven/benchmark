@@ -37,6 +37,7 @@ final public class StandardTestRunner {
     private int rowCountFactor = 1;
     private int staticFactor = 1;
     private int incFactor = 1;
+    private double initialFactor = 0;
     private boolean useCachedSource = true;
     private boolean useLocalParquet = false;
 
@@ -180,6 +181,16 @@ final public class StandardTestRunner {
     }
 
     /**
+     * Set how many main-table rows are released before the incremental operation is built (default 0). Useful when an
+     * operation makes choices at construction from its input. The initial rows are included in the measured time.
+     * 
+     * @param initialFactor the fraction of generated rows to release before the operation is built
+     */
+    public void setInitialFactor(double initialFactor) {
+        this.initialFactor = initialFactor;
+    }
+
+    /**
      * Run a single operation test through the Bench API with no upper bound expected on the resulting row count
      * 
      * @see #test(String, long, String, String...)
@@ -231,6 +242,11 @@ final public class StandardTestRunner {
 
     public long getGeneratedRowCount() {
         return (long) (api.propertyAsIntegral("scale.row.count", "100000") * rowCountFactor);
+    }
+
+    long getInitialRowCount(long rowCount) {
+        var initialRows = (long) (rowCount * initialFactor);
+        return Math.max(0, Math.min(initialRows, rowCount - 1));
     }
 
     long getWarmupRowCount() {
@@ -300,7 +316,7 @@ final public class StandardTestRunner {
         standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(staticFactor, rowCount, loadColumns);
-        return populateQuery(name, staticQuery, operation, read, loadColumns);
+        return populateQuery(name, staticQuery, operation, read, rowCount, loadColumns);
     }
 
     String getIncQuery(String name, String operation, long rowCount, String... loadColumns) {
@@ -313,7 +329,7 @@ final public class StandardTestRunner {
         ${setupQueries}
         
         autotune = jpy.get_type(f'io.deephaven.engine.table.impl.select.AutoTuningIncrementalReleaseFilter')
-        source_filter = autotune(0,1000000,bench_inc_load_target,True)
+        source_filter = autotune(${initialSize},1000000,bench_inc_load_target,True)
         ${mainTable} = ${mainTable}.where(source_filter)
         if right: 
             right_filter = autotune(0,1010000,bench_inc_load_target,True)
@@ -352,10 +368,11 @@ final public class StandardTestRunner {
         standard_events = standard_events.where([f'start_ns > {begin_clock}L', f'start_ns < {end_clock}L'])
         """;
         var read = getReadOperation(incFactor, rowCount, loadColumns);
-        return populateQuery(name, incQuery, operation, read, loadColumns);
+        return populateQuery(name, incQuery, operation, read, rowCount, loadColumns);
     }
 
-    String populateQuery(String name, String query, String operation, String read, String... loadColumns) {
+    String populateQuery(String name, String query, String operation, String read, long rowCount,
+            String... loadColumns) {
         query = query.replace("${readTable}", read);
         query = query.replace("${loadSupportTables}", loadSupportTables());
         query = query.replace("${loadColumns}", listStr(loadColumns));
@@ -366,6 +383,7 @@ final public class StandardTestRunner {
         query = query.replace("${logOperationBegin}", getLogSnippet("Begin", name));
         query = query.replace("${logOperationEnd}", getLogSnippet("End", name));
         query = query.replace("${mainTable}", mainTable);
+        query = query.replace("${initialSize}", "" + getInitialRowCount(rowCount));
         return query;
     }
 
