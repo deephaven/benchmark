@@ -288,10 +288,12 @@ class Snippets {
         def bench_api_jfr_dump(path):
             rec = bench_api_jfr_recording()
             if rec is None: return
-            if path:
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                rec.dump(jpy.get_type('java.nio.file.Paths').get(path))
-            rec.close()
+            try:
+                if path:
+                    os.makedirs(os.path.dirname(path), exist_ok=True)
+                    rec.dump(jpy.get_type('java.nio.file.Paths').get(path))
+            finally:
+                rec.close()
         """;
 
     /**
