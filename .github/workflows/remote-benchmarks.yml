@@ -218,14 +218,6 @@ jobs:
         gcloud compute ssh --quiet --zone "us-central1-a" --project "deephaven-oss" dhc-demo-nfs-client \
           --command="sudo find /nfs/deephaven-benchmark -mindepth 1 -type d -empty -delete"
 
-    - name: Archive Results
-      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-      with:
-        name: Benchmarks and Logs for Set ${{steps.fetch-results.outputs.SET_LABEL}} ${{steps.fetch-results.outputs.RUN_ID}}
-        path: |
-          ${{env.RUN_TYPE}}/**/*
-          logs/**/*
-
   purge-expired-benchmark-systems:
     if: always()
     needs: [run-benchmarks, report-benchmarks]

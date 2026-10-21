@@ -70,12 +70,33 @@ Workflow fields not shared with the Auto-provisioned Server workflow:
 - Deephaven JVM Options
   - Options that will be included as JVM arguments to the Deephaven service
   - ex. `-Xmx24g -DQueryTable.memoizeResults=false`
+  - Add `-Dbench.jfr=true` to record JFR for each benchmark (see [JFR Recordings](#jfr-recordings))
 - Set Label
   - The label to used to store the result in the GCloud benchmark bucket
   - ex. Setting `mysetlabel` would be stored at `adhoc/mygithubuser/mysetlabel`
 - Benchmark Test Package
   - The java package where the desired benchmark test classes are
   - Unless making custom tests in a fork, use the default
+
+### JFR Recordings
+
+Setting `-Dbench.jfr` in the Deephaven JVM Options (or a matrix row's `config_options`) records a Java Flight Recording of the engine for each benchmark and uploads it with the other results.
+- Values
+  - `true` or `profile`: The JDK's `profile` settings (more detail, more overhead)
+  - `default`: The JDK's `default` settings
+  - `false`: No recording, same as leaving it out
+  - Any other value fails every benchmark with `Could not locate configuration with name ...`
+- Recordings are added to the run's `test-logs.tgz`, next to each test class's `query.md` and `engine.log`, and named with the exact `benchmark_name` from the results
+  - ex. `adhoc/mygithubuser/mysetlabel/run-1BzVb5hqX/test-logs.tgz`
+  - containing `standard.sort.SortComboTest/Sort- 3 Cols -Static.jfr`
+- Each recording covers the engine from the start of the benchmark's session (including table generation) to the end of the measured operation, up to 512MB
+- JFR changes what it measures. Confirm a performance difference without it before trusting a profiled comparison
+
+The bucket deletes test logs, with or without recordings, after 14 days. The expiration is a bucket lifecycle rule defined in [gcloud-bucket-lifecycle.json](../.github/resources/gcloud-bucket-lifecycle.json). It is applied by a bucket admin, not by the workflows. Applying it replaces any existing lifecycle rules, so check those first.
+```
+gcloud storage buckets describe gs://deephaven-benchmark --format="default(lifecycle_config)"
+gcloud storage buckets update gs://deephaven-benchmark --lifecycle-file=.github/resources/gcloud-bucket-lifecycle.json
+```
   
 ### The Adhoc Dashboard
 

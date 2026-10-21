@@ -28,7 +28,6 @@ rm -f ${OUTPUT_NAME}; touch ${OUTPUT_NAME}
 
 # Pull results from the benchmark server (Before labelling, since <version> reads the platform csv)
 scp -r ${USER}@${HOST}:${RUN_DIR}/results .
-scp -r ${USER}@${HOST}:${RUN_DIR}/logs .
 scp -r ${USER}@${HOST}:${RUN_DIR}/*.jar .
 
 # Get the date for the Set Label, since Github Workflows don't have 'with: ${{github.date}}'
@@ -61,9 +60,6 @@ DEST_DIR=${RUN_TYPE}/${ACTOR}/${SET_LABEL}
 mkdir -p ${DEST_DIR}
 rm -rf ${DEST_DIR}
 mv results/ ${DEST_DIR}/
-
-# Rows of a matrix share a set, so name artifacts after a run that only this fetch produced
-echo "RUN_ID=$(basename $(ls -d ${DEST_DIR}/run-* | head -1))" | tee -a ${OUTPUT_NAME}
 
 # For now remove any unwanted summaries before uploading to GCloud
 rm -f ${DEST_DIR}/*.csv

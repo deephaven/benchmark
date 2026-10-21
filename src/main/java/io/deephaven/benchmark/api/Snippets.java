@@ -242,6 +242,60 @@ class Snippets {
         """;
 
     /**
+     * Get the running JFR recording started by <code>bench_api_jfr_start</code>, or None
+     */
+    static String bench_api_jfr_recording = """
+        import jpy
+        def bench_api_jfr_recording():
+            recorder = jpy.get_type('jdk.jfr.FlightRecorder')
+            if not recorder.isInitialized(): return None
+            recs = recorder.getFlightRecorder().getRecordings()
+            for i in range(recs.size()):
+                if recs.get(i).getName() == 'bench_api_jfr': return recs.get(i)
+            return None
+        """;
+
+    /**
+     * Start a JFR recording if the engine was started with <code>-Dbench.jfr=( true | default | profile )</code>, where
+     * true means profile. Any recording left from a previous session is closed first, so a recording covers one
+     * <code>Bench</code> instance even when the engine is not restarted between tests.
+     * <p>
+     * ex. bench_api_jfr_start()
+     */
+    static String bench_api_jfr_start = """
+        import jpy
+        def bench_api_jfr_start():
+            settings = jpy.get_type('java.lang.System').getProperty('bench.jfr', 'false').strip().lower()
+            if settings in ('', 'false'): return
+            if settings == 'true': settings = 'profile'
+            old_rec = bench_api_jfr_recording()
+            if old_rec is not None: old_rec.close()
+            rec = jpy.get_type('jdk.jfr.Recording')()
+            rec.setName('bench_api_jfr')
+            rec.setSettings(jpy.get_type('jdk.jfr.Configuration').getConfiguration(settings).getSettings())
+            rec.setMaxSize(512 * 1024 * 1024)
+            rec.start()
+        """;
+
+    /**
+     * Write the running JFR recording, if any, to the given engine-side path and close it
+     * <p>
+     * ex. bench_api_jfr_dump('/data/jfr/run-1BzVb5hqX/My_Test.jfr')
+     * 
+     * @param path the engine-side file path to write the recording to, or empty to discard it
+     */
+    static String bench_api_jfr_dump = """
+        import jpy, os
+        def bench_api_jfr_dump(path):
+            rec = bench_api_jfr_recording()
+            if rec is None: return
+            if path:
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                rec.dump(jpy.get_type('java.nio.file.Paths').get(path))
+            rec.close()
+        """;
+
+    /**
      * Returns a query containing the api functions called by the query
      * 
      * @param query the query containing called functions
@@ -263,6 +317,9 @@ class Snippets {
         defs += getFunc("bench_api_await_column_value_limit", bench_api_await_column_value_limit, query, defs);
         defs += getFunc("bench_api_link", bench_api_link, query, defs);
         defs += getFunc("bench_api_read", bench_api_read, query, defs);
+        defs += getFunc("bench_api_jfr_start", bench_api_jfr_start, query, defs);
+        defs += getFunc("bench_api_jfr_dump", bench_api_jfr_dump, query, defs);
+        defs += getFunc("bench_api_jfr_recording", bench_api_jfr_recording, query, defs);
         return defs;
     }
 

@@ -126,6 +126,8 @@ final public class BenchQuery implements Closeable {
             localProps.putAll(props);
             conn = ConnectorFactory.create(connectorClass, localProps);
             session.setConnector(conn);
+            var jfrStart = "bench_api_jfr_start()";
+            conn.executeQuery(Snippets.getFunctions(jfrStart) + jfrStart);
         }
         String snippetsLogic = Bench.profile.replaceProperties(Snippets.getFunctions(logic));
         if (!snippetsLogic.isBlank()) {

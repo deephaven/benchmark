@@ -66,6 +66,26 @@ cd ${DEEPHAVEN_DIR};
 title "-- Recording Deephaven Image Identity --"
 write_image_props
 
+# Merge JFR recordings dumped by the engine when -Dbench.jfr is set (see Bench.dumpRecording) from
+# data/jfr/<run-id>/<test class> into results/<run-id>/test-logs/<test class>, so they are uploaded in
+# test-logs.tgz with the run instead of left on the server
+collect_jfr () {
+  local jfr_dir run_id test_logs
+  for jfr_dir in ${DEEPHAVEN_DIR}/data/jfr/run-*/; do
+    run_id=$(basename "${jfr_dir}")
+    test_logs=${RUN_DIR}/results/${run_id}/test-logs
+    if [[ -d ${jfr_dir} && -d ${test_logs} ]]; then
+      sudo cp -r "${jfr_dir}." ${test_logs}/
+      sudo chown -R $(id -u):$(id -g) ${test_logs}
+      echo "${run_id}: $(find ${test_logs} -name '*.jfr' | wc -l) recordings, $(du -sh ${test_logs} | cut -f1) test-logs"
+    fi
+  done
+  sudo rm -rf ${DEEPHAVEN_DIR}/data/jfr
+}
+
+title "-- Clearing JFR Recordings Left by a Failed Run --"
+sudo rm -rf ${DEEPHAVEN_DIR}/data/jfr
+
 title "-- Running Benchmarks --"
 set +f
 cd ${RUN_DIR}
@@ -81,10 +101,12 @@ else
   java ${JAVA_OPTS} -p ${TEST_PACKAGE} -n "${TEST_PATTERN}" -t "${TAG_NAME}"
 fi
 
-title "-- Getting Docker Logs --"
-mkdir -p ${RUN_DIR}/logs
+title "-- Collecting JFR Recordings --"
+set +f
+collect_jfr
+set -f
+
+title "-- Stopping Docker Services --"
 cd ${DEEPHAVEN_DIR};
-docker compose logs --no-color > ${RUN_DIR}/logs/docker.log &
-sleep 10
 docker compose down
 

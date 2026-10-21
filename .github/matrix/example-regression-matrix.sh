@@ -19,9 +19,8 @@
 # the same hardware. Without it, conclusions depend on comparing across runs, which is where several
 # false results came from.
 #
-# JFR is on by default, with a distinct filename per row so recordings can be told apart. It needs
-# docker.compose.stop.timeout above 0 in the run type's properties, or the engine is killed before
-# the recording flushes and the files come out empty.
+# JFR is on by default through -Dbench.jfr, which records each benchmark into the run's test-logs.tgz
+# as <test class>/<benchmark name>.jfr. The bucket expires test logs after two weeks.
 #
 # config_options is per row, so a row can opt out with PLAIN. Do that when the measurement itself is
 # suspect: JFR changed one UDF benchmark by 17%, enough to hide a regression, so confirm an effect
@@ -41,17 +40,14 @@ DIST=random
 ROWSM=10
 ITERS=1
 PLAIN='<default>'
+JFR='-Xmx24g -Dbench.jfr=profile'
 
 ANCHOR=ghcr.io/deephaven/server@sha256:2672b50205bd7ecef5d9fcc7016bd4345f75ff5333da3d77b9f05ebc50d2638b
 
-jfr_opts() {
-    echo "-Xmx24g -XX:StartFlightRecording=name=bench,filename=/data/$1-%t-%p.jfr,settings=profile,maxsize=200m"
-}
-
 TOP=deephaven:c50cd7f2fc02b819376a80e8767dff76c0624aa2
 
-# $3 is config_options, defaulting to a JFR recording named after the row
-row() { echo -e "$RTYP\t$1\t$2\t$PKG\t$CLASSES\t$ITERS\t$ROWSM\t$DIST\t${3:-$(jfr_opts "$1")}"; }
+# $3 is config_options, defaulting to JFR recordings
+row() { echo -e "$RTYP\t$1\t$2\t$PKG\t$CLASSES\t$ITERS\t$ROWSM\t$DIST\t${3:-$JFR}"; }
 
 row anchor_img_0911 "$ANCHOR"
 row src_top "$TOP"

@@ -41,6 +41,7 @@ What does each file mean?
 - benchmark-results.csv: Query rates for the running tests at scale
 - test-logs: Directory containing details about each test run according to test class
 - \*.query.md: A log showing the queries that where executed to complete each test in the order they were executed
+- \<benchmark name\>.jfr: An engine JFR recording for each benchmark when the engine runs with `-Dbench.jfr` (see [JFR Recordings](AdhocWorkflows.md#jfr-recordings)). The engine writes them to its `/data/jfr/<run-id>` directory, and the benchmark workflows move them here
 
 ## Benchmark Platform CSV
 

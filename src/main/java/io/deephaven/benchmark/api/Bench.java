@@ -72,6 +72,8 @@ final public class Bench {
     final List<Future<Metrics>> futures = new ArrayList<>();
     final List<Closeable> closeables = new ArrayList<>();
     final Session session = new Session();
+    final String testClassName;
+    private String name = null;
     private boolean isClosed = false;
 
     Bench(Class<?> testClass) {
@@ -79,8 +81,9 @@ final public class Bench {
         this.metrics = new BenchMetrics(outputDir);
         this.events = new BenchEvents(outputDir);
         this.platform = new BenchPlatform(this, outputDir);
-        this.queryLog = new QueryLog(getLogDir(testClass), testClass);
-        this.runLog = new BenchLog(getLogDir(testClass), testClass);
+        this.testClassName = getTestClassName(testClass);
+        this.queryLog = new QueryLog(getLogDir(testClassName), testClass);
+        this.runLog = new BenchLog(getLogDir(testClassName), testClass);
     }
 
     /**
@@ -91,6 +94,7 @@ final public class Bench {
     public void setName(String name) {
         if (name == null || name.isBlank())
             throw new RuntimeException("No blank Benchmark names allowed");
+        this.name = name;
         this.result.setName(name);
         this.metrics.setName(name);
         this.events.setName(name);
@@ -257,9 +261,29 @@ final public class Bench {
         metrics.commit();
         events.commit();
         platform.commit();
+        dumpRecording();
         runLog.close();
         queryLog.close();
         session.close();
+    }
+
+    // Leave the JFR recording, if any, as /data/jfr/<run-id>/<test class>/<benchmark name>.jfr for the run scripts
+    // to add to test-logs. The file keeps the exact benchmark name so it matches the results without a lookup.
+    // Unnamed and "#" sessions are not benchmarks, so their recordings are discarded. A failed dump (e.g. the
+    // engine died) must not hide the test's own failure, so report it and move on
+    private void dumpRecording() {
+        var conn = session.getConnector();
+        if (conn == null)
+            return;
+        var path = (name == null || name.startsWith("#")) ? ""
+                : String.join("/", "/data/jfr", outputDir.getFileName().toString(), testClassName,
+                        name.replace('/', '_') + ".jfr");
+        var jfrDump = "bench_api_jfr_dump('" + path.replace("\\", "\\\\").replace("'", "\\'") + "')";
+        try {
+            conn.executeQuery(Snippets.getFunctions(jfrDump) + jfrDump);
+        } catch (Exception ex) {
+            Log.info("Failed to dump JFR recording: %s", path);
+        }
     }
 
     Metrics awaitCompletion(Future<Metrics> future) {
@@ -283,10 +307,13 @@ final public class Bench {
         return future;
     }
 
-    static private Path getLogDir(Class<?> testClass) {
+    static private String getTestClassName(Class<?> testClass) {
         var pkgRoot = profile.property("root.test.package", Bench.class.getPackageName().replaceAll("[.][^.]+$", ""));
-        var name = testClass.getPackageName().replaceAll(pkgRoot + '.', "") + '.' + testClass.getSimpleName();
-        return Filer.createDirectory(outputDir.resolve("test-logs").resolve(name).toString());
+        return testClass.getPackageName().replaceAll(pkgRoot + '.', "") + '.' + testClass.getSimpleName();
+    }
+
+    static private Path getLogDir(String testClassName) {
+        return Filer.createDirectory(outputDir.resolve("test-logs").resolve(testClassName).toString());
     }
 
     static private Path initializeOutputDirectory() {
