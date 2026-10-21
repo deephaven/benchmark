@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
-# Build, run unit tests, run integration tests against Deephaven in Docker on the Github runner, and
-# check formatting (mvn verify)
+# Build, run unit tests, and run integration tests against Deephaven in Docker on the Github runner
+# (mvn verify)
 
 name: Integration Test (Runner)
 

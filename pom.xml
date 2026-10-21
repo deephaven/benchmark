@@ -182,6 +182,8 @@
 						</licenseHeader>
 					</java>
 				</configuration>
+				<!-- Check disabled in builds: its formatter download from download.eclipse.org is brittle.
+				Run 'mvn spotless:apply' or 'mvn spotless:check' by hand
 				<executions>
 					<execution>
 						<goals>
@@ -189,6 +191,7 @@
 						</goals>
 					</execution>
 				</executions>
+				-->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
