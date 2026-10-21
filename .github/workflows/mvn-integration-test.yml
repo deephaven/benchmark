@@ -1,8 +1,9 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
-# Run Integration Tests against a Docker install on Github
+# Build, run unit tests, run integration tests against Deephaven in Docker on the Github runner, and
+# check formatting (mvn verify)
 
-name: Integration Test on Docker Deephaven
+name: Integration Test (Runner)
 
 on:
   push:
@@ -22,6 +23,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: maven
 
     - name: Docker Pull Deephaven and Redpanda
       run: |

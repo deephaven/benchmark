@@ -1,13 +1,13 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
-# Run benchmarks on a remote system for the release the project is using
+# Run benchmarks on a remote server for the calling workflows
 # - This workflow is reusable with run_type set to nightly, release, compare, or adhoc
 # - Scripts ending in "-local" run on the github runner
 # - Scripts ending in "-remote" run are executed on the remote test server through ssh
 # - test_device_addr selects both the server (<default>|<matrix>|ip) and the concurrency group
 # - Clearing runs here, not in callers, so it cannot wipe a run holding the concurrency group
 
-name: Benchmark Test on Docker Deephaven
+name: Remote Benchmarks (Reusable)
 
 on:
   workflow_call:

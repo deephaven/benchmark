@@ -18,9 +18,9 @@ The typical Benchmark run will be initiated from a [Github on-demand workflow](h
 
 There are two Adhoc Workflows:
 - [Adhoc Benchmarks (Auto-provisioned Server)](https://github.com/deephaven/benchmark/actions/workflows/adhoc-auto-remote-benchmarks.yml)
-- [Adhoc Benchmarks (Existing Server) ](https://github.com/deephaven/benchmark/actions/workflows/adhoc-exist-remote-benchmarks.yml)
+- [Adhoc Benchmarks (Nightly Server)](https://github.com/deephaven/benchmark/actions/workflows/adhoc-exist-remote-benchmarks.yml)
 
-Of the two workflows, privileged users will use the "Auto-provisioned Server" workflow in the vast majority of cases. Using the "Existing Server" workflow requires a dedicated server and extra setup.
+Of the two workflows, privileged users will use the "Auto-provisioned Server" workflow in the vast majority of cases. The "Nightly Server" workflow runs on the always-on server shared with the nightly benchmarks, so it suits short runs. Longer runs belong in a matrix config run by "Matrix Benchmarks (Matrix Server)".
 
 ### Common Workflow UI Fields
 
@@ -55,16 +55,16 @@ The ui fields used for both Adhoc workflows that are common are defined below:
 
 The auto-provisioned adhoc workflow allows developers to run workflows on bare metal server hardware that is provisioned on the fly for the benchmark run. It requires two branches, tags, commit hashes, or docker images/shas to run for the same benchmark set. This is the workflow most commonly used to compare performance between a Deephaven PR branch and the main branch.
 
-Workflow fields not shared with the Existing Server workflow:
+Workflow fields not shared with the Nightly Server workflow:
 - Set Label Prefix
   - The prefix used to make the Set Label for each side of the benchmark comparison
   - ex. Setting `myprefix` with the images `41.0` and `42.0` for Deephaven Image or Core Branch cause two directories in the GCloud benchmark bucket
     - `adhoc/githubuser/myprefix_41_0` and `adhoc/githubuser/myprefix_42_0`
     - Because of naming rules, non-alpha-nums will be replaced with underscores
 
-### Adhoc Benchmarks (Existing Server)
+### Adhoc Benchmarks (Nightly Server)
 
-The adhoc workflow that uses an existing server allows developers more freedom to experiment with JVM options. It also gives them more freedom to shoot themselves in the foot. For example, if max heap is set bigger than the test server memory, the Deephaven service will crash.
+The adhoc workflow that uses the nightly server allows developers more freedom to experiment with JVM options. It also gives them more freedom to shoot themselves in the foot. For example, if max heap is set bigger than the test server memory, the Deephaven service will crash.
 
 Workflow fields not shared with the Auto-provisioned Server workflow:
 - Deephaven JVM Options

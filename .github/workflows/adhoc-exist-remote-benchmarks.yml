@@ -1,10 +1,10 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
-# Run benchmarks on an already provisioned system
+# Run benchmarks on the always-on nightly server (<default>), shared with the nightly run
 # - Calls the reusable workflow remote-benchmarks.yml to run and upload benchmarks
 # - Runs the given options with the given image/branch
 
-name: Adhoc Benchmarks (Existing Server)
+name: Adhoc Benchmarks (Nightly Server)
 
 on:
   workflow_dispatch:

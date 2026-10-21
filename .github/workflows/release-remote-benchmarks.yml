@@ -1,11 +1,11 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
-# Run benchmarks on a remote system according to the release defined 
+# Run benchmarks on the always-on matrix server (<matrix>) according to the release defined
 # in resources/release-benchmark-docker-compose.yml
 # - Runs the rows in matrix/release.sh, passing the requested image in as IMG
 # - Each row is a full pass that publishes before the next starts, so a failed row costs one pass
 
-name: Release Benchmark Test on Docker Deephaven
+name: Release Benchmarks (Matrix Server)
 
 on:
   workflow_dispatch:

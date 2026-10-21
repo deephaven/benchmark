@@ -1,11 +1,11 @@
 # Copyright (c) 2026-2026 Deephaven Data Labs and Patent Pending
 
-# Run benchmark combinations on an already provisioned system using a matrix config file
+# Run benchmark combinations on the always-on matrix server (<matrix>) using a matrix config file
 # - Runs a script from .github/matrix/ that outputs TSV (header + data rows)
 # - Converts TSV to matrix combinations and calls remote-benchmarks.yml for each
 # - Continues on failure (fail-fast: false)
 
-name: Matrix Benchmarks (Existing Server)
+name: Matrix Benchmarks (Matrix Server)
 
 on:
   workflow_dispatch:
