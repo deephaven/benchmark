@@ -256,9 +256,9 @@ class Snippets {
         """;
 
     /**
-     * Start a JFR recording if the engine was started with <code>-Dbench.jfr=( default | profile )</code>, which
-     * names the JDK's JFR settings to use. Any recording left from a previous session is closed first, so a recording
-     * covers one <code>Bench</code> instance even when the engine is not restarted between tests.
+     * Start a JFR recording if the engine was started with <code>-Dbench.jfr=( default | profile )</code>, which names
+     * the JDK's JFR settings to use. Any recording left from a previous session is closed first, so a recording covers
+     * one <code>Bench</code> instance even when the engine is not restarted between tests.
      * <p>
      * ex. bench_api_jfr_start()
      */
