@@ -90,6 +90,7 @@ Setting `-Dbench.jfr=<settings>` in the Deephaven JVM Options (or a matrix row's
   - containing `standard.sort.SortComboTest/Sort- 3 Cols -Static.jfr`
 - Each recording covers the engine from the start of the benchmark's session (including table generation) to the end of the measured operation, up to 512MB
 - JFR changes what it measures. Confirm a performance difference without it before trusting a profiled comparison
+- Recordings started with your own JVM options (e.g. `-XX:StartFlightRecording=filename=/data/...`) still work for experiments, but are not collected or uploaded. They stay in the server's `deephaven/data` directory until the next workflow clears the server, so copy them off with `scp` before then
 
 The bucket deletes test logs, with or without recordings, after 14 days. The expiration is a bucket lifecycle rule defined in [gcloud-bucket-lifecycle.json](../.github/resources/gcloud-bucket-lifecycle.json). It is applied by a bucket admin, not by the workflows. Applying it replaces any existing lifecycle rules, so check those first.
 ```
