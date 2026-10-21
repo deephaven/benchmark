@@ -70,7 +70,7 @@ Workflow fields not shared with the Auto-provisioned Server workflow:
 - Deephaven JVM Options
   - Options that will be included as JVM arguments to the Deephaven service
   - ex. `-Xmx24g -DQueryTable.memoizeResults=false`
-  - Add `-Dbench.jfr=true` to record JFR for each benchmark (see [JFR Recordings](#jfr-recordings))
+  - Add `-Dbench.jfr=profile` to record JFR for each benchmark (see [JFR Recordings](#jfr-recordings))
 - Set Label
   - The label to used to store the result in the GCloud benchmark bucket
   - ex. Setting `mysetlabel` would be stored at `adhoc/mygithubuser/mysetlabel`
@@ -80,11 +80,10 @@ Workflow fields not shared with the Auto-provisioned Server workflow:
 
 ### JFR Recordings
 
-Setting `-Dbench.jfr` in the Deephaven JVM Options (or a matrix row's `config_options`) records a Java Flight Recording of the engine for each benchmark and uploads it with the other results.
-- Values
-  - `true` or `profile`: The JDK's `profile` settings (more detail, more overhead)
-  - `default`: The JDK's `default` settings
-  - `false`: No recording, same as leaving it out
+Setting `-Dbench.jfr=<settings>` in the Deephaven JVM Options (or a matrix row's `config_options`) records a Java Flight Recording of the engine for each benchmark and uploads it with the other results.
+- Values name the JDK's JFR settings, and leaving the property out means no recording
+  - `profile`: More detail, more overhead
+  - `default`: Less detail, less overhead
   - Any other value fails every benchmark with `Could not locate configuration with name ...`
 - Recordings are added to the run's `test-logs.tgz`, next to each test class's `query.md` and `engine.log`, and named with the exact `benchmark_name` from the results
   - ex. `adhoc/mygithubuser/mysetlabel/run-1BzVb5hqX/test-logs.tgz`

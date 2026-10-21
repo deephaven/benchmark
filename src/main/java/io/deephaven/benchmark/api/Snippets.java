@@ -256,18 +256,17 @@ class Snippets {
         """;
 
     /**
-     * Start a JFR recording if the engine was started with <code>-Dbench.jfr=( true | default | profile )</code>, where
-     * true means profile. Any recording left from a previous session is closed first, so a recording covers one
-     * <code>Bench</code> instance even when the engine is not restarted between tests.
+     * Start a JFR recording if the engine was started with <code>-Dbench.jfr=( default | profile )</code>, which
+     * names the JDK's JFR settings to use. Any recording left from a previous session is closed first, so a recording
+     * covers one <code>Bench</code> instance even when the engine is not restarted between tests.
      * <p>
      * ex. bench_api_jfr_start()
      */
     static String bench_api_jfr_start = """
         import jpy
         def bench_api_jfr_start():
-            settings = jpy.get_type('java.lang.System').getProperty('bench.jfr', 'false').strip().lower()
-            if settings in ('', 'false'): return
-            if settings == 'true': settings = 'profile'
+            settings = jpy.get_type('java.lang.System').getProperty('bench.jfr', '').strip()
+            if not settings: return
             old_rec = bench_api_jfr_recording()
             if old_rec is not None: old_rec.close()
             rec = jpy.get_type('jdk.jfr.Recording')()
