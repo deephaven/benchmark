@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending 
 #
 # Deephaven query to run against historical benchmark data stored in GCloud bucket and produce
 # some useful correlated tables
@@ -212,10 +212,6 @@ def gain(start, end) -> float:
 
 def format_rates(rates):
     return ' '.join("{:,}".format(r) for r in rates)
-
-def truncate(text, size):
-    if len(text) < size - 3: return text
-    return text[:size-3] + '...'
 
 def mid_item(arr):
     n = len(arr)

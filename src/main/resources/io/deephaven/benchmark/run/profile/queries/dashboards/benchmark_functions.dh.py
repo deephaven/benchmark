@@ -330,11 +330,6 @@ def gain(start, end) -> float:
 def format_rates(rates):
     return ' '.join("{:,}".format(r) for r in rates)
 
-# Truncate text to the given size. Add '...' for truncated text.
-def truncate(text, size):
-    if len(text) < size - 3: return text
-    return text[:size-3] + '...'
-
 # Get the middle item of the array
 def mid_item(arr):
     n = len(arr)

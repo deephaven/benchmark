@@ -67,7 +67,7 @@ nightly_worst_score_large = nightly_score \
 def benchname(name) -> str:
     btype = 'S' if name.endswith('-Static') else 'I'
     name = name.replace(' -Static','').replace(' -Inc','')
-    name = truncate(name, 58)
+    name = name if len(name) <= 58 else name[:55] + '...'
     return btype  + ' ' + name
 
 # Shorten a rate to 3 significant digits with a K, M or B suffix (e.g. 4,477,611 -> 4.48M) to keep the table narrow
