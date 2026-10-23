@@ -41,9 +41,24 @@ getSetLabel() {
 }
 
 getApiToken() {
-  curl -s -X POST "https://auth.phoenixnap.com/auth/realms/BMC/protocol/openid-connect/token" \
+  local response token
+  response=$(curl -s -X POST "https://auth.phoenixnap.com/auth/realms/BMC/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=client_credentials" \
-    --data-urlencode "client_id=$1" --data-urlencode "client_secret=$2" | jq -r '.access_token'
+    --data-urlencode "client_id=$1" --data-urlencode "client_secret=$2")
+  token=$(jq -r '.access_token // empty' <<< "${response}" 2>/dev/null || true)
+  if [[ -z "${token}" ]]; then
+    echo "::error::Failed getting API token: $(getApiError "${response}")" >&2
+    exit 1
+  fi
+  echo "${token}"
+}
+
+# Get the error details from a phoenixNAP API response, falling back to the start of the raw response
+getApiError() {
+  local error
+  error=$(jq -r '[.message, .error, .error_description, (.validationErrors // [])[]] | map(select(. != null))
+    | join("; ")' <<< "$1" 2>/dev/null || true)
+  echo "${error:-${1:0:300}}"
 }
 
 deleteMetal() {
@@ -120,13 +135,15 @@ if [[ ${ACTION} == "deploy-metal" ]]; then
   echo "Finished Deploy POST"
 
   echo "Running Deploy API"
-  RESPONSE=$(curl -s -X POST "https://api.phoenixnap.com/bmc/v1/servers" -H "Authorization: Bearer ${TOKEN}" \
-    -H "Content-Type: application/json" -d @adhoc-server-deploy-final.json)
+  RESPONSE=$(curl -s -w '\n%{http_code}' -X POST "https://api.phoenixnap.com/bmc/v1/servers" \
+    -H "Authorization: Bearer ${TOKEN}" -H "Content-Type: application/json" -d @adhoc-server-deploy-final.json)
+  HTTP_CODE=${RESPONSE##*$'\n'}
+  RESPONSE=${RESPONSE%$'\n'*}
 
-  IP_ADDRESS=$(jq -r '.publicIpAddresses[0] // empty' <<< "${RESPONSE}")
-  DEVICE_ID=$(jq -r '.id // empty' <<< "${RESPONSE}")
+  IP_ADDRESS=$(jq -r '.publicIpAddresses[0] // empty' <<< "${RESPONSE}" 2>/dev/null || true)
+  DEVICE_ID=$(jq -r '.id // empty' <<< "${RESPONSE}" 2>/dev/null || true)
   if [[ -z "$IP_ADDRESS" || -z "$DEVICE_ID" ]]; then
-    echo "::error::Failed Getting IP Address and Device ID"
+    echo "::error::Failed Getting IP Address and Device ID (http ${HTTP_CODE}): $(getApiError "${RESPONSE}")"
     exit 1
   else
     echo "Got Address ${IP_ADDRESS} and Device Id ${DEVICE_ID}"
