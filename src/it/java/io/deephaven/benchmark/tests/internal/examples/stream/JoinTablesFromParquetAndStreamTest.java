@@ -1,4 +1,4 @@
-/* Copyright (c) 2022-2024 Deephaven Data Labs and Patent Pending */
+/* Copyright (c) 2022-2026 Deephaven Data Labs and Patent Pending */
 package io.deephaven.benchmark.tests.internal.examples.stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,7 +96,7 @@ public class JoinTablesFromParquetAndStreamTest {
      */
     @Test
     public void joinTwoTablesFromParquetFileIncRelease() {
-        api.setName("Join Two Tables Using Incremental Release of Parquet File Records");
+        api.setName("Join Two Tables Using Incremental Release of Parquet Rows");
 
         var query = """
         from deephaven import agg

@@ -89,11 +89,11 @@ final public class Bench {
     /**
      * Set the name that identifies the currently running test. This name is used in logging and results
      * 
+     * @see Names#validateBenchmarkName(String)
      * @param name the test name for reporting
      */
     public void setName(String name) {
-        if (name == null || name.isBlank())
-            throw new RuntimeException("No blank Benchmark names allowed");
+        Names.validateBenchmarkName(name);
         this.name = name;
         this.result.setName(name);
         this.metrics.setName(name);
@@ -277,7 +277,7 @@ final public class Bench {
             return;
         var path = (name == null || name.startsWith("#")) ? ""
                 : String.join("/", "/data/jfr", outputDir.getFileName().toString(), testClassName,
-                        name.replace('/', '_') + ".jfr");
+                        name + ".jfr");
         var jfrDump = "bench_api_jfr_dump('" + path.replace("\\", "\\\\").replace("'", "\\'") + "')";
         try {
             conn.executeQuery(Snippets.getFunctions(jfrDump) + jfrDump);

@@ -1,4 +1,4 @@
-# Copyright (c) 2023-2024 Deephaven Data Labs and Patent Pending 
+# Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending 
 #
 # Supporting Deephaven queries to use the benchmark_snippet to investigate changes between nightly benchmarks
 # - Make two tables; one cryptic and small, the other clearer with more rows
@@ -67,14 +67,24 @@ nightly_worst_score_large = nightly_score \
 def benchname(name) -> str:
     btype = 'S' if name.endswith('-Static') else 'I'
     name = name.replace(' -Static','').replace(' -Inc','')
-    name = truncate(name, 50)
+    name = truncate(name, 58)
     return btype  + ' ' + name
+
+# Shorten a rate to 3 significant digits with a K, M or B suffix (e.g. 4,477,611 -> 4.48M) to keep the table narrow
+def short_rate(rate) -> str:
+    value = float(rate)
+    for unit in ['', 'K', 'M', 'B']:
+        decimals = 0 if not unit or value >= 99.95 else 1 if value >= 9.995 else 2
+        text = f'{value:.{decimals}f}'
+        if float(text) < 1000 or unit == 'B':
+            return text + unit
+        value /= 1000
 
 nightly_worst_score_small = nightly_worst_score_large \
     .head(10) \
     .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
-        'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
-    .format_columns(['Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+        'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
+    .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
         'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
 
 nightly_best_score_large = nightly_score \
@@ -92,8 +102,8 @@ nightly_best_score_large = nightly_score \
 nightly_best_score_small = nightly_best_score_large \
     .head(10) \
     .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
-        'Var5d=Variability','Rate','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
-    .format_columns(['Rate=Decimal(`###,##0`)','Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+        'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
+    .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
         'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
 
 bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
