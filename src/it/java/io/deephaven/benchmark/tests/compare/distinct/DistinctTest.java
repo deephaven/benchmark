@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.distinct;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for the distinct (or select distinct) group operation. Tests read the same parquet data. To
@@ -23,7 +22,7 @@ public class DistinctTest {
     @Test
     @Order(1)
     public void deephavenDistinct() {
-        runner.initDeephaven(2, "source", null, "int640", "str250");
+        runner.initDeephaven(4, "source", null, "str250", "int640");
         var setup = "from deephaven.parquet import read";
         var op = """
         source = read('/data/source.parquet').select()
@@ -71,28 +70,12 @@ public class DistinctTest {
         db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
         db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
         db.sql("INSERT INTO results SELECT DISTINCT str250,int640 FROM source")
-        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";
         runner.test("DuckDb Distinct", setup, op, msize, rsize);
-    }
-
-    @Test
-    @Order(5)
-    @Disabled
-    public void flinkDistinct() {
-        runner.initPython("apache-flink", "jdk-11");
-        var op = """
-        source = pd.read_parquet('/data/source.parquet')
-        loaded_size = len(source)
-        source = t_env.from_pandas(source)
-        result = source.select(col('str250'), col('int640')).distinct().to_pandas()
-        """;
-        var msize = "loaded_size";
-        var rsize = "len(result)";
-        runner.test("Flink Distinct", Setup.flink(runner), op, msize, rsize);
     }
 
 }

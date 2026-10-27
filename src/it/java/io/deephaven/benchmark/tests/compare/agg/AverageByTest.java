@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.agg;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for the average by group operation. Tests read the same parquet data. To avoid an unfair
@@ -77,31 +76,14 @@ public class AverageByTest {
         var setup = "import duckdb as db";
         var op = """
         db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
-        db.sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT)")
+        db.sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 DOUBLE,Avg2 DOUBLE)")
         db.sql("INSERT INTO results SELECT str250,int640,AVG(int250) AS Avg1,AVG(int640) AS Avg2 FROM source GROUP BY str250, int640")
-        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";
         runner.test("DuckDb Average By", setup, op, msize, rsize);
-    }
-
-    @Test
-    @Order(5)
-    @Disabled
-    public void flinkAverageBy() {
-        runner.initPython("apache-flink", "jdk-11");
-        var op = """
-        t_env.execute_sql("CREATE TABLE source(int250 INT,int640 INT,str250 STRING) WITH ('connector'='filesystem','path'='/data/source.parquet','format'='parquet')")
-        t_env.execute_sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT) WITH ('connector'='filesystem','path'='/data/results.csv','format'='csv')")
-        #t_env.execute_sql("CREATE TABLE results(str250 STRING,int640 INT,Avg1 INT,Avg2 INT) WITH ('connector'='blackhole')")
-        t_env.execute_sql("INSERT INTO results SELECT str250,int640,AVG(int250) AS Avg1,AVG(int640) AS Avg2 FROM source GROUP BY str250, int640").wait()
-        """;
-
-        var msize = "count_rows('source')";
-        var rsize = "count_rows('results')"; // Change to 1 for using blackhole connector
-        runner.test("Flink Average By", Setup.flink(runner), op, msize, rsize);
     }
 
 }

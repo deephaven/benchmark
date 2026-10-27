@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.join;
 import static org.junit.jupiter.api.MethodOrderer.*;
 import org.junit.jupiter.api.*;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for inner join operations. Tests read the same parquet data. To avoid an unfair advantage
@@ -75,30 +74,12 @@ public class InnerJoinTest {
         db.sql("CREATE TABLE r AS SELECT * FROM '/data/right.parquet'")
         db.sql("CREATE TABLE results(int1M INT,str250 STRING,r_int1M INT,r_str1M STRING)")
         db.sql("INSERT INTO results SELECT * FROM s JOIN r ON s.str250 = r.r_str250 AND s.int1M = r.r_int1M")
-        sourceLen = db.sql("SELECT count(*) FROM s").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM s").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";
         runner.test("DuckDb Inner Join", setup, op, msize, rsize);
-    }
-
-    @Test
-    @Order(5)
-    @Disabled
-    public void flinkInnerJoin() {
-        runner.initPython("apache-flink", "jdk-11");
-        var op = """
-        source = pd.read_parquet('/data/source.parquet')
-        loaded_size = len(source)
-        source = t_env.from_pandas(source)
-        right = pd.read_parquet('/data/right.parquet')
-        right = t_env.from_pandas(right)
-        result = source.join(right, (col('str250') == col('r_str250')) & (col('int1M') == col('r_int1M'))).to_pandas()
-        """;
-        var msize = "loaded_size";
-        var rsize = "len(result)";
-        runner.test("Flink Inner Join", Setup.flink(runner), op, msize, rsize);
     }
 
 }

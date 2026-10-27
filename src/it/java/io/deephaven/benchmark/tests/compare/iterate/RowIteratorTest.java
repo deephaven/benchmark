@@ -94,13 +94,13 @@ public class RowIteratorTest {
                     yield r
         """;
         var op = """
-        source = db.sql("SELECT * FROM '/data/source.parquet'")
-        
         db.sql("CREATE TABLE results(total INT)")
+        source = db.execute("SELECT * FROM '/data/source.parquet'")
+        
         rsum = sum(row['int250'] + row['int640'] for row in iterdicts(source))
         db.sql("INSERT INTO results VALUES(" + str(rsum) + ")")
-        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM '/data/source.parquet'").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";

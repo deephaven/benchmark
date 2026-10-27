@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.filter;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for filter (where) operations. Tests read the same parquet data. To avoid an unfair
@@ -24,7 +23,7 @@ public class FilterTest {
     @Test
     @Order(1)
     public void deephavenFilter() {
-        runner.initDeephaven(2, "source", null, "str250", "int640");
+        runner.initDeephaven(4, "source", null, "str250", "int640");
         var setup = "from deephaven.parquet import read";
         var op = """
         source = read('/data/source.parquet').select()
@@ -76,28 +75,12 @@ public class FilterTest {
         db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
         db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
         db.sql("INSERT INTO results SELECT * FROM source WHERE str250 = '250' AND int640 > 100 AND int640 < 540")
-        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";
         runner.test("DuckDb Filter", setup, op, msize, rsize);
-    }
-
-    @Test
-    @Order(5)
-    @Disabled
-    public void flinkFilter() {
-        runner.initPython("apache-flink", "jdk-11");
-        var op = """
-        source = pd.read_parquet('/data/source.parquet')
-        loaded_size = len(source)
-        source = t_env.from_pandas(source)
-        result = source.filter((col('str250') == '250') & (col('int640') > 100) & (col('int640') < 540)).to_pandas()
-        """;
-        var msize = "loaded_size";
-        var rsize = "len(result)";
-        runner.test("Flink Filter", Setup.flink(runner), op, msize, rsize);
     }
 
 }

@@ -4,7 +4,6 @@ package io.deephaven.benchmark.tests.compare.sort;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import io.deephaven.benchmark.tests.compare.CompareTestRunner;
-import io.deephaven.benchmark.tests.compare.Setup;
 
 /**
  * Product comparison tests for sort operations. Tests read the same parquet data. To avoid an unfair advantage where
@@ -70,28 +69,12 @@ public class SortTest {
         db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
         db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
         db.sql("INSERT INTO results SELECT str250,int640 FROM source ORDER BY str250, int640")
-        sourceLen = db.sql("SELECT count(*) FROM source").fetchone()[0]
-        resultLen = db.sql("SELECT count(*) FROM results").fetchone()[0]
+        sourceLen = db.sql("SELECT count(*) FROM source").fetchall()[0][0]
+        resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
         var msize = "sourceLen";
         var rsize = "resultLen";
         runner.test("DuckDb Sort", setup, op, msize, rsize);
-    }
-
-    @Test
-    @Order(5)
-    @Disabled
-    public void flinkSort() {
-        runner.initPython("apache-flink", "jdk-11");
-        var op = """
-        source = pd.read_parquet('/data/source.parquet')
-        loaded_size = len(source)
-        source = t_env.from_pandas(source)
-        result = source.order_by(col('str250'), col('int640')).to_pandas()
-        """;
-        var msize = "loaded_size";
-        var rsize = "len(result)";
-        runner.test("Flink Sort", Setup.flink(runner), op, msize, rsize);
     }
 
 }

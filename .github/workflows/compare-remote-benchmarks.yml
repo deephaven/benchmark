@@ -1,7 +1,7 @@
 # Copyright (c) 2023-2026 Deephaven Data Labs and Patent Pending
 
 # Run comparison (competitive) benchmarks on the always-on matrix server (<matrix>), measuring
-# Deephaven against DuckDB, Flink, Pandas, and PyArrow, which the tests run as python inside the
+# Deephaven against DuckDB, Pandas, and PyArrow, which the tests run as python inside the
 # Deephaven container
 # - Calls the reusable workflow remote-benchmarks.yml
 
