@@ -434,7 +434,7 @@ public class CompareTestRunner {
                 case "int250" -> table.add("int250", "int", "[1-250]");
                 case "int640" -> table.add("int640", "int", "[1-640]");
                 case "int1M" -> table.add("int1M", "int", "[1-1000000]");
-                case "str250" -> table.add("str250", "string", "[1-250]");
+                case "str250" -> table.add("str250", "string", "[1001-1250]");
             }
         }
         table.withCompression("snappy");
@@ -446,7 +446,7 @@ public class CompareTestRunner {
         var table = api.table("right").withDefaultDistribution("ascending");
         for (String columnName : columnNames) {
             switch (columnName) {
-                case "r_str250" -> table.add("r_str250", "string", "[1-250]");
+                case "r_str250" -> table.add("r_str250", "string", "[1001-1250]");
                 case "r_int1M" -> table.add("r_int1M", "int", "[1-1000000]");
             }
         }

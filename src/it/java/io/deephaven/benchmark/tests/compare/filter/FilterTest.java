@@ -27,7 +27,7 @@ public class FilterTest {
         var setup = "from deephaven.parquet import read";
         var op = """
         source = read('/data/source.parquet').select()
-        result = source.where(["str250 = '250'", "int640 > 100", "int640 < 540"])
+        result = source.where(["str250 = '1250'", "int640 > 100", "int640 < 540"])
         """;
         var msize = "source.size";
         var rsize = "result.size";
@@ -44,7 +44,7 @@ public class FilterTest {
         """;
         var op = """
         source = ds.dataset('/data/source.parquet', format="parquet").to_table()
-        expr = (pc.field('str250') == '250') & (pc.field('int640') > 100) & (pc.field('int640') < 540)
+        expr = (pc.field('str250') == '1250') & (pc.field('int640') > 100) & (pc.field('int640') < 540)
         result = source.filter(expr)
         """;
         var msize = "source.num_rows";
@@ -59,7 +59,7 @@ public class FilterTest {
         var setup = "import pandas as pd";
         var op = """
         source = pd.read_parquet('/data/source.parquet')
-        result = source.query("str250 == '250' & int640 > 100 & int640 < 540")
+        result = source.query("str250 == '1250' & int640 > 100 & int640 < 540")
         """;
         var msize = "len(source)";
         var rsize = "len(result)";
@@ -74,7 +74,7 @@ public class FilterTest {
         var op = """
         db.sql("CREATE TABLE source AS SELECT * FROM '/data/source.parquet'")
         db.sql("CREATE TABLE results(str250 STRING,int640 INT)")
-        db.sql("INSERT INTO results SELECT * FROM source WHERE str250 = '250' AND int640 > 100 AND int640 < 540")
+        db.sql("INSERT INTO results SELECT * FROM source WHERE str250 = '1250' AND int640 > 100 AND int640 < 540")
         sourceLen = db.sql("SELECT count(*) FROM source").fetchall()[0][0]
         resultLen = db.sql("SELECT count(*) FROM results").fetchall()[0][0]
         """;
