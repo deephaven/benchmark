@@ -23,7 +23,7 @@ public class FilterTest {
     @Test
     @Order(1)
     public void deephavenFilter() {
-        runner.initDeephaven(4, "source", null, "str250", "int640");
+        runner.initDeephaven(8, "source", null, "str250", "int640");
         var setup = "from deephaven.parquet import read";
         var op = """
         source = read('/data/source.parquet').select()
