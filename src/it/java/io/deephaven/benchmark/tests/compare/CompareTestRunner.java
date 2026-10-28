@@ -60,6 +60,7 @@ public class CompareTestRunner {
      * @param columnNames the columns in both tables to included
      */
     public void initDeephaven(int rowCountFactor, String leftTable, String rightTable, String... columnNames) {
+        restartServices();
         restartDocker(48);
         generateTable(rowCountFactor, leftTable, columnNames);
         if (rightTable != null)
