@@ -93,6 +93,52 @@ class FileTestRunner {
     }
 
     /**
+     * Run a benchmark that measures a filtered parquet read. The filter reads {@code long10K} in full and keeps 1 in
+     * {@code modulus} rows, spread evenly through the file, then the given columns are read for only those rows. The
+     * rate is file rows per second, like the full read tests. This test always runs after a corresponding write test.
+     * 
+     * @param testName name that will appear in the results as the benchmark name
+     * @param modulus keep the rows where {@code long10K % modulus == 1}; should divide 10000 to keep exactly 1 in
+     *        {@code modulus}
+     * @param columnNames the columns to read for the remaining rows
+     */
+    void runParquetFilteredReadTest(String testName, int modulus, String... columnNames) {
+        runFilteredReadTest(testName, modulus, "filtered.select([${columns}])", columnNames);
+    }
+
+    /**
+     * Run a benchmark like {@link #runParquetFilteredReadTest}, but read the remaining rows with
+     * {@code ForceReadUtility} instead of {@code select}. That reads the column data in chunks on one thread through
+     * {@code getChunk}, and keeps none of it, rather than copying it in parallel into a new table through
+     * {@code fillChunk}.
+     * 
+     * @param testName name that will appear in the results as the benchmark name
+     * @param modulus keep the rows where {@code long10K % modulus == 1}; should divide 10000 to keep exactly 1 in
+     *        {@code modulus}
+     * @param columnNames the columns to read for the remaining rows
+     */
+    void runParquetFilteredForceReadTest(String testName, int modulus, String... columnNames) {
+        var forceRead = "jpy.get_type('io.deephaven.engine.table.impl.ForceReadUtility').of("
+                + "filtered.j_table, jpy.array('java.lang.String', [${columns}]))";
+        runFilteredReadTest(testName, modulus, forceRead, columnNames);
+    }
+
+    private void runFilteredReadTest(String testName, int modulus, String readExpr, String... columnNames) {
+        var q = """
+        read('/data/source.ptr.parquet')
+        filtered = source.where('long10K % ${modulus} == 1')
+        ${readExpr}
+        metric_file_size = os.path.getsize('/data/source.ptr.parquet')
+        bench_api_metrics_add('data', 'file.size', str(metric_file_size), 'parquet')
+        """;
+        q = q.replace("${readExpr}", readExpr);
+        q = q.replace("${modulus}", "" + modulus);
+        var columns = Arrays.stream(columnNames).map(c -> "'" + c + "'").collect(Collectors.joining(","));
+        q = q.replace("${columns}", columns);
+        runReadTest(testName, q);
+    }
+
+    /**
      * Run a benchmark that measures parquet write performance.
      * 
      * @param testName the benchmark name to record with the measurement
@@ -269,7 +315,7 @@ class FileTestRunner {
 
     private Bench initialize(Object testInst) {
         var query = """
-        import time, os, shutil
+        import time, os, shutil, jpy
         from deephaven import empty_table, garbage_collect, new_table, merge
         from deephaven.column import long_col, double_col
         from deephaven.parquet import read, write, write_partitioned

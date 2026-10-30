@@ -11,88 +11,102 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 @Tag("Iterate")
 class ParquetMultiColTest {
     final String[] usedColumns = {"str10K", "long10K", "int10K", "short10K", "bigDec10K", "intArr5", "intVec5"};
+    // Array columns can't be read sparsely (DH-23641), so the filtered reads leave them out
+    final String[] filteredColumns = {"str10K", "int10K", "short10K", "bigDec10K"};
     final FileTestRunner runner = new FileTestRunner(this);
 
-    @BeforeEach
-    void setup() {
-        runner.setScaleFactors(3, 3);
+    void setup(int scaleFactor) {
+        runner.setScaleFactors(3, scaleFactor);
     }
 
     @Test
     @Order(1)
     void writeMultiColSnappy() {
+        setup(3);
         runner.runParquetWriteTest("ParquetWrite- Snappy Multi Col -Static", "SNAPPY", usedColumns);
     }
 
     @Test
     @Order(2)
     void readMultiColSnappy() {
+        setup(3);
         runner.runParquetReadTest("ParquetRead- Snappy Multi Col -Static");
     }
 
     @Test
     @Order(3)
     void writeMultiColZstd() {
+        setup(3);
         runner.runParquetWriteTest("ParquetWrite- Zstd Multi Col -Static", "ZSTD", usedColumns);
     }
 
     @Test
     @Order(4)
     void readMultiColZstd() {
+        setup(3);
         runner.runParquetReadTest("ParquetRead- Zstd Multi Col -Static");
     }
 
     @Test
     @Order(5)
     void writeMultiColLzo() {
+        setup(3);
         runner.runParquetWriteTest("ParquetWrite- Lzo Multi Col -Static", "LZO", usedColumns);
     }
 
     @Test
     @Order(6)
     void readMultiColLzo() {
+        setup(3);
         runner.runParquetReadTest("ParquetRead- Lzo Multi Col -Static");
     }
 
     @Test
     @Order(7)
     void writeMultiColLz4Raw() {
+        setup(3);
         runner.runParquetWriteTest("ParquetWrite- Lz4Raw Multi Col -Static", "LZ4_RAW", usedColumns);
     }
 
     @Test
     @Order(8)
     void readMultiColLz4Raw() {
+        setup(3);
         runner.runParquetReadTest("ParquetRead- Lz4Raw Multi Col -Static");
     }
 
     @Test
     @Order(9)
     void writeMultiColGzip() {
+        setup(1);
         runner.runParquetWriteTest("ParquetWrite- Gzip Multi Col -Static", "GZIP", usedColumns);
     }
 
     @Test
     @Order(10)
     void readMultiColGzip() {
+        setup(1);
         runner.runParquetReadTest("ParquetRead- Gzip Multi Col -Static");
     }
 
     @Test
     @Order(11)
     void writeMultiColNone() {
+        setup(3);
         runner.runParquetWriteTest("ParquetWrite- No Codec Multi Col -Static", "NONE", usedColumns);
     }
 
     @Test
     @Order(12)
     void readMultiColNone() {
+        setup(3);
         runner.runParquetReadTest("ParquetRead- No Codec Multi Col -Static");
     }
 
     @Test
     @Order(13)
     void writeMultiColDefaultSnappy() {
+        setup(3);
         runner.useParquetDefaultSettings();
         runner.runParquetWriteTest("ParquetWrite- Snappy Multi Col Defaults -Static", "SNAPPY", usedColumns);
     }
@@ -100,8 +114,31 @@ class ParquetMultiColTest {
     @Test
     @Order(14)
     void readMultiColDefaultSnappy() {
+        setup(3);
         runner.useParquetDefaultSettings();
         runner.runParquetReadTest("ParquetRead- Snappy Multi Col Defaults -Static");
+    }
+
+    @Test
+    @Order(15)
+    void readMultiColDefaultSnappySparse() {
+        setup(3);
+        runner.runParquetFilteredReadTest("ParquetRead- Sparse Snappy Multi Col Defaults -Static", 100, filteredColumns);
+    }
+
+    @Test
+    @Order(16)
+    void readMultiColDefaultSnappyDense() {
+        setup(3);
+        runner.runParquetFilteredReadTest("ParquetRead- Dense Snappy Multi Col Defaults -Static", 2, filteredColumns);
+    }
+
+    @Test
+    @Order(17)
+    void forceReadMultiColDefaultSnappySparse() {
+        setup(3);
+        runner.runParquetFilteredForceReadTest("ParquetRead- Sparse ForceRead Snappy Multi Col Defaults -Static", 100,
+                filteredColumns);
     }
 
 }
