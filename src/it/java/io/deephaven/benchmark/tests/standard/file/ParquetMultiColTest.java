@@ -115,7 +115,6 @@ class ParquetMultiColTest {
     @Order(14)
     void readMultiColDefaultSnappy() {
         setup(3);
-        runner.useParquetDefaultSettings();
         runner.runParquetReadTest("ParquetRead- Snappy Multi Col Defaults -Static");
     }
 
