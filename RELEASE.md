@@ -38,7 +38,7 @@ Typically, the release process up to and including the Github Release is run fro
 - Download and test the tar asset in the Github release. (Level of testing is informed by DHC and Benchmark release notes.)
 
 > [!Note]
-> The [OSS Sonatype](https://s01.oss.sonatype.org/) can be very slow and requires some patience.
+> The [Sonatype Central Portal](https://central.sonatype.com/publishing) can be very slow and requires some patience.
 
 ### Benchmark Patch
 
@@ -49,22 +49,20 @@ In the rare case where there needs to be a patch on Benchmark to work with a DHC
   - If upstream is not set, use `git remote add upstream git@github.com:deephaven/benchmark.git`
 - Make a branch for the new tag 
   - Run `git fetch upstream`
-  - Run `git checkout vX.Y.0` (Use the previous tag for X.Y.0)
-  - Run `git checkout -b release/vX.Y.1` (Use release tag for X.Y.1)
+  - Run `git checkout vX.Y` (Use the previous tag for X.Y, ex. `v42.0`)
+  - Run `git checkout -b release/vX.Y` (Use the release tag for X.Y, ex. `v42.1`)
   - Make appropriate Benchmark changes and test
-  - Run `git push -u upstream release/vX.Y.1`
+  - Run `git push -u upstream release/vX.Y`
   - Run the "Happy Path" above (Do not merge the release branch)
 
 ### Publish to Maven Central
 
-One Benchmark artifact is published to [Maven Central](https://repo1.maven.org/maven2/io/deephaven/deephaven-benchmark/) along with javadocs and source files. These have requirements for signing using the [Deephaven Benchmark Certificate](https://keyserver.ubuntu.com/pks/lookup?search=Deephaven+Benchmark&fingerprint=on&op=index). The bundle created by the previous steps has does this
+One Benchmark artifact is published to [Maven Central](https://repo1.maven.org/maven2/io/deephaven/deephaven-benchmark/) along with javadocs and source files. These have requirements for signing using the [Deephaven Benchmark Certificate](https://keyserver.ubuntu.com/pks/lookup?search=Deephaven+Benchmark&fingerprint=on&op=index). The bundle created by the previous steps does this. Publishing is done through the [Sonatype Central Portal](https://central.sonatype.com/publishing) by [uploading the bundle](https://central.sonatype.org/publish/publish-portal-upload/).
 
-- Download _Deephaven Benchmark Release X.Y.Z_ from the _Publish Deephaven Benchmark_ workflow Artifacts and extract the _deephaven-benchmark-X.Y.Z-bundle.jar_.
-- Log in to [OSS Sonatype](https://s01.oss.sonatype.org/) and click on "Staging Upload"
-- Select "Artifact Bundle" from the "Upload Mode" dropdown, select the bundle to upload, and "Upload Bundle"
-- After the upload is finished, click on "Staging Repositories" and click "Refresh"
-- Select the item that appears for the bundle upload, then select the Summary tab at the bottom
-- Sonatype performs various validation and it may take some time for the "Release" button to be enabled. The summary tabe in the bottom panel may show "Activity: Operation in progress"
-- If there are no errors, and the "Release Button" is enabled, the bundle can be released
-- After selecting "Release", the artifacts will eventually show up in [Maven Central](https://repo1.maven.org/maven2/io/deephaven/deephaven-benchmark/). Verify that the version has landed.
+- Download _Deephaven Benchmark Release X.Y_ from the _Publish Deephaven Benchmark_ workflow Artifacts and extract the _deephaven-benchmark-X.Y-bundle.zip_.
+- Log in to the [Sonatype Central Portal](https://central.sonatype.com/publishing) and click on "Publish Component"
+- Enter a "Deployment Name" (ex. `io.deephaven:deephaven-benchmark:X.Y`), click "Upload File" to select the bundle zip, and click "Publish Component"
+- The deployment will show up in the "Deployments" list. Sonatype performs various validation and it may take some time for the status to change from "Validating" to "Validated"
+- If there are no errors, and the deployment is "Validated", click "Publish" to release it (or "Drop" to discard it)
+- After selecting "Publish", the artifacts will eventually show up in [Maven Central](https://repo1.maven.org/maven2/io/deephaven/deephaven-benchmark/). Verify that the version has landed.
 
