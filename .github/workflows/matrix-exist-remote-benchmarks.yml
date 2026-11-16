@@ -20,6 +20,7 @@ on:
         - example-regression-matrix.sh
         - train-jfr.sh
         - scale-standard.sh
+        - jvm25-regression.sh
 
 jobs:
   generate-matrix:
