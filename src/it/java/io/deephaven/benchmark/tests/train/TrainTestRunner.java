@@ -63,8 +63,8 @@ final public class TrainTestRunner {
         delegate.useCachedSource(false);
         delegate.useLocalParquet(true);
         delegate.setMaxRowFactor(maxRowFactor);
-        delegate.tables(tableNames);
         delegate.setScaleFactors(isStatic ? maxRowFactor : 0, isStatic ? 0 : maxRowFactor);
+        delegate.tables(tableNames);
 
         var headQuery = """
         ${mainTable} = ${mainTable}.head(${trainRowCount})
