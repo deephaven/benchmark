@@ -22,7 +22,7 @@ public class EmStdTimeTest {
     @Test
     @Tag("Iterate")
     void emStdTime0Group1Col() {
-        runner.setScaleFactors(60, 50);
+        runner.setScaleFactors(60, 36);
         setup.emTime0Groups("emstd_time");
         var q = "timed.update_by(ops=[dk])";
         runner.test("EmStdTime- No Groups 1 Col", q, "num1", "timestamp");

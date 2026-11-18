@@ -66,7 +66,7 @@ public class CumComboTest {
 
     @Test
     void cumCombo3Groups6OpsLarge() {
-        runner.setScaleFactors(1, 0.1);
+        runner.setScaleFactors(1, 0.15);
         var q = """
         timed.update_by(ops=[ema_tick_op,ema_time_op,max_op,min_op,sum_op,prod_op], by=['key1','key2','key4'])
         """;

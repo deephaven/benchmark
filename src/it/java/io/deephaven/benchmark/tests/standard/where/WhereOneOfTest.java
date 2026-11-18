@@ -19,7 +19,7 @@ public class WhereOneOfTest {
 
     @Test
     void whereOneOf1Filter() {
-        runner.setScaleFactors(2190, 1800);
+        runner.setScaleFactors(1020, 880);
         var q = """
         source.where_one_of(filters=["key1 = '50'"]);
         """;
@@ -28,7 +28,7 @@ public class WhereOneOfTest {
 
     @Test
     void whereOneOf2Filters() {
-        runner.setScaleFactors(540, 480);
+        runner.setScaleFactors(280, 290);
         var q = """
         source.where_one_of(filters=["key1 = '50'", "key2 = '51'"]);
         """;
@@ -37,7 +37,7 @@ public class WhereOneOfTest {
 
     @Test
     void whereOneOf3Filters() {
-        runner.setScaleFactors(240, 240);
+        runner.setScaleFactors(160, 170);
         var q = """
         source.where_one_of(filters=["key1 = '50'", "key2 = '51'", "key3 in -2, -1, 0, 1, 2"]);
         """;

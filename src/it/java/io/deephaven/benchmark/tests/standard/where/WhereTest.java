@@ -18,7 +18,7 @@ public class WhereTest {
 
     @Test
     void where1Filter() {
-        runner.setScaleFactors(1980, 1860);
+        runner.setScaleFactors(970, 820);
         var q = """
         source.where(filters=["key1 = '50'"])
         """;
@@ -27,7 +27,7 @@ public class WhereTest {
 
     @Test
     void where2Filters() {
-        runner.setScaleFactors(1860, 1800);
+        runner.setScaleFactors(920, 830);
         var q = """
         source.where(filters=["key1 = '50'", "key2 = '51'"])
         """;
@@ -36,7 +36,7 @@ public class WhereTest {
 
     @Test
     void where3Filters() {
-        runner.setScaleFactors(1920, 1740);
+        runner.setScaleFactors(940, 870);
         var q = """
         source.where(filters=["key1 = '50'", "key2 = '51'", "key3 in -2, -1, 0, 1, 2"])
         """;

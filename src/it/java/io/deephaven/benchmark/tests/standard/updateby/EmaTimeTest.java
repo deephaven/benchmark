@@ -21,7 +21,7 @@ public class EmaTimeTest {
     
     @Test
     void emaTime0Group1Col() {
-        runner.setScaleFactors(57, 38);
+        runner.setScaleFactors(41, 38);
         setup.emTime0Groups("ema_time");
         var q = "timed.update_by(ops=[dk])";
         runner.test("EmaTime- No Groups 1 Col", q, "num1", "timestamp");

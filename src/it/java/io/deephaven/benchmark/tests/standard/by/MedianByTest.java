@@ -26,7 +26,7 @@ public class MedianByTest {
     @Test
     @Tag("Iterate")
     void medianBy1Group() {
-        runner.setScaleFactors(24, 22);
+        runner.setScaleFactors(32, 22);
         var q = "source.median_by(by=['key1'])";
         runner.test("MedianBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
