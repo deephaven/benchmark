@@ -85,7 +85,7 @@ public class MixedComboTest {
 
     @Test
     void rollingCombo3Groups6Ops() {
-        runner.setScaleFactors(1.4, 0.1);
+        runner.setScaleFactors(1.4, 0.15);
         runner.addSetupQuery(group100K);
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
