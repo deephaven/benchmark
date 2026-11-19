@@ -9,18 +9,22 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.connect.ResultTable;
 import io.deephaven.benchmark.util.Filer;
 
 /**
- * Generate benchmark tables for posting to Slack. Produces tables in CSV and SVG form. These tables are different from
+ * Generate benchmark tables for posting to Slack. Produces tables in Markdown and SVG form. These tables are different from
  * other auto-generated tables in that they pull data exclusively from GCloud.
  */
 public class PublishNotification {
     static final String rowIndent = " ".repeat(10);
     final String[] tables = {"nightly_worst_score", "nightly_best_score"};
+    final String[] titles = {"Worst Scores", "Best Scores"};
+    final String[] sortArrows = {"\u25B2", "\u25BC"};
+    static final String sortColumn = "Scr";
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
@@ -28,11 +32,11 @@ public class PublishNotification {
     private String slackChannel = "";
 
     /**
-     * Create an instance to generate CSV and SVG tables
+     * Create an instance to generate Markdown and SVG tables
      * 
      * @param queryFile the query to run on Deephaven
      * @param svgTemplate the SVG template to apply table results to
-     * @param outputDir the output directory to place the SVG and CSV files
+     * @param outputDir the output directory to place the SVG and Markdown files
      */
     public PublishNotification(URL queryFile, URL svgTemplate, Path outputDir) {
         this.queryFile = queryFile;
@@ -60,9 +64,10 @@ public class PublishNotification {
             aquery.fetchAfter("platform_details", table -> {
                 svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
             });
-            for (String tableName : tables) {
+            for (int i = 0; i < tables.length; i++) {
+                String tableName = tables[i], title = titles[i], arrow = sortArrows[i];
                 aquery.fetchAfter(tableName + "_small", table -> {
-                    generateCsv(table, outputDir, tableName + ".csv");
+                    generateMarkdown(table, title, arrow, outputDir, tableName + ".md");
                 });
                 aquery.fetchAfter(tableName + "_large", table -> {
                     generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
@@ -77,41 +82,79 @@ public class PublishNotification {
     }
 
     void publishToSlack(Path outDir) {
-        var message = "Nightly Benchmark Changes " +
-                "<https://controller.try-dh.demo.community.deephaven.io/get_ide| (Benchmark Tables)>\n";
-
-        for (String table : tables) {
-            message += "*" + table.replace("_", " ") + "*\n";
-            message += "```" + Filer.getFileText(outDir.resolve(table + ".csv")) + "```\n";
-        }
-
-        var payload = """
-        {"channel": "${channel}", "unfurl_links": "false", "unfurl_media": "false", "text": "${msg}"}
-        """;
-        payload = payload.replace("${channel}", slackChannel);
-        payload = payload.replace("${msg}", message);
+        var payload = getSlackPayload(outDir);
         try {
             System.out.println("-- Pushing notification to Slack --");
             URL url = new URI("https://slack.com/api/chat.postMessage").toURL();
             var c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("POST");
             c.setDoOutput(true);
-            c.setRequestProperty("Content-Type", "application/json");
+            c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             c.setRequestProperty("Accept", "application/json");
             c.setRequestProperty("Authorization", "Bearer " + slackToken);
-            byte[] out = payload.getBytes(StandardCharsets.UTF_8);
-            OutputStream stream = c.getOutputStream();
-            stream.write(out);
-            System.out.println("-- Slack Response: " + c.getResponseCode() + " " + c.getResponseMessage() + "--");
+            try (OutputStream stream = c.getOutputStream()) {
+                stream.write(payload.getBytes(StandardCharsets.UTF_8));
+            }
+            var in = (c.getResponseCode() < 400) ? c.getInputStream() : c.getErrorStream();
+            var body = (in == null) ? "" : new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            System.out.println("-- Slack Response: " + c.getResponseCode() + " " + body + " --");
             c.disconnect();
         } catch (Exception ex) {
             System.out.println("Failed to Post to channel: " + slackChannel);
         }
     }
 
-    void generateCsv(ResultTable table, Path outDir, String fileName) {
-        var s = table.toCsv("  ", "LR");
-        Filer.putFileText(outDir.resolve(fileName), s);
+    String getSlackPayload(Path outDir) {
+        var message = "Nightly Benchmark Changes " +
+                "[(Benchmark Tables)](https://controller.try-dh.demo.community.deephaven.io/get_ide)\n";
+
+        for (String table : tables) {
+            message += "\n" + Filer.getFileText(outDir.resolve(table + ".md")) + "\n";
+        }
+
+        var payload = """
+        {"channel": "${channel}", "unfurl_links": false, "unfurl_media": false, \
+        "text": "Nightly Benchmark Changes", "blocks": [{"type": "markdown", "text": "${msg}"}]}""";
+        payload = payload.replace("${channel}", toJsonString(slackChannel));
+        return payload.replace("${msg}", toJsonString(message));
+    }
+
+    void generateMarkdown(ResultTable table, String title, String sortArrow, Path outDir, String fileName) {
+        var columnNames = table.getColumnNames();
+        var headers = new ArrayList<Object>(columnNames);
+        headers.set(0, headers.get(0) + " (" + title + ")");
+        int sortIndex = headers.indexOf(sortColumn);
+        if (sortIndex >= 0)
+            headers.set(sortIndex, sortColumn + ' ' + sortArrow);
+        var md = new StringBuilder(getMarkdownRow(headers));
+        md.append("\n|").append(":---|").append("---:|".repeat(columnNames.size() - 1));
+        for (int i = 0, n = table.getRowCount(); i < n; i++) {
+            md.append('\n').append(getMarkdownRow(table.getRow(i, columnNames)));
+        }
+        Filer.putFileText(outDir.resolve(fileName), md.toString());
+    }
+
+    private String getMarkdownRow(List<?> values) {
+        var str = "|";
+        for (Object value : values) {
+            str += ' ' + String.valueOf(value).replaceAll("([\\\\|*_`~])", "\\\\$1") + " |";
+        }
+        return str;
+    }
+
+    static String toJsonString(String text) {
+        var str = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            switch (c) {
+                case '"' -> str.append("\\\"");
+                case '\\' -> str.append("\\\\");
+                case '\n' -> str.append("\\n");
+                case '\r' -> str.append("\\r");
+                case '\t' -> str.append("\\t");
+                default -> str.append((c < 0x20) ? String.format("\\u%04x", (int) c) : String.valueOf(c));
+            }
+        }
+        return str.toString();
     }
 
     String updatePlatformDetails(ResultTable platform, String svgTemplate) {
