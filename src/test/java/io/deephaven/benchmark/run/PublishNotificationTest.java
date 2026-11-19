@@ -74,9 +74,9 @@ public class PublishNotificationTest {
         Path mdFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("nightly_worst_rate_change.md");
         var p = new PublishNotification(null, svgTemplate, mdFile.getParent());
         var t = CachedResultTable.create(csv, "|");
-        p.generateMarkdown(t, "Worst Scores", "\u25B2", mdFile.getParent(), mdFile.getFileName().toString());
+        p.generateMarkdown(t, "Worst Scores by Scr", mdFile.getParent(), mdFile.getFileName().toString());
         assertEquals("""
-        | Static\\_Benchmark (Worst Scores) | Start\\_Time | End\\_Time | Days | Variability | Rate | Change |
+        | Static\\_Benchmark (Worst Scores by Scr) | Start\\_Time | End\\_Time | Days | Variability | Rate | Change |
         |:---|---:|---:|---:|---:|---:|---:|
         | Update- 2 Calcs Using Int | 2023-09-08 | 2023-09-23 | 15 | 34.6% | 79,548,166 | -50.6% |
         | Vector- 5 Calcs 1M Groups Dense Data | 2023-09-08 | 2023-09-23 | 15 | 9.7% | 37,505,860 | -15.5% |
@@ -94,14 +94,14 @@ public class PublishNotificationTest {
         Benchmark,Scr
         S Sort- "Quoted" a|b *c* d_e,-1.0%
         """, ",");
-        p.generateMarkdown(t, "Worst Scores", "\u25B2", outDir, "nightly_worst_score.md");
-        p.generateMarkdown(t, "Best Scores", "\u25BC", outDir, "nightly_best_score.md");
+        p.generateMarkdown(t, "Worst Scores by Scr", outDir, "nightly_worst_score.md");
+        p.generateMarkdown(t, "Best Scores by Scr", outDir, "nightly_best_score.md");
         var row = "\\n|:---|---:|\\n| S Sort- \\\"Quoted\\\" a\\\\|b \\\\*c\\\\* d\\\\_e | -1.0% |";
         assertEquals("{\"channel\": \"\", \"unfurl_links\": false, \"unfurl_media\": false, "
                 + "\"text\": \"Nightly Benchmark Changes\", \"blocks\": [{\"type\": \"markdown\", \"text\": "
                 + "\"Nightly Benchmark Changes [(Benchmark Tables)](https://controller.try-dh.demo.community.deephaven.io/get_ide)\\n"
-                + "\\n| Benchmark (Worst Scores) | Scr \u25B2 |" + row + "\\n"
-                + "\\n| Benchmark (Best Scores) | Scr \u25BC |" + row + "\\n\"}]}", p.getSlackPayload(outDir));
+                + "\\n| Benchmark (Worst Scores by Scr) | Scr |" + row + "\\n"
+                + "\\n| Benchmark (Best Scores by Scr) | Scr |" + row + "\\n\"}]}", p.getSlackPayload(outDir));
     }
 
 }

@@ -81,7 +81,7 @@ def short_rate(rate) -> str:
         value /= 1000
 
 nightly_worst_score_small = nightly_worst_score_large \
-    .head(10) \
+    .head(20) \
     .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
         'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
     .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
@@ -100,7 +100,7 @@ nightly_best_score_large = nightly_score \
         'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'])
 
 nightly_best_score_small = nightly_best_score_large \
-    .head(10) \
+    .head(20) \
     .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
         'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
     .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',

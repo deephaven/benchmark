@@ -22,9 +22,7 @@ import io.deephaven.benchmark.util.Filer;
 public class PublishNotification {
     static final String rowIndent = " ".repeat(10);
     final String[] tables = {"nightly_worst_score", "nightly_best_score"};
-    final String[] titles = {"Worst Scores", "Best Scores"};
-    final String[] sortArrows = {"\u25B2", "\u25BC"};
-    static final String sortColumn = "Scr";
+    final String[] titles = {"Worst Scores by Scr", "Best Scores by Scr"};
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
@@ -65,9 +63,9 @@ public class PublishNotification {
                 svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
             });
             for (int i = 0; i < tables.length; i++) {
-                String tableName = tables[i], title = titles[i], arrow = sortArrows[i];
+                String tableName = tables[i], title = titles[i];
                 aquery.fetchAfter(tableName + "_small", table -> {
-                    generateMarkdown(table, title, arrow, outputDir, tableName + ".md");
+                    generateMarkdown(table, title, outputDir, tableName + ".md");
                 });
                 aquery.fetchAfter(tableName + "_large", table -> {
                     generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
@@ -119,13 +117,10 @@ public class PublishNotification {
         return payload.replace("${msg}", toJsonString(message));
     }
 
-    void generateMarkdown(ResultTable table, String title, String sortArrow, Path outDir, String fileName) {
+    void generateMarkdown(ResultTable table, String title, Path outDir, String fileName) {
         var columnNames = table.getColumnNames();
         var headers = new ArrayList<Object>(columnNames);
         headers.set(0, headers.get(0) + " (" + title + ")");
-        int sortIndex = headers.indexOf(sortColumn);
-        if (sortIndex >= 0)
-            headers.set(sortIndex, sortColumn + ' ' + sortArrow);
         var md = new StringBuilder(getMarkdownRow(headers));
         md.append("\n|").append(":---|").append("---:|".repeat(columnNames.size() - 1));
         for (int i = 0, n = table.getRowCount(); i < n; i++) {
