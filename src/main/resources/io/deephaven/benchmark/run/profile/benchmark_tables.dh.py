@@ -99,6 +99,9 @@ def download_file(uri, out_path, attempts=3):
         try:
             with urlopen(uri, timeout=60) as r, open(tmp_path, 'wb') as f:
                 shutil.copyfileobj(r, f)
+                expected_length = r.headers.get('Content-Length')
+                if expected_length is not None and f.tell() < int(expected_length):
+                    raise OSError('Incomplete download: ' + uri)
             os.replace(tmp_path, out_path)
             return
         except Exception as ex:
