@@ -14,7 +14,6 @@ public class WhereNotInTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
         from deephaven.column import string_col, int_col
@@ -30,21 +29,21 @@ public class WhereNotInTest {
 
     @Test
     void whereNotIn1Filter() {
-        runner.setScaleFactors(80, 75);
+        runner.setScaleFactors(480, 450);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereNotIn- 1 Filter Col", q, "key1", "num1");
     }
 
     @Test
     void whereNotIn2Filter() {
-        runner.setScaleFactors(75, 65);
+        runner.setScaleFactors(280, 140);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
         runner.test("WhereNotIn- 2 Filter Cols", q, "key1", "key2", "num1");
     }
 
     @Test
     void whereNotIn3Filter() {
-        runner.setScaleFactors(55, 50);
+        runner.setScaleFactors(330, 170);
         var q = "source.where_not_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
         runner.test("WhereNotIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }

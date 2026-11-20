@@ -14,10 +14,15 @@ public class EmMinTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
 
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
+
     @Test
     @Tag("Iterate")
     void emMinTick0Group1Col() {
-        setup.factors(6, 14, 11);
+        runner.setScaleFactors(84, 66);
         setup.emTick0Groups("emmin_tick");
         var q = "timed.update_by(ops=[dk])";
         runner.test("EmMinTick- No Groups 1 Col", q, "num1");
@@ -25,7 +30,7 @@ public class EmMinTickTest {
 
     @Test
     void emMinTick1Group1Col() {
-        setup.factors(5, 5, 1);
+        runner.setScaleFactors(26, 5.1);
         setup.emTick1Group("emmin_tick");
         var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmMinTick- 1 Group 100 Unique Vals", q, "key1", "num1");
@@ -33,7 +38,7 @@ public class EmMinTickTest {
 
     @Test
     void emMinTick2Group1Col() {
-        setup.factors(2, 3, 1);
+        runner.setScaleFactors(6.8, 2.4);
         setup.emTick2Groups("emmin_tick");
         var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmMinTick- 2 Group 10K Unique Combos", q, "key1", "key2", "num1");
@@ -41,7 +46,7 @@ public class EmMinTickTest {
 
     @Test
     void emMinTick3Groups1Col() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(3.1, 0.8);
         setup.emTick3Groups("emmin_tick");
         var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmMinTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");

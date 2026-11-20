@@ -15,16 +15,15 @@ public class InlineFormulaTest {
     final String calc1cols2 = "'New1 = (float)((num2 + num1) / 2)'";
     final String calc2cols2 = "'New1 = (float)((num2 + num1) / 2)', 'New2 = (float)(num2 - num1)'";
 
-    void setup(int rowFactor, int staticFactor, int incFactor) {
-        runner.setRowFactor(rowFactor);
+    @BeforeEach
+    void setup() {
         runner.tables("source");
-        runner.setScaleFactors(staticFactor, incFactor);
     }
 
     @Test
     @Tag("Iterate")
     void select1Calc1ColFormula() {
-        setup(6, 22, 8);
+        runner.setScaleFactors(130, 48);
         var q = "source.select(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("Select-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
@@ -32,7 +31,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void select1Calc2ColsFormula() {
-        setup(6, 14, 7);
+        runner.setScaleFactors(84, 42);
         var q = "source.select(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
         runner.test("Select-Sum- 1 Calc Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -40,7 +39,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void select2Calcs2ColsFormula() {
-        setup(6, 12, 6);
+        runner.setScaleFactors(72, 36);
         var q = "source.select(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
         runner.test("Select-Sum- 2 Calcs Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -48,7 +47,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void update1Calc1ColsFormula() {
-        setup(6, 32, 20);
+        runner.setScaleFactors(190, 120);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("Update-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
@@ -56,7 +55,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void update1Calc2ColsFormula() {
-        setup(6, 22, 16);
+        runner.setScaleFactors(130, 96);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
         runner.test("Update-Sum- 1 Calc Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -64,28 +63,28 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void update2Calcs2ColsFormula() {
-        setup(6, 16, 10);
+        runner.setScaleFactors(96, 60);
         var q = "source.update([${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
         runner.test("Update-Sum- 2 Calcs Using 2 Cols", 1, q, "num1", "num2");
     }
 
     @Test
     void view1Calc1ColFormula() {
-        setup(6, 32, 32);
+        runner.setScaleFactors(200, 180);
         var q = "source.view(['num2',${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("View-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
 
     @Test
     void view1Calc2ColsFormula() {
-        setup(6, 23, 22);
+        runner.setScaleFactors(140, 120);
         var q = "source.view(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
         runner.test("View-Sum- 1 Calc Using 2 Cols", 1, q, "num1", "num2");
     }
 
     @Test
     void view2Calcs2ColsFormula() {
-        setup(6, 17, 15);
+        runner.setScaleFactors(91, 86);
         var q = "source.view(['num1','num2',${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
         runner.test("View-Sum- 2 Calcs Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -93,7 +92,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void updateView1Calc1ColFormula() {
-        setup(6, 37, 35);
+        runner.setScaleFactors(220, 210);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc1col1);
         runner.test("UpdateView-Sum- 1 Calc Using 1 Col", 1, q, "num2");
     }
@@ -101,7 +100,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void updateView1Calc2ColsFormula() {
-        setup(6, 22, 20);
+        runner.setScaleFactors(130, 120);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc1cols2);
         runner.test("UpdateView-Sum- 1 Calc Using 2 Cols", 1, q, "num1", "num2");
     }
@@ -109,7 +108,7 @@ public class InlineFormulaTest {
     @Test
     @Tag("Iterate")
     void updateView2Calcs2ColsFormula() {
-        setup(6, 17, 17);
+        runner.setScaleFactors(100, 100);
         var q = "source.update_view([${calcs}]).sum_by()".replace("${calcs}", calc2cols2);
         runner.test("UpdateView-Sum- 2 Calcs Using 2 Cols", 1, q, "num1", "num2");
     }

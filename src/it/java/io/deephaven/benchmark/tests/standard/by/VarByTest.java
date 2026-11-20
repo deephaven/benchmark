@@ -12,34 +12,33 @@ public class VarByTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
         runner.tables("source");
     }
 
     @Test
     void varBy0Group() {
-        runner.setScaleFactors(30, 30);
+        runner.setScaleFactors(180, 170);
         var q = "source.var_by()";
         runner.test("VarBy- No Groups", 1, q, "key3", "num1", "num2");
     }
 
     @Test
     void varBy1Group() {
-        runner.setScaleFactors(11, 10);
+        runner.setScaleFactors(58, 54);
         var q = "source.var_by(by=['key1'])";
         runner.test("VarBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
     void varBy2Groups() {
-        runner.setScaleFactors(3, 2);
+        runner.setScaleFactors(17, 12);
         var q = "source.var_by(by=['key1', 'key2'])";
         runner.test("VarBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
     void varBy3Groups() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(9, 6.8);
         var q = "source.var_by(by=['key1', 'key2', 'key3'])";
         runner.test("VarBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

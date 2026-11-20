@@ -59,12 +59,12 @@ final public class TrainTestRunner {
     void test(String name, long maxExpectedRowCount, String operation, double rowFactor, boolean isStatic,
             String... loadColumns) {
         var delegate = new StandardTestRunner(testInst);
-        var baseRowCount = delegate.getGeneratedRowCount();
+        var baseRowCount = delegate.getMainTableRowCount();
         delegate.useCachedSource(false);
         delegate.useLocalParquet(true);
-        delegate.setRowFactor(maxRowFactor);
+        delegate.setMaxRowFactor(maxRowFactor);
+        delegate.setScaleFactors(isStatic ? maxRowFactor : 0, isStatic ? 0 : maxRowFactor);
         delegate.tables(tableNames);
-        delegate.setScaleFactors(isStatic ? 1 : 0, isStatic ? 0 : 1);
 
         var headQuery = """
         ${mainTable} = ${mainTable}.head(${trainRowCount})

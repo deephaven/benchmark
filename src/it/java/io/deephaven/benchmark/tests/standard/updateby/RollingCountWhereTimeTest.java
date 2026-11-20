@@ -14,6 +14,11 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class RollingCountWhereTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
+
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
     final String fifty1Group = """
         from deephaven.updateby import rolling_count_where_time
         contains_row = rolling_count_where_time("timestamp",'X',filters=["num1 > 3"],rev_time="PT2S",fwd_time="PT3S")
@@ -25,7 +30,7 @@ public class RollingCountWhereTimeTest {
 
     @Test
     void rollingCountWhereTime1Group3Ops() {
-        setup.factors(4, 2, 0);
+        runner.setScaleFactors(9, 0);
         runner.addSetupQuery(fifty1Group);
         var q = "timed.update_by(ops=[contains_row], by=['key1'])";
         runner.test("RollingCountWhereTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
@@ -33,7 +38,7 @@ public class RollingCountWhereTimeTest {
 
     @Test
     void rollingCountWhereTime2Groups3Ops() {
-        setup.factors(2, 2, 1);
+        runner.setScaleFactors(4.3, 1.8);
         runner.addSetupQuery(fifty2Groups);
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
         runner.test("RollingCountWhereTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");

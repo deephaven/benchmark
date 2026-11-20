@@ -17,21 +17,21 @@ public class PartitionByTest {
 
     @Test
     void partitionBy1Group() {
-        runner.setScaleFactors(44, 9);
+        runner.setScaleFactors(44, 8.2);
         var q = "source.partition_by(by=['key1']).table";
         runner.test("PartitionBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
     void partitionBy2Groups() {
-        runner.setScaleFactors(8, 4);
+        runner.setScaleFactors(7.6, 3.5);
         var q = "source.partition_by(by=['key1', 'key2']).table";
         runner.test("PartitionBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
     void partitionBy3Groups() {
-        runner.setScaleFactors(4, 2);
+        runner.setScaleFactors(3.4, 1.6);
         var q = "source.partition_by(by=['key1', 'key2', 'key3']).table";
         runner.test("PartitionBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

@@ -15,9 +15,14 @@ public class RollingStdTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
 
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
+
     @Test
     void rollingStdTick0Group3Ops() {
-        setup.factors(3, 1, 1);
+        runner.setScaleFactors(3.2, 2.8);
         setup.rollTick0Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row])";
         runner.test("RollingStdTick- No Groups 1 Col", q, "num1");
@@ -25,7 +30,7 @@ public class RollingStdTickTest {
 
     @Test
     void rollingStdTick1Group3Ops() {
-        setup.factors(5, 3, 1);
+        runner.setScaleFactors(14, 4.6);
         setup.rollTick1Group("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row], by=['key1'])";
         runner.test("RollingStdTick- 1 Group 100 Unique Vals", q, "key1", "num1");
@@ -33,7 +38,7 @@ public class RollingStdTickTest {
 
     @Test
     void rollingStdTime2Groups3Ops() {
-        setup.factors(2, 3, 1);
+        runner.setScaleFactors(5.7, 2.2);
         setup.rollTick2Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
         runner.test("RollingStdTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
@@ -41,7 +46,7 @@ public class RollingStdTickTest {
 
     @Test
     void rollingStdTime3Groups3Ops() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(2.7, 0.55);
         setup.rollTick3Groups("rolling_std_tick");
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2','key3'])";
         runner.test("RollingStdTick- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");

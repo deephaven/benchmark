@@ -13,35 +13,34 @@ public class CumMinTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import cum_min");
     }
 
     @Test
     void cumMin0Group1Col() {
-        runner.setScaleFactors(35, 25);
+        runner.setScaleFactors(120, 100);
         var q = "timed.update_by(ops=cum_min(cols=['X=num1']))";
         runner.test("CumMin- No Groups 1 Cols", q, "num1");
     }
 
     @Test
     void cumMin1Group1Col() {
-        runner.setScaleFactors(7, 2);
+        runner.setScaleFactors(26, 5);
         var q = "timed.update_by(ops=cum_min(cols=['X=num1']), by=['key1'])";
         runner.test("CumMin- 1 Group 100 Unique", q, "key1", "num1");
     }
 
     @Test
     void cumMin2Group1Col() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(6.6, 2.6);
         var q = "timed.update_by(ops=cum_min(cols=['X=num1']), by=['key1','key2'])";
         runner.test("CumMin- 2 Groups 10K Unique Vals", q, "key1", "key2", "num1");
     }
 
     @Test
     void cumMin3Groups1Col() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(2.9, 0.75);
         var q = "timed.update_by(ops=cum_min(cols=['X=num1']), by=['key1','key2','key3'])";
         runner.test("CumMin- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }

@@ -14,10 +14,15 @@ public class EmsTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
 
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
+
     @Test
     @Tag("Iterate")
     void emsTime0Group1Col() {
-        setup.factors(5, 11, 8);
+        runner.setScaleFactors(39, 40);
         setup.emTime0Groups("ems_time");
         var q = "timed.update_by(ops=[dk])";
         runner.test("EmsTime- No Groups 1 Col", q, "num1", "timestamp");
@@ -25,7 +30,7 @@ public class EmsTimeTest {
 
     @Test
     void emsTime1Group1Col() {
-        setup.factors(5, 5, 1);
+        runner.setScaleFactors(23, 5);
         setup.emTime1Group("ems_time");
         var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmsTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
@@ -33,7 +38,7 @@ public class EmsTimeTest {
 
     @Test
     void emsTime2Groups1Col() {
-        setup.factors(2, 3, 1);
+        runner.setScaleFactors(6.2, 2.4);
         setup.emTime2Groups("ems_time");
         var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmsTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
@@ -41,7 +46,7 @@ public class EmsTimeTest {
 
     @Test
     void emsTime3Groups1Col() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(3.1, 0.75);
         setup.emTime3Groups("ems_time");
         var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmsTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");

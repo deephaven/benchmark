@@ -13,35 +13,34 @@ public class CumSumTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(4);
         runner.tables("timed");
         runner.addSetupQuery("from deephaven.updateby import cum_sum");
     }
 
     @Test
     void cumSum0Group1Col() {
-        runner.setScaleFactors(35, 25);
+        runner.setScaleFactors(120, 100);
         var q = "timed.update_by(ops=cum_sum(cols=['X=num1']))";
         runner.test("CumSum- No Groups 1 Col", q, "num1");
     }
 
     @Test
     void cumSum1Group1Col() {
-        runner.setScaleFactors(7, 2);
+        runner.setScaleFactors(26, 5);
         var q = "timed.update_by(ops=cum_sum(cols=['X=num1']), by=['key1'])";
         runner.test("CumSum- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
     
     @Test
     void cumSum2Groups1Col() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(6.6, 2.6);
         var q = "timed.update_by(ops=cum_sum(cols=['X=num1']), by=['key1','key2'])";
         runner.test("CumSum- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
     
     @Test
     void cumSum3Groups1Col() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(2.9, 0.75);
         var q = "timed.update_by(ops=cum_sum(cols=['X=num1']), by=['key1','key2','key3'])";
         runner.test("CumSum- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }

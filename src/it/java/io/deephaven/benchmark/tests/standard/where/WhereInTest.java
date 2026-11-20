@@ -14,7 +14,6 @@ public class WhereInTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
         runner.tables("source");
         var setup = """
         from deephaven.column import string_col, int_col
@@ -30,21 +29,21 @@ public class WhereInTest {
 
     @Test
     void whereIn1Filter() {
-        runner.setScaleFactors(135, 100);
+        runner.setScaleFactors(810, 600);
         var q = "source.where_in(where_filter, cols=['key1 = set1'])";
         runner.test("WhereIn- 1 Filter Col", q, "key1", "num1");
     }
 
     @Test
     void whereIn2Filter() {
-        runner.setScaleFactors(67, 65);
+        runner.setScaleFactors(400, 390);
         var q = "source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2'])";
         runner.test("WhereIn- 2 Filter Cols", q, "key1", "key2", "num1");
     }
     
     @Test
     void whereIn3Filter() {
-        runner.setScaleFactors(52, 50);
+        runner.setScaleFactors(310, 300);
         var q = "source.where_in(where_filter, cols=['key1 = set1', 'key2 = set2', 'key3 = set3'])";
         runner.test("WhereIn- 3 Filter Cols", q, "key1", "key2", "key3", "num1");
     }

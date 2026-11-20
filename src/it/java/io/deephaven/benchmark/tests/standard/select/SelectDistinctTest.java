@@ -12,27 +12,26 @@ public class SelectDistinctTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(6);
         runner.tables("source");
     }
 
     @Test
     void selectDistict1Group() {
-        runner.setScaleFactors(15, 15);
+        runner.setScaleFactors(73, 70);
         var q = "source.select_distinct(formulas=['key1'])";
         runner.test("SelectDistinct- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
     void selectDistict2Groups() {
-        runner.setScaleFactors(4, 4);
+        runner.setScaleFactors(26, 20);
         var q = "source.select_distinct(formulas=['key1', 'key2'])";
         runner.test("SelectDistinct- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
     
     @Test
     void selectDistict3Groups() {
-        runner.setScaleFactors(2, 2);
+        runner.setScaleFactors(12, 10);
         var q = "source.select_distinct(formulas=['key1', 'key2', 'key3'])";
         runner.test("SelectDistinct- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

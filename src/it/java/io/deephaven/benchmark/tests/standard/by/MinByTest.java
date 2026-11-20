@@ -12,34 +12,34 @@ public class MinByTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(4);
+        runner.setMaxRowFactor(4);
         runner.tables("source");
     }
 
     @Test
     void minBy0Groups() {
-        runner.setScaleFactors(20, 1);
+        runner.setScaleFactors(100, 3.5);
         var q = "source.min_by()";
         runner.test("MinBy- No Groups", 1, q, "key1", "key2", "num1");
     }
 
     @Test
     void minBy1Group() {
-        runner.setScaleFactors(18, 8);
+        runner.setScaleFactors(63, 36);
         var q = "source.min_by(by=['key1'])";
         runner.test("MinBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
     void minBy2Groups() {
-        runner.setScaleFactors(4, 2);
+        runner.setScaleFactors(20, 8.8);
         var q = "source.min_by(by=['key1', 'key2'])";
         runner.test("MinBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
     void minBy3Groups() {
-        runner.setScaleFactors(3, 1);
+        runner.setScaleFactors(11, 3);
         var q = "source.min_by(by=['key1', 'key2', 'key3'])";
         runner.test("MinBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }

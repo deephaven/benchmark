@@ -11,28 +11,28 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class SortDescendingTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int staticFactor, int incFactor) {
+    @BeforeEach
+    void setup() {
         runner.tables("source");
-        runner.setScaleFactors(staticFactor, incFactor);
     }
 
     @Test
     void sort1Col() {
-        setup(3, 1);
+        runner.setScaleFactors(26, 1.1);
         var q = "source.sort(order_by=['key1'])";
         runner.test("Sort- 1 Col Descending", q, "key1", "num1");
     }
 
     @Test
     void sort2Cols() {
-        setup(3, 1);
+        runner.setScaleFactors(7.8, 0.9);
         var q = "source.sort(order_by=['key1', 'key2'])";
         runner.test("Sort- 2 Cols Descending", q, "key1", "key2", "num1");
     }
 
     @Test
     void sort3Cols() {
-        setup(3, 1);
+        runner.setScaleFactors(4.7, 0.55);
         var q = "source.sort(order_by=['key1', 'key2', 'key3'])";
         runner.test("Sort- 3 Cols Descending", q, "key1", "key2", "key3", "num1");
     }

@@ -42,6 +42,7 @@ public class RollingComboTest {
 
     @BeforeEach
     void setup() {
+        runner.tables("timed");
         var setup = """
         from deephaven.updateby import rolling_sum_time, rolling_min_time, rolling_prod_time
         from deephaven.updateby import rolling_avg_tick, rolling_max_tick, rolling_group_tick
@@ -55,7 +56,7 @@ public class RollingComboTest {
 
     @Test
     void rollingCombo0Groups6Ops() {
-        setup.factors(1, 1, 1);
+        runner.setScaleFactors(0.9, 0.4);
         runner.addSetupQuery(noGroups);
         var q = "timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after])";
         runner.test("RollingCombo- No Groups 12 Cols", q, "num1", "num2", "timestamp");
@@ -63,7 +64,7 @@ public class RollingComboTest {
 
     @Test
     void rollingCombo1Groups6Ops() {
-        setup.factors(2, 1, 1);
+        runner.setScaleFactors(2.3, 1);
         runner.addSetupQuery(group100);
         var q = """
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], by=['key1']);
@@ -73,7 +74,7 @@ public class RollingComboTest {
 
     @Test
     void rollingCombo2Groups6Ops() {
-        setup.factors(1, 2, 1);
+        runner.setScaleFactors(1.6, 0.35);
         runner.addSetupQuery(group10K);
         var q = """
         timed.update_by(ops=[sum_contains, min_before, prod_after, avg_contains, max_before, group_after], 
@@ -85,7 +86,7 @@ public class RollingComboTest {
 
     @Test
     void rollingCombo3Groups6Ops() {
-        setup.factors(1, 1, 1);
+        runner.setScaleFactors(1, 0.15);
         runner.addSetupQuery(group100K);
         var q = """
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], 
@@ -98,7 +99,7 @@ public class RollingComboTest {
     @Test
     @Disabled
     void rollingCombo3Groups6OpsLarge() {
-        setup.factors(1, 1, 1);
+        runner.setScaleFactors(1, 1);
         runner.addSetupQuery(group1M);
         var q = """
         timed.update_by(ops=[sum_contains,min_before,prod_after,avg_contains,max_before,group_after], 

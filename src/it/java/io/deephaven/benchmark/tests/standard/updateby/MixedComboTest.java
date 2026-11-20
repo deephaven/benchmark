@@ -38,6 +38,7 @@ public class MixedComboTest {
 
     @BeforeEach
     void setup() {
+        runner.tables("timed");
         var setup = """
         from deephaven.updateby import rolling_avg_time, rolling_max_tick, rolling_prod_time
         from deephaven.updateby import ema_tick, cum_min, cum_sum
@@ -55,7 +56,7 @@ public class MixedComboTest {
 
     @Test
     void mixedComboNoGroups6Ops() {
-        setup.factors(2, 1, 1);
+        runner.setScaleFactors(1.6, 0.7);
         runner.addSetupQuery(noGroups);
         var q = "timed.update_by(ops=[avg_contains, max_before, prod_after, ema_tick_op, min_op, sum_op])";
         runner.test("MixedCombo- No Groups 12 Cols", q, "num1", "num2", "timestamp");
@@ -63,7 +64,7 @@ public class MixedComboTest {
 
     @Test
     void mixedCombo1Group6Ops() {
-        setup.factors(2, 2, 1);
+        runner.setScaleFactors(2.8, 1.5);
         runner.addSetupQuery(group100);
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1'])
@@ -73,7 +74,7 @@ public class MixedComboTest {
 
     @Test
     void rollingCombo2Groups6Ops() {
-        setup.factors(1, 2, 1);
+        runner.setScaleFactors(2, 0.8);
         runner.addSetupQuery(group10K);
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], by=['key1','key2'])
@@ -84,7 +85,7 @@ public class MixedComboTest {
 
     @Test
     void rollingCombo3Groups6Ops() {
-        setup.factors(1, 2, 1);
+        runner.setScaleFactors(1.4, 0.15);
         runner.addSetupQuery(group100K);
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 
@@ -97,7 +98,7 @@ public class MixedComboTest {
     @Test
     @Disabled
     void rollingCombo3Groups6OpsLarge() {
-        setup.factors(1, 1, 1);
+        runner.setScaleFactors(1, 1);
         runner.addSetupQuery(group1M);
         var q = """
         timed.update_by(ops=[avg_contains,max_before,prod_after,ema_tick_op,min_op,sum_op], 

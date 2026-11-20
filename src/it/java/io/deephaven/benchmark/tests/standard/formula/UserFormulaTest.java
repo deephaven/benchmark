@@ -19,13 +19,12 @@ public class UserFormulaTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(1);
         runner.tables("source");
-        runner.setScaleFactors(1, 0);
     }
 
     @Test
     void udfDoubleArrayToDoubleNoHints() {
+        runner.setScaleFactors(0.45, 0);
         var setup = """
         def f(arr):
             return arr[0]
@@ -38,6 +37,7 @@ public class UserFormulaTest {
 
     @Test
     void udfDoubleToDoubleArrayNoHints() {
+        runner.setScaleFactors(0.25, 0);
         var setup = """
         def f(num):
             return jpy.array('double', [num] * 5)
@@ -49,6 +49,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoubleNoHints() {
+        runner.setScaleFactors(0.45, 0);
         var setup = """
         def f(num1, num2):
             return num1 + num2
@@ -60,6 +61,7 @@ public class UserFormulaTest {
     
     @Test
     void udf2DoublesToDoubleNoHintsSerial() {
+        runner.setScaleFactors(0.75, 0);
         var setup = """
         def f(num1, num2):
             return num1 + num2
@@ -74,6 +76,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoubleNoHintsNoVectorize() {
+        runner.setScaleFactors(0.35, 0);
         var setup = """
         def f(num1, num2):
             return num1 + num2
@@ -85,7 +88,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoublePythonHints() {
-        runner.setScaleFactors(3, 0);
+        runner.setScaleFactors(3.5, 0);
         var setup = """
         def f(num1: float, num2: float) -> float:
             return num1 + num2
@@ -97,7 +100,7 @@ public class UserFormulaTest {
     
     @Test
     void udf2DoublesToDoublePythonHintsSerial() {
-        runner.setScaleFactors(3, 0);
+        runner.setScaleFactors(3.5, 0);
         var setup = """
         def f(num1: float, num2: float) -> float:
             return num1 + num2
@@ -111,6 +114,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoublePythonHintsNoVectorize() {
+        runner.setScaleFactors(0.35, 0);
         var setup = """
         def f(num1: float, num2: float) -> float:
             return num1 + num2
@@ -123,6 +127,7 @@ public class UserFormulaTest {
 
     @Test
     void udfDoubleArrayToDoubleNumpyHints() {
+        runner.setScaleFactors(0.35, 0);
         var setup = """
         def f(arr: npt.NDArray[np.float64]) -> np.float64:
             return arr[0]
@@ -135,6 +140,7 @@ public class UserFormulaTest {
 
     @Test
     void udfDoubleToDoubleArrayNumpyHints() {
+        runner.setScaleFactors(0.2, 0);
         var setup = """
         def f(num: np.float64) -> npt.NDArray[np.float64]:
             return np.repeat(num,5)
@@ -146,6 +152,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoubleNumpyHints() {
+        runner.setScaleFactors(0.7, 0);
         var setup = """
         def f(num1: np.float64, num2: np.float64) -> np.float64:
             return num1 + num2
@@ -157,6 +164,7 @@ public class UserFormulaTest {
     
     @Test
     void udf2DoublesToDoubleNumpyHintsSerial() {
+        runner.setScaleFactors(0.7, 0);
         var setup = """
         def f(num1: np.float64, num2: np.float64) -> np.float64:
             return num1 + num2
@@ -170,6 +178,7 @@ public class UserFormulaTest {
 
     @Test
     void udf2DoublesToDoubleNumpyHintsNoVectorize() {
+        runner.setScaleFactors(0.25, 0);
         var setup = """
         def f(num1: np.float64, num2: np.float64) -> np.float64:
             return num1 + num2

@@ -15,11 +15,10 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class DataIndexBenefitTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int rowFactor, int staticFactor, int incFactor) {
-        runner.setRowFactor(rowFactor);
+    @BeforeEach
+    void setup() {
+        runner.setMaxRowFactor(1);
         runner.tables("source", "right");
-        runner.setScaleFactors(staticFactor, incFactor);
-
         var setup = """
         from deephaven.experimental.data_index import data_index
         QueryTable = jpy.get_type('io.deephaven.engine.table.impl.QueryTable')
@@ -34,7 +33,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(1)
     void dataIndexWhereInNoIndex() {
-        setup(1, 250, 225);
+        runner.setScaleFactors(250, 220);
 
         var op = """
         source.where_in(filter_table, cols=['key1 = set1', 'key2 = set2', 'key4 = set3'])
@@ -46,7 +45,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(2)
     void dataIndexWhereInIndexedStatic() {
-        setup(1, 8, 0);
+        runner.setScaleFactors(8, 0);
 
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -66,7 +65,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(3)
     void dataIndexWhereInIndexedInc() {
-        setup(1, 0, 2);
+        runner.setScaleFactors(0, 2);
 
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -86,7 +85,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(4)
     void dataIndexAvgByNoIndex() {
-        setup(1, 6, 0);
+        runner.setScaleFactors(6, 0);
 
         var op = """
         source.avg_by(by=['key1','key2','key4'])
@@ -98,7 +97,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(5)
     void dataIndexAvgByIndexed() {
-        setup(1, 8, 0);
+        runner.setScaleFactors(8, 0);
 
         var preOp = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -113,11 +112,10 @@ public class DataIndexBenefitTest {
         runner.test("DataIndex-AvgBy Indexed 1M Unique Combos", 999900, op, "num1", "key1", "key2", "key4");
     }
 
-
     @Test
     @Order(6)
     void dataIndexSortNoIndex() {
-        setup(1, 1, 0);
+        runner.setScaleFactors(3, 0);
 
         var op = """
         source.sort(['key1','key2','key4'])
@@ -129,7 +127,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(7)
     void dataIndexSortIndexed() {
-        setup(1, 8, 0);
+        runner.setScaleFactors(8, 0);
 
         var setup = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -147,7 +145,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(8)
     void dataIndexAsOfJoinNoIndex() {
-        setup(1, 4, 0);
+        runner.setScaleFactors(4, 0);
 
         var op = """
         source.aj(right, on=['key1 = r_wild', 'key2 = r_key2', 'key4 >= r_key4'])
@@ -159,7 +157,7 @@ public class DataIndexBenefitTest {
     @Test
     @Order(9)
     void dataIndexAsOfJoinIndexed() {
-        setup(1, 4, 0);
+        runner.setScaleFactors(4, 0);
 
         var setup = """
         source_idx = data_index(source, ['key1','key2','key4'])
