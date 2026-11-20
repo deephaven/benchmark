@@ -9,9 +9,10 @@ root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https:/
 with urlopen(root + '/deephaven-benchmark/benchmark_tables.dh.py') as r:
     benchmark_storage_uri_arg = root + '/deephaven-benchmark'
     benchmark_category_arg = 'nightly'  # release | nightly
-    benchmark_max_sets_arg = 45
+    benchmark_max_sets_arg = 200
     benchmark_actor_filter_arg = 'deephaven'
     benchmark_set_filter_arg = '[0-9]{4}([-][0-9]{2}){2}'  # yyyy-mm-dd
+    benchmark_load_metrics_arg = False  # Metrics are not used for publish
     exec(r.read().decode(), globals(), locals())
 
 # Used to provide platform (e.g. hardware, jvm version) for SVG footer during publish
@@ -52,6 +53,17 @@ nightly_score = bench_results.sort_descending(['benchmark_name','timestamp','dee
         'prev_vers_score=zscore(op_rate,last_5_prev_vers_rates)',
         'prob=zprob(score)'])
 
+# Major version of the previous release used for Since_Release (e.g. 42.6 -> 42)
+def major_version(version) -> str:
+    return version.split('.')[0]
+
+nightly_release = nightly_score.view(['Release=(String)deephaven_version[1]']) \
+    .where(['!isNull(Release)']) \
+    .update(['Release=major_version(Release)']) \
+    .count_by('Count', ['Release']) \
+    .sort_descending(['Count']) \
+    .head(1)
+
 nightly_worst_score_large = nightly_score \
     .view(['Benchmark=benchmark_name',
         'Variability=var_rate/100','Rate=op_rate',
@@ -81,11 +93,11 @@ def short_rate(rate) -> str:
         value /= 1000
 
 nightly_worst_score_small = nightly_worst_score_large \
-    .head(10) \
-    .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
-        'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
-    .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
-        'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
+    .head(20) \
+    .view(['Benchmark=benchname(Benchmark)','Dif5d=Change',
+        'Rate=short_rate(Rate)','DifRls=Since_Release','Scr=Score','Var5d=Variability','pval=Score_Prob']) \
+    .format_columns(['Dif5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+        'DifRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','pval=Decimal(`0.00%`)'])
 
 nightly_best_score_large = nightly_score \
     .view(['Benchmark=benchmark_name',
@@ -100,11 +112,11 @@ nightly_best_score_large = nightly_score \
         'Score=Decimal(`0.0`)','Score_Prob=Decimal(`0.00%`)'])
 
 nightly_best_score_small = nightly_best_score_large \
-    .head(10) \
-    .view(['Benchmark=benchname(Benchmark)','Chng5d=Change',
-        'Var5d=Variability','Rate=short_rate(Rate)','ChngRls=Since_Release','Scr=Score','ScrProb=Score_Prob']) \
-    .format_columns(['Chng5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
-        'ChngRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','ScrProb=Decimal(`0.00%`)'])
+    .head(20) \
+    .view(['Benchmark=benchname(Benchmark)','Dif5d=Change',
+        'Rate=short_rate(Rate)','DifRls=Since_Release','Scr=Score','Var5d=Variability','pval=Score_Prob']) \
+    .format_columns(['Dif5d=Decimal(`0.0%`)','Var5d=Decimal(`0.0%`)',
+        'DifRls=Decimal(`0.0%`)','Scr=Decimal(`0.0`)','pval=Decimal(`0.00%`)'])
 
 bench_results = bench_metrics = bench_platforms = bench_metrics_diff = None
 bench_results_change = bench_results_diff = None

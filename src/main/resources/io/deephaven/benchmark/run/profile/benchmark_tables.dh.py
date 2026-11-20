@@ -4,11 +4,15 @@
 # some useful correlated tables
 # Requirements: Deephaven 0.32.0 or greater
 
-import os, re, glob, jpy
+import os, re, glob, jpy, time, shutil
 import deephaven.dtypes as dht
 from deephaven import read_csv, merge, agg, empty_table
-from urllib.request import urlopen, urlretrieve
+from urllib.request import urlopen
+from urllib.error import HTTPError
 from numpy import typing as npt
+from concurrent.futures import ThreadPoolExecutor
+
+download_threads = 16
 
 # Convert the given name to a name suitable for a DH column name
 def normalize_name(name):
@@ -54,9 +58,11 @@ def get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets):
                     benchmark_sets.append(actor + '/' + set_label)
     benchmark_sets.sort(reverse=True)
     benchmark_sets = benchmark_sets[:max_sets]
+    with ThreadPoolExecutor(download_threads) as pool:
+        set_children = list(pool.map(lambda s: get_children(storage_uri, category + '/' + s, 1000), benchmark_sets))
     benchmark_runs = []
-    for set_path in benchmark_sets:
-        for run_id in get_children(storage_uri, category + '/' + set_path, 1000):
+    for set_path, run_ids in zip(benchmark_sets, set_children):
+        for run_id in run_ids:
             if run_matcher.match(run_id): 
                 benchmark_runs.append(set_path + '/' + run_id)
     return benchmark_runs
@@ -69,26 +75,50 @@ def cache_remote_csv(uri):
     except Exception as ex:
         print('Error downloading file:', out_path, ':', ex)
         return uri
+    out_path_gz = out_path + '.gz'
+    if os.path.exists(out_path_gz): return out_path_gz
+    if os.path.exists(out_path): return out_path
     try:
-        out_path_gz = out_path + '.gz'
-        if os.path.exists(out_path_gz): return out_path_gz
-        urlretrieve(uri + '.gz', out_path_gz)
+        download_file(uri + '.gz', out_path_gz)
         print('Cache', uri + '.gz')
         return out_path_gz
-    except Exception:
+    except HTTPError as ex:
+        if ex.code != 404: raise RuntimeError('Failed to cache file: ' + uri + '.gz') from ex
+    try:
+        download_file(uri, out_path)
+        print('Cache', uri)
+        return out_path
+    except Exception as ex:
+        raise RuntimeError('Failed to cache file: ' + uri + ' (no .gz or plain csv)') from ex
+
+# Download to a temp file first so an interrupted download never leaves a partial file in the cache.
+# Retry transient failures, but not a 404 (missing file)
+def download_file(uri, out_path, attempts=3):
+    tmp_path = out_path + '.part'
+    for attempt in range(attempts):
         try:
-            if os.path.exists(out_path): return out_path
-            urlretrieve(uri, out_path)
-            print('Cache', uri)
-            return out_path
+            with urlopen(uri, timeout=60) as r, open(tmp_path, 'wb') as f:
+                shutil.copyfileobj(r, f)
+                expected_length = r.headers.get('Content-Length')
+                if expected_length is not None and f.tell() < int(expected_length):
+                    raise OSError('Incomplete download: ' + uri)
+            os.replace(tmp_path, out_path)
+            return
         except Exception as ex:
-            print('Error caching file:', out_path, ':', ex)
-            return uri
+            if attempt == attempts - 1 or (isinstance(ex, HTTPError) and ex.code == 404): raise
+            print('Retry download:', uri, ':', ex)
+        finally:
+            if os.path.exists(tmp_path): os.remove(tmp_path)
+        time.sleep(2 ** attempt)
 
 # Read csv into a table (Currently, pandas is used for gzipped csv)
 def dh_read_csv(uri, convert_func):
     uri = uri.replace('file:///','/')
     uri = cache_remote_csv(uri) if uri.startswith('http') else uri
+    if uri.endswith('.gz'):
+        tbl = convert_func(read_csv(uri))
+        print('Load ' + uri)
+        return tbl
     try:
         tbl = read_csv(uri + '.gz')
         tbl = convert_func(tbl)
@@ -101,9 +131,12 @@ def dh_read_csv(uri, convert_func):
 
 # Merge together benchmark runs from the GCloud bucket for the same csv (e.g. benchmark_results.csv)
 def merge_run_tables(parent_uri, run_ids, category, csv_file_name, convert_func):
+    table_uris = [parent_uri + '/' + category + '/' + run_id + '/' + csv_file_name for run_id in run_ids]
+    if parent_uri.startswith('http'):
+        with ThreadPoolExecutor(download_threads) as pool:
+            list(pool.map(cache_remote_csv, table_uris))
     tables = []
-    for run_id in run_ids:
-        table_uri = parent_uri + '/' + category + '/' + run_id + '/' + csv_file_name
+    for run_id, table_uri in zip(run_ids, table_uris):
         table_csv = dh_read_csv(table_uri, convert_func)
         set_id = os.path.dirname(run_id)
         run_id = os.path.basename(run_id)
@@ -150,14 +183,18 @@ actor_filter = benchmark_actor_filter_arg if 'benchmark_actor_filter_arg' in glo
 set_filter = benchmark_set_filter_arg if 'benchmark_set_filter_arg' in globals() else get_default_set_filter(category)
 platform_props = benchmark_platform_props_arg if 'benchmark_platform_props_arg' in globals() else default_platform_props
 metric_props = benchmark_metric_props_arg if 'benchmark_metric_props_arg' in globals() else default_metric_props
+load_metrics = benchmark_load_metrics_arg if 'benchmark_load_metrics_arg' in globals() else True
 
 print('Running:', {'storage_uri':storage_uri,'category':category,'max_sets':max_sets,'history_runs':history_runs,
-    'actor_filter':actor_filter,'set_filter':set_filter,'platform_props':platform_props,'metric_props':metric_props})
+    'actor_filter':actor_filter,'set_filter':set_filter,'platform_props':platform_props,'metric_props':metric_props,
+    'load_metrics':load_metrics})
 
 
 run_ids = get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets)
 bench_results = merge_run_tables(storage_uri, run_ids, category, 'benchmark-results.csv', convert_result)
-bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv', convert_metric)
+bench_metrics = merge_run_tables(storage_uri, run_ids, category, 'benchmark-metrics.csv', convert_metric) if load_metrics \
+    else empty_table(0).update(['benchmark_name=(String)null','origin=(String)null','timestamp=(long)0','name=(String)null',
+        'value=(double)0','note=(String)null','set_id=(String)null','run_id=(String)null'])
 bench_platforms = merge_run_tables(storage_uri, run_ids, category, 'benchmark-platform.csv', convert_platform)
 
 # Add columns for the specified platform properties
