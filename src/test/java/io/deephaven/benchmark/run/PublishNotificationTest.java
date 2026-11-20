@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import io.deephaven.benchmark.connect.CachedResultTable;
 import io.deephaven.benchmark.util.Filer;
@@ -69,19 +70,19 @@ public class PublishNotificationTest {
     }
 
     @Test
-    public void generateMarkdown() throws Exception {
+    public void generateTableBlock() throws Exception {
         URL svgTemplate = getClass().getResource("test-publish.template.svg");
-        Path mdFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("nightly_worst_rate_change.md");
-        var p = new PublishNotification(null, svgTemplate, mdFile.getParent());
+        Path jsonFile = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("nightly_worst_rate_change.json");
+        var p = new PublishNotification(null, svgTemplate, jsonFile.getParent());
         var t = CachedResultTable.create(csv, "|");
-        p.generateMarkdown(t, "Worst Scores by Scr", mdFile.getParent(), mdFile.getFileName().toString());
-        assertEquals("""
-        | Static\\_Benchmark (Worst Scores by Scr) | Start\\_Time | End\\_Time | Days | Variability | Rate | Change |
-        |:---|---:|---:|---:|---:|---:|---:|
-        | Update- 2 Calcs Using Int | 2023-09-08 | 2023-09-23 | 15 | 34.6% | 79,548,166 | -50.6% |
-        | Vector- 5 Calcs 1M Groups Dense Data | 2023-09-08 | 2023-09-23 | 15 | 9.7% | 37,505,860 | -15.5% |
-        | CumMin- No Groups 1 Cols | 2023-09-08 | 2023-09-23 | 15 | 7.5% | 175,264,357 | -12.5% |
-        """.replace("\r", "").trim(), Filer.getFileText(mdFile));
+        p.generateTableBlock(t, "Worst Scores by Scr", jsonFile.getParent(), jsonFile.getFileName().toString());
+        assertEquals("{\"type\": \"table\", \"column_settings\": [{\"align\": \"left\", \"is_wrapped\": false}"
+                + ", {\"align\": \"right\", \"is_wrapped\": false}".repeat(6) + "], \"rows\": [\n"
+                + cells(false, "Static_Benchmark (Worst Scores by Scr)", "Start_Time", "End_Time", "Days", "Variability", "Rate", "Change") + ",\n"
+                + cells(true, "Update- 2 Calcs Using Int", "2023-09-08", "2023-09-23", "15", "34.6%", "79,548,166", "-50.6%") + ",\n"
+                + cells(true, "Vector- 5 Calcs 1M Groups Dense Data", "2023-09-08", "2023-09-23", "15", "9.7%", "37,505,860", "-15.5%") + ",\n"
+                + cells(true, "CumMin- No Groups 1 Cols", "2023-09-08", "2023-09-23", "15", "7.5%", "175,264,357", "-12.5%")
+                + "]}", Filer.getFileText(jsonFile));
     }
 
     @Test
@@ -90,18 +91,37 @@ public class PublishNotificationTest {
         Path outDir = Paths.get(svgTemplate.toURI()).getParent().resolveSibling("slack-payload");
         Files.createDirectories(outDir);
         var p = new PublishNotification(null, svgTemplate, outDir);
+        p.releaseVersion = "42";
         var t = CachedResultTable.create("""
-        Benchmark,Scr
-        S Sort- "Quoted" a|b *c* d_e,-1.0%
+        Benchmark,Dif5d,DifRls,Var5d
+        S Sort- "Quoted" a|b *c* d_e,-1.0%,-2.0%,0.5%
         """, ",");
-        p.generateMarkdown(t, "Worst Scores by Scr", outDir, "nightly_worst_score.md");
-        p.generateMarkdown(t, "Best Scores by Scr", outDir, "nightly_best_score.md");
-        var row = "\\n|:---|---:|\\n| S Sort- \\\"Quoted\\\" a\\\\|b \\\\*c\\\\* d\\\\_e | -1.0% |";
+        p.generateTableBlock(t, "Worst Scores by Scr", outDir, "nightly_worst_score.json");
+        p.generateTableBlock(t, "Best Scores by Scr", outDir, "nightly_best_score.json");
+        var table = """
+        {"type": "table", "column_settings": [{"align": "left", "is_wrapped": false}, {"align": "right", "is_wrapped": false}, \
+        {"align": "right", "is_wrapped": false}, {"align": "right", "is_wrapped": false}], "rows": [
+        [{"type": "raw_text", "text": "Benchmark (%s)"}, {"type": "raw_text", "text": "\u03945d"}, \
+        {"type": "raw_text", "text": "\u039442"}, {"type": "raw_text", "text": "\u03c35d"}],
+        [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": \
+        [{"type": "text", "text": "S Sort- \\"Quoted\\" a|b *c* d_e", "style": {"code": true}}]}]}, \
+        {"type": "raw_text", "text": "-1.0%%"}, {"type": "raw_text", "text": "-2.0%%"}, {"type": "raw_text", "text": "0.5%%"}]]}""";
         assertEquals("{\"channel\": \"\", \"unfurl_links\": false, \"unfurl_media\": false, "
-                + "\"text\": \"Nightly Benchmark Changes\", \"blocks\": [{\"type\": \"markdown\", \"text\": "
-                + "\"Nightly Benchmark Changes [(Benchmark Tables)](https://controller.try-dh.demo.community.deephaven.io/get_ide)\\n"
-                + "\\n| Benchmark (Worst Scores by Scr) | Scr |" + row + "\\n"
-                + "\\n| Benchmark (Best Scores by Scr) | Scr |" + row + "\\n\"}]}", p.getSlackPayload(outDir));
+                + "\"text\": \"Nightly Benchmark Changes\", \"blocks\": [{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", "
+                + "\"text\": \"Nightly Benchmark Changes <https://controller.try-dh.demo.community.deephaven.io/get_ide|(Benchmark Tables)>\"}},\n"
+                + table.formatted("Worst Scores by Scr") + ",\n" + table.formatted("Best Scores by Scr") + "]}",
+                p.getSlackPayload(outDir));
+    }
+
+    private String cells(boolean codeFirst, String... values) {
+        var cells = new ArrayList<String>();
+        for (int i = 0; i < values.length; i++) {
+            cells.add((codeFirst && i == 0)
+                    ? "{\"type\": \"rich_text\", \"elements\": [{\"type\": \"rich_text_section\", \"elements\": "
+                            + "[{\"type\": \"text\", \"text\": \"" + values[i] + "\", \"style\": {\"code\": true}}]}]}"
+                    : "{\"type\": \"raw_text\", \"text\": \"" + values[i] + "\"}");
+        }
+        return "[" + String.join(", ", cells) + "]";
     }
 
 }

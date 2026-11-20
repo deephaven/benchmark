@@ -11,30 +11,33 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import io.deephaven.benchmark.api.Bench;
 import io.deephaven.benchmark.connect.ResultTable;
 import io.deephaven.benchmark.util.Filer;
 
 /**
- * Generate benchmark tables for posting to Slack. Produces tables in Markdown and SVG form. These tables are different from
+ * Generate benchmark tables for posting to Slack. Produces tables in Slack table block (JSON) and SVG form. These tables are different from
  * other auto-generated tables in that they pull data exclusively from GCloud.
  */
 public class PublishNotification {
     static final String rowIndent = " ".repeat(10);
     final String[] tables = {"nightly_worst_score", "nightly_best_score"};
     final String[] titles = {"Worst Scores by Scr", "Best Scores by Scr"};
+    static final Map<String, String> headerSymbols = Map.of("Dif5d", "\u03945d", "DifRls", "\u0394Rls", "Var5d", "\u03c35d");
     final URL queryFile;
     final URL svgTemplate;
     final Path outputDir;
     private String slackToken = "";
     private String slackChannel = "";
+    String releaseVersion = "";
 
     /**
-     * Create an instance to generate Markdown and SVG tables
+     * Create an instance to generate Slack table block and SVG tables
      * 
      * @param queryFile the query to run on Deephaven
      * @param svgTemplate the SVG template to apply table results to
-     * @param outputDir the output directory to place the SVG and Markdown files
+     * @param outputDir the output directory to place the SVG and Slack table block files
      */
     public PublishNotification(URL queryFile, URL svgTemplate, Path outputDir) {
         this.queryFile = queryFile;
@@ -59,13 +62,17 @@ public class PublishNotification {
             }
             System.out.println("-- Running notification queries --");
             var aquery = api.query(query);
+            aquery.fetchAfter("nightly_release", table -> {
+                if (table.getRowCount() > 0)
+                    releaseVersion = table.getValue(0, "Release").toString();
+            });
             aquery.fetchAfter("platform_details", table -> {
                 svgTemp[0] = updatePlatformDetails(table, svgTemp[0]);
             });
             for (int i = 0; i < tables.length; i++) {
                 String tableName = tables[i], title = titles[i];
                 aquery.fetchAfter(tableName + "_small", table -> {
-                    generateMarkdown(table, title, outputDir, tableName + ".md");
+                    generateTableBlock(table, title, outputDir, tableName + ".json");
                 });
                 aquery.fetchAfter(tableName + "_large", table -> {
                     generateSvg(table, svgTemp[0], outputDir, tableName + ".svg");
@@ -103,38 +110,51 @@ public class PublishNotification {
     }
 
     String getSlackPayload(Path outDir) {
-        var message = "Nightly Benchmark Changes " +
-                "[(Benchmark Tables)](https://controller.try-dh.demo.community.deephaven.io/get_ide)\n";
+        var blocks = "{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": \"Nightly Benchmark Changes " +
+                "<https://controller.try-dh.demo.community.deephaven.io/get_ide|(Benchmark Tables)>\"}}";
 
         for (String table : tables) {
-            message += "\n" + Filer.getFileText(outDir.resolve(table + ".md")) + "\n";
+            blocks += ",\n" + Filer.getFileText(outDir.resolve(table + ".json"));
         }
 
         var payload = """
         {"channel": "${channel}", "unfurl_links": false, "unfurl_media": false, \
-        "text": "Nightly Benchmark Changes", "blocks": [{"type": "markdown", "text": "${msg}"}]}""";
+        "text": "Nightly Benchmark Changes", "blocks": [${blocks}]}""";
         payload = payload.replace("${channel}", toJsonString(slackChannel));
-        return payload.replace("${msg}", toJsonString(message));
+        return payload.replace("${blocks}", blocks);
     }
 
-    void generateMarkdown(ResultTable table, String title, Path outDir, String fileName) {
+    void generateTableBlock(ResultTable table, String title, Path outDir, String fileName) {
         var columnNames = table.getColumnNames();
-        var headers = new ArrayList<Object>(columnNames);
+        var headers = new ArrayList<Object>(columnNames.stream().map(this::getHeaderName).toList());
         headers.set(0, headers.get(0) + " (" + title + ")");
-        var md = new StringBuilder(getMarkdownRow(headers));
-        md.append("\n|").append(":---|").append("---:|".repeat(columnNames.size() - 1));
+        var rows = new ArrayList<String>();
+        rows.add(getTableRow(headers, false));
         for (int i = 0, n = table.getRowCount(); i < n; i++) {
-            md.append('\n').append(getMarkdownRow(table.getRow(i, columnNames)));
+            rows.add(getTableRow(table.getRow(i, columnNames), true));
         }
-        Filer.putFileText(outDir.resolve(fileName), md.toString());
+        var settings = "{\"align\": \"left\", \"is_wrapped\": false}"
+                + ", {\"align\": \"right\", \"is_wrapped\": false}".repeat(columnNames.size() - 1);
+        Filer.putFileText(outDir.resolve(fileName), "{\"type\": \"table\", \"column_settings\": [" + settings
+                + "], \"rows\": [\n" + String.join(",\n", rows) + "]}");
     }
 
-    private String getMarkdownRow(List<?> values) {
-        var str = "|";
-        for (Object value : values) {
-            str += ' ' + String.valueOf(value).replaceAll("([\\\\|*_`~])", "\\\\$1") + " |";
+    private String getHeaderName(String columnName) {
+        if (columnName.equals("DifRls") && !releaseVersion.isBlank())
+            return "\u0394" + releaseVersion;
+        return headerSymbols.getOrDefault(columnName, columnName);
+    }
+
+    private String getTableRow(List<?> values, boolean codeFirst) {
+        var cells = new ArrayList<String>(values.size());
+        for (int i = 0, n = values.size(); i < n; i++) {
+            var text = toJsonString(String.valueOf(values.get(i)));
+            cells.add((codeFirst && i == 0)
+                    ? "{\"type\": \"rich_text\", \"elements\": [{\"type\": \"rich_text_section\", \"elements\": "
+                            + "[{\"type\": \"text\", \"text\": \"" + text + "\", \"style\": {\"code\": true}}]}]}"
+                    : "{\"type\": \"raw_text\", \"text\": \"" + text + "\"}");
         }
-        return str;
+        return "[" + String.join(", ", cells) + "]";
     }
 
     static String toJsonString(String text) {
