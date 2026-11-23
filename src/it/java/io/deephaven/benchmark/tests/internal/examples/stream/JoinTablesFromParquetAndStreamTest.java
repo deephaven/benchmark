@@ -96,7 +96,7 @@ public class JoinTablesFromParquetAndStreamTest {
      */
     @Test
     public void joinTwoTablesFromParquetFileIncRelease() {
-        api.setName("Join Two Tables Using Incremental Release of Parquet Rows");
+        api.setName("Join Two Tables Using Ticking Parquet Rows");
 
         var query = """
         from deephaven import agg

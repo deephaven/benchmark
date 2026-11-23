@@ -204,10 +204,36 @@ jobs:
         process_gcloudignore: false
         gzip: false
 
+    # Benchmark CSVs never change once uploaded, so keep the publish download cache between runs
+    - name: Restore Publish Download Cache
+      if: ${{ env.RUN_TYPE != 'adhoc' }}
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: data/deephaven-benchmark
+        key: publish-csv-${{ runner.os }}-v1-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: publish-csv-${{ runner.os }}-v1-
+
     - name: Publish Slack Notification Tables
       if: ${{ env.RUN_TYPE != 'adhoc' }}
       run: |
         ${SD}/run-publish-local.sh ${RUN_TYPE} "${{secrets.BENCHMARK_SLACK_CHANNEL}}" "${{secrets.BENCHMARK_SLACK_TOKEN}}" 
+
+    - name: Prune Publish Download Cache
+      if: ${{ !cancelled() && env.RUN_TYPE != 'adhoc' }}
+      env:
+        MAX_SETS: 200  # Keep in sync with benchmark_max_sets_arg in publish.py
+      run: |
+        for actor_dir in data/deephaven-benchmark/nightly/*/; do
+          [ -d "${actor_dir}" ] || continue
+          ls -1d "${actor_dir}"*/ | sort -r | tail -n +$((MAX_SETS + 1)) | xargs -r sudo rm -rf
+        done
+
+    - name: Save Publish Download Cache
+      if: ${{ !cancelled() && env.RUN_TYPE != 'adhoc' }}
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: data/deephaven-benchmark
+        key: publish-csv-${{ runner.os }}-v1-${{ github.run_id }}-${{ github.run_attempt }}
 
     - name: Sync GCloud with Demo NFS
       if: ${{ env.RUN_TYPE != 'adhoc' }}
