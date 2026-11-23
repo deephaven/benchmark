@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Provide help with validating names
  */
 public class Names {
-    static final int maxBenchmarkBaseLength = 58;
+    static final int maxBenchmarkBaseLength = 55;
     static final Pattern benchmarkNamePattern = Pattern.compile("[A-Za-z0-9][A-Za-z0-9()\\-]*( [A-Za-z0-9()\\-]+)*");
     static final Pattern benchmarkModeSuffix = Pattern.compile(" -(Static|Inc)$");
 
@@ -21,7 +21,7 @@ public class Names {
      * <li>Characters: letters, digits, space, hyphen, parentheses</li>
      * <li>Starts with a letter or digit</li>
      * <li>Single spaces only, and no leading or trailing space</li>
-     * <li>Base name (without the " -Static" or " -Inc" suffix) of at most 58 characters, which matches the Slack
+     * <li>Base name (without the " -Static" or " -Inc" suffix) of at most 55 characters, which matches the Slack
      * notification table truncation in <code>publish.py</code></li>
      * </ul>
      * 
