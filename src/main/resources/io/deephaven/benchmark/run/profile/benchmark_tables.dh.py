@@ -58,7 +58,7 @@ def get_run_paths(storage_uri, category, actor_filter, set_filter, max_sets):
                     benchmark_sets.append(actor + '/' + set_label)
     benchmark_sets.sort(reverse=True)
     benchmark_sets = benchmark_sets[:max_sets]
-    with ThreadPoolExecutor(download_threads) as pool:
+    with ThreadPoolExecutor(max_workers=download_threads) as pool:
         set_children = list(pool.map(lambda s: get_children(storage_uri, category + '/' + s, 1000), benchmark_sets))
     benchmark_runs = []
     for set_path, run_ids in zip(benchmark_sets, set_children):
@@ -133,7 +133,7 @@ def dh_read_csv(uri, convert_func):
 def merge_run_tables(parent_uri, run_ids, category, csv_file_name, convert_func):
     table_uris = [parent_uri + '/' + category + '/' + run_id + '/' + csv_file_name for run_id in run_ids]
     if parent_uri.startswith('http'):
-        with ThreadPoolExecutor(download_threads) as pool:
+        with ThreadPoolExecutor(max_workers=download_threads) as pool:
             list(pool.map(cache_remote_csv, table_uris))
     tables = []
     for run_id, table_uri in zip(run_ids, table_uris):
@@ -249,6 +249,10 @@ def gain(start, end) -> float:
 
 def format_rates(rates):
     return ' '.join("{:,}".format(r) for r in rates)
+
+def truncate(text, size):
+    if len(text) < size - 3: return text
+    return text[:size-3] + '...'
 
 def mid_item(arr):
     n = len(arr)
