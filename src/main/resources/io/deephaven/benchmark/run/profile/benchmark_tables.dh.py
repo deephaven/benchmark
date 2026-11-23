@@ -251,8 +251,7 @@ def format_rates(rates):
     return ' '.join("{:,}".format(r) for r in rates)
 
 def truncate(text, size):
-    if len(text) < size - 3: return text
-    return text[:size-3] + '...'
+    return text[:size]
 
 def mid_item(arr):
     n = len(arr)
