@@ -12,7 +12,7 @@ from deephaven import agg
 prefix = "gc_"
 
 root = 'file:///nfs' if os.path.exists('/nfs/deephaven-benchmark') else 'https://storage.googleapis.com'
-with urlopen(f'{root}/deephaven-benchmark/benchmark_functions2.dh.py') as r:
+with urlopen(f'{root}/deephaven-benchmark/benchmark_functions.dh.py') as r:
     exec(r.read().decode(), globals(), locals())
     storage_uri = f'{root}/deephaven-benchmark'
 
