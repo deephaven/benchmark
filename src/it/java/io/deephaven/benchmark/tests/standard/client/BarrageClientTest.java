@@ -12,6 +12,7 @@ public class BarrageClientTest {
 
     @BeforeEach
     void setup() {
+        runner.setMaxRowFactor(1);
         runner.tables("source");
         var q = """	
         from deephaven.barrage import barrage_session

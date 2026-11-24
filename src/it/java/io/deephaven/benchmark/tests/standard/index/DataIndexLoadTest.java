@@ -12,11 +12,10 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class DataIndexLoadTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int rowFactor, int staticFactor, int incFactor) {
-        runner.setRowFactor(rowFactor);
+    @BeforeEach
+    void setup() {
+        runner.setMaxRowFactor(1);
         runner.tables("source");
-        runner.setScaleFactors(staticFactor, incFactor);
-
         var setup = """
         from deephaven.experimental.data_index import data_index
         QueryTable = jpy.get_type('io.deephaven.engine.table.impl.QueryTable')
@@ -28,7 +27,7 @@ public class DataIndexLoadTest {
     @Test
     @Order(1)
     void dataIndexLoadStatic() {
-        setup(1, 3, 0);
+        runner.setScaleFactors(3, 0);
 
         var op = """
         source_idx = data_index(source, ['key1','key2','key4'])
@@ -41,7 +40,7 @@ public class DataIndexLoadTest {
     @Test
     @Order(2)
     void dataIndexLoadInc() {
-        setup(1, 0, 2);
+        runner.setScaleFactors(0, 2);
 
         var setup = """
         source_idx = data_index(source, ['key1','key2','key4'])

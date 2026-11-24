@@ -12,7 +12,7 @@ public class WeightedComboTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(5);
+        runner.setMaxRowFactor(5);
         runner.tables("source");
 
         var setupStr = """
@@ -27,14 +27,14 @@ public class WeightedComboTest {
 
     @Test
     void weightedAggBy4Ops0Groups() {
-        runner.setScaleFactors(18, 15);
+        runner.setScaleFactors(97, 91);
         var q = "source.agg_by(aggs)";
         runner.test("WeightedCombo-AggBy- 4 Ops No Groups", 1, q, "key3", "key4", "num1", "num2");
     }
 
     @Test
     void weightedAggBy4Ops1Group() {
-        runner.setScaleFactors(6, 5);
+        runner.setScaleFactors(34, 31);
         var q = "source.agg_by(aggs, by=['key1'])";
         runner.test("WeightedCombo-AggBy- 4 Ops 1 Group 100 Unique Vals", 100, q, "key1", "key3", "key4", "num1",
                 "num2");
@@ -42,7 +42,7 @@ public class WeightedComboTest {
 
     @Test
     void weightedAggBy4Ops2Groups() {
-        runner.setScaleFactors(2, 1);
+        runner.setScaleFactors(9.8, 7);
         var q = "source.agg_by(aggs, by=['key1', 'key2'])";
         runner.test("WeightedCombo-AggBy- 4 Ops 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
@@ -50,6 +50,7 @@ public class WeightedComboTest {
 
     @Test
     void weightedAggBy4Ops3Groups() {
+        runner.setScaleFactors(5.8, 3.8);
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key3'])";
         runner.test("WeightedCombo-AggBy- 4 Ops 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");
@@ -57,6 +58,7 @@ public class WeightedComboTest {
 
     @Test
     void weightedAggBy4Ops3GroupsLarge() {
+        runner.setScaleFactors(2.1, 1.2);
         var q = "source.agg_by(aggs, by=['key1', 'key2', 'key4'])";
         runner.test("WeightedCombo-AggBy- 4 Ops 3 Groups 1M Unique Combos", 999900, q, "key1", "key2", "key3", "key4",
                 "num1", "num2");

@@ -15,9 +15,14 @@ public class RollingAvgTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
 
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
+
     @Test
     void rollingAvgTime0Group3Ops() {
-        setup.factors(4, 2, 2);
+        runner.setScaleFactors(8, 5.2);
         setup.rollTime0Groups("rolling_avg_time");
         var q = "timed.update_by(ops=[contains_row])";
         runner.test("RollingAvgTime- No Groups 1 Col", q, "num1", "timestamp");
@@ -25,7 +30,7 @@ public class RollingAvgTimeTest {
 
     @Test
     void rollingAvgTime1Group3Ops() {
-        setup.factors(3, 3, 1);
+        runner.setScaleFactors(9, 3.2);
         setup.rollTime1Group("rolling_avg_time");
         var q = "timed.update_by(ops=[contains_row], by=['key1'])";
         runner.test("RollingAvgTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
@@ -33,7 +38,7 @@ public class RollingAvgTimeTest {
 
     @Test
     void rollingAvgTime2Groups3Ops() {
-        setup.factors(2, 2, 1);
+        runner.setScaleFactors(4, 1.8);
         setup.rollTime2Groups("rolling_avg_time");
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
         runner.test("RollingAvgTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
@@ -41,7 +46,7 @@ public class RollingAvgTimeTest {
 
     @Test
     void rollingAvgTime3Groups3Ops() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(2.5, 0.4);
         setup.rollTime3Groups("rolling_avg_time");
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2','key3'])";
         runner.test("RollingAvgTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",

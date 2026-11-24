@@ -14,6 +14,11 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class RollingCountWhereTickTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
+
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
     final String fifty = """ 
         from deephaven.updateby import rolling_count_where_tick
         contains_row = rolling_count_where_tick('X',filters=["num1 > 3"],rev_ticks=20,fwd_ticks=30)
@@ -22,7 +27,7 @@ public class RollingCountWhereTickTest {
 
     @Test
     void rollingCountWhereTick1Group3Ops() {
-        setup.factors(5, 4, 0);
+        runner.setScaleFactors(22, 0);
         runner.addSetupQuery(fifty);
         var q = "timed.update_by(ops=[contains_row], by=['key1'])";
         runner.test("RollingCountWhereTick- 1 Group 100 Unique Vals", q, "key1", "num1");
@@ -30,7 +35,7 @@ public class RollingCountWhereTickTest {
 
     @Test
     void rollingCountWhereTick2Groups3Ops() {
-        setup.factors(2, 3, 1);
+        runner.setScaleFactors(6.2, 2.3);
         runner.addSetupQuery(fifty);
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
         runner.test("RollingCountWhereTick- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");

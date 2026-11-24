@@ -11,15 +11,14 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class RowIteratorTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
 
-    void setup(int rowFactor) {
-        runner.setRowFactor(rowFactor);
+    @BeforeEach
+    void setup() {
         runner.tables("source");
-        runner.setScaleFactors(1, 0);
     }
 
     @Test
     void iterDict2Cols() {
-        setup(2);
+        runner.setScaleFactors(1.9, 0);
         var q = """
         new_table([
             double_col('total', [sum(row['num1'] + row['num2'] for row in source.iter_dict())])
@@ -30,7 +29,7 @@ public class RowIteratorTest {
 
     @Test
     void iterTuple2Cols() {
-        setup(4);
+        runner.setScaleFactors(2.7, 0);
         var q = """
         new_table([
             double_col('total', [sum(row.num1 + row.num2 for row in source.iter_tuple())])
@@ -38,5 +37,4 @@ public class RowIteratorTest {
         """;
         runner.test("Row-IterTuple- Sum 2 Double Cols", 1, q, "num1", "num2");
     }
-
 }

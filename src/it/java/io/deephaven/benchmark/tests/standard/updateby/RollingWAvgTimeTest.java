@@ -14,6 +14,11 @@ import io.deephaven.benchmark.tests.standard.StandardTestRunner;
 public class RollingWAvgTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
+
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
     final String thousands = """
         from deephaven.updateby import rolling_wavg_time
         contains_row = rolling_wavg_time("timestamp",'num2',cols=["X=num1"],rev_time="PT2S",fwd_time="PT3S")
@@ -33,7 +38,7 @@ public class RollingWAvgTimeTest {
 
     @Test
     void rollingWAvgTime0Group3Ops() {
-        setup.factors(4, 1, 1);
+        runner.setScaleFactors(4.1, 3.1);
         runner.addSetupQuery(thousands);
         var q = "timed.update_by(ops=[contains_row])";
         runner.test("RollingWAvgTime- No Groups 1 Col", q, "num1", "timestamp", "num2");
@@ -41,7 +46,7 @@ public class RollingWAvgTimeTest {
 
     @Test
     void rollingWAvgTime1Group3Ops() {
-        setup.factors(4, 2, 1);
+        runner.setScaleFactors(8.2, 3.4);
         runner.addSetupQuery(fifty1Group);
         var q = "timed.update_by(ops=[contains_row], by=['key1'])";
         runner.test("RollingWAvgTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp", "num2");
@@ -49,7 +54,7 @@ public class RollingWAvgTimeTest {
 
     @Test
     void rollingWAvgTime2Groups3Ops() {
-        setup.factors(2, 2, 1);
+        runner.setScaleFactors(3.9, 1.8);
         runner.addSetupQuery(fifty2Groups);
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2'])";
         runner.test("RollingWAvgTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "num2",
@@ -58,7 +63,7 @@ public class RollingWAvgTimeTest {
 
     @Test
     void rollingWAvgTime3Groups3Ops() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(2.4, 0.4);
         runner.addSetupQuery(fifty3Groups);
         var q = "timed.update_by(ops=[contains_row], by=['key1','key2','key3'])";
         runner.test("RollingWAvgTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1",

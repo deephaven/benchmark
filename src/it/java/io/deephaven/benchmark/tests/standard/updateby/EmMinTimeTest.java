@@ -15,10 +15,15 @@ public class EmMinTimeTest {
     final StandardTestRunner runner = new StandardTestRunner(this);
     final Setup setup = new Setup(runner);
 
+    @BeforeEach
+    void setup() {
+        runner.tables("timed");
+    }
+
     @Test
     @Tag("Iterate")
     void emMinTime0Group1Col() {
-        setup.factors(5, 10, 8);
+        runner.setScaleFactors(50, 40);
         setup.emTime0Groups("emmin_time");
         var q = "timed.update_by(ops=[dk])";
         runner.test("EmMinTime- No Groups 1 Col", q, "num1", "timestamp");
@@ -26,7 +31,7 @@ public class EmMinTimeTest {
 
     @Test
     void emMinTime1Group1Col() {
-        setup.factors(5, 5, 1);
+        runner.setScaleFactors(22, 5.2);
         setup.emTime1Group("emmin_time");
         var q = "timed.update_by(ops=[dk], by=['key1'])";
         runner.test("EmMinTime- 1 Group 100 Unique Vals", q, "key1", "num1", "timestamp");
@@ -34,7 +39,7 @@ public class EmMinTimeTest {
 
     @Test
     void emMinTime2Groups1Col() {
-        setup.factors(2, 3, 1);
+        runner.setScaleFactors(6.2, 2.4);
         setup.emTime2Groups("emmin_time");
         var q = "timed.update_by(ops=[dk], by=['key1','key2'])";
         runner.test("EmMinTime- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1", "timestamp");
@@ -42,7 +47,7 @@ public class EmMinTimeTest {
 
     @Test
     void emMinTime3Groups1Col() {
-        setup.factors(1, 3, 1);
+        runner.setScaleFactors(3.1, 0.75);
         setup.emTime3Groups("emmin_time");
         var q = "timed.update_by(ops=[dk], by=['key1','key2','key3'])";
         runner.test("EmMinTime- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1", "timestamp");

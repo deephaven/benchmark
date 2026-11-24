@@ -15,27 +15,27 @@ public class UngroupTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(4);
+        runner.setMaxRowFactor(4);
         runner.tables("source");
     }
     
     @Test
     void ungroup1Group() {
-        runner.setScaleFactors(12, 2);
+        runner.setScaleFactors(44, 8.2);
         var q = "source.group_by(by=['key1']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 1 Group 100 Unique Vals", q, "key1", "num1");
     }
 
     @Test
     void ungroup2Groups() {
-        runner.setScaleFactors(2, 2);
+        runner.setScaleFactors(7.6, 6.2);
         var q = "source.group_by(by=['key1','key2']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 2 Groups 10K Unique Combos", q, "key1", "key2", "num1");
     }
 
     @Test
     void ungroup3Groups() {
-        runner.setScaleFactors(1, 1);
+        runner.setScaleFactors(3.1, 2.2);
         var q = "source.group_by(by=['key1', 'key2', 'key3']).ungroup(cols=['num1'])";
         runner.test("Ungroup- 3 Groups 100K Unique Combos", q, "key1", "key2", "key3", "num1");
     }

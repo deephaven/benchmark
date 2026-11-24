@@ -12,26 +12,27 @@ public class GroupByTest {
 
     @BeforeEach
     void setup() {
-        runner.setRowFactor(4);
+        runner.setMaxRowFactor(4);
         runner.tables("source");
     }
 
     @Test
     void groupBy1Group() {
-        runner.setScaleFactors(10, 2);
+        runner.setScaleFactors(44, 8.4);
         var q = "source.group_by(by=['key1'])";
         runner.test("GroupBy- 1 Group 100 Unique Vals", 100, q, "key1", "num1");
     }
 
     @Test
     void groupBy2Groups() {
-        runner.setScaleFactors(2, 2);
+        runner.setScaleFactors(7.2, 7.4);
         var q = "source.group_by(by=['key1', 'key2'])";
         runner.test("GroupBy- 2 Groups 10K Unique Combos", 10100, q, "key1", "key2", "num1");
     }
 
     @Test
     void groupBy3Groups() {
+        runner.setScaleFactors(3.2, 2.5);
         var q = "source.group_by(by=['key1', 'key2', 'key3'])";
         runner.test("GroupBy- 3 Groups 100K Unique Combos", 90900, q, "key1", "key2", "key3", "num1");
     }
